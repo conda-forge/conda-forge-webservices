@@ -1,0 +1,9 @@
+name: _conda-forge-webservices
+
+channels:
+ - conda-forge
+
+dependencies:
+ - conda-smithy
+ - tornado
+ - pygithub
