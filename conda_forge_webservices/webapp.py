@@ -16,6 +16,9 @@ import shutil
 from contextlib import contextmanager
 
 
+import conda_forge_webservices.linting as linting
+
+
 class RegisterHandler(tornado.web.RequestHandler):
     def get(self):
         token = os.environ.get('GH_TOKEN')
@@ -50,23 +53,29 @@ class HookHandler(tornado.web.RequestHandler):
             repo_name = body['repository']['name']
             repo_url = body['repository']['clone_url']
             owner = body['repository']['owner']['login']
-            pr_id = body['pull_request']['number']
+            pr_id = int(body['pull_request']['number'])
             open = body['pull_request']['state'] == 'open'
 
             # Only do anything if we are working with conda-forge, and an open PR.
             if open and owner == 'conda-forge':
-                lint_message = compute_lint_message(owner, repo_name, pr_id)
-                comment_on_pr(owner, repo_name, pr_id, lint_message)
+                lint_message = linting.compute_lint_message(owner, repo_name, pr_id)
+                linting.comment_on_pr(owner, repo_name, pr_id, lint_message)
         else:
             print('Unhandled event "{}".'.format(event))
+            self.set_status(404)
             self.write_error(404)
 
 
-def main():
+def create_webapp():
     application = tornado.web.Application([
         # TODO: Make this linting specific.
         (r"/hook", HookHandler),
     ])
+    return application
+
+
+def main():
+    application = create_webapp()
     http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
     port = int(os.environ.get("PORT", 5000))
     http_server.listen(port)

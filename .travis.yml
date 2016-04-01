@@ -2,20 +2,26 @@ language: python
 
 sudo: false
 
+
 env:
-  - python=2.7
-  - python=3.5
+  matrix:
+    - python=3.5
+
+  globals:  
+    # Adds a GH_TOKEN (pelson) for testing
+    - secure: "tmWURWtLnFMLLmW5beLi7/6H/eEGuDWshFZZAeBY3M5ex6rRdzsXFi8oZDTmu8g1e3DqP/e+UFalp+jEGWHr+3PIaj2U8auxvmdXGYNe58MqyMf6i+VPlWa5HWbhj0y/3NJCgM3fNnYDMOFj3go3yEbL1gu8Ttsz7LoeKKO/3751V2H87qYaqAs3a98u9vVNFI6BEY5qvY8+v9A+JJXB3YmfxX5rVYIGAkjmKLy822gC5L6riDhgy1TOMUS1XT7cErtp5KC/vsiM5/pp3jzgDI2/+Iw1BtN/yNbL4/lyuvqCUjJlmzDRrQ5wnjy6e8AEQjT3VSjPVbSLc+N7shDy+Kxzf8RbZbIFRBuBrcJ2U1Vwl+w0zQY5UPLywe0n6QvoJKihMs5Ulp8ezsVBPRoOktoE1wERC2Bz8Kug2n+33qIQra4D/d8e6U0NSPdr/H/dXKlwdC8NEnp3a1QxPHu6KOWeI0+EaV8I5c9baNnBmLM8QoSDnYuxlKw80RsRot6R4GXasrAcIVDlY1yQ3+lLir4nmYBFdW7DxcS8QgyMkN7zhmTOkYeGbWGva742z5sbCvGzcX9FQLFjHEdQGfFVxpDMxDjOTX1rRcVwdKK3BtoevN5u6wyp5yOSLlTeTq5dkfe+/rLu6pSZPIvfyk8S1E3XMUt95XrdDIrm+xAeHn0="
+
 
 install:
-- export CONDA_BASE=http://repo.continuum.io/miniconda/Miniconda3
-- wget ${CONDA_BASE}-latest-Linux-x86_64.sh -O miniconda.sh;
-- bash miniconda.sh -b -p $HOME/miniconda
-- export PATH="$HOME/miniconda/bin:$PATH"
-- conda config --set show_channel_urls True
+ - export CONDA_BASE=http://repo.continuum.io/miniconda/Miniconda3
+ - wget ${CONDA_BASE}-latest-Linux-x86_64.sh -O miniconda.sh;
+ - bash miniconda.sh -b -p $HOME/miniconda
+ - export PATH="$HOME/miniconda/bin:$PATH"
+ - conda config --set show_channel_urls True
+ - conda install --yes --channel conda-forge python=${python} --file conda-requirements.txt
 
-- conda install --yes python=${python} --file conda-requirements.txt
+ - python setup.py install
 
-- python setup.py install
 
 script:
-- nosetests conda_forge_webservices -v
+ - nosetests conda_forge_webservices -v

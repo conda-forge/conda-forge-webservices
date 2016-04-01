@@ -1,3 +1,4 @@
 conda-smithy
 tornado
 pygithub
+nose
