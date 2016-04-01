@@ -10,7 +10,7 @@ appropriate conda-forge permissions. It has been configured with:
 
     heroku config:set GH_TOKEN=<token>
 
-The service deploys to the "conda-linter" heroku project: https://dashboard.heroku.com/apps/conda-linter/resources
+The service deploys to the "conda-forge" heroku project: https://dashboard.heroku.com/apps/conda-forge/resources
 
 It is then a case of adding the appropriate webhook to trigger the service on ``pull_request``.
 
