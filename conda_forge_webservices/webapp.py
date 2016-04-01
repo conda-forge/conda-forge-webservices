@@ -68,8 +68,7 @@ class HookHandler(tornado.web.RequestHandler):
 
 def create_webapp():
     application = tornado.web.Application([
-        # TODO: Make this linting specific.
-        (r"/hook", HookHandler),
+        (r"/conda-linting/hook", HookHandler),
     ])
     return application
 
