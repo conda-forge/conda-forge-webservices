@@ -27,7 +27,7 @@ class Test_compute_lint_message(unittest.TestCase):
 
         """)
 
-        msg = compute_lint_message('conda-forge', 'conda-forge-linting-service', 4)
+        msg = compute_lint_message('conda-forge', 'conda-forge-webservices', 4)
         self.assertMultiLineEqual(expected_message, msg)
 
     def test_bad_recipe(self):
@@ -48,7 +48,7 @@ class Test_compute_lint_message(unittest.TestCase):
          * The recipe must have some tests.
         """)
 
-        msg = compute_lint_message('conda-forge', 'conda-forge-linting-service', 5)
+        msg = compute_lint_message('conda-forge', 'conda-forge-webservices', 5)
         self.assertMultiLineEqual(expected_message, msg)
 
     def test_no_recipe(self):
@@ -59,7 +59,7 @@ class Test_compute_lint_message(unittest.TestCase):
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
         """)
 
-        msg = compute_lint_message('conda-forge', 'conda-forge-linting-service', 6)
+        msg = compute_lint_message('conda-forge', 'conda-forge-webservices', 6)
         self.assertMultiLineEqual(expected_message, msg)
 
 

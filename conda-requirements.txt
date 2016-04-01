@@ -1,3 +1,5 @@
 conda-smithy
 tornado
 pygithub
+nose
+mock
