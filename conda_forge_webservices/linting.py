@@ -105,7 +105,7 @@ def comment_on_pr(owner, repo_name, pr_id, message):
 
     my_last_comment = None
     if my_login in comment_owners:
-        my_last_comment = [comment for coment in comments
+        my_last_comment = [comment for comment in comments
                            if comment.user.login == my_login][-1]
 
     # Only comment if we haven't before, or if the message we have is different.
