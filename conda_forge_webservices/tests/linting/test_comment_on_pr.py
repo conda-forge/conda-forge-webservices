@@ -15,11 +15,11 @@ class Test_comment_on_pr(unittest.TestCase):
                            "was the same as before. ```{}```"
                            "".format(random.randint(100000, 200000)))
         for _ in range(2):
-            msg = comment_on_pr('conda-forge', 'conda-forge-linting-service', 6,
+            msg = comment_on_pr('conda-forge', 'conda-forge-webservices', 6,
                                 message_to_post)
   
         gh = github.Github(os.environ['GH_TOKEN'])
-        linting_repo = gh.get_user('conda-forge').get_repo('conda-forge-linting-service')
+        linting_repo = gh.get_user('conda-forge').get_repo('conda-forge-webservices')
         pr = linting_repo.get_issue(6)
         comments = list(pr.get_comments())
 
