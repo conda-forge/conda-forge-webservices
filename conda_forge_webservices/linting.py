@@ -38,6 +38,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
         repo.refs['pr/{}'.format(pr_id)].checkout()
+        sha = repo.head.object.hexsha
         recipes = [y for x in os.walk(tmp_dir)
                    for y in glob(os.path.join(x[0], 'meta.yaml'))]
         all_pass = True
@@ -74,6 +75,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     {{}}
     """.format(recipe_code_blocks)).format('\n'.join(messages))
 
+    commit = repository.get_commit(sha)
     if not recipe_dirs:
         message = textwrap.dedent("""
             Hi! This is the friendly conda-forge-admin automated user.
@@ -83,8 +85,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
             """)
     elif all_pass:
         message = good
+        commit.create_status("success", description="All recipes are excellent.", context="conda-linter-bot")
     else:
         message = bad
+        commit.create_status("failure", description="Some recipes need some changes.", context="conda-linter-bot")
 
     return message
 
