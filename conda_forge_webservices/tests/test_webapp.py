@@ -19,7 +19,7 @@ class TestHandlerBase(AsyncHTTPTestCase):
 
 class TestBucketHandler(TestHandlerBase):
     def test_bad_header(self):
-        response = self.fetch('/hook', method='POST',
+        response = self.fetch('/conda-linting/hook', method='POST',
                               body=urlencode({'a': 1}))
         self.assertEqual(response.code, 404)
 
@@ -32,7 +32,7 @@ class TestBucketHandler(TestHandlerBase):
                 'pull_request': {'number': '3',
                                  'state': 'open'}}
 
-        response = self.fetch('/hook', method='POST',
+        response = self.fetch('/conda-linting/hook', method='POST',
                               body=json.dumps(body),
                               headers={'X-GitHub-Event': 'pull_request'})
 
