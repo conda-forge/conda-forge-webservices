@@ -44,6 +44,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         messages = []
         recipe_dirs = [os.path.dirname(recipe) for recipe in recipes
                        if os.path.basename(os.path.dirname(recipe)) != 'example']
+
+        # Sort the recipes for consistent linting order (which glob doesn't give us).
+        recipe_dirs = sorted(recipe_dirs)
+
         rel_recipe_dirs = []
         for recipe_dir in recipe_dirs:
             rel_path = os.path.relpath(recipe_dir, tmp_dir)
