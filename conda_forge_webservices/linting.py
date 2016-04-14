@@ -30,6 +30,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
         repo.refs['pr/{}'.format(pr_id)].checkout()
+        sha = str(repo.head.object.hexsha)
         recipes = [y for x in os.walk(tmp_dir)
                    for y in glob(os.path.join(x[0], 'meta.yaml'))]
         all_pass = True
@@ -87,7 +88,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
 
     lint_info = {'message': message,
                  'status': status,
-                 'sha': str(repo.head.object.hexsha)}
+                 'sha': sha}
 
     return lint_info
 
