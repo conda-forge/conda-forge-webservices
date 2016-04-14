@@ -1,22 +1,14 @@
-# TODO: Add an interface to do this from the CLI:
-# conda-linting-service conda-forge/staged-recipes 123
-
+from contextlib import contextmanager
+from glob import glob
 import os
-import tornado.escape
-import tornado.httpserver
-import tornado.ioloop
-import tornado.web
+import shutil
+import tempfile
+import textwrap
 
 import requests
-import os
-from glob import glob
-import tempfile
 from git import Repo
-import textwrap
 import github
 import conda_smithy.lint_recipe
-import shutil
-from contextlib import contextmanager
 
 
 @contextmanager
@@ -140,7 +132,7 @@ def main():
     lint_info = compute_lint_message(owner, repo_name, args.pr)
 
     if args.enable_commenting:
-        comment_on_pr(owner, repo_name, args.pr, lint_info['lint_message'])
+        comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
 
         gh = github.Github(os.environ['GH_TOKEN'])
 
@@ -155,7 +147,7 @@ def main():
                                  context="conda-linter-bot")
 
     else:
-        print('Comments not published, but the following would have been the message:\n{}'.format(lint_info['lint_message']))
+        print('Comments not published, but the following would have been the message:\n{}'.format(lint_info['message']))
 
 
 if __name__ == '__main__':
