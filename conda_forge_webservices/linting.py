@@ -1,22 +1,14 @@
-# TODO: Add an interface to do this from the CLI:
-# conda-linting-service conda-forge/staged-recipes 123
-
+from contextlib import contextmanager
+from glob import glob
 import os
-import tornado.escape
-import tornado.httpserver
-import tornado.ioloop
-import tornado.web
+import shutil
+import tempfile
+import textwrap
 
 import requests
-import os
-from glob import glob
-import tempfile
 from git import Repo
-import textwrap
 import github
 import conda_smithy.lint_recipe
-import shutil
-from contextlib import contextmanager
 
 
 @contextmanager
@@ -38,6 +30,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
         repo.refs['pr/{}'.format(pr_id)].checkout()
+        sha = str(repo.head.object.hexsha)
         recipes = [y for x in os.walk(tmp_dir)
                    for y in glob(os.path.join(x[0], 'meta.yaml'))]
         all_pass = True
@@ -85,12 +78,19 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
             I was trying to look for recipes to lint for you, but couldn't find any.
             Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
             """)
+        status = 'no recipes'
     elif all_pass:
         message = good
+        status = 'good'
     else:
         message = bad
+        status = 'bad'
 
-    return message
+    lint_info = {'message': message,
+                 'status': status,
+                 'sha': sha}
+
+    return lint_info
 
 
 def comment_on_pr(owner, repo_name, pr_id, message):
@@ -119,6 +119,20 @@ def comment_on_pr(owner, repo_name, pr_id, message):
     return my_last_comment
 
 
+def set_pr_status(owner, repo_name, lint_info):
+    gh = github.Github(os.environ['GH_TOKEN'])
+
+    user = gh.get_user(owner)
+    repo = user.get_repo(repo_name)
+    commit = repo.get_commit(lint_info['sha'])
+    if lint_info['status'] == 'good':
+        commit.create_status("success", description="All recipes are excellent.",
+                             context="conda-linter-bot")
+    else:
+        commit.create_status("failure", description="Some recipes need some changes.",
+                             context="conda-linter-bot")
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -130,12 +144,13 @@ def main():
     args = parser.parse_args()
     owner, repo_name = args.repo.split('/')
 
-    lint_message = compute_lint_message(owner, repo_name, args.pr)
+    lint_info = compute_lint_message(owner, repo_name, args.pr)
 
     if args.enable_commenting:
-        comment_on_pr(owner, repo_name, args.pr, lint_message)
+        comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
+        set_pr_status(owner, repo_name, lint_info)
     else:
-        print('Comments not published, but the following would have been the message:\n{}'.format(lint_message))
+        print('Comments not published, but the following would have been the message:\n{}'.format(lint_info['message']))
 
 
 if __name__ == '__main__':

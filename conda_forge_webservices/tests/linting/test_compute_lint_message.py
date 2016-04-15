@@ -23,23 +23,23 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly conda-forge-admin automated user.
         
-        I just wanted to let you know that I linted all conda-recipes in your PR (```good_recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```) and found it was in an excellent condition.
 
         """)
 
-        msg = compute_lint_message('conda-forge', 'conda-forge-webservices', 4)
-        self.assertMultiLineEqual(expected_message, msg)
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
+        self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_bad_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly conda-forge-admin automated user.
         
-        I wanted to let you know that I linted all conda-recipes in your PR (```bad_recipes/bad_recipe```, ```good_recipe```) and found some lint.
+        I wanted to let you know that I linted all conda-recipes in your PR (```recipes/bad_recipe```) and found some lint.
         
         Here's what I've got...
         
         
-        For **bad_recipes/bad_recipe**:
+        For **recipes/bad_recipe**:
         
          * The home item is expected in the about section.
          * The license item is expected in the about section.
@@ -48,8 +48,8 @@ class Test_compute_lint_message(unittest.TestCase):
          * The recipe must have some tests.
         """)
 
-        msg = compute_lint_message('conda-forge', 'conda-forge-webservices', 5)
-        self.assertMultiLineEqual(expected_message, msg)
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 17)
+        self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_no_recipe(self):
         expected_message = textwrap.dedent("""
@@ -59,8 +59,8 @@ class Test_compute_lint_message(unittest.TestCase):
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
         """)
 
-        msg = compute_lint_message('conda-forge', 'conda-forge-webservices', 6)
-        self.assertMultiLineEqual(expected_message, msg)
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 18)
+        self.assertMultiLineEqual(expected_message, lint['message'])
 
 
 if __name__ == '__main__':
