@@ -23,9 +23,10 @@ class TestBucketHandler(TestHandlerBase):
                               body=urlencode({'a': 1}))
         self.assertEqual(response.code, 404)
 
-    @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value=mock.sentinel.message)
+    @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr')
-    def test_good_header(self, comment_on_pr, compute_lint_message):
+    @mock.patch('conda_forge_webservices.linting.set_pr_status')
+    def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'repo_name',
                                'clone_url': 'repo_clone_url',
@@ -43,4 +44,7 @@ class TestBucketHandler(TestHandlerBase):
 
         comment_on_pr.assert_called_once_with('conda-forge', 'repo_name',
                                               PR_number, mock.sentinel.message)
+
+        set_pr_status.assert_called_once_with('conda-forge', 'repo_name',
+                                              {'message': mock.sentinel.message})
 

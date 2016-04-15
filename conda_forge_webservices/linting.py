@@ -119,6 +119,20 @@ def comment_on_pr(owner, repo_name, pr_id, message):
     return my_last_comment
 
 
+def set_pr_status(owner, repo_name, lint_info):
+    gh = github.Github(os.environ['GH_TOKEN'])
+
+    user = gh.get_user(owner)
+    repo = user.get_repo(repo_name)
+    commit = repo.get_commit(lint_info['sha'])
+    if lint_info['status'] == 'good':
+        commit.create_status("success", description="All recipes are excellent.",
+                             context="conda-linter-bot")
+    else:
+        commit.create_status("failure", description="Some recipes need some changes.",
+                             context="conda-linter-bot")
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -134,19 +148,7 @@ def main():
 
     if args.enable_commenting:
         comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
-
-        gh = github.Github(os.environ['GH_TOKEN'])
-
-        user = gh.get_user(owner)
-        repo = user.get_repo(repo_name)
-        commit = repo.get_commit(lint_info['sha'])
-        if lint_info['status'] == 'good':
-            commit.create_status("success", description="All recipes are excellent.",
-                                 context="conda-linter-bot")
-        else:
-            commit.create_status("failure", description="Some recipes need some changes.",
-                                 context="conda-linter-bot")
-
+        set_pr_status(owner, repo_name, lint_info)
     else:
         print('Comments not published, but the following would have been the message:\n{}'.format(lint_info['message']))
 
