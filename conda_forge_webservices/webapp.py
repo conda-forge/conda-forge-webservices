@@ -59,8 +59,8 @@ class HookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge, and an open PR.
             if open and owner == 'conda-forge':
                 lint_info = linting.compute_lint_message(owner, repo_name, pr_id)
-                linting.comment_on_pr(owner, repo_name, pr_id, lint_info['message'])
-                linting.set_pr_status(owner, repo_name, lint_info)
+                msg = linting.comment_on_pr(owner, repo_name, pr_id, lint_info['message'])
+                linting.set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
         else:
             print('Unhandled event "{}".'.format(event))
             self.set_status(404)
