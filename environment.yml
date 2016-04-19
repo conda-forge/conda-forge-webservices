@@ -4,6 +4,7 @@ channels:
  - conda-forge
 
 dependencies:
+ - python=2
  - conda-smithy
  - tornado
  - pygithub
