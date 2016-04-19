@@ -24,7 +24,7 @@ class TestBucketHandler(TestHandlerBase):
         self.assertEqual(response.code, 404)
 
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
-    @mock.patch('conda_forge_webservices.linting.comment_on_pr')
+    @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
     def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
@@ -46,5 +46,6 @@ class TestBucketHandler(TestHandlerBase):
                                               PR_number, mock.sentinel.message)
 
         set_pr_status.assert_called_once_with('conda-forge', 'repo_name',
-                                              {'message': mock.sentinel.message})
+                                              {'message': mock.sentinel.message},
+                                              target_url=mock.sentinel.html_url)
 

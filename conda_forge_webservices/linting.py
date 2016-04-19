@@ -119,7 +119,7 @@ def comment_on_pr(owner, repo_name, pr_id, message):
     return my_last_comment
 
 
-def set_pr_status(owner, repo_name, lint_info):
+def set_pr_status(owner, repo_name, lint_info, target_url=None):
     gh = github.Github(os.environ['GH_TOKEN'])
 
     user = gh.get_user(owner)
@@ -127,10 +127,10 @@ def set_pr_status(owner, repo_name, lint_info):
     commit = repo.get_commit(lint_info['sha'])
     if lint_info['status'] == 'good':
         commit.create_status("success", description="All recipes are excellent.",
-                             context="conda-linter-bot")
+                             context="conda-linter-bot", target_url=target_url)
     else:
         commit.create_status("failure", description="Some recipes need some changes.",
-                             context="conda-linter-bot")
+                             context="conda-linter-bot", target_url=target_url)
 
 
 def main():
@@ -147,8 +147,8 @@ def main():
     lint_info = compute_lint_message(owner, repo_name, args.pr)
 
     if args.enable_commenting:
-        comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
-        set_pr_status(owner, repo_name, lint_info)
+        msg = comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
+        set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
     else:
         print('Comments not published, but the following would have been the message:\n{}'.format(lint_info['message']))
 
