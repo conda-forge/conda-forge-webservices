@@ -2,6 +2,9 @@ package:
   name: good_recipe
   version: 1
 
+build:
+  number: 0
+
 test: {}
 
 about:
