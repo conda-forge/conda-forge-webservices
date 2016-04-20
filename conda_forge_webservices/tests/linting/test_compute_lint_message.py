@@ -21,7 +21,7 @@ def tmp_directory():
 class Test_compute_lint_message(unittest.TestCase):
     def test_good_recipe(self):
         expected_message = textwrap.dedent("""
-        Hi! This is the friendly conda-forge-admin automated user.
+        Hi! This is the friendly automated conda-forge-linting service.
         
         I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```) and found it was in an excellent condition.
 
@@ -32,7 +32,7 @@ class Test_compute_lint_message(unittest.TestCase):
 
     def test_bad_recipe(self):
         expected_message = textwrap.dedent("""
-        Hi! This is the friendly conda-forge-admin automated user.
+        Hi! This is the friendly automated conda-forge-linting service.
         
         I wanted to let you know that I linted all conda-recipes in your PR (```recipes/bad_recipe```) and found some lint.
         
@@ -53,7 +53,7 @@ class Test_compute_lint_message(unittest.TestCase):
 
     def test_no_recipe(self):
         expected_message = textwrap.dedent("""
-        Hi! This is the friendly conda-forge-admin automated user.
+        Hi! This is the friendly automated conda-forge-linting service.
 
         I was trying to look for recipes to lint for you, but couldn't find any.
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.

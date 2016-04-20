@@ -55,14 +55,14 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     recipe_code_blocks = ', '.join('```{}```'.format(r) for r in rel_recipe_dirs)
 
     good = textwrap.dedent("""
-    Hi! This is the friendly conda-forge-admin automated user.
+    Hi! This is the friendly automated conda-forge-linting service.
 
     I just wanted to let you know that I linted all conda-recipes in your PR ({}) and found it was in an excellent condition.
 
     """.format(recipe_code_blocks))
 
     bad = textwrap.dedent("""
-    Hi! This is the friendly conda-forge-admin automated user.
+    Hi! This is the friendly automated conda-forge-linting service.
 
     I wanted to let you know that I linted all conda-recipes in your PR ({}) and found some lint.
 
@@ -73,7 +73,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
 
     if not recipe_dirs:
         message = textwrap.dedent("""
-            Hi! This is the friendly conda-forge-admin automated user.
+            Hi! This is the friendly automated conda-forge-linting service.
             
             I was trying to look for recipes to lint for you, but couldn't find any.
             Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
@@ -95,17 +95,14 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
 
 def comment_on_pr(owner, repo_name, pr_id, message):
     gh = github.Github(os.environ['GH_TOKEN'])
+    my_login = gh.get_user().login
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
     issue = repo.get_issue(pr_id)
-    # TODO: Only message if the lint was different.
 
     comments = list(issue.get_comments())
-
     comment_owners = [comment.user.login for comment in comments]
-
-    my_login = gh.get_user().login
 
     my_last_comment = None
     if my_login in comment_owners:
@@ -127,10 +124,10 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
     commit = repo.get_commit(lint_info['sha'])
     if lint_info['status'] == 'good':
         commit.create_status("success", description="All recipes are excellent.",
-                             context="conda-linter-bot", target_url=target_url)
+                             context="conda-forge-linter", target_url=target_url)
     else:
         commit.create_status("failure", description="Some recipes need some changes.",
-                             context="conda-linter-bot", target_url=target_url)
+                             context="conda-forge-linter", target_url=target_url)
 
 
 def main():

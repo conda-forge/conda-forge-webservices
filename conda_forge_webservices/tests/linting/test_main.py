@@ -1,26 +1,23 @@
 from __future__ import print_function
 
+import os
 import subprocess
 import sys
 import unittest
 
-from conda_smithy.github import gh_token
-
 
 class TestCLI_recipe_lint(unittest.TestCase):
     def test_cli_success_bad(self):
-        env = {'GH_TOKEN': gh_token()}
         child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
                                   'conda-forge/conda-forge-webservices', '17', '--enable-commenting'],
-                                 stdout=subprocess.PIPE, env=env)
+                                 stdout=subprocess.PIPE, env=os.environ)
         out, _ = child.communicate()
         self.assertEqual(child.returncode, 0, out)
 
     def test_cli_success_good(self):
-        env = {'GH_TOKEN': gh_token()}
         child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
                                   'conda-forge/conda-forge-webservices', '16', '--enable-commenting'],
-                                 stdout=subprocess.PIPE, env=env)
+                                 stdout=subprocess.PIPE, env=os.environ)
         out, _ = child.communicate()
         self.assertEqual(child.returncode, 0, out)
 
