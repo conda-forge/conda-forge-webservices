@@ -45,7 +45,11 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         for recipe_dir in recipe_dirs:
             rel_path = os.path.relpath(recipe_dir, tmp_dir)
             rel_recipe_dirs.append(rel_path)
-            lints = conda_smithy.lint_recipe.main(recipe_dir)
+            try:
+                lints = conda_smithy.lint_recipe.main(recipe_dir)
+            except Exception as err:
+                print('ERROR:', err)
+                lints = ['Failed to even lint the recipe (might be a conda-smithy bug) :cry:']
             if lints:
                 all_pass = False
                 messages.append("\nFor **{}**:\n\n{}".format(rel_path,
