@@ -4,7 +4,7 @@ import subprocess
 
 def update(token=None):
     if token is None:
-        token = os.environ["GH_TOKEN"]
+        token = os.environ["STATUS_GH_TOKEN"]
 
     subprocess.check_call([
         "statuspage",
