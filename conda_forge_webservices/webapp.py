@@ -94,10 +94,7 @@ class StatusHookHandler(tornado.web.RequestHandler):
         elif event == 'issues':
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body['repository']['name']
-            repo_url = body['repository']['clone_url']
             owner = body['repository']['owner']['login']
-            issue_num = int(body['issue']['number'])
-            open = body['issue']['state'] == 'open'
 
             # Only do something if it is an issue on the status page
             if owner == 'conda-forge' and repo_name == 'status':
