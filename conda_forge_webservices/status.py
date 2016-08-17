@@ -25,7 +25,7 @@ def main():
         description="Updates the status page.",
     )
 
-    update(os.environ["GH_TOKEN"])
+    update(os.environ["STATUS_GH_TOKEN"])
 
 
 if __name__ == '__main__':
