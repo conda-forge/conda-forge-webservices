@@ -17,6 +17,7 @@ from contextlib import contextmanager
 
 
 import conda_forge_webservices.linting as linting
+import conda_forge_webservices.status as status
 
 
 class RegisterHandler(tornado.web.RequestHandler):
@@ -38,10 +39,26 @@ class RegisterHandler(tornado.web.RequestHandler):
               }
             }
 
-        r = requests.post(url, json=payload, headers=headers)
+        r1 = requests.post(url, json=payload, headers=headers)
+
+        url = 'https://api.github.com/repos/conda-forge/status/hooks'
+
+        payload = {
+              "name": "web",
+              "active": True,
+              "events": [
+                "issues"
+              ],
+              "config": {
+                "url": "http://conda-forge-status.herokuapp.com/hook",
+                "content_type": "json"
+              }
+            }
+
+        r2 = requests.post(url, json=payload, headers=headers)
 
 
-class HookHandler(tornado.web.RequestHandler):
+class LintingHookHandler(tornado.web.RequestHandler):
     def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
@@ -67,9 +84,31 @@ class HookHandler(tornado.web.RequestHandler):
             self.write_error(404)
 
 
+class StatusHookHandler(tornado.web.RequestHandler):
+    def post(self):
+        headers = self.request.headers
+        event = headers.get('X-GitHub-Event', None)
+
+        if event == 'ping':
+            self.write('pong')
+        elif event == 'issues':
+            body = tornado.escape.json_decode(self.request.body)
+            repo_name = body['repository']['name']
+            owner = body['repository']['owner']['login']
+
+            # Only do something if it is an issue on the status page
+            if owner == 'conda-forge' and repo_name == 'status':
+                status.update()
+        else:
+            print('Unhandled event "{}".'.format(event))
+            self.set_status(404)
+            self.write_error(404)
+
+
 def create_webapp():
     application = tornado.web.Application([
-        (r"/conda-linting/hook", HookHandler),
+        (r"/conda-linting/hook", LintingHookHandler),
+        (r"/conda-forge-status/hook", StatusHookHandler),
     ])
     return application
 
