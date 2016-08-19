@@ -91,12 +91,12 @@ class StatusHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
-        elif event == 'issues':
+        elif event == 'issues' or event == 'issue_comment' or event == 'push':
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
 
-            # Only do something if it is an issue on the status page
+            # Only do something if it involves the status page
             if owner == 'conda-forge' and repo_name == 'status':
                 status.update()
         else:
