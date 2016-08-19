@@ -93,11 +93,10 @@ class StatusHookHandler(tornado.web.RequestHandler):
             self.write('pong')
         elif event == 'issues' or event == 'issue_comment' or event == 'push':
             body = tornado.escape.json_decode(self.request.body)
-            repo_name = body['repository']['name']
-            owner = body['repository']['owner']['login']
+            repo_full_name = body['repository']['full_name']
 
             # Only do something if it involves the status page
-            if owner == 'conda-forge' and repo_name == 'status':
+            if repo_full_name == 'conda-forge/status':
                 status.update()
         else:
             print('Unhandled event "{}".'.format(event))
