@@ -44,7 +44,7 @@ class Test_compute_lint_message(unittest.TestCase):
          * The home item is expected in the about section.
          * The license item is expected in the about section.
          * The summary item is expected in the about section.
-         * The recipe could do with some maintainers listed in the "extra/recipe-maintainers" section.
+         * The recipe could do with some maintainers listed in the `extra/recipe-maintainers` section.
          * The recipe must have some tests.
          * The recipe must have a `build/number` section.
         """)
