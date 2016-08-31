@@ -18,7 +18,7 @@ def tmp_directory():
     shutil.rmtree(tmp_dir)
 
 
-def compute_lint_message(repo_owner, repo_name, pr_id):
+def compute_lint_message(repo_owner, repo_name, pr_id, clear_history=None):
     gh = github.Github(os.environ['GH_TOKEN'])
 
     owner = gh.get_user(repo_owner)
@@ -26,13 +26,15 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
 
     issue = repo.get_issue(pr_id)
 
+    if clear_history is True:
+        clear_history = 'master'
+
     with tmp_directory() as tmp_dir:
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
 
         # Find the lingering recipes.
-        staged_recipes = set()
-        if repo_owner == 'conda-forge' and repo_name == 'staged-recipes':
-            repo.refs['master'].checkout()
+        if clear_history:
+            repo.refs[clear_history].checkout()
             staged_recipes = set(map(lambda _: _.name, repo.tree()['recipes']))
 
         # Checkout the PR head and get the list of recipes.
@@ -46,10 +48,11 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
 
         # Exclude the recipes already merged in `master`.
         recipe_dirs = map(os.path.dirname, recipes)
-        recipe_dirs = dict(map(lambda _: (os.path.basename(_), _), recipe_dirs))
-        recipe_dirs = [
+        if clear_history:
+            recipe_dirs = dict(map(lambda _: (os.path.basename(_), _), recipe_dirs))
+            recipe_dirs = [
                 recipe_dirs[_] for _ in (set(recipe_dirs.keys()) - staged_recipes)
-        ]
+            ]
 
         # Sort the recipes for consistent linting order (which glob doesn't give us).
         recipe_dirs = sorted(recipe_dirs)
@@ -149,16 +152,24 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument('repo')
     parser.add_argument('pr', type=int)
     parser.add_argument('--enable-commenting', help='Turn on PR commenting',
                         action='store_true')
+    parser.add_argument('--clear-history', nargs='?', type=str, default=argparse.SUPPRESS,
+                        help='Whether to clear out old recipes and from what branch')
 
     args = parser.parse_args()
+
+    clear_history = None
+    if hasattr(args, "clear_history"):
+       clear_history = args.enable_commenting or True
+
     owner, repo_name = args.repo.split('/')
 
-    lint_info = compute_lint_message(owner, repo_name, args.pr)
+    lint_info = compute_lint_message(owner, repo_name, args.pr, clear_history)
 
     if args.enable_commenting:
         msg = comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
