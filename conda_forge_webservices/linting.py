@@ -29,6 +29,12 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     with tmp_directory() as tmp_dir:
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
 
+        # Find the lingering recipes.
+        staged_recipes = []
+        if repo_owner == 'conda-forge' and repo_name == 'staged-recipes':
+            repo.refs['master'].checkout()
+            staged_recipes = list(map(lambda _: _.name, repo.tree()['recipes']))
+
         # Checkout the PR head and get the list of recipes.
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
         repo.refs['pr/{}'.format(pr_id)].checkout()
@@ -38,9 +44,9 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         all_pass = True
         messages = []
 
-        # Exclude some things from our list of recipes.
+        # Exclude the recipes already merged in `master`.
         recipe_dirs = [os.path.dirname(recipe) for recipe in recipes
-                       if os.path.basename(os.path.dirname(recipe)) != 'example']
+                       if os.path.basename(os.path.dirname(recipe)) not in staged_recipes]
 
         # Sort the recipes for consistent linting order (which glob doesn't give us).
         recipe_dirs = sorted(recipe_dirs)
