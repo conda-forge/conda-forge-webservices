@@ -28,6 +28,8 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
 
     with tmp_directory() as tmp_dir:
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
+
+        # Checkout the PR head and get the list of recipes.
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
         repo.refs['pr/{}'.format(pr_id)].checkout()
         sha = str(repo.head.object.hexsha)
@@ -35,6 +37,8 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
                    for y in glob(os.path.join(x[0], 'meta.yaml'))]
         all_pass = True
         messages = []
+
+        # Exclude some things from our list of recipes.
         recipe_dirs = [os.path.dirname(recipe) for recipe in recipes
                        if os.path.basename(os.path.dirname(recipe)) != 'example']
 
