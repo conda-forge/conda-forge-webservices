@@ -17,6 +17,9 @@ def tmp_directory():
     yield tmp_dir
     shutil.rmtree(tmp_dir)
 
+def find_recipes(a_dir):
+    return [y for x in os.walk(a_dir)
+            for y in glob(os.path.join(x[0], 'meta.yaml'))]
 
 def compute_lint_message(repo_owner, repo_name, pr_id, clear_history=None):
     gh = github.Github(os.environ['GH_TOKEN'])
@@ -33,26 +36,22 @@ def compute_lint_message(repo_owner, repo_name, pr_id, clear_history=None):
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
 
         # Find the lingering recipes.
+        historic_recipes = []
         if clear_history:
             repo.refs[clear_history].checkout()
-            staged_recipes = set(map(lambda _: _.name, repo.tree()['recipes']))
+            historic_recipes = find_recipes(tmp_dir)
 
         # Checkout the PR head and get the list of recipes.
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
         repo.refs['pr/{}'.format(pr_id)].checkout()
         sha = str(repo.head.object.hexsha)
-        recipes = [y for x in os.walk(tmp_dir)
-                   for y in glob(os.path.join(x[0], 'meta.yaml'))]
+        recipes = find_recipes(tmp_dir)
         all_pass = True
         messages = []
 
         # Exclude the recipes already merged in `master`.
+        recipes = list(set(recipes) - set(historic_recipes))
         recipe_dirs = map(os.path.dirname, recipes)
-        if clear_history:
-            recipe_dirs = dict(map(lambda _: (os.path.basename(_), _), recipe_dirs))
-            recipe_dirs = [
-                recipe_dirs[_] for _ in (set(recipe_dirs.keys()) - staged_recipes)
-            ]
 
         # Sort the recipes for consistent linting order (which glob doesn't give us).
         recipe_dirs = sorted(recipe_dirs)
