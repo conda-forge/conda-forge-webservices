@@ -13,7 +13,7 @@ import conda_smithy.lint_recipe
 
 @contextmanager
 def tmp_directory():
-    tmp_dir = tempfile.mkdtemp('recipe_')
+    tmp_dir = tempfile.mkdtemp('_recipe')
     yield tmp_dir
     shutil.rmtree(tmp_dir)
 
