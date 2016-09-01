@@ -40,7 +40,7 @@ class TestBucketHandler(TestHandlerBase):
 
         self.assertEqual(response.code, 200)
         compute_lint_message.assert_called_once_with('conda-forge', 'repo_name',
-                                                     PR_number)
+                                                     PR_number, False)
 
         comment_on_pr.assert_called_once_with('conda-forge', 'repo_name',
                                               PR_number, mock.sentinel.message)
