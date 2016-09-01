@@ -17,6 +17,9 @@ def tmp_directory():
     yield tmp_dir
     shutil.rmtree(tmp_dir)
 
+def find_recipes(a_dir):
+    return [os.path.dirname(y) for x in os.walk(a_dir)
+            for y in glob(os.path.join(x[0], 'meta.yaml'))]
 
 def compute_lint_message(repo_owner, repo_name, pr_id):
     gh = github.Github(os.environ['GH_TOKEN'])
@@ -53,14 +56,13 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
             return lint_info
 
         # Get the list of recipes and prep for linting.
-        recipes = [y for x in os.walk(tmp_dir)
-                   for y in glob(os.path.join(x[0], 'meta.yaml'))]
+        recipes = find_recipes(tmp_dir)
         all_pass = True
         messages = []
 
         # Exclude some things from our list of recipes.
-        recipe_dirs = [os.path.dirname(recipe) for recipe in recipes
-                       if os.path.basename(os.path.dirname(recipe)) != 'example']
+        recipe_dirs = [recipe for recipe in recipes
+                       if os.path.basename(recipe) != 'example']
 
         # Sort the recipes for consistent linting order (which glob doesn't give us).
         recipe_dirs = sorted(recipe_dirs)
