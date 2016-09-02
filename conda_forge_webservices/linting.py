@@ -24,8 +24,6 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     owner = gh.get_user(repo_owner)
     repo = owner.get_repo(repo_name)
 
-    issue = repo.get_issue(pr_id)
-
     with tmp_directory() as tmp_dir:
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
 
