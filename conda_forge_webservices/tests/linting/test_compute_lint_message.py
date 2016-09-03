@@ -30,6 +30,32 @@ class Test_compute_lint_message(unittest.TestCase):
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
+    def test_conflict_ok_recipe(self):
+        expected_message = textwrap.dedent("""
+        Hi! This is the friendly automated conda-forge-linting service.
+        
+        I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
+        Please try to merge or rebase with the base branch to resolve this conflict.
+        
+        Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
+        """)
+
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 56)
+        self.assertMultiLineEqual(expected_message, lint['message'])
+
+    def test_conflict_2_ok_recipe(self):
+        expected_message = textwrap.dedent("""
+        Hi! This is the friendly automated conda-forge-linting service.
+        
+        I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
+        Please try to merge or rebase with the base branch to resolve this conflict.
+        
+        Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
+        """)
+
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 57)
+        self.assertMultiLineEqual(expected_message, lint['message'])
+
     def test_bad_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.

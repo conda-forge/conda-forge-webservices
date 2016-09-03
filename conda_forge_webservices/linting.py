@@ -24,17 +24,41 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     owner = gh.get_user(repo_owner)
     repo = owner.get_repo(repo_name)
 
-    issue = repo.get_issue(pr_id)
+    pull_request = repo.get_pull(pr_id)
 
     with tmp_directory() as tmp_dir:
         repo = Repo.clone_from(repo.clone_url, tmp_dir)
+
+        # Checkout the PR head.
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
         repo.refs['pr/{}'.format(pr_id)].checkout()
         sha = str(repo.head.object.hexsha)
+
+        # Raise an error if the PR is not mergeable.
+        if not pull_request.mergeable:
+            message = textwrap.dedent("""
+                Hi! This is the friendly automated conda-forge-linting service.
+                
+                I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
+                Please try to merge or rebase with the base branch to resolve this conflict.
+                
+                Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
+                """)
+            status = 'merge_conflict'
+
+            lint_info = {'message': message,
+                         'status': status,
+                         'sha': sha}
+
+            return lint_info
+
+        # Get the list of recipes and prep for linting.
         recipes = [y for x in os.walk(tmp_dir)
                    for y in glob(os.path.join(x[0], 'meta.yaml'))]
         all_pass = True
         messages = []
+
+        # Exclude some things from our list of recipes.
         recipe_dirs = [os.path.dirname(recipe) for recipe in recipes
                        if os.path.basename(os.path.dirname(recipe)) != 'example']
 
