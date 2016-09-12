@@ -19,6 +19,22 @@ def tmp_directory():
 
 
 class Test_compute_lint_message(unittest.TestCase):
+    def test_skip_ci_recipe(self):
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 58)
+        self.assertFalse(lint)
+
+    def test_skip_lint_recipe(self):
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 59)
+        self.assertFalse(lint)
+
+    def test_ci_skip_recipe(self):
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 65)
+        self.assertFalse(lint)
+
+    def test_lint_skip_recipe(self):
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 66)
+        self.assertFalse(lint)
+
     def test_good_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.

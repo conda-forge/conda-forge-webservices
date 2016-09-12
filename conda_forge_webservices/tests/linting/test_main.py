@@ -7,6 +7,34 @@ import unittest
 
 
 class TestCLI_recipe_lint(unittest.TestCase):
+    def test_cli_skip_ci(self):
+        child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
+                                  'conda-forge/conda-forge-webservices', '58', '--enable-commenting'],
+                                 stdout=subprocess.PIPE, env=os.environ)
+        out, _ = child.communicate()
+        self.assertEqual(child.returncode, 0, out)
+
+    def test_cli_skip_lint(self):
+        child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
+                                  'conda-forge/conda-forge-webservices', '59', '--enable-commenting'],
+                                 stdout=subprocess.PIPE, env=os.environ)
+        out, _ = child.communicate()
+        self.assertEqual(child.returncode, 0, out)
+
+    def test_cli_ci_skip(self):
+        child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
+                                  'conda-forge/conda-forge-webservices', '65', '--enable-commenting'],
+                                 stdout=subprocess.PIPE, env=os.environ)
+        out, _ = child.communicate()
+        self.assertEqual(child.returncode, 0, out)
+
+    def test_cli_lint_skip(self):
+        child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
+                                  'conda-forge/conda-forge-webservices', '66', '--enable-commenting'],
+                                 stdout=subprocess.PIPE, env=os.environ)
+        out, _ = child.communicate()
+        self.assertEqual(child.returncode, 0, out)
+
     def test_cli_success_bad(self):
         child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
                                   'conda-forge/conda-forge-webservices', '17', '--enable-commenting'],
