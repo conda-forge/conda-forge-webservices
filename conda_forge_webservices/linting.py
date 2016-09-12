@@ -7,7 +7,7 @@ import textwrap
 import time
 
 import requests
-from git import Repo
+from git import GitCommandError, Repo
 import github
 import conda_smithy.lint_recipe
 
@@ -40,12 +40,20 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         repo = Repo.clone_from(remote_repo.clone_url, tmp_dir)
 
         # Retrieve the PR refs.
-        repo.remotes.origin.fetch([
-            'pull/{pr}/head:pull/{pr}/head'.format(pr=pr_id),
-            'pull/{pr}/merge:pull/{pr}/merge'.format(pr=pr_id)
-        ])
-        ref_head = repo.refs['pull/{pr}/head'.format(pr=pr_id)]
-        ref_merge = repo.refs['pull/{pr}/merge'.format(pr=pr_id)]
+        try:
+            repo.remotes.origin.fetch([
+                'pull/{pr}/head:pull/{pr}/head'.format(pr=pr_id),
+                'pull/{pr}/merge:pull/{pr}/merge'.format(pr=pr_id)
+            ])
+            ref_head = repo.refs['pull/{pr}/head'.format(pr=pr_id)]
+            ref_merge = repo.refs['pull/{pr}/merge'.format(pr=pr_id)]
+        except GitCommandError:
+            # Either `merge` doesn't exist because the PR was opened
+            # in conflict or it is closed and it can't be the latter.
+            repo.remotes.origin.fetch([
+                'pull/{pr}/head:pull/{pr}/head'.format(pr=pr_id)
+            ])
+            ref_head = repo.refs['pull/{pr}/head'.format(pr=pr_id)]
         sha = str(ref_head.commit.hexsha)
 
         # Raise an error if the PR is not mergeable.
