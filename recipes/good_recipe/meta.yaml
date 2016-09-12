@@ -10,7 +10,7 @@ test: {}
 about:
   home: https://github.com/conda-forge/conda-forge-linting-service
   license: BSD 3-clause
-  summary: A test recipe for linting
+  summary: A test recipe not for linting
 
 extra:
   recipe-maintainers:
