@@ -151,13 +151,14 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
-    commit = repo.get_commit(lint_info['sha'])
-    if lint_info['status'] == 'good':
-        commit.create_status("success", description="All recipes are excellent.",
-                             context="conda-forge-linter", target_url=target_url)
-    else:
-        commit.create_status("failure", description="Some recipes need some changes.",
-                             context="conda-forge-linter", target_url=target_url)
+    if lint_info:
+        commit = repo.get_commit(lint_info['sha'])
+        if lint_info['status'] == 'good':
+            commit.create_status("success", description="All recipes are excellent.",
+                                 context="conda-forge-linter", target_url=target_url)
+        else:
+            commit.create_status("failure", description="Some recipes need some changes.",
+                                 context="conda-forge-linter", target_url=target_url)
 
 
 def main():
@@ -173,7 +174,9 @@ def main():
 
     lint_info = compute_lint_message(owner, repo_name, args.pr)
 
-    if args.enable_commenting:
+    if not lint_info:
+        print('Linting was skipped.')
+    elif args.enable_commenting:
         msg = comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
     else:

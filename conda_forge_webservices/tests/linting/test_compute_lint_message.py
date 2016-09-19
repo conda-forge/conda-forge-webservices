@@ -28,6 +28,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
+        self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_conflict_ok_recipe(self):
@@ -41,6 +42,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 56)
+        self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_conflict_2_ok_recipe(self):
@@ -54,6 +56,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 57)
+        self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_bad_recipe(self):
@@ -76,6 +79,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 17)
+        self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_no_recipe(self):
@@ -87,6 +91,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 18)
+        self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
 
