@@ -94,6 +94,11 @@ class Test_compute_lint_message(unittest.TestCase):
         self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
+    def test_closed_pr(self):
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 52)
+        self.assertFalse(lint)
+        self.assertEqual(lint, {})
+
 
 if __name__ == '__main__':
     unittest.main()
