@@ -4,6 +4,7 @@ import os
 import shutil
 import tempfile
 import textwrap
+import time
 
 import requests
 from git import Repo
@@ -27,9 +28,13 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     owner = gh.get_user(repo_owner)
     remote_repo = owner.get_repo(repo_name)
 
-    pull_request = remote_repo.get_pull(pr_id)
-    if pull_request.state != "open":
-        return {}
+    mergeable = None
+    while mergeable is None:
+        time.sleep(0.1)
+        pull_request = remote_repo.get_pull(pr_id)
+        if pull_request.state != "open":
+            return {}
+        mergeable = pull_request.mergeable
 
     with tmp_directory() as tmp_dir:
         repo = Repo.clone_from(remote_repo.clone_url, tmp_dir)
@@ -40,7 +45,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         sha = str(repo.head.object.hexsha)
 
         # Raise an error if the PR is not mergeable.
-        if not pull_request.mergeable:
+        if not mergeable:
             message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-linting service.
                 
