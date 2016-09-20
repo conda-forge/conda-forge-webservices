@@ -25,12 +25,14 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     gh = github.Github(os.environ['GH_TOKEN'])
 
     owner = gh.get_user(repo_owner)
-    repo = owner.get_repo(repo_name)
+    remote_repo = owner.get_repo(repo_name)
 
-    pull_request = repo.get_pull(pr_id)
+    pull_request = remote_repo.get_pull(pr_id)
+    if pull_request.state != "open":
+        return {}
 
     with tmp_directory() as tmp_dir:
-        repo = Repo.clone_from(repo.clone_url, tmp_dir)
+        repo = Repo.clone_from(remote_repo.clone_url, tmp_dir)
 
         # Checkout the PR head.
         repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
@@ -116,9 +118,13 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
         message = bad
         status = 'bad'
 
-    lint_info = {'message': message,
-                 'status': status,
-                 'sha': sha}
+    pull_request = remote_repo.get_pull(pr_id)
+    if pull_request.state == "open":
+        lint_info = {'message': message,
+                     'status': status,
+                     'sha': sha}
+    else:
+        lint_info = {}
 
     return lint_info
 
