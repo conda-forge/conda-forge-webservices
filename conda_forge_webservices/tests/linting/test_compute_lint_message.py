@@ -31,6 +31,28 @@ class Test_compute_lint_message(unittest.TestCase):
         self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
+    def test_ok_recipe_above_good_recipe(self):
+        expected_message = textwrap.dedent("""
+        Hi! This is the friendly automated conda-forge-linting service.
+        
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```, ```recipes/ok_recipe```) and found it was in an excellent condition.
+        
+        """)
+
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 54)
+        self.assertMultiLineEqual(expected_message, lint['message'])
+
+    def test_ok_recipe_beside_good_recipe(self):
+        expected_message = textwrap.dedent("""
+        Hi! This is the friendly automated conda-forge-linting service.
+        
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```, ```recipes/ok_recipe```) and found it was in an excellent condition.
+        
+        """)
+
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 62)
+        self.assertMultiLineEqual(expected_message, lint['message'])
+
     def test_conflict_ok_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.

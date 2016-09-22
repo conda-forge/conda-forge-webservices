@@ -7,7 +7,7 @@ import textwrap
 import time
 
 import requests
-from git import Repo
+from git import GitCommandError, Repo
 import github
 import conda_smithy.lint_recipe
 
@@ -39,10 +39,22 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
     with tmp_directory() as tmp_dir:
         repo = Repo.clone_from(remote_repo.clone_url, tmp_dir)
 
-        # Checkout the PR head.
-        repo.remotes.origin.fetch('pull/{pr}/head:pr/{pr}'.format(pr=pr_id))
-        repo.refs['pr/{}'.format(pr_id)].checkout()
-        sha = str(repo.head.object.hexsha)
+        # Retrieve the PR refs.
+        try:
+            repo.remotes.origin.fetch([
+                'pull/{pr}/head:pull/{pr}/head'.format(pr=pr_id),
+                'pull/{pr}/merge:pull/{pr}/merge'.format(pr=pr_id)
+            ])
+            ref_head = repo.refs['pull/{pr}/head'.format(pr=pr_id)]
+            ref_merge = repo.refs['pull/{pr}/merge'.format(pr=pr_id)]
+        except GitCommandError:
+            # Either `merge` doesn't exist because the PR was opened
+            # in conflict or it is closed and it can't be the latter.
+            repo.remotes.origin.fetch([
+                'pull/{pr}/head:pull/{pr}/head'.format(pr=pr_id)
+            ])
+            ref_head = repo.refs['pull/{pr}/head'.format(pr=pr_id)]
+        sha = str(ref_head.commit.hexsha)
 
         # Raise an error if the PR is not mergeable.
         if not mergeable:
@@ -63,6 +75,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id):
             return lint_info
 
         # Get the list of recipes and prep for linting.
+        ref_merge.checkout()
         recipes = find_recipes(tmp_dir)
         all_pass = True
         messages = []
