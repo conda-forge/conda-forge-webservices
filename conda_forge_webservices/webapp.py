@@ -117,7 +117,16 @@ def main():
     application = create_webapp()
     http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
     port = int(os.environ.get("PORT", 5000))
-    http_server.listen(port)
+
+    # https://devcenter.heroku.com/articles/optimizing-dyno-usage#python
+    n_processes = int(os.environ.get("WEB_CONCURRENCY", 1))
+
+    if n_processes != 1:
+        # http://www.tornadoweb.org/en/stable/guide/running.html#processes-and-ports
+        http_server.bind(port)
+        http_server.start(n_processes)
+    else:
+        http_server.listen(port)
     tornado.ioloop.IOLoop.instance().start()
 
 
