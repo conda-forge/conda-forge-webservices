@@ -56,6 +56,18 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             ref_head = repo.refs['pull/{pr}/head'.format(pr=pr_id)]
         sha = str(ref_head.commit.hexsha)
 
+        # Check if the linter is skipped via the commit message.
+        skip_msgs = [
+            "[ci skip]",
+            "[skip ci]",
+            "[lint skip]",
+            "[skip lint]",
+        ]
+        commit_msg = repo.commit(sha).message
+        should_skip = any([msg in commit_msg for msg in skip_msgs])
+        if should_skip:
+            return {}
+
         # Raise an error if the PR is not mergeable.
         if not mergeable:
             message = textwrap.dedent("""
