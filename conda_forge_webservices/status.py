@@ -2,6 +2,13 @@ import os
 import subprocess
 
 
+def get_token(token=None):
+    if token is None:
+        token = os.environ["STATUS_GH_TOKEN"]
+
+    return token
+
+
 def update(token=None):
     if token is None:
         token = os.environ["STATUS_GH_TOKEN"]
