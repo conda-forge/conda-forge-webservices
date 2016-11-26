@@ -47,6 +47,7 @@ def main():
         description="Updates the status page.",
     )
 
+    upgrade(os.environ["STATUS_GH_TOKEN"])
     update(os.environ["STATUS_GH_TOKEN"])
 
 
