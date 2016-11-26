@@ -10,8 +10,7 @@ def get_token(token=None):
 
 
 def update(token=None):
-    if token is None:
-        token = os.environ["STATUS_GH_TOKEN"]
+    token = get_token(token=token)
 
     subprocess.check_call([
         "statuspage",
