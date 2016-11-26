@@ -17,6 +17,7 @@ def update(token=None):
         token
     ])
 
+
 def main():
     import argparse
 
