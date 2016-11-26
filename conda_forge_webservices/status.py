@@ -9,6 +9,21 @@ def get_token(token=None):
     return token
 
 
+def upgrade(token=None):
+    token = get_token(token=token)
+
+    subprocess.check_call([
+        "statuspage",
+        "upgrade",
+        "--org",
+        "conda-forge",
+        "--name",
+        "status",
+        "--token",
+        token
+    ])
+
+
 def update(token=None):
     token = get_token(token=token)
 
