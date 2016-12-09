@@ -96,11 +96,11 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                    """ % num_parents)
             base_commit = (set(ref_merge.commit.parents) - {ref_head.commit}).pop()
             ref_base = repo.create_head("pull/{pr}/base".format(pr=pr_id), base_commit)
-            ref_base.checkout()
+            ref_base.checkout(force=True)
             base_recipes = find_recipes(tmp_dir)
 
         # Get the list of recipes and prep for linting.
-        ref_merge.checkout()
+        ref_merge.checkout(force=True)
         recipes = find_recipes(tmp_dir)
         all_pass = True
         messages = []
