@@ -12,9 +12,9 @@ env_dir=$(cd "$3/" && pwd)
 
 # -------
 
-wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+wget -q https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh -O miniconda.sh
 bash miniconda.sh -b -p $HOME/.conda
-$HOME/.conda/bin/conda install -c conda-forge --yes conda-smithy python=3 tornado pygithub statuspage
+$HOME/.conda/bin/conda install -c conda-forge --yes conda-smithy python=3.5 tornado pygithub statuspage
 
 cp -rf $HOME/.conda $STORAGE_LOCN/.conda
 
