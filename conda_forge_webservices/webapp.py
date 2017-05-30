@@ -18,6 +18,7 @@ from contextlib import contextmanager
 
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.status as status
+import conda_forge_webservices.update_teams as update_teams
 
 
 class RegisterHandler(tornado.web.RequestHandler):
@@ -106,10 +107,32 @@ class StatusHookHandler(tornado.web.RequestHandler):
             self.write_error(404)
 
 
+class UpdateTeamHookHandler(tornado.web.RequestHandler):
+    def post(self):
+        headers = self.request.headers
+        event = headers.get('X-GitHub-Event', None)
+
+        if event == 'ping':
+            self.write('pong')
+        elif event == 'push':
+            body = tornado.escape.json_decode(self.request.body)
+            repo_name = body['repository']['name']
+            owner = body['repository']['owner']['login']
+            ref = body['ref']
+            # Only do anything if we are working with conda-forge, and a push to master.
+            if owner == 'conda-forge' and ref == "refs/heads/master":
+                update_teams.update_team(owner, repo_name)
+        else:
+            print('Unhandled event "{}".'.format(event))
+            self.set_status(404)
+            self.write_error(404)
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/hook", LintingHookHandler),
         (r"/conda-forge-status/hook", StatusHookHandler),
+        (r"/conda-forge-teams/hook", UpdateTeamHookHandler),
     ])
     return application
 

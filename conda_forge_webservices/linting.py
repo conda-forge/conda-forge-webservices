@@ -1,8 +1,5 @@
-from contextlib import contextmanager
 from glob import glob
 import os
-import shutil
-import tempfile
 import textwrap
 import time
 
@@ -11,12 +8,7 @@ from git import GitCommandError, Repo
 import github
 import conda_smithy.lint_recipe
 
-
-@contextmanager
-def tmp_directory():
-    tmp_dir = tempfile.mkdtemp('_recipe')
-    yield tmp_dir
-    shutil.rmtree(tmp_dir)
+from .utils import tmp_directory
 
 def find_recipes(a_dir):
     return [os.path.dirname(y) for x in os.walk(a_dir)
