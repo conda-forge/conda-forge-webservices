@@ -133,10 +133,11 @@ class Test_compute_lint_message(unittest.TestCase):
          * The home item is expected in the about section.
          * The license item is expected in the about section.
          * The summary item is expected in the about section.
-         * The recipe could do with some maintainers listed in the `extra/recipe-maintainers` section.
          * The recipe must have some tests.
          * The recipe must have a `build/number` section.
-         * There should be one empty line at the end of the file.
+         * There are 2 too many lines. There should be one empty line at the end of the file.
+         * Feedstock with the same name exists in conda-forge
+         * Recipe maintainer "support" does not exist
         """)
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 17)
