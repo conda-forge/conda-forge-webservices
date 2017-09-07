@@ -2,4 +2,8 @@ package:
   name: python
   version: 1.0
 
+extra:
+  recipe-maintainers:
+    - support
+
 
