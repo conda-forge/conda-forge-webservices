@@ -114,7 +114,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             rel_path = os.path.relpath(recipe_dir, tmp_dir)
             rel_pr_recipes.append(rel_path)
             try:
-                lints = conda_smithy.lint_recipe.main(recipe_dir)
+                lints = conda_smithy.lint_recipe.main(recipe_dir, conda_forge=True)
             except Exception as err:
                 print('ERROR:', err)
                 lints = ['Failed to even lint the recipe (might be a conda-smithy bug) :cry:']
