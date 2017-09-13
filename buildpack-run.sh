@@ -17,8 +17,9 @@ bash miniconda.sh -b -p $HOME/.conda
 $HOME/.conda/bin/conda update conda --yes
 $HOME/.conda/bin/conda install -c conda-forge --yes conda-smithy python=3.5 tornado pygithub statuspage
 
-mkdir -p $HOME/.conda-smithy
-echo $GH_TOKEN > $HOME/.conda-smithy/github.token
+mkdir -p "${STORAGE_LOCN}/.conda-smithy"
+ln -s "${STORAGE_LOCN}/.conda-smithy" "${HOME}/.conda-smithy"
+echo "${GH_TOKEN}" > ${HOME}/.conda-smithy/github.token
 
 cp -rf $HOME/.conda $STORAGE_LOCN/.conda
 
