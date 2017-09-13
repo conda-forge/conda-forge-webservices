@@ -17,6 +17,8 @@ bash miniconda.sh -b -p $HOME/.conda
 $HOME/.conda/bin/conda update conda --yes
 $HOME/.conda/bin/conda install -c conda-forge --yes conda-smithy python=3.5 tornado pygithub statuspage
 
+echo $GH_TOKEN > ~/.conda-smithy/github.token
+
 cp -rf $HOME/.conda $STORAGE_LOCN/.conda
 
 mkdir -p $build/.profile.d
