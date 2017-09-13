@@ -12,6 +12,12 @@ env_dir=$(cd "$3/" && pwd)
 
 # -------
 
+# Secret variables aren't exported in the build phase, but they are available
+# from the environment directory.
+export "GH_TOKEN=$(cat $env_dir/GH_TOKEN)"
+
+# -------
+
 wget -q https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh -O miniconda.sh
 bash miniconda.sh -b -p $HOME/.conda
 $HOME/.conda/bin/conda update conda --yes
