@@ -6,9 +6,6 @@ import subprocess
 from .utils import tmp_directory
 
 def update_team(org_name, repo_name):
-    if not repo_name.endswith("-feedstock"):
-        return
-
     gh = github.Github(os.environ['GH_TOKEN'])
     org = gh.get_organization(org_name)
     remote_repo = org.get_repo(repo_name)
