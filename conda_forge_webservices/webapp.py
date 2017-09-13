@@ -118,9 +118,8 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
-            ref = body['ref']
-            # Only do anything if we are working with conda-forge, and a push to master.
-            if owner == 'conda-forge' and ref == "refs/heads/master":
+            # Only do anything if we are working with conda-forge.
+            if owner == 'conda-forge':
                 update_teams.update_team(owner, repo_name)
         else:
             print('Unhandled event "{}".'.format(event))
