@@ -128,11 +128,47 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             self.write_error(404)
 
 
+class CommandHookHandler(tornado.web.RequestHandler):
+    def post(self):
+        headers = self.request.headers
+        event = headers.get('X-GitHub-Event', None)
+
+        if event == 'ping':
+            self.write('pong')
+        elif event == 'pull_request_review' or event == 'issue_comment' or event == 'pull_request' \
+            or event == 'pull_request_review_comment':
+            body = tornado.escape.json_decode(self.request.body)
+            repo_name = body['repository']['name']
+            owner = body['repository']['owner']['login']
+            # Only do anything if we are working with conda-forge
+            if owner == 'conda-forge':
+                pr_repo = body['pull_request']['head']['repo']
+                pr_owner = pr_repo['owner']['login']
+                pr_repo = pr_repo['name']
+                pr_branch = body['pull_request']['head']['ref']
+                command = None
+                if event == 'pull_request_review' and action != 'dismissed':
+                    command = body['review']['body']
+                elif event == 'issue_comment' and action != 'deleted':
+                    command = body['issue']['body']
+                elif event == 'pull_request' and action in ['opened', 'edited', 'reopened']:
+                    command = body['pull_request']['body']
+                elif event == 'pull_request_review_comment' and action != 'deleted':
+                    command = body['comment']['body']
+                if command:
+                    commands.pr_command(owner, repo_name, pr_owner, pr_repo, pr_branch, command)
+        else:
+            print('Unhandled event "{}".'.format(event))
+            self.set_status(404)
+            self.write_error(404)
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/hook", LintingHookHandler),
         (r"/conda-forge-status/hook", StatusHookHandler),
         (r"/conda-forge-teams/hook", UpdateTeamHookHandler),
+        (r"/conda-forge-command/hook", CommandTeamHookHandler),
     ])
     return application
 
