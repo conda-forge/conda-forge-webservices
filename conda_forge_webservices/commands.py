@@ -6,13 +6,22 @@ import subprocess
 from .utils import tmp_directory
 from conda_smithy import __version__ as conda_smithy_version
 
-def pr_command(org_name, repo_name, pr_owner, pr_repo, pr_branch, comment):
+
+def pr_comment(org_name, repo_name, issue_num, comment):
+    if "@conda-forge-admin" not in comment:
+        return
+    gh = github.Github(os.environ['GH_TOKEN'])
+    repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+    pr = repo.get_pull(int(issue_num))
+    pr_detailed_comment(org_name, repo_name, pr.head.user.login, pr.head.repo.name, pr.head.ref, comment)
+
+
+def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, comment):
     if not repo_name.endswith("-feedstock"):
         return
 
-    gh = github.Github(os.environ['GH_TOKEN'])
-    org = gh.get_user(pr_owner)
-    remote_repo = org.get_repo(pr_repo)
+    if "@conda-forge-admin" not in comment:
+        return
 
     with tmp_directory() as tmp_dir:
         feedstock_dir = os.path.join(tmp_dir, repo_name)
@@ -35,6 +44,7 @@ def rerender(repo):
     if repo.is_dirty():
         author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
         repo.index.commit("MNT: Re-rendered with conda-smithy {}".format(conda_smithy_version), author=author)
+
 
 def make_noarch(repo):
     meta_yaml = os.path.join(repo.working_dir, "recipe", "meta.yaml")
