@@ -149,6 +149,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
             pr_owner = pr_repo['owner']['login']
             pr_repo = pr_repo['name']
             pr_branch = body['pull_request']['head']['ref']
+            pr_num = body['pull_request']['number']
             comment = None
             if event == 'pull_request_review' and action != 'dismissed':
                 comment = body['review']['body']
@@ -158,7 +159,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 comment = body['comment']['body']
 
             if comment:
-                commands.pr_detailed_comment(owner, repo_name, pr_owner, pr_repo, pr_branch, comment)
+                commands.pr_detailed_comment(owner, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment)
 
         elif event == 'issue_comment':
             body = tornado.escape.json_decode(self.request.body)

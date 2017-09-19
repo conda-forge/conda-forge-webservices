@@ -13,10 +13,10 @@ def pr_comment(org_name, repo_name, issue_num, comment):
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
     pr = repo.get_pull(int(issue_num))
-    pr_detailed_comment(org_name, repo_name, pr.head.user.login, pr.head.repo.name, pr.head.ref, comment)
+    pr_detailed_comment(org_name, repo_name, pr.head.user.login, pr.head.repo.name, pr.head.ref, issue_num, comment)
 
 
-def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, comment):
+def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment):
     if not repo_name.endswith("-feedstock"):
         return
 
@@ -35,6 +35,8 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, comme
                 rerender(repo)
             if "please rerender" in comment.lower():
                 rerender(repo)
+            if "please lint" in comment.lower():
+                relint(repo)
         
             repo.remotes.origin.push()
 
@@ -64,4 +66,13 @@ def make_noarch(repo):
     author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
     repo.index.commit("Add noarch:python option", author=author)
 
+
+def relint(owner, repo_name, pr_num)
+    pr = int(pr_num)
+    lint_info = compute_lint_message(owner, repo_name, pr, True)
+    if not lint_info:
+        print('Linting was skipped.')
+    elif args.enable_commenting:
+        msg = comment_on_pr(owner, repo_name, pr, lint_info['message'])
+        set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
 
