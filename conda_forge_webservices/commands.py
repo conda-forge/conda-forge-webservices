@@ -4,6 +4,7 @@ import github
 import os
 import subprocess
 from .utils import tmp_directory
+from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from conda_smithy import __version__ as conda_smithy_version
 
 
@@ -72,7 +73,7 @@ def relint(owner, repo_name, pr_num)
     lint_info = compute_lint_message(owner, repo_name, pr, True)
     if not lint_info:
         print('Linting was skipped.')
-    elif args.enable_commenting:
+    else:
         msg = comment_on_pr(owner, repo_name, pr, lint_info['message'])
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
 
