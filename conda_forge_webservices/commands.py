@@ -68,7 +68,7 @@ def make_noarch(repo):
     repo.index.commit("Add noarch:python option", author=author)
 
 
-def relint(owner, repo_name, pr_num)
+def relint(owner, repo_name, pr_num):
     pr = int(pr_num)
     lint_info = compute_lint_message(owner, repo_name, pr, True)
     if not lint_info:
