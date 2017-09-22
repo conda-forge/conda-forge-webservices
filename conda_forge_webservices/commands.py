@@ -5,6 +5,7 @@ import os
 import subprocess
 from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
+from .update_teams import update_team
 from conda_smithy import __version__ as conda_smithy_version
 
 
@@ -53,14 +54,19 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         return
 
     if "please update team" in comment + title:
-        update_team(org_name, repo_name)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        issue = repo.get_issue(int(issue_num))
-        if "please update team" in title:
-            issue.edit(state="closed")
-            issue.create_comment("Hi, I updated the team and closed this issue")
-        else:
-            issue.create_comment("Hi, I updated the team.")
+        update_team(org_name, repo_name, issue_num, title, comment)
+
+
+def issue_team_update(org_name, repo_name, issue_num, title, comment):
+    update_team(org_name, repo_name)
+    gh = github.Github(os.environ['GH_TOKEN'])
+    repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+    issue = repo.get_issue(int(issue_num))
+    if "please update team" in title:
+        issue.edit(state="closed")
+        issue.create_comment("Hi, I updated the team and closed this issue")
+    else:
+        issue.create_comment("Hi, I updated the team.")
 
 
 def rerender(repo):
