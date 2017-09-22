@@ -8,8 +8,12 @@ from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from conda_smithy import __version__ as conda_smithy_version
 
 
+def check_for_bot(comment):
+    return "@conda-forge-admin" in comment or "@conda-forge-linter" in comment
+
+
 def pr_comment(org_name, repo_name, issue_num, comment):
-    if "@conda-forge-admin" not in comment:
+    if not check_for_bot(comment):
         return
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
@@ -21,7 +25,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     if not repo_name.endswith("-feedstock"):
         return
 
-    if "@conda-forge-admin" not in comment:
+    if not check_for_bot(comment):
         return
 
     with tmp_directory() as tmp_dir:
@@ -29,24 +33,23 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         repo_url = "https://{}@github.com/{}/{}.git".format(os.environ['GH_TOKEN'],
             pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
+
+        if "please add noarch: python" in comment.lower():
+            make_noarch(repo)
+            rerender(repo)
+        if "please rerender" in comment.lower():
+            rerender(repo)
+        if "please lint" in comment.lower():
+            relint(repo)
     
-        if "@conda-forge-admin" in comment:
-            if "please add noarch: python" in comment.lower():
-                make_noarch(repo)
-                rerender(repo)
-            if "please rerender" in comment.lower():
-                rerender(repo)
-            if "please lint" in comment.lower():
-                relint(repo)
-        
-            repo.remotes.origin.push()
+        repo.remotes.origin.push()
 
 
 def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not repo_name.endswith("-feedstock"):
         return
 
-    if "@conda-forge-admin" not in comment + title:
+    if not check_for_bot(comment + title):
         return
 
     if "please update team" in comment + title:
