@@ -53,7 +53,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         return
 
     if "please update team" in comment + title:
-        update_team(org_name, repo_name):
+        update_team(org_name, repo_name)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         issue = repo.get_issue(int(issue_num))
         if "please update team" in title:
