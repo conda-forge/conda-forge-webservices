@@ -161,7 +161,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
             if comment:
                 commands.pr_detailed_comment(owner, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment)
 
-        elif event == 'issue_comment':
+        elif event == 'issue_comment' or event == "issue":
             body = tornado.escape.json_decode(self.request.body)
             action = body["action"]
             repo_name = body['repository']['name']
@@ -171,9 +171,17 @@ class CommandHookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge
             if owner != 'conda-forge':
                 return
-            if "pull_request" in body["issue"] and action != 'deleted':
+            pull_request = False
+            if "pull_request" in body["issue"]:
+                pull_request = True
+            if pull_request and action != 'deleted':
                 comment = body['comment']['body']
                 commands.pr_comment(owner, repo_name, issue_num, comment)
+
+            if not pull_request and action in ['assigned', 'edited']:
+                title = body['issue']['title']
+                comment = body['issue']['body']
+                commands.issue_comment(owner, repo_name, issue_num, title, comment)
 
         else:
             print('Unhandled event "{}".'.format(event))

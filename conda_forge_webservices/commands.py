@@ -42,6 +42,24 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             repo.remotes.origin.push()
 
 
+def issue_comment(org_name, repo_name, issue_num, title, comment):
+    if not repo_name.endswith("-feedstock"):
+        return
+
+    if "@conda-forge-admin" not in comment + title:
+        return
+
+    if "please update team" in comment + title:
+        update_team(org_name, repo_name):
+        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        issue = repo.get_issue(int(issue_num))
+        if "please update team" in title:
+            issue.edit(state="closed")
+            issue.create_comment("Hi, I updated the team and closed this issue")
+        else:
+            issue.create_comment("Hi, I updated the team.")
+
+
 def rerender(repo):
     subprocess.call(["conda", "smithy", "rerender"], cwd=repo.working_dir)
     if repo.is_dirty():
