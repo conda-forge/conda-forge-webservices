@@ -5,7 +5,9 @@ package:
 build:
   number: 0
 
-test: {}
+test:
+  commands:
+    - echo "hello"
 
 about:
   home: https://github.com/conda-forge/conda-forge-linting-service
