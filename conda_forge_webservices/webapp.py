@@ -178,7 +178,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 comment = body['comment']['body']
                 commands.pr_comment(owner, repo_name, issue_num, comment)
 
-            if not pull_request and action in ['assigned', 'edited', 'created']:
+            if not pull_request and action in ['opened', 'edited', 'created', 'reopened']:
                 title = body['issue']['title']
                 comment = body['issue']['body']
                 commands.issue_comment(owner, repo_name, issue_num, title, comment)
