@@ -161,7 +161,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
             if comment:
                 commands.pr_detailed_comment(owner, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment)
 
-        elif event == 'issue_comment' or event == "issue":
+        elif event == 'issue_comment' or event == "issues":
             body = tornado.escape.json_decode(self.request.body)
             action = body["action"]
             repo_name = body['repository']['name']
@@ -178,7 +178,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 comment = body['comment']['body']
                 commands.pr_comment(owner, repo_name, issue_num, comment)
 
-            if not pull_request and action in ['assigned', 'edited']:
+            if not pull_request and action in ['assigned', 'edited', 'created']:
                 title = body['issue']['title']
                 comment = body['issue']['body']
                 commands.issue_comment(owner, repo_name, issue_num, title, comment)
