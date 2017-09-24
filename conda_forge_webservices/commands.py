@@ -8,6 +8,10 @@ from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from conda_smithy import __version__ as conda_smithy_version
 
+ADD_NOARCH_MSG = "please add noarch: python"
+RERENDER_MSG = "please rerender"
+LINT_MSG = "please lint"
+UPDATE_TEAM_MSG = "please update team"
 
 def check_for_bot(comment):
     return "@conda-forge-admin" in comment or "@conda-forge-linter" in comment
@@ -29,20 +33,25 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     if not check_for_bot(comment):
         return
 
+    pr_commands = [ADD_NOARCH_MSG, RERENDER_MSG, LINT_MSG]
+
+    if not any(command in comment.lower() for command in pr_commands):
+        return
+
     with tmp_directory() as tmp_dir:
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = "https://{}@github.com/{}/{}.git".format(os.environ['GH_TOKEN'],
             pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
 
-        if "please add noarch: python" in comment.lower():
+        if ADD_NOARCH_MSG in comment.lower():
             make_noarch(repo)
             rerender(repo)
-        if "please rerender" in comment.lower():
+        if RERENDER_MSG in comment.lower():
             rerender(repo)
-        if "please lint" in comment.lower():
+        if LINT_MSG in comment.lower():
             relint(org_name, repo_name, pr_num)
-    
+
         repo.remotes.origin.push()
 
 
@@ -50,23 +59,50 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not repo_name.endswith("-feedstock"):
         return
 
+    comment = comment.lower()
+    title = title.lower()
+
     if not check_for_bot(comment + title):
         return
 
-    if "please update team" in comment + title:
-        issue_team_update(org_name, repo_name, issue_num, title, comment)
+    issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG]
 
+    if not any(command in (comment+title) for command in issue_commands):
+        return
 
-def issue_team_update(org_name, repo_name, issue_num, title, comment):
-    update_team(org_name, repo_name)
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+    forked_user = gh.get_user().login
+    forked_repo = gh.get_user().create_fork(repo)
     issue = repo.get_issue(int(issue_num))
-    if "please update team" in title:
-        issue.edit(state="closed")
-        issue.create_comment("Hi, I updated the team and closed this issue")
-    else:
+
+    if UPDATE_TEAM_MSG in comment + title:
+        update_team(org_name, repo_name)
+        if UPDATE_TEAM_MSG in title:
+            issue.edit(state="closed")
         issue.create_comment("Hi, I updated the team.")
+
+
+    with tmp_directory() as tmp_dir:
+        feedstock_dir = os.path.join(tmp_dir, repo_name)
+        repo_url = "https://{}@github.com/{}/{}.git".format(os.environ['GH_TOKEN'],
+            forked_user, repo_name)
+        git_repo = Repo.clone_from(repo_url, feedstock_dir)
+        forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
+        new_branch = git_repo.create_head(forked_repo_branch)
+        new_branch.checkout()
+
+        if ADD_NOARCH_MSG in comment + title:
+            make_noarch(git_repo)
+            rerender(git_repo)
+            git_repo.git.push("origin", forked_repo_branch)
+            msg = "MNT: Add noarch: python"
+            pr = repo.create_pull(msg, "As instructed in #{}".format(issue_num),
+                    "master", "{}:{}".format(forked_user, forked_repo_branch))
+
+            if ADD_NOARCH_MSG in title:
+                issue.edit(state="closed")
+            issue.create_comment("Hi, I made the recipe noarch: python in {}/{}#{}.".format(org_name, repo_name, pr.number))
 
 
 def rerender(repo):
