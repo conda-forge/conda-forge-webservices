@@ -19,6 +19,7 @@ from contextlib import contextmanager
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.status as status
 import conda_forge_webservices.update_teams as update_teams
+import conda_forge_webservices.commands as commands
 
 
 class RegisterHandler(tornado.web.RequestHandler):
@@ -128,11 +129,72 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             self.write_error(404)
 
 
+class CommandHookHandler(tornado.web.RequestHandler):
+    def post(self):
+        headers = self.request.headers
+        event = headers.get('X-GitHub-Event', None)
+
+        if event == 'ping':
+            self.write('pong')
+        elif event == 'pull_request_review' or event == 'pull_request' \
+            or event == 'pull_request_review_comment':
+            body = tornado.escape.json_decode(self.request.body)
+            action = body["action"]
+            repo_name = body['repository']['name']
+            owner = body['repository']['owner']['login']
+            # Only do anything if we are working with conda-forge
+            if owner != 'conda-forge':
+                return
+            pr_repo = body['pull_request']['head']['repo']
+            pr_owner = pr_repo['owner']['login']
+            pr_repo = pr_repo['name']
+            pr_branch = body['pull_request']['head']['ref']
+            pr_num = body['pull_request']['number']
+            comment = None
+            if event == 'pull_request_review' and action != 'dismissed':
+                comment = body['review']['body']
+            elif event == 'pull_request' and action in ['opened', 'edited', 'reopened']:
+                comment = body['pull_request']['body']
+            elif event == 'pull_request_review_comment' and action != 'deleted':
+                comment = body['comment']['body']
+
+            if comment:
+                commands.pr_detailed_comment(owner, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment)
+
+        elif event == 'issue_comment' or event == "issue":
+            body = tornado.escape.json_decode(self.request.body)
+            action = body["action"]
+            repo_name = body['repository']['name']
+            owner = body['repository']['owner']['login']
+            issue_num = body['issue']['number']
+
+            # Only do anything if we are working with conda-forge
+            if owner != 'conda-forge':
+                return
+            pull_request = False
+            if "pull_request" in body["issue"]:
+                pull_request = True
+            if pull_request and action != 'deleted':
+                comment = body['comment']['body']
+                commands.pr_comment(owner, repo_name, issue_num, comment)
+
+            if not pull_request and action in ['assigned', 'edited']:
+                title = body['issue']['title']
+                comment = body['issue']['body']
+                commands.issue_comment(owner, repo_name, issue_num, title, comment)
+
+        else:
+            print('Unhandled event "{}".'.format(event))
+            self.set_status(404)
+            self.write_error(404)
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/hook", LintingHookHandler),
         (r"/conda-forge-status/hook", StatusHookHandler),
         (r"/conda-forge-teams/hook", UpdateTeamHookHandler),
+        (r"/conda-forge-command/hook", CommandHookHandler),
     ])
     return application
 
