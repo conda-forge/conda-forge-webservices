@@ -97,7 +97,7 @@ def make_noarch(repo):
 
 def relint(owner, repo_name, pr_num):
     pr = int(pr_num)
-    lint_info = compute_lint_message(owner, repo_name, pr, True)
+    lint_info = compute_lint_message(owner, repo_name, pr, False)
     if not lint_info:
         print('Linting was skipped.')
     else:
