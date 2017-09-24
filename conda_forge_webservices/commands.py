@@ -41,7 +41,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         if "please rerender" in comment.lower():
             rerender(repo)
         if "please lint" in comment.lower():
-            relint(repo)
+            relint(org_name, repo_name, pr_num)
     
         repo.remotes.origin.push()
 
