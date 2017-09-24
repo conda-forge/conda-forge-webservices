@@ -54,7 +54,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         return
 
     if "please update team" in comment + title:
-        update_team(org_name, repo_name, issue_num, title, comment)
+        update_team(org_name, repo_name)
 
 
 def issue_team_update(org_name, repo_name, issue_num, title, comment):
