@@ -47,7 +47,14 @@ def update_feedstock(org_name, repo_name):
 
         # Submit changes
         if feedstocks_repo.is_dirty():
-            feedstocks_repo.index.commit("Updated feedstocks submodules. [ci skip]")
+            author = git.Actor(
+                "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
+            )
+            feedstocks_repo.index.commit(
+                "Updated feedstocks submodules. [ci skip]",
+                author=author,
+                committer=author
+            )
             feedstocks_repo.remote().pull(rebase=True)
             feedstocks_repo.remote().push()
 
