@@ -50,6 +50,7 @@ def update_feedstock(org_name, repo_name):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
+            feedstocks_repo.git.add(update=True)
             feedstocks_repo.index.commit(
                 "Updated feedstocks submodules. [ci skip]",
                 author=author,
