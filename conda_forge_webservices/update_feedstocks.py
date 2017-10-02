@@ -24,15 +24,16 @@ def update_feedstock(org_name, repo_name):
         )
 
         # Get the submodule
-        try:
-            feedstock_submodule = feedstocks_repo.submodule(name)
-        except ValueError:
-            feedstock_submodule = feedstocks_repo.create_submodule(
-                name=name,
-                path=os.path.join("feedstocks", name),
-                url=repo_gh.clone_url,
-                branch="master"
-            )
+        feedstock_submodule = feedstocks_repo.create_submodule(
+            name=name,
+            path=os.path.join("feedstocks", name),
+            url=repo_gh.clone_url,
+            branch="master"
+        )
+        # Hack needed if the submodule already exists.
+        # Borrows the fix accepted upstream.
+        # PR: https://github.com/gitpython-developers/GitPython/pull/679
+        feedstock_submodule._name = name
 
         # Update the feedstocks submodule
         feedstock_submodule.update(init=True, recursive=False, force=True)
