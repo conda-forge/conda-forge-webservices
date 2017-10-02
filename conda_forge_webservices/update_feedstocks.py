@@ -10,7 +10,7 @@ def update_feedstock(org_name, repo_name):
 
     gh = github.Github(os.environ['GH_TOKEN'])
 
-    gh.get_repo("{}/{}".format(org_name, repo_name))
+    repo_gh = gh.get_repo("{}/{}".format(org_name, repo_name))
     name = repo_name[:-len("-feedstock")]
 
     with tmp_directory() as tmp_dir:
