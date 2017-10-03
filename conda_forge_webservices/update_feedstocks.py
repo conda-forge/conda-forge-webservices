@@ -8,7 +8,7 @@ def update_feedstock(org_name, repo_name):
     if not repo_name.endswith("-feedstock"):
         return
 
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(os.environ['FEEDSTOCKS_GH_TOKEN'])
 
     repo_gh = gh.get_repo("{}/{}".format(org_name, repo_name))
     name = repo_name[:-len("-feedstock")]
