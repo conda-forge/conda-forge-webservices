@@ -140,6 +140,6 @@ def relint(owner, repo_name, pr_num):
     if not lint_info:
         print('Linting was skipped.')
     else:
-        msg = comment_on_pr(owner, repo_name, pr, lint_info['message'])
+        msg = comment_on_pr(owner, repo_name, pr, lint_info['message'], force=True)
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
 
