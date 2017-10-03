@@ -52,7 +52,7 @@ def update_feedstock(org_name, repo_name):
             )
             feedstocks_repo.git.add(update=True)
             feedstocks_repo.index.commit(
-                "Updated feedstocks submodules.",
+                "Updated the {0} feedstock.".format(name),
                 author=author,
                 committer=author
             )
