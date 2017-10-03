@@ -8,7 +8,7 @@ def update_feedstock(org_name, repo_name):
     if not repo_name.endswith("-feedstock"):
         return
 
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(os.environ['FEEDSTOCKS_GH_TOKEN'])
 
     repo_gh = gh.get_repo("{}/{}".format(org_name, repo_name))
     name = repo_name[:-len("-feedstock")]
@@ -16,7 +16,7 @@ def update_feedstock(org_name, repo_name):
     with tmp_directory() as tmp_dir:
         feedstocks_url = (
             "https://{}@github.com/conda-forge/feedstocks.git"
-            "".format(os.environ["GH_TOKEN"])
+            "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
