@@ -14,6 +14,7 @@ import github
 import conda_smithy.lint_recipe
 import shutil
 from contextlib import contextmanager
+from datetime import datetime
 
 
 import conda_forge_webservices.linting as linting
@@ -23,7 +24,7 @@ import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 
 
-def print_rate_limiting_info():
+def print_rate_limiting_info_for_token(token, user):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
     # get this info. So, we should be doing this regularly
@@ -32,19 +33,31 @@ def print_rate_limiting_info():
     # spending it and how to better optimize it.
 
     # Get GitHub API Rate Limit usage and total
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(token)
     gh_api_remaining = gh.get_rate_limit().rate.remaining
     gh_api_total = gh.get_rate_limit().rate.limit
 
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().rate.reset
     gh_api_reset_time -= datetime.utcnow()
+    msg = "{user} - remaining {remaining} out of {total}.".format(remaining=gh_api_remaining,
+            total=gh_api_total, user=user)
+    print("-"*len(msg))
+    print(msg)
+    print("Will reset in {time}.".format(time=gh_api_reset_time))
+
+
+def print_rate_limiting_info():
+
+    d = [
+         (os.environ['GH_TOKEN'], "conda-forge-linter"),
+         (os.environ['FEEDSTOCKS_GH_TOKEN'], "conda-forge-coordinator"),
+        ]
 
     print("")
     print("GitHub API Rate Limit Info:")
-    print("---------------------------")
-    print("Currently remaining {remaining} out of {total}.".format(remaining=gh_api_remaining, total=gh_api_total))
-    print("Will reset in {time}.".format(time=gh_api_reset_time))
+    for k, v in d:
+        print_rate_limiting_info_for_token(k, v)
     print("")
 
 
