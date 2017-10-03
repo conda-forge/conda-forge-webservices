@@ -1,5 +1,4 @@
 import git
-import github
 import os
 from .utils import tmp_directory
 
@@ -8,9 +7,6 @@ def update_feedstock(org_name, repo_name):
     if not repo_name.endswith("-feedstock"):
         return
 
-    gh = github.Github(os.environ['FEEDSTOCKS_GH_TOKEN'])
-
-    repo_gh = gh.get_repo("{}/{}".format(org_name, repo_name))
     name = repo_name[:-len("-feedstock")]
 
     with tmp_directory() as tmp_dir:
@@ -27,7 +23,7 @@ def update_feedstock(org_name, repo_name):
         feedstock_submodule = feedstocks_repo.create_submodule(
             name=name,
             path=os.path.join("feedstocks", name),
-            url=repo_gh.clone_url,
+            url="https://github.com/{0}/{1}.git".format(org_name, repo_name),
             branch="master"
         )
         # Hack needed if the submodule already exists.
