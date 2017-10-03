@@ -66,4 +66,4 @@ if __name__ == '__main__':
     parser.add_argument('org')
     parser.add_argument('repo')
     args = parser.parse_args()
-    update_team(args.org, args.repo)
+    update_feedstock(args.org, args.repo)
