@@ -23,6 +23,31 @@ import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 
 
+def print_rate_limiting_info():
+    # Compute some info about our GitHub API Rate Limit.
+    # Note that it doesn't count against our limit to
+    # get this info. So, we should be doing this regularly
+    # to better know when it is going to run out. Also,
+    # this will help us better understand where we are
+    # spending it and how to better optimize it.
+
+    # Get GitHub API Rate Limit usage and total
+    gh = github.Github(os.environ['GH_TOKEN'])
+    gh_api_remaining = gh.get_rate_limit().rate.remaining
+    gh_api_total = gh.get_rate_limit().rate.limit
+
+    # Compute time until GitHub API Rate Limit reset
+    gh_api_reset_time = gh.get_rate_limit().rate.reset
+    gh_api_reset_time -= datetime.utcnow()
+
+    print("")
+    print("GitHub API Rate Limit Info:")
+    print("---------------------------")
+    print("Currently remaining {remaining} out of {total}.".format(remaining=gh_api_remaining, total=gh_api_total))
+    print("Will reset in {time}.".format(time=gh_api_reset_time))
+    print("")
+
+
 class RegisterHandler(tornado.web.RequestHandler):
     def get(self):
         token = os.environ.get('GH_TOKEN')
@@ -83,6 +108,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 if lint_info:
                     msg = linting.comment_on_pr(owner, repo_name, pr_id, lint_info['message'])
                     linting.set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
+            print_rate_limiting_info()
         else:
             print('Unhandled event "{}".'.format(event))
             self.set_status(404)
@@ -103,6 +129,7 @@ class StatusHookHandler(tornado.web.RequestHandler):
             # Only do something if it involves the status page
             if repo_full_name == 'conda-forge/status':
                 status.update()
+            print_rate_limiting_info()
         else:
             print('Unhandled event "{}".'.format(event))
             self.set_status(404)
@@ -124,6 +151,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge, and a push to master.
             if owner == 'conda-forge' and ref == "refs/heads/master":
                 update_feedstocks.update_feedstock(owner, repo_name)
+            print_rate_limiting_info()
         else:
             print('Unhandled event "{}".'.format(event))
             self.set_status(404)
@@ -145,6 +173,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge, and a push to master.
             if owner == 'conda-forge' and ref == "refs/heads/master":
                 update_teams.update_team(owner, repo_name)
+            print_rate_limiting_info()
         else:
             print('Unhandled event "{}".'.format(event))
             self.set_status(404)
@@ -182,6 +211,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
             if comment:
                 commands.pr_detailed_comment(owner, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment)
+            print_rate_limiting_info()
 
         elif event == 'issue_comment' or event == "issues":
             body = tornado.escape.json_decode(self.request.body)
@@ -204,6 +234,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 title = body['issue']['title'] if event == "issues" else ""
                 comment = body['issue']['body']
                 commands.issue_comment(owner, repo_name, issue_num, title, comment)
+            print_rate_limiting_info()
 
         else:
             print('Unhandled event "{}".'.format(event))
