@@ -27,13 +27,16 @@ def pr_comment(org_name, repo_name, issue_num, comment):
 
 
 def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment):
-    if not repo_name.endswith("-feedstock"):
+    is_staged_recipes = (repo_name == "staged-recipes")
+    if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
 
     if not check_for_bot(comment):
         return
 
-    pr_commands = [ADD_NOARCH_MSG, RERENDER_MSG, LINT_MSG]
+    pr_commands = [LINT_MSG]
+    if not is_staged_recipes:
+        pr_commands += [ADD_NOARCH_MSG, RERENDER_MSG]
 
     if not any(command in comment.lower() for command in pr_commands):
         return
