@@ -75,8 +75,6 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-    forked_user = gh.get_user().login
-    forked_repo = gh.get_user().create_fork(repo)
     issue = repo.get_issue(int(issue_num))
 
     if UPDATE_TEAM_MSG in comment + title:
@@ -85,6 +83,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             issue.edit(state="closed")
         issue.create_comment("Hi, I updated the team.")
 
+    forked_user = gh.get_user().login
+    forked_repo = gh.get_user().create_fork(repo)
 
     with tmp_directory() as tmp_dir:
         feedstock_dir = os.path.join(tmp_dir, repo_name)
