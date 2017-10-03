@@ -51,7 +51,6 @@ def print_rate_limiting_info():
 
     d = [
          (os.environ['GH_TOKEN'], "conda-forge-linter"),
-         (os.environ['FEEDSTOCKS_GH_TOKEN'], "conda-forge-coordinator"),
         ]
 
     print("")
