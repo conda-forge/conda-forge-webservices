@@ -1,15 +1,68 @@
 import git
+import github
+import jinja2
 import os
 from .utils import tmp_directory
 
 
 def handle_feedstock_event(org_name, repo_name):
-    if repo_name.endswith("-feedstock"):
+    if repo_name == "staged-recipes":
+        update_listing(org_name)
+    elif repo_name.endswith("-feedstock"):
         update_feedstock(org_name, repo_name)
 
 
-def update_feedstock(org_name, repo_name):
+def update_listing(org_name):
+    gh = github.Github(os.environ['FEEDSTOCKS_GH_TOKEN'])
+    org = gh.get_organization(org_name)
 
+    repos = []
+    for repo in org.get_repos():
+        if repo.name.endswith("-feedstock"):
+            repo.package_name = repo.name.rsplit("-feedstock", 1)[0]
+            repos.append(repo)
+    repos = sorted(repos, key=lambda repo: repo.package_name.lower())
+
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(os.path.join(
+            os.path.dirname(__file__), "html"
+        ))
+    )
+    context = {"gh_feedstocks": repos}
+    tmpl = env.get_template("feedstocks.html.tmpl")
+
+    with tmp_directory() as tmp_dir:
+        feedstocks_url = (
+            "https://{}@github.com/conda-forge/feedstocks.git"
+            "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
+        )
+        feedstocks_repo = git.Repo.clone_from(
+            feedstocks_url,
+            tmp_dir
+        )
+        feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
+
+        feedstocks_html = os.path.join(feedstocks_dir, "feedstocks.html")
+        with open(feedstocks_html, 'w') as fh:
+            fh.write(tmpl.render(context))
+
+        if feedstocks_repo.is_dirty(untracked_files=True):
+            author = git.Actor(
+                "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
+            )
+            feedstocks_repo.index.add([os.path.relpath(
+                feedstocks_html, os.path.dirname(feedstocks_repo.git_dir)
+            )])
+            feedstocks_repo.index.commit(
+                "Updated the feedstock listing.",
+                author=author,
+                committer=author
+            )
+            feedstocks_repo.remote().pull(rebase=True)
+            feedstocks_repo.remote().push()
+
+
+def update_feedstock(org_name, repo_name):
     name = repo_name[:-len("-feedstock")]
 
     with tmp_directory() as tmp_dir:
