@@ -3,9 +3,12 @@ import os
 from .utils import tmp_directory
 
 
+def handle_feedstock_event(org_name, repo_name):
+    if repo_name.endswith("-feedstock"):
+        update_feedstock(org_name, repo_name)
+
+
 def update_feedstock(org_name, repo_name):
-    if not repo_name.endswith("-feedstock"):
-        return
 
     name = repo_name[:-len("-feedstock")]
 

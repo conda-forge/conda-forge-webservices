@@ -162,7 +162,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             ref = body['ref']
             # Only do anything if we are working with conda-forge, and a push to master.
             if owner == 'conda-forge' and ref == "refs/heads/master":
-                feedstocks_service.update_feedstock(owner, repo_name)
+                feedstocks_service.handle_feedstock_event(owner, repo_name)
             print_rate_limiting_info()
         else:
             print('Unhandled event "{}".'.format(event))
