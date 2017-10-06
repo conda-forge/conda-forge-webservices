@@ -42,7 +42,7 @@ def update_feedstock(org_name, repo_name):
         )
 
         # Submit changes
-        if feedstocks_repo.is_dirty():
+        if feedstocks_repo.is_dirty(untracked_files=True):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
