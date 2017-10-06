@@ -1,5 +1,4 @@
 import git
-import github
 import jinja2
 import os
 from .utils import tmp_directory
@@ -7,30 +6,12 @@ from .utils import tmp_directory
 
 def handle_feedstock_event(org_name, repo_name):
     if repo_name == "staged-recipes":
-        update_listing(org_name)
+        update_listing()
     elif repo_name.endswith("-feedstock"):
         update_feedstock(org_name, repo_name)
 
 
-def update_listing(org_name):
-    gh = github.Github(os.environ['FEEDSTOCKS_GH_TOKEN'])
-    org = gh.get_organization(org_name)
-
-    repos = []
-    for repo in org.get_repos():
-        if repo.name.endswith("-feedstock"):
-            repo.package_name = repo.name.rsplit("-feedstock", 1)[0]
-            repos.append(repo)
-    repos = sorted(repos, key=lambda repo: repo.package_name.lower())
-
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(os.path.join(
-            os.path.dirname(__file__), "html"
-        ))
-    )
-    context = {"gh_feedstocks": repos}
-    tmpl = env.get_template("feedstocks.html.tmpl")
-
+def update_listing():
     with tmp_directory() as tmp_dir:
         feedstocks_url = (
             "https://{}@github.com/conda-forge/feedstocks.git"
@@ -42,6 +23,15 @@ def update_listing(org_name):
         )
         feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
 
+        repos = sorted([sm.name for sm in feedstocks_repo.submodules])
+
+        env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(os.path.join(
+                os.path.dirname(__file__), "html"
+            ))
+        )
+        context = {"feedstock_names": repos}
+        tmpl = env.get_template("feedstocks.html.tmpl")
         feedstocks_html = os.path.join(feedstocks_dir, "feedstocks.html")
         with open(feedstocks_html, 'w') as fh:
             fh.write(tmpl.render(context))

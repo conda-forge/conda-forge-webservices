@@ -75,10 +75,10 @@
             <div class="col-lg-8 col-lg-offset-2">
                 <h2 class="text-center">Feedstocks on conda-forge</h2>
                 <ul class="list-group">
-{% for feedstock in gh_feedstocks %}
+{% for name in feedstock_names %}
                     <li class="list-group-item">
-                        <a href="https://github.com/conda-forge/{{ feedstock.name }}">
-                            {{ feedstock.package_name }}
+                        <a href="https://github.com/conda-forge/{{ name }}-feedstock">
+                            {{ name }}
                         </a>
                     </li>
 {% endfor %}
