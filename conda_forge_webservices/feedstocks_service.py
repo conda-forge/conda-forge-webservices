@@ -24,7 +24,7 @@ def update_listing():
         feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
 
         repos = sorted(os.listdir(os.path.join(
-            os.path.dirname(feedstocks_repo.git_dir), "feedstocks"
+            feedstocks_dir, "feedstocks"
         )))
 
         env = jinja2.Environment(
