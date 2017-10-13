@@ -47,7 +47,7 @@ def update_listing():
         )
         context = {"gh_feedstocks": repos}
         tmpl = env.get_template("feedstocks.html.tmpl")
-        feedstocks_html = os.path.join(feedstocks_dir, "feedstocks.html")
+        feedstocks_html = os.path.join(feedstocks_dir, "index.html")
         with open(feedstocks_html, 'w') as fh:
             fh.write(tmpl.render(context))
 
