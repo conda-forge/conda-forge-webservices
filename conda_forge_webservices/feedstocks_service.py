@@ -43,7 +43,7 @@ def update_listing():
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
             feedstocks_repo.index.add([os.path.relpath(
-                feedstocks_html, os.path.dirname(feedstocks_repo.git_dir)
+                feedstocks_html, feedstocks_dir
             )])
             feedstocks_repo.index.commit(
                 "Updated the feedstock listing.",
