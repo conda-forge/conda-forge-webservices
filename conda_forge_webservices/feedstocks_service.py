@@ -1,6 +1,8 @@
 import git
 import jinja2
 import os
+
+from collections import namedtuple
 from .utils import tmp_directory
 
 
@@ -32,16 +34,18 @@ def update_listing():
         )
         feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
 
+        Feedstock = namedtuple("Feedstock", ["name", "package_name"])
         repos = sorted(os.listdir(os.path.join(
             feedstocks_dir, "feedstocks"
         )))
+        repos = [Feedstock(f + "-feedstock", f) for f in repos]
 
         env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(os.path.join(
                 webpage_dir
             ))
         )
-        context = {"feedstock_names": repos}
+        context = {"gh_feedstocks": repos}
         tmpl = env.get_template("feedstocks.html.tmpl")
         feedstocks_html = os.path.join(feedstocks_dir, "feedstocks.html")
         with open(feedstocks_html, 'w') as fh:
