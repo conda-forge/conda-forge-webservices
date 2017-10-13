@@ -13,13 +13,22 @@ def handle_feedstock_event(org_name, repo_name):
 
 def update_listing():
     with tmp_directory() as tmp_dir:
+        webpage_url = (
+            "https://github.com/conda-forge/conda-forge.github.io.git"
+        )
+        webpage_repo = git.Repo.clone_from(
+            webpage_url,
+            os.path.join(tmp_dir, "webpage")
+        )
+        webpage_dir = os.path.dirname(webpage_repo.git_dir)
+
         feedstocks_url = (
             "https://{}@github.com/conda-forge/feedstocks.git"
             "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
-            tmp_dir
+            os.path.join(tmp_dir, "feedstocks")
         )
         feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
 
@@ -29,7 +38,7 @@ def update_listing():
 
         env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(os.path.join(
-                os.path.dirname(__file__), "html"
+                webpage_dir
             ))
         )
         context = {"feedstock_names": repos}
