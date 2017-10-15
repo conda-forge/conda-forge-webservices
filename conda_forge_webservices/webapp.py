@@ -19,7 +19,7 @@ from datetime import datetime
 
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.status as status
-import conda_forge_webservices.update_feedstocks as update_feedstocks
+import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 
@@ -162,7 +162,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             ref = body['ref']
             # Only do anything if we are working with conda-forge, and a push to master.
             if owner == 'conda-forge' and ref == "refs/heads/master":
-                update_feedstocks.update_feedstock(owner, repo_name)
+                feedstocks_service.handle_feedstock_event(owner, repo_name)
             print_rate_limiting_info()
         else:
             print('Unhandled event "{}".'.format(event))
