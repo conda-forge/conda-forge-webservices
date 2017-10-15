@@ -7,7 +7,7 @@ from .utils import tmp_directory
 
 
 def handle_feedstock_event(org_name, repo_name):
-    if repo_name == "staged-recipes":
+    if repo_name in ["conda-forge.github.io", "staged-recipes"]:
         update_listing()
     elif repo_name.endswith("-feedstock"):
         update_feedstock(org_name, repo_name)
