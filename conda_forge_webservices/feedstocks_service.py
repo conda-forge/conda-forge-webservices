@@ -51,12 +51,19 @@ def update_listing():
         with open(feedstocks_html, 'w') as fh:
             fh.write(tmpl.render(context))
 
+        nojekyll = os.path.join(feedstocks_dir, ".nojekyll")
+        with open(nojekyll, 'w') as fh:
+            pass
+
         if feedstocks_repo.is_dirty(untracked_files=True):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
             feedstocks_repo.index.add([os.path.relpath(
                 feedstocks_html, feedstocks_dir
+            )])
+            feedstocks_repo.index.add([os.path.relpath(
+                nojekyll, feedstocks_dir
             )])
             feedstocks_repo.index.commit(
                 "Updated the feedstock listing.",
