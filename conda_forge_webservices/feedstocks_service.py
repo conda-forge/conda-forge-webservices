@@ -25,14 +25,24 @@ def update_listing():
         webpage_dir = os.path.dirname(webpage_repo.git_dir)
 
         feedstocks_url = (
-            "https://{}@github.com/conda-forge/feedstocks.git"
-            "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
+            "https://github.com/conda-forge/feedstocks.git"
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
             os.path.join(tmp_dir, "feedstocks")
         )
         feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
+
+        feedstocks_page_url = (
+            "https://{}@github.com/conda-forge/feedstocks.git"
+            "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
+        )
+        feedstocks_page_repo = git.Repo.clone_from(
+            feedstocks_page_url,
+            os.path.join(tmp_dir, "feedstocks_page"),
+            branch="gh-pages"
+        )
+        feedstocks_page_dir = os.path.dirname(feedstocks_page_repo.git_dir)
 
         Feedstock = namedtuple("Feedstock", ["name", "package_name"])
         repos = sorted(os.listdir(os.path.join(
@@ -47,31 +57,31 @@ def update_listing():
         )
         context = {"gh_feedstocks": repos}
         tmpl = env.get_template("feedstocks.html.tmpl")
-        feedstocks_html = os.path.join(feedstocks_dir, "index.html")
+        feedstocks_html = os.path.join(feedstocks_page_dir, "index.html")
         with open(feedstocks_html, 'w') as fh:
             fh.write(tmpl.render(context))
 
-        nojekyll = os.path.join(feedstocks_dir, ".nojekyll")
+        nojekyll = os.path.join(feedstocks_page_dir, ".nojekyll")
         with open(nojekyll, 'w') as fh:
             pass
 
-        if feedstocks_repo.is_dirty(untracked_files=True):
+        if feedstocks_page_repo.is_dirty(untracked_files=True):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
-            feedstocks_repo.index.add([os.path.relpath(
-                feedstocks_html, feedstocks_dir
+            feedstocks_page_repo.index.add([os.path.relpath(
+                feedstocks_html, feedstocks_page_dir
             )])
-            feedstocks_repo.index.add([os.path.relpath(
-                nojekyll, feedstocks_dir
+            feedstocks_page_repo.index.add([os.path.relpath(
+                nojekyll, feedstocks_page_dir
             )])
-            feedstocks_repo.index.commit(
+            feedstocks_page_repo.index.commit(
                 "Updated the feedstock listing.",
                 author=author,
                 committer=author
             )
-            feedstocks_repo.remote().pull(rebase=True)
-            feedstocks_repo.remote().push()
+            feedstocks_page_repo.remote().pull(rebase=True)
+            feedstocks_page_repo.remote().push()
 
 
 def update_feedstock(org_name, repo_name):
