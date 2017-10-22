@@ -124,7 +124,7 @@ def update_feedstock(org_name, repo_name):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
-            feedstocks_repo.git.add(update=True)
+            feedstocks_repo.git.add(all=True)
             feedstocks_repo.index.commit(
                 "Updated the {0} feedstock.".format(name),
                 author=author,
