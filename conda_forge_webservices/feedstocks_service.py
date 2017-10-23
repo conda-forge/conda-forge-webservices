@@ -122,7 +122,7 @@ def update_feedstock(org_name, repo_name):
         feedstocks_repo.git.add([".gitmodules", feedstock_submodule.path])
 
         # Submit changes
-        if feedstocks_page_repo.is_dirty(working_tree=False, untracked_files=True):
+        if feedstocks_repo.is_dirty(working_tree=False, untracked_files=True):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
