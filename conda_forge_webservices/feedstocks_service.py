@@ -65,16 +65,17 @@ def update_listing():
         with open(nojekyll, 'w') as fh:
             pass
 
-        if feedstocks_page_repo.is_dirty(untracked_files=True):
+        feedstocks_page_repo.index.add([os.path.relpath(
+            feedstocks_html, feedstocks_page_dir
+        )])
+        feedstocks_page_repo.index.add([os.path.relpath(
+            nojekyll, feedstocks_page_dir
+        )])
+
+        if feedstocks_page_repo.is_dirty(working_tree=False, untracked_files=True):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
-            feedstocks_page_repo.index.add([os.path.relpath(
-                feedstocks_html, feedstocks_page_dir
-            )])
-            feedstocks_page_repo.index.add([os.path.relpath(
-                nojekyll, feedstocks_page_dir
-            )])
             feedstocks_page_repo.index.commit(
                 "Updated the feedstock listing.",
                 author=author,
@@ -118,13 +119,13 @@ def update_feedstock(org_name, repo_name):
             force=True,
             to_latest_revision=True
         )
+        feedstocks_repo.git.add([".gitmodules", feedstock_submodule.path])
 
         # Submit changes
-        if feedstocks_repo.is_dirty(untracked_files=True):
+        if feedstocks_page_repo.is_dirty(working_tree=False, untracked_files=True):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
             )
-            feedstocks_repo.git.add(update=True)
             feedstocks_repo.index.commit(
                 "Updated the {0} feedstock.".format(name),
                 author=author,
