@@ -26,6 +26,7 @@ $HOME/.conda/bin/conda install -c conda-forge --yes conda-smithy python=3.5 torn
 mkdir -p "${STORAGE_LOCN}/.conda-smithy"
 ln -s "${STORAGE_LOCN}/.conda-smithy" "${HOME}/.conda-smithy"
 echo "${GH_TOKEN}" > ${HOME}/.conda-smithy/github.token
+echo "${CIRCLE_TOKEN}" > ${HOME}/.conda-smithy/circle.token
 
 cp -rf $HOME/.conda $STORAGE_LOCN/.conda
 
