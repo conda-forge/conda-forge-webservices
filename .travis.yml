@@ -19,7 +19,8 @@ install:
  - bash miniconda.sh -b -p $HOME/miniconda
  - export PATH="$HOME/miniconda/bin:$PATH"
  - conda config --set show_channel_urls True
- - conda install --yes --channel conda-forge python=${python} --file conda-requirements.txt
+ - conda config --add channels conda-forge
+ - conda install --yes --quiet python=${python} --file conda-requirements.txt
  - mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
  - python setup.py install
 

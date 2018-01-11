@@ -6,12 +6,14 @@ import subprocess
 from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
+from .circle_ci import update_circle
 from conda_smithy import __version__ as conda_smithy_version
 
 ADD_NOARCH_MSG = "please add noarch: python"
 RERENDER_MSG = "please rerender"
 LINT_MSG = "please lint"
 UPDATE_TEAM_MSG = "please update team"
+UPDATE_CIRCLECI_KEY_MSG = "please update circle"
 
 def check_for_bot(comment):
     return "@conda-forge-admin" in comment or "@conda-forge-linter" in comment
@@ -68,7 +70,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not check_for_bot(comment + title):
         return
 
-    issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG]
+    issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG]
 
     if not any(command in (comment+title) for command in issue_commands):
         return
@@ -82,6 +84,12 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         if UPDATE_TEAM_MSG in title:
             issue.edit(state="closed")
         issue.create_comment("Hi, I updated the team.")
+
+    if UPDATE_CIRCLECI_KEY_MSG in comment + title:
+        update_circle(org_name, repo_name)
+        if UPDATE_CIRCLECI_KEY_MSG in title:
+            issue.edit(state="closed")
+        issue.create_comment("Hi, I updated the circle-ci deploy key.")
 
     forked_user = gh.get_user().login
     forked_repo = gh.get_user().create_fork(repo)
