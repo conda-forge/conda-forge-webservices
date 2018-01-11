@@ -15,6 +15,7 @@ env_dir=$(cd "$3/" && pwd)
 # Secret variables aren't exported in the build phase, but they are available
 # from the environment directory.
 export "GH_TOKEN=$(cat $env_dir/GH_TOKEN)"
+export "CIRCLE_TOKEN=$(cat $env_dir/CIRCLE_TOKEN)"
 
 # -------
 
