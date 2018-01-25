@@ -244,7 +244,10 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
             if not pull_request and action in ['opened', 'edited', 'created', 'reopened']:
                 title = body['issue']['title'] if event == "issues" else ""
-                comment = body['issue']['body']
+                if 'comment' in body:
+                    comment = body['comment']['body']
+                else:
+                    comment = body['issue']['body']
                 commands.issue_comment(owner, repo_name, issue_num, title, comment)
             print_rate_limiting_info()
 
