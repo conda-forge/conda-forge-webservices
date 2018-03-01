@@ -8,6 +8,7 @@ from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from .circle_ci import update_circle
 from conda_smithy import __version__ as conda_smithy_version
+import textwrap
 
 ADD_NOARCH_MSG = "please add noarch: python"
 RERENDER_MSG = "please rerender"
@@ -51,9 +52,9 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
 
         if ADD_NOARCH_MSG in comment.lower():
             make_noarch(repo)
-            rerender(repo)
+            rerender(repo, pr_num)
         if RERENDER_MSG in comment.lower():
-            rerender(repo)
+            rerender(repo, pr_num)
         if LINT_MSG in comment.lower():
             relint(org_name, repo_name, pr_num)
 
@@ -83,13 +84,23 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         update_team(org_name, repo_name)
         if UPDATE_TEAM_MSG in title:
             issue.edit(state="closed")
-        issue.create_comment("Hi, I updated the team.")
+        message = textwrap.dedent("""
+                Hi! This is the friendly automated conda-forge-webservice.
+
+                I just wanted to let you know that I updated the team with maintainers from master.
+                """)
+        issue.create_comment(message)
 
     if UPDATE_CIRCLECI_KEY_MSG in comment + title:
         update_circle(org_name, repo_name)
         if UPDATE_CIRCLECI_KEY_MSG in title:
             issue.edit(state="closed")
-        issue.create_comment("Hi, I updated the circle-ci deploy key.")
+        message = textwrap.dedent("""
+                Hi! This is the friendly automated conda-forge-webservice.
+
+                I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
+                """)
+        issue.create_comment(message)
 
     forked_user = gh.get_user().login
     forked_repo = gh.get_user().create_fork(repo)
@@ -113,14 +124,27 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
             if ADD_NOARCH_MSG in title:
                 issue.edit(state="closed")
-            issue.create_comment("Hi, I made the recipe noarch: python in {}/{}#{}.".format(org_name, repo_name, pr.number))
+
+            message = textwrap.dedent("""
+                    Hi! This is the friendly automated conda-forge-webservice.
+
+                    I just wanted to let you know that I made the recipe noarch: python in {}/{}#{}.
+                    """.format(org_name, repo_name, pr.number))
+            issue.create_comment(message)
 
 
-def rerender(repo):
+def rerender(repo, pr_num):
     subprocess.call(["conda", "smithy", "rerender"], cwd=repo.working_dir)
     if repo.is_dirty():
         author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
-        repo.index.commit("MNT: Re-rendered with conda-smithy {}".format(conda_smithy_version), author=author)
+        repo.index.commit("MNT: Re-rendered with conda-smithy {}".format(conda_smithy_version), author=author, committer=author)
+    else:
+        message = textwrap.dedent("""
+                Hi! This is the friendly automated conda-forge-webservice.
+
+                I rerendered the feedstock and it seems to be already up-to-date.
+                """)
+        repo.get_issue(pr_num).create_comment(message)
 
 
 def make_noarch(repo):
