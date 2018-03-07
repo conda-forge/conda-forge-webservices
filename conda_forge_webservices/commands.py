@@ -116,7 +116,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
         if ADD_NOARCH_MSG in comment + title:
             make_noarch(git_repo)
-            rerender(git_repo)
+            rerender(git_repo, issue_num)
             git_repo.git.push("origin", forked_repo_branch)
             msg = "MNT: Add noarch: python"
             pr = repo.create_pull(msg, "As instructed in #{}".format(issue_num),
