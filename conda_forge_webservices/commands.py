@@ -2,6 +2,7 @@ from git import GitCommandError, Repo, Actor
 from conda_build.metadata import MetaData
 import github
 import os
+import re
 import subprocess
 from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
@@ -10,18 +11,18 @@ from .circle_ci import update_circle
 from conda_smithy import __version__ as conda_smithy_version
 import textwrap
 
-ADD_NOARCH_MSG = "please add noarch: python"
-RERENDER_MSG = "please rerender"
-LINT_MSG = "please lint"
-UPDATE_TEAM_MSG = "please update team"
-UPDATE_CIRCLECI_KEY_MSG = "please update circle"
 
-def check_for_bot(comment):
-    return "@conda-forge-admin" in comment or "@conda-forge-linter" in comment
+pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
+COMMAND_PREFIX = re.compile(pre)
+ADD_NOARCH_MSG = re.compile(pre + "please (add|make) `?noarch:? python`?")
+RERENDER_MSG = re.compile(pre + "please re-?render")
+LINT_MSG = re.compile(pre + "please lint")
+UPDATE_TEAM_MSG = re.compile(pre + "please update team")
+UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "please update circle")
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
-    if not check_for_bot(comment):
+    if not COMMAND_PREFIX.search(comment):
         return
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
@@ -34,14 +35,13 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
 
-    if not check_for_bot(comment):
-        return
+    comment = comment.lower()
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:
         pr_commands += [ADD_NOARCH_MSG, RERENDER_MSG]
 
-    if not any(command in comment.lower() for command in pr_commands):
+    if not any(command.search(comment) for command in pr_commands):
         return
 
     with tmp_directory() as tmp_dir:
@@ -50,12 +50,12 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
 
-        if ADD_NOARCH_MSG in comment.lower():
+        if ADD_NOARCH_MSG.search(comment):
             make_noarch(repo)
             rerender(repo, pr_num)
-        if RERENDER_MSG in comment.lower():
+        if RERENDER_MSG.search(comment):
             rerender(repo, pr_num)
-        if LINT_MSG in comment.lower():
+        if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
 
         repo.remotes.origin.push()
@@ -67,22 +67,20 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
     comment = comment.lower()
     title = title.lower()
-
-    if not check_for_bot(comment + title):
-        return
+    text = comment + title
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG]
 
-    if not any(command in (comment+title) for command in issue_commands):
+    if not any(command.search(text) for command in issue_commands):
         return
 
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
     issue = repo.get_issue(int(issue_num))
 
-    if UPDATE_TEAM_MSG in comment + title:
+    if UPDATE_TEAM_MSG.search(text):
         update_team(org_name, repo_name)
-        if UPDATE_TEAM_MSG in title:
+        if UPDATE_TEAM_MSG.search(title):
             issue.edit(state="closed")
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
@@ -91,9 +89,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 """)
         issue.create_comment(message)
 
-    if UPDATE_CIRCLECI_KEY_MSG in comment + title:
+    if UPDATE_CIRCLECI_KEY_MSG.search(text):
         update_circle(org_name, repo_name)
-        if UPDATE_CIRCLECI_KEY_MSG in title:
+        if UPDATE_CIRCLECI_KEY_MSG.search(title):
             issue.edit(state="closed")
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
@@ -114,7 +112,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         new_branch = git_repo.create_head(forked_repo_branch)
         new_branch.checkout()
 
-        if ADD_NOARCH_MSG in comment + title:
+        if ADD_NOARCH_MSG.search(text):
             make_noarch(git_repo)
             rerender(git_repo, issue_num)
             git_repo.git.push("origin", forked_repo_branch)
@@ -122,7 +120,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             pr = repo.create_pull(msg, "As instructed in #{}".format(issue_num),
                     "master", "{}:{}".format(forked_user, forked_repo_branch))
 
-            if ADD_NOARCH_MSG in title:
+            if ADD_NOARCH_MSG.search(title):
                 issue.edit(state="closed")
 
             message = textwrap.dedent("""
