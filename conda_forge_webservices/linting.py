@@ -22,7 +22,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
     mergeable = None
     while mergeable is None:
-        time.sleep(0.1)
+        time.sleep(1.0)
         pull_request = remote_repo.get_pull(pr_id)
         if pull_request.state != "open":
             return {}
