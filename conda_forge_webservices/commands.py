@@ -67,6 +67,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     text = comment + title
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG]
+    send_pr_commands = [ADD_NOARCH_MSG]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -97,35 +98,36 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 """)
         issue.create_comment(message)
 
-    forked_user = gh.get_user().login
-    forked_repo = gh.get_user().create_fork(repo)
+    if any(command.search(text) for command in send_pr_commands):
+        forked_user = gh.get_user().login
+        forked_repo = gh.get_user().create_fork(repo)
 
-    with tmp_directory() as tmp_dir:
-        feedstock_dir = os.path.join(tmp_dir, repo_name)
-        repo_url = "https://{}@github.com/{}/{}.git".format(os.environ['GH_TOKEN'],
-            forked_user, repo_name)
-        git_repo = Repo.clone_from(repo_url, feedstock_dir)
-        forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
-        new_branch = git_repo.create_head(forked_repo_branch)
-        new_branch.checkout()
+        with tmp_directory() as tmp_dir:
+            feedstock_dir = os.path.join(tmp_dir, repo_name)
+            repo_url = "https://{}@github.com/{}/{}.git".format(os.environ['GH_TOKEN'],
+                forked_user, repo_name)
+            git_repo = Repo.clone_from(repo_url, feedstock_dir)
+            forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
+            new_branch = git_repo.create_head(forked_repo_branch)
+            new_branch.checkout()
 
-        if ADD_NOARCH_MSG.search(text):
-            make_noarch(git_repo)
-            rerender(git_repo, issue_num)
-            git_repo.git.push("origin", forked_repo_branch)
-            msg = "MNT: Add noarch: python"
-            pr = repo.create_pull(msg, "As instructed in #{}".format(issue_num),
-                    "master", "{}:{}".format(forked_user, forked_repo_branch))
+            if ADD_NOARCH_MSG.search(text):
+                make_noarch(git_repo)
+                rerender(git_repo, issue_num)
+                git_repo.git.push("origin", forked_repo_branch)
+                msg = "MNT: Add noarch: python"
+                pr = repo.create_pull(msg, "As instructed in #{}".format(issue_num),
+                        "master", "{}:{}".format(forked_user, forked_repo_branch))
 
-            if ADD_NOARCH_MSG.search(title):
-                issue.edit(state="closed")
+                if ADD_NOARCH_MSG.search(title):
+                    issue.edit(state="closed")
 
-            message = textwrap.dedent("""
-                    Hi! This is the friendly automated conda-forge-webservice.
+                message = textwrap.dedent("""
+                        Hi! This is the friendly automated conda-forge-webservice.
 
-                    I just wanted to let you know that I made the recipe noarch: python in {}/{}#{}.
-                    """.format(org_name, repo_name, pr.number))
-            issue.create_comment(message)
+                        I just wanted to let you know that I made the recipe noarch: python in {}/{}#{}.
+                        """.format(org_name, repo_name, pr.number))
+                issue.create_comment(message)
 
 
 def rerender(repo, pr_num):
