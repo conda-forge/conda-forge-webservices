@@ -45,8 +45,9 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.tmp_directory')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
-    def test_pr_commands(self, repo, gh, tmp_directory, update_circle,
-                         update_team, relint, make_noarch, rerender):
+    def test_pr_command_triggers(
+            self, repo, gh, tmp_directory, update_circle,
+            update_team, relint, make_noarch, rerender):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
 
         commands = [
@@ -108,8 +109,9 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.tmp_directory')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
-    def test_issue_commands(self, repo, gh, tmp_directory, update_circle,
-                            update_team, relint, make_noarch, rerender):
+    def test_issue_command_triggers(
+            self, repo, gh, tmp_directory, update_circle,
+            update_team, relint, make_noarch, rerender):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
 
         commands = [
@@ -140,22 +142,35 @@ class TestCommands(unittest.TestCase):
         ]
 
         for command, should, should_not in commands:
+            issue = gh.return_value.get_repo.return_value.get_issue.return_value
             for msg in should:
-                command.reset_mock()
                 print(msg, end=' ' * 30 + '\r')
-                issue_comment("hi", msg)
+
+                command.reset_mock()
+                issue.reset_mock()
+                issue_comment(title="hi", comment=msg)
                 command.assert_called()
+                issue.edit.assert_not_called()
+
+                command.reset_mock()
+                issue.reset_mock()
+                issue_comment(title=msg, comment="As in title")
+                command.assert_called()
+                issue.edit.assert_called_with(state="closed")
 
                 command.reset_mock()
                 print(msg, end=' ' * 30 + '\r')
-                issue_comment("hi", msg, repo_name='staged-recipes')
+                issue_comment(msg, msg, repo_name='staged-recipes')
                 command.assert_not_called()
 
             for msg in should_not:
-                command.reset_mock()
                 print(msg, end=' ' * 30 + '\r')
-                issue_comment("hi", msg)
+
+                command.reset_mock()
+                issue.reset_mock()
+                issue_comment(title="hi", comment=msg)
                 command.assert_not_called()
+                issue.edit.assert_not_called()
 
 
 if __name__ == '__main__':
