@@ -13,12 +13,12 @@ import textwrap
 
 
 pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
-COMMAND_PREFIX = re.compile(pre)
-ADD_NOARCH_MSG = re.compile(pre + "please (add|make) `?noarch:? python`?")
-RERENDER_MSG = re.compile(pre + "please re-?render")
-LINT_MSG = re.compile(pre + "please lint")
-UPDATE_TEAM_MSG = re.compile(pre + "please update team")
-UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "please update circle")
+COMMAND_PREFIX = re.compile(pre, re.I)
+ADD_NOARCH_MSG = re.compile(pre + "please (add|make) `?noarch:? python`?", re.I)
+RERENDER_MSG = re.compile(pre + "please re-?render", re.I)
+LINT_MSG = re.compile(pre + "please (re-?)?lint", re.I)
+UPDATE_TEAM_MSG = re.compile(pre + "please (update|refresh) (the )?team", re.I)
+UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "please (update|refresh) (the )?circle", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -34,8 +34,6 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     is_staged_recipes = (repo_name == "staged-recipes")
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
-
-    comment = comment.lower()
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:
@@ -65,8 +63,6 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not repo_name.endswith("-feedstock"):
         return
 
-    comment = comment.lower()
-    title = title.lower()
     text = comment + title
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG]
