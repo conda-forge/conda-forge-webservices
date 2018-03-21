@@ -115,6 +115,17 @@ class TestCommands(unittest.TestCase):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
 
         commands = [
+            (rerender, [
+                '@conda-forge-admin, please rerender',
+                '@conda-forge-admin, please re-render',
+                '@conda-forge-admin: PLEASE RERENDER',
+                'something something. @conda-forge-admin: please re-render',
+             ], [
+                '@conda-forge admin is pretty cool. please rerender for me?',
+                '@conda-forge-admin, go ahead and rerender for me',
+                'please re-render, @conda-forge-admin',
+                '@conda-forge-linter, please lint',
+             ]),
             (make_noarch, [
                 '@conda-forge-admin, please add noarch python',
                 '@conda-forge-admin, please make `noarch: python`',
