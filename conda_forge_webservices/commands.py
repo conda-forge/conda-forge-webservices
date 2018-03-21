@@ -48,11 +48,12 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
 
-        if ADD_NOARCH_MSG.search(comment):
-            make_noarch(repo)
-            rerender(repo, pr_num)
-        if RERENDER_MSG.search(comment):
-            rerender(repo, pr_num)
+        if not is_staged_recipes:
+            if ADD_NOARCH_MSG.search(comment):
+                make_noarch(repo)
+                rerender(repo, pr_num)
+            if RERENDER_MSG.search(comment):
+                rerender(repo, pr_num)
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
 
