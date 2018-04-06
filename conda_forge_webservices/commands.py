@@ -127,8 +127,16 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)
+                pr_message = textwrap.dedent("""
+                        Hi! This is the friendly automated conda-forge-webservice.
+
+                        I've {} as instructed #{}.
+
+                        Here's a checklist to do before merging.
+                        - [ ] Bump the build number if needed.
+                        """.format(comment_msg, issue_num))
                 pr = repo.create_pull(
-                    pr_title, "As instructed in #{}".format(issue_num),
+                    pr_title, pr_message,
                     "master", "{}:{}".format(forked_user, forked_repo_branch))
 
                 message = textwrap.dedent("""
