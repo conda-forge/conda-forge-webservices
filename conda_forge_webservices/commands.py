@@ -135,6 +135,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         Here's a checklist to do before merging.
                         - [ ] Bump the build number if needed.
                         """.format(comment_msg, issue_num))
+
+                if to_close:
+                    pr_message += "\nFixes #{}".format(issue_num)
+
                 pr = repo.create_pull(
                     pr_title, pr_message,
                     "master", "{}:{}".format(forked_user, forked_repo_branch))
@@ -145,10 +149,6 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         I just wanted to let you know that I {} in {}/{}#{}.
                         """.format(comment_msg, org_name, repo_name, pr.number))
                 issue.create_comment(message)
-
-            # rerender() will have made a comment if there was nothing to do
-            if to_close:
-                issue.edit(state="closed")
 
 
 def rerender(repo, pr_num):
