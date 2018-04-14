@@ -51,9 +51,9 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         if not is_staged_recipes:
             if ADD_NOARCH_MSG.search(comment):
                 make_noarch(repo)
-                rerender(repo, pr_num)
+                rerender(repo, org_name, repo_name, pr_num)
             if RERENDER_MSG.search(comment):
-                rerender(repo, pr_num)
+                rerender(repo, org_name, repo_name, pr_num)
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
 
@@ -114,7 +114,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
             if ADD_NOARCH_MSG.search(text):
                 make_noarch(git_repo)
-                rerender(git_repo, issue_num)
+                rerender(git_repo, org_name, repo_name, issue_num)
                 pr_title = "MNT: Add noarch: python"
                 comment_msg = "made the recipe `noarch: python`"
                 changed_anything = True  # make_noarch always adds a line
@@ -151,7 +151,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 issue.create_comment(message)
 
 
-def rerender(repo, pr_num):
+def rerender(repo, org_name, repo_name, pr_num):
     subprocess.call(["conda", "smithy", "rerender"], cwd=repo.working_dir)
     if repo.is_dirty():
         author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
@@ -163,7 +163,9 @@ def rerender(repo, pr_num):
 
                 I rerendered the feedstock and it seems to be already up-to-date.
                 """)
-        repo.get_issue(pr_num).create_comment(message)
+        gh = github.Github(os.environ['GH_TOKEN'])
+        gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        gh_repo.get_issue(pr_num).create_comment(message)
         return False
 
 
@@ -188,10 +190,10 @@ def make_noarch(repo):
 
 def relint(owner, repo_name, pr_num):
     pr = int(pr_num)
-    lint_info = compute_lint_message(owner, repo_name, pr, False)
+    lint_info = compute_lint_message(owner, repo_name, pr, repo_name == 'staged-recipes')
     if not lint_info:
         print('Linting was skipped.')
     else:
-        msg = comment_on_pr(owner, repo_name, pr, lint_info['message'])
+        msg = comment_on_pr(owner, repo_name, pr, lint_info['message'], force=True)
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
 

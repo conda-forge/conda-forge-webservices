@@ -22,7 +22,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
     mergeable = None
     while mergeable is None:
-        time.sleep(0.1)
+        time.sleep(1.0)
         pull_request = remote_repo.get_pull(pr_id)
         if pull_request.state != "open":
             return {}
@@ -161,18 +161,21 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     return lint_info
 
 
-def comment_on_pr(owner, repo_name, pr_id, message):
+def comment_on_pr(owner, repo_name, pr_id, message, force=False):
     gh = github.Github(os.environ['GH_TOKEN'])
-    my_login = gh.get_user().login
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
     issue = repo.get_issue(pr_id)
 
+    if force:
+        return issue.create_comment(message)
+
     comments = list(issue.get_comments())
     comment_owners = [comment.user.login for comment in comments]
 
     my_last_comment = None
+    my_login = gh.get_user().login
     if my_login in comment_owners:
         my_last_comment = [comment for comment in comments
                            if comment.user.login == my_login][-1]
