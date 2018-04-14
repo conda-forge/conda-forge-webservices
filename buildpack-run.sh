@@ -22,7 +22,7 @@ export "CIRCLE_TOKEN=$(cat $env_dir/CIRCLE_TOKEN)"
 wget -q https://repo.continuum.io/miniconda/Miniconda3-4.3.30-Linux-x86_64.sh -O miniconda.sh
 bash miniconda.sh -b -p $HOME/.conda
 $HOME/.conda/bin/conda update conda --yes
-$HOME/.conda/bin/conda install -c conda-forge --yes conda-smithy python=3.6 tornado pygithub git statuspage
+$HOME/.conda/bin/conda install -c conda-forge --yes conda-smithy=2.4.5 python=3.6 tornado pygithub git statuspage
 
 mkdir -p "${STORAGE_LOCN}/.conda-smithy"
 ln -s "${STORAGE_LOCN}/.conda-smithy" "${HOME}/.conda-smithy"
