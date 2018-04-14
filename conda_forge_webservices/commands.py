@@ -51,9 +51,9 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         if not is_staged_recipes:
             if ADD_NOARCH_MSG.search(comment):
                 make_noarch(repo)
-                rerender(repo, pr_num)
+                rerender(repo, org_name, repo_name, pr_num)
             if RERENDER_MSG.search(comment):
-                rerender(repo, pr_num)
+                rerender(repo, org_name, repo_name, pr_num)
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
 
@@ -113,7 +113,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
             if ADD_NOARCH_MSG.search(text):
                 make_noarch(git_repo)
-                rerender(git_repo, issue_num)
+                rerender(git_repo, org_name, repo_name, issue_num)
                 git_repo.git.push("origin", forked_repo_branch)
                 msg = "MNT: Add noarch: python"
                 pr = repo.create_pull(msg, "As instructed in #{}".format(issue_num),
@@ -130,7 +130,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 issue.create_comment(message)
 
 
-def rerender(repo, pr_num):
+def rerender(repo, org_name, repo_name, pr_num):
     subprocess.call(["conda", "smithy", "rerender"], cwd=repo.working_dir)
     if repo.is_dirty():
         author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
@@ -141,7 +141,10 @@ def rerender(repo, pr_num):
 
                 I rerendered the feedstock and it seems to be already up-to-date.
                 """)
-        repo.get_issue(pr_num).create_comment(message)
+
+        gh = github.Github(os.environ['GH_TOKEN'])
+        gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        gh_repo.get_issue(pr_num).create_comment(message)
 
 
 def make_noarch(repo):
