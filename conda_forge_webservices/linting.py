@@ -109,7 +109,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                 lints = conda_smithy.lint_recipe.main(recipe_dir, conda_forge=True)
             except Exception as err:
                 print('ERROR:', err)
-                lints = ['Failed to even lint the recipe (might be a conda-smithy bug) :cry:']
+                lints = ["Failed to even lint the recipe, probably because of a conda-smithy bug :cry:. "
+                         "This likely indicates a problem in your `meta.yaml`, though. "
+                         "To get a traceback to help figure out what's going on, install conda-smithy "
+                         "and run `conda smithy recipe-lint .` from the recipe directory. "]
             if lints:
                 all_pass = False
                 messages.append("\nFor **{}**:\n\n{}".format(rel_path,
