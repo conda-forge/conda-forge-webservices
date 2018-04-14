@@ -6,9 +6,9 @@ STORAGE_LOCN=$(pwd)
 # ----------
 
 mkdir -p "$1" "$2" "$3"
-build=$(cd "$1/" && pwd)
-cache=$(cd "$2/" && pwd)
-env_dir=$(cd "$3/" && pwd)
+build=$BUILD_DIR
+cache=$CACHE_DIR
+env_dir=$ENV_DIR
 
 # -------
 
