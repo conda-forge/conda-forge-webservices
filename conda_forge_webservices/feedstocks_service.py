@@ -105,10 +105,6 @@ def update_feedstock(org_name, repo_name):
             url="https://github.com/{0}/{1}.git".format(org_name, repo_name),
             branch="master"
         )
-        # Hack needed if the submodule already exists.
-        # Borrows the fix accepted upstream.
-        # PR: https://github.com/gitpython-developers/GitPython/pull/679
-        feedstock_submodule._name = name
 
         # Update the feedstocks submodule
         feedstock_submodule.update(init=True, recursive=False, force=True)
