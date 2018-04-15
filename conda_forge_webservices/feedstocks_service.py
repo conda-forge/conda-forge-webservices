@@ -107,8 +107,6 @@ def update_feedstock(org_name, repo_name):
         )
 
         # Update the feedstocks submodule
-        feedstock_submodule.update(init=True, recursive=False, force=True)
-        feedstock_submodule.branch.checkout(force=True)
         feedstock_submodule.update(
             init=True,
             recursive=False,
