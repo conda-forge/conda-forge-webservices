@@ -1,4 +1,4 @@
-conda-smithy>=2.4
+conda-smithy>=3
 tornado
 pygithub
 nose
