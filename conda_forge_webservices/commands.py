@@ -120,7 +120,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 changed_anything = True  # make_noarch always adds a line
                 to_close = ADD_NOARCH_MSG.search(title)
             elif RERENDER_MSG.search(text):
-                changed_anything = rerender(git_repo, issue_num)
+                changed_anything = rerender(git_repo, org_name, repo_name, issue_num)
                 pr_title = "MNT: rerender"
                 comment_msg = "rerendered the recipe"
                 to_close = RERENDER_MSG.search(title)
