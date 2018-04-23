@@ -152,21 +152,21 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
 
 def rerender(repo, org_name, repo_name, pr_num):
-    subprocess.call(["conda", "smithy", "rerender"], cwd=repo.working_dir)
-    if repo.is_dirty():
-        author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
-        repo.index.commit("MNT: Re-rendered with conda-smithy {}".format(conda_smithy_version), author=author, committer=author)
+    curr_head = repo.active_branch.commit
+    subprocess.call(["conda", "smithy", "rerender", "-c", "auto"], cwd=repo.working_dir)
+    if repo.active_branch.commit != curr_head:
         return True
-    else:
-        message = textwrap.dedent("""
-                Hi! This is the friendly automated conda-forge-webservice.
 
-                I rerendered the feedstock and it seems to be already up-to-date.
-                """)
-        gh = github.Github(os.environ['GH_TOKEN'])
-        gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        gh_repo.get_issue(pr_num).create_comment(message)
-        return False
+    # conda-smithy didn't do anything
+    message = textwrap.dedent("""
+            Hi! This is the friendly automated conda-forge-webservice.
+
+            I rerendered the feedstock and it seems to be already up-to-date.
+            """)
+    gh = github.Github(os.environ['GH_TOKEN'])
+    gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+    gh_repo.get_issue(pr_num).create_comment(message)
+    return False
 
 
 def make_noarch(repo):

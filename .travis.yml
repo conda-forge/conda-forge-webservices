@@ -15,11 +15,13 @@ env:
 
 install:
  - export CONDA_BASE=http://repo.continuum.io/miniconda/Miniconda3
- - wget ${CONDA_BASE}-4.3.30-Linux-x86_64.sh -O miniconda.sh;
+ - wget ${CONDA_BASE}-4.4.10-Linux-x86_64.sh -O miniconda.sh;
  - bash miniconda.sh -b -p $HOME/miniconda
- - export PATH="$HOME/miniconda/bin:$PATH"
+ - source "$HOME/miniconda/etc/profile.d/conda.sh"
+ - conda activate
  - conda config --set show_channel_urls True
  - conda config --add channels conda-forge
+ - conda update --yes conda
  - conda install --yes --quiet python=${python} --file conda-requirements.txt
  - mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
  - python setup.py install
