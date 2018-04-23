@@ -32,6 +32,11 @@ ln -s "${STORAGE_LOCN}/.conda-smithy" "${HOME}/.conda-smithy"
 echo "${GH_TOKEN}" > ${HOME}/.conda-smithy/github.token
 echo "${CIRCLE_TOKEN}" > ${HOME}/.conda-smithy/circle.token
 
+git config --global user.name "conda-forge-admin"
+git config --global user.email "pelson.pub+conda-forge@gmail.com"
+mv "$HOME/.gitconfig" "$STORAGE_LOCN/.gitconfig"
+ln -s "$STORAGE_LOCN/.gitconfig" "$HOME/.gitconfig"
+
 cp -rf $HOME/.conda $STORAGE_LOCN/.conda
 
 mkdir -p $build/.profile.d
