@@ -66,8 +66,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
     text = comment + title
 
-    issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG]
-    send_pr_commands = [ADD_NOARCH_MSG]
+    issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
+                      RERENDER_MSG]
+    send_pr_commands = [ADD_NOARCH_MSG, RERENDER_MSG]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -104,8 +105,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
         with tmp_directory() as tmp_dir:
             feedstock_dir = os.path.join(tmp_dir, repo_name)
-            repo_url = "https://{}@github.com/{}/{}.git".format(os.environ['GH_TOKEN'],
-                forked_user, repo_name)
+            repo_url = "https://{}@github.com/{}/{}.git".format(
+                os.environ['GH_TOKEN'], forked_user, repo_name)
             git_repo = Repo.clone_from(repo_url, feedstock_dir)
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
             new_branch = git_repo.create_head(forked_repo_branch)
@@ -114,36 +115,58 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             if ADD_NOARCH_MSG.search(text):
                 make_noarch(git_repo)
                 rerender(git_repo, org_name, repo_name, issue_num)
-                git_repo.git.push("origin", forked_repo_branch)
-                msg = "MNT: Add noarch: python"
-                pr = repo.create_pull(msg, "As instructed in #{}".format(issue_num),
-                        "master", "{}:{}".format(forked_user, forked_repo_branch))
+                pr_title = "MNT: Add noarch: python"
+                comment_msg = "made the recipe `noarch: python`"
+                changed_anything = True  # make_noarch always adds a line
+                to_close = ADD_NOARCH_MSG.search(title)
+            elif RERENDER_MSG.search(text):
+                changed_anything = rerender(git_repo, org_name, repo_name, issue_num)
+                pr_title = "MNT: rerender"
+                comment_msg = "rerendered the recipe"
+                to_close = RERENDER_MSG.search(title)
 
-                if ADD_NOARCH_MSG.search(title):
-                    issue.edit(state="closed")
+            if changed_anything:
+                git_repo.git.push("origin", forked_repo_branch)
+                pr_message = textwrap.dedent("""
+                        Hi! This is the friendly automated conda-forge-webservice.
+
+                        I've {} as instructed in #{}.
+
+                        Here's a checklist to do before merging.
+                        - [ ] Bump the build number if needed.
+                        """.format(comment_msg, issue_num))
+
+                if to_close:
+                    pr_message += "\nFixes #{}".format(issue_num)
+
+                pr = repo.create_pull(
+                    pr_title, pr_message,
+                    "master", "{}:{}".format(forked_user, forked_repo_branch))
 
                 message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
-                        I just wanted to let you know that I made the recipe noarch: python in {}/{}#{}.
-                        """.format(org_name, repo_name, pr.number))
+                        I just wanted to let you know that I {} in {}/{}#{}.
+                        """.format(comment_msg, org_name, repo_name, pr.number))
                 issue.create_comment(message)
 
 
 def rerender(repo, org_name, repo_name, pr_num):
     curr_head = repo.active_branch.commit
     subprocess.call(["conda", "smithy", "rerender", "-c", "auto"], cwd=repo.working_dir)
-    if repo.active_branch.commit == curr_head:
-        # conda-smithy didn't do anything
-        message = textwrap.dedent("""
-                Hi! This is the friendly automated conda-forge-webservice.
+    if repo.active_branch.commit != curr_head:
+        return True
 
-                I rerendered the feedstock and it seems to be already up-to-date.
-                """)
+    # conda-smithy didn't do anything
+    message = textwrap.dedent("""
+            Hi! This is the friendly automated conda-forge-webservice.
 
-        gh = github.Github(os.environ['GH_TOKEN'])
-        gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        gh_repo.get_issue(pr_num).create_comment(message)
+            I rerendered the feedstock and it seems to be already up-to-date.
+            """)
+    gh = github.Github(os.environ['GH_TOKEN'])
+    gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+    gh_repo.get_issue(pr_num).create_comment(message)
+    return False
 
 
 def make_noarch(repo):

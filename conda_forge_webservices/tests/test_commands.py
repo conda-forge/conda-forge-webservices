@@ -115,6 +115,17 @@ class TestCommands(unittest.TestCase):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
 
         commands = [
+            (rerender, [
+                '@conda-forge-admin, please rerender',
+                '@conda-forge-admin, please re-render',
+                '@conda-forge-admin: PLEASE RERENDER',
+                'something something. @conda-forge-admin: please re-render',
+             ], [
+                '@conda-forge admin is pretty cool. please rerender for me?',
+                '@conda-forge-admin, go ahead and rerender for me',
+                'please re-render, @conda-forge-admin',
+                '@conda-forge-linter, please lint',
+             ]),
             (make_noarch, [
                 '@conda-forge-admin, please add noarch python',
                 '@conda-forge-admin, please make `noarch: python`',
@@ -143,6 +154,7 @@ class TestCommands(unittest.TestCase):
 
         for command, should, should_not in commands:
             issue = gh.return_value.get_repo.return_value.get_issue.return_value
+            repo = gh.return_value.get_repo.return_value
             for msg in should:
                 print(msg, end=' ' * 30 + '\r')
 
@@ -156,7 +168,10 @@ class TestCommands(unittest.TestCase):
                 issue.reset_mock()
                 issue_comment(title=msg, comment="As in title")
                 command.assert_called()
-                issue.edit.assert_called_with(state="closed")
+                if command is rerender or command is make_noarch:
+                    assert "Fixes #" in repo.create_pull.call_args[0][1]
+                else:
+                    issue.edit.assert_called_with(state="closed")
 
                 command.reset_mock()
                 print(msg, end=' ' * 30 + '\r')
