@@ -112,6 +112,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             git_repo = Repo.clone_from(repo_url, feedstock_dir)
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
             upstream = git_repo.create_remote('upstream', upstream_repo_url)
+            upstream.fetch()
             new_branch = git_repo.create_head(forked_repo_branch, upstream.refs.master)
             new_branch.checkout()
 
