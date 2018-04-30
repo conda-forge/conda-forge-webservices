@@ -107,9 +107,12 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://{}@github.com/{}/{}.git".format(
                 os.environ['GH_TOKEN'], forked_user, repo_name)
+            upstream_repo_url = "https://{}@github.com/{}/{}.git".format(
+                os.environ['GH_TOKEN'], org_name, repo_name)
             git_repo = Repo.clone_from(repo_url, feedstock_dir)
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
-            new_branch = git_repo.create_head(forked_repo_branch)
+            upstream = git_repo.create_remote('upstream', upstream_repo_url)
+            new_branch = git_repo.create_head(forked_repo_branch, upstream.refs.master)
             new_branch.checkout()
 
             if ADD_NOARCH_MSG.search(text):
