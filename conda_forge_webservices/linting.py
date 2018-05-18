@@ -96,6 +96,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
         recipes = find_recipes(tmp_dir)
         all_pass = True
         messages = []
+        hints = []
 
         # Exclude some things from our list of recipes.
         # Sort the recipes for consistent linting order (which glob doesn't give us).
@@ -106,7 +107,8 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             rel_path = os.path.relpath(recipe_dir, tmp_dir)
             rel_pr_recipes.append(rel_path)
             try:
-                lints = conda_smithy.lint_recipe.main(recipe_dir, conda_forge=True)
+                lints, hints = conda_smithy.lint_recipe.main(recipe_dir, conda_forge=True, return_hints=True)
+
             except Exception as err:
                 print('ERROR:', err)
                 lints = ["Failed to even lint the recipe, probably because of a conda-smithy bug :cry:. "
@@ -117,6 +119,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                 all_pass = False
                 messages.append("\nFor **{}**:\n\n{}".format(rel_path,
                                                              '\n'.join(' * {}'.format(lint) for lint in lints)))
+            if hints:
+                messages.append("\nFor **{}**:\n\n{}".format(rel_path,
+                                                             '\n'.join(' * {}'.format(lint) for lint in lints)))
+
 
     # Put the recipes in the form "```recipe/a```, ```recipe/b```".
     recipe_code_blocks = ', '.join('```{}```'.format(r) for r in rel_pr_recipes)
@@ -127,6 +133,12 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     I just wanted to let you know that I linted all conda-recipes in your PR ({}) and found it was in an excellent condition.
 
     """.format(recipe_code_blocks))
+
+    mixed = good + textwrap.dedent("""
+    I do have some suggestions for making it better though...
+    
+    {}
+    """).format('\n'.join(messages))
 
     bad = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
@@ -149,6 +161,9 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     elif all_pass:
         message = good
         status = 'good'
+    elif all_pass and len(hints):
+        message = mixed
+        status = 'mixed'
     else:
         message = bad
         status = 'bad'
@@ -199,6 +214,9 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
         commit = repo.get_commit(lint_info['sha'])
         if lint_info['status'] == 'good':
             commit.create_status("success", description="All recipes are excellent.",
+                                 context="conda-forge-linter", target_url=target_url)
+        elif lint_info['status'] == 'mixed':
+            commit.create_status("success", description="Some recipes have hints.",
                                  context="conda-forge-linter", target_url=target_url)
         else:
             commit.create_status("failure", description="Some recipes need some changes.",
