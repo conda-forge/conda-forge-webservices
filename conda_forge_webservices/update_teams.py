@@ -28,7 +28,7 @@ def filter_members(members):
 
 def get_handles(members):
     mem = ['@' + m for m in filter_members(members)]
-    return ','.join(mem)
+    return ', '.join(mem)
 
 
 def update_team(org_name, repo_name, commit=None):
