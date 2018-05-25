@@ -47,7 +47,7 @@ def update_team(org_name, repo_name, commit=None):
                   bypass_env_check=True, trim_skip=False)[0][0]
 
         current_maintainers, prev_maintainers, new_conda_forge_members = \
-            configure_github_team(meta, gh_repo, org, repo_name)
+            configure_github_team(meta, gh_repo, org, repo_name.replace("-feedstock", ""))
 
         if commit:
             message = textwrap.dedent("""
