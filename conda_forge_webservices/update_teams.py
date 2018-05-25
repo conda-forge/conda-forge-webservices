@@ -75,8 +75,8 @@ def update_team(org_name, repo_name, commit=None):
                           More details [here](https://conda-forge.org/docs/conda-forge_gotchas.html#using-a-fork-vs-a-branch-when-updating-a-recipe)
                 """.format(addm, "were" if len(addm) > 1 else "was"))
 
-            c = gh_repo.get_commit(commit)
-            c.create_comment(message)
+                c = gh_repo.get_commit(commit)
+                c.create_comment(message)
 
 
 if __name__ == '__main__':
