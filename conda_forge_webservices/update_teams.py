@@ -60,7 +60,7 @@ def update_team(org_name, repo_name, commit=None):
                 message += textwrap.dedent("""
                     - {} {} added to conda-forge. Welcome to conda-forge!"
                       Go to https://github.com/orgs/conda-forge/invitation see your invitation.
-                """.format(newm, "was" if len(newm) > 1 else "were"))
+                """.format(newm, "were" if len(newm) > 1 else "was"))
 
             addm = get_handles(current_maintainers - prev_maintainers)
             if addm:
@@ -73,7 +73,7 @@ def update_team(org_name, repo_name, commit=None):
                     NOTE: Please make sure to not push to the repository directly.
                           Use branches in your fork for any changes and send a PR.
                           More details [here](https://conda-forge.org/docs/conda-forge_gotchas.html#using-a-fork-vs-a-branch-when-updating-a-recipe)
-                """.format(addm, "was" if len(addm) > 1 else "were"))
+                """.format(addm, "were" if len(addm) > 1 else "was"))
 
             c = gh_repo.get_commit(commit)
             c.create_comment(message)
