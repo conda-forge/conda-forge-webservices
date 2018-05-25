@@ -7,6 +7,7 @@ from .utils import tmp_directory
 from conda_smithy.github import configure_github_team, get_cached_team
 import textwrap
 from functools import lru_cache
+import conda_build.api
 
 
 @lru_cache(maxsize=None)
