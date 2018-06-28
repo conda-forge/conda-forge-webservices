@@ -12,13 +12,6 @@ env_dir=$ENV_DIR
 
 # -------
 
-# Secret variables aren't exported in the build phase, but they are available
-# from the environment directory.
-export "GH_TOKEN=$(cat $env_dir/GH_TOKEN)"
-export "CIRCLE_TOKEN=$(cat $env_dir/CIRCLE_TOKEN)"
-
-# -------
-
 wget -q https://repo.continuum.io/miniconda/Miniconda3-4.4.10-Linux-x86_64.sh -O miniconda.sh
 bash miniconda.sh -b -p $HOME/.conda
 source $HOME/.conda/etc/profile.d/conda.sh
@@ -45,3 +38,10 @@ cat <<-'EOF' > $build/.profile.d/conda.sh
     conda activate
 
 EOF
+
+# -------
+
+# Secret variables aren't exported in the build phase, but they are available
+# from the environment directory.
+export "GH_TOKEN=$(cat $env_dir/GH_TOKEN)"
+export "CIRCLE_TOKEN=$(cat $env_dir/CIRCLE_TOKEN)"
