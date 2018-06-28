@@ -20,6 +20,10 @@ conda update conda --yes
 conda install -c conda-forge --yes conda-smithy conda-forge-pinning conda=4.5 python=3.6 tornado pygithub git statuspage
 conda clean --all --yes
 
+conda info
+conda config --show-sources
+conda list --show-channel-urls
+
 mkdir -p "${STORAGE_LOCN}/.conda-smithy"
 ln -s "${STORAGE_LOCN}/.conda-smithy" "${HOME}/.conda-smithy"
 echo "${GH_TOKEN}" > ${HOME}/.conda-smithy/github.token
