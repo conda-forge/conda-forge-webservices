@@ -60,13 +60,13 @@ def update_team(org_name, repo_name, commit=None):
                 message += textwrap.dedent("""
                     - {} {} added to conda-forge. Welcome to conda-forge!"
                       Go to https://github.com/orgs/conda-forge/invitation see your invitation.
-                """.format(newm, "were" if newm.count(",") > 1 else "was"))
+                """.format(newm, "were" if newm.count(",") >= 1 else "was"))
 
             addm = get_handles(current_maintainers - prev_maintainers - new_conda_forge_members)
             if addm:
                 message += textwrap.dedent("""
                     - {} {} added to this feedstock maintenance team.
-                """.format(addm, "were" if addm.count(",") > 1 else "was"))
+                """.format(addm, "were" if addm.count(",") >= 1 else "was"))
 
             if addm or newm:
                 message += textwrap.dedent("""
