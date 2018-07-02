@@ -121,7 +121,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                                                              '\n'.join(' * {}'.format(lint) for lint in lints)))
             if hints:
                 messages.append("\nFor **{}**:\n\n{}".format(rel_path,
-                                                             '\n'.join(' * {}'.format(lint) for lint in lints)))
+                                                             '\n'.join(' * {}'.format(hint) for hint in hints)))
 
 
     # Put the recipes in the form "```recipe/a```, ```recipe/b```".
