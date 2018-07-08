@@ -53,7 +53,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
 
                 I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
                 """)
-        pull.create_comment(message)
+        pull.create_issue_comment(message)
 
 
     with tmp_directory() as tmp_dir:
