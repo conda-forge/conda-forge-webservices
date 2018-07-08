@@ -58,7 +58,7 @@ def update_team(org_name, repo_name, commit=None):
             newm = get_handles(new_conda_forge_members)
             if newm:
                 message += textwrap.dedent("""
-                    - {} {} added to conda-forge. Welcome to conda-forge!"
+                    - {} {} added to conda-forge. Welcome to conda-forge!
                       Go to https://github.com/orgs/conda-forge/invitation see your invitation.
                 """.format(newm, "were" if len(newm) > 1 else "was"))
 
