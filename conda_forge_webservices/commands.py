@@ -35,12 +35,26 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
 
-    pr_commands = [LINT_MSG]
+    pr_commands = [LINT_MSG, UPDATE_CIRCLECI_KEY_MSG]
     if not is_staged_recipes:
         pr_commands += [ADD_NOARCH_MSG, RERENDER_MSG]
 
     if not any(command.search(comment) for command in pr_commands):
         return
+
+    if UPDATE_CIRCLECI_KEY_MSG.search(comment):
+        update_circle(org_name, repo_name)
+
+        gh = github.Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        pull = repo.get_pull(int(pr_num))
+        message = textwrap.dedent("""
+                Hi! This is the friendly automated conda-forge-webservice.
+
+                I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
+                """)
+        pull.create_comment(message)
+
 
     with tmp_directory() as tmp_dir:
         feedstock_dir = os.path.join(tmp_dir, repo_name)
