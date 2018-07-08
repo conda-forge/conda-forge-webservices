@@ -77,7 +77,7 @@ def update_team(org_name, repo_name, commit=None):
                     NOTE: Please make sure to not push to the repository directly.
                           Use branches in your fork for any changes and send a PR.
                           More details [here](https://conda-forge.org/docs/conda-forge_gotchas.html#using-a-fork-vs-a-branch-when-updating-a-recipe)
-                """
+                """)
 
                 c = gh_repo.get_commit(commit)
                 c.create_comment(message)
