@@ -26,8 +26,8 @@ conda list --show-channel-urls
 
 mkdir -p "${STORAGE_LOCN}/.conda-smithy"
 ln -s "${STORAGE_LOCN}/.conda-smithy" "${HOME}/.conda-smithy"
-echo "${GH_TOKEN}" > ${HOME}/.conda-smithy/github.token
-echo "${CIRCLE_TOKEN}" > ${HOME}/.conda-smithy/circle.token
+cp "$env_dir/GH_TOKEN" "${HOME}/.conda-smithy/github.token"
+cp "$env_dir/CIRCLE_TOKEN" "${HOME}/.conda-smithy/circle.token"
 
 git config --global user.name "conda-forge-admin"
 git config --global user.email "pelson.pub+conda-forge@gmail.com"
@@ -42,10 +42,3 @@ cat <<-'EOF' > $build/.profile.d/conda.sh
     conda activate
 
 EOF
-
-# -------
-
-# Secret variables aren't exported in the build phase, but they are available
-# from the environment directory.
-export "GH_TOKEN=$(cat $env_dir/GH_TOKEN)"
-export "CIRCLE_TOKEN=$(cat $env_dir/CIRCLE_TOKEN)"
