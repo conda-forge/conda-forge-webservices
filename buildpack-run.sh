@@ -12,13 +12,6 @@ env_dir=$ENV_DIR
 
 # -------
 
-# Secret variables aren't exported in the build phase, but they are available
-# from the environment directory.
-export "GH_TOKEN=$(cat $env_dir/GH_TOKEN)"
-export "CIRCLE_TOKEN=$(cat $env_dir/CIRCLE_TOKEN)"
-
-# -------
-
 wget -q https://repo.continuum.io/miniconda/Miniconda3-4.4.10-Linux-x86_64.sh -O miniconda.sh
 bash miniconda.sh -b -p $HOME/.conda
 source $HOME/.conda/etc/profile.d/conda.sh
@@ -26,6 +19,10 @@ conda activate
 conda update conda --yes
 conda install -c conda-forge --yes conda-smithy conda-forge-pinning conda=4.5 python=3.6 tornado pygithub git statuspage
 conda clean --all --yes
+
+conda info
+conda config --show-sources
+conda list --show-channel-urls
 
 mkdir -p "${STORAGE_LOCN}/.conda-smithy"
 ln -s "${STORAGE_LOCN}/.conda-smithy" "${HOME}/.conda-smithy"
@@ -45,3 +42,10 @@ cat <<-'EOF' > $build/.profile.d/conda.sh
     conda activate
 
 EOF
+
+# -------
+
+# Secret variables aren't exported in the build phase, but they are available
+# from the environment directory.
+export "GH_TOKEN=$(cat $env_dir/GH_TOKEN)"
+export "CIRCLE_TOKEN=$(cat $env_dir/CIRCLE_TOKEN)"
