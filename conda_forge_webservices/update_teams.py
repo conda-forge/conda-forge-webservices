@@ -60,20 +60,24 @@ def update_team(org_name, repo_name, commit=None):
                 message += textwrap.dedent("""
                     - {} {} added to conda-forge. Welcome to conda-forge!
                       Go to https://github.com/orgs/conda-forge/invitation see your invitation.
-                """.format(newm, "were" if len(newm) > 1 else "was"))
+                """.format(newm, "were" if newm.count(",") >= 1 else "was"))
 
-            addm = get_handles(current_maintainers - prev_maintainers)
+            addm = get_handles(current_maintainers - prev_maintainers - new_conda_forge_members)
             if addm:
                 message += textwrap.dedent("""
                     - {} {} added to this feedstock maintenance team.
-                      You should get push access to this feedstock and CI services.
+                """.format(addm, "were" if addm.count(",") >= 1 else "was"))
+
+            if addm or newm:
+                message += textwrap.dedent("""
+                    You should get push access to this feedstock and CI services.
 
                     Feel free to join the community [chat room](https://gitter.im/conda-forge/conda-forge.github.io).
 
                     NOTE: Please make sure to not push to the repository directly.
                           Use branches in your fork for any changes and send a PR.
                           More details [here](https://conda-forge.org/docs/conda-forge_gotchas.html#using-a-fork-vs-a-branch-when-updating-a-recipe)
-                """.format(addm, "were" if len(addm) > 1 else "was"))
+                """)
 
                 c = gh_repo.get_commit(commit)
                 c.create_comment(message)
