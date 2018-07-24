@@ -61,16 +61,29 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
 
+        changed_anything = False
         if not is_staged_recipes:
             if ADD_NOARCH_MSG.search(comment):
                 make_noarch(repo)
                 rerender(repo, org_name, repo_name, pr_num)
+                changed_anything = True
             elif RERENDER_MSG.search(comment):
-                rerender(repo, org_name, repo_name, pr_num)
+                changed_anything = rerender(repo, org_name, repo_name, pr_num)
+
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
 
-        repo.remotes.origin.push()
+        if changed_anything:
+            try:
+                repo.remotes.origin.push()
+            except GitCommandError:
+                message = textwrap.dedent("""
+                    Hi! This is the friendly automated conda-forge-webservice.
+
+                    I tried to make some changes for you, but it looks like I wasn't able to push to the {} branch of {}/{}. Did you check the "Allow edits from maintainers" box?
+                    """.format(pr_branch, pr_owner, pr_repo))
+                pull.create_issue_comment(message)
+
 
 
 def issue_comment(org_name, repo_name, issue_num, title, comment):
