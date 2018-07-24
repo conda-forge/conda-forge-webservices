@@ -65,7 +65,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             if ADD_NOARCH_MSG.search(comment):
                 make_noarch(repo)
                 rerender(repo, org_name, repo_name, pr_num)
-            if RERENDER_MSG.search(comment):
+            elif RERENDER_MSG.search(comment):
                 rerender(repo, org_name, repo_name, pr_num)
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
