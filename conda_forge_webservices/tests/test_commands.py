@@ -42,11 +42,12 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
     @mock.patch('conda_forge_webservices.commands.update_circle')
+    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('conda_forge_webservices.commands.tmp_directory')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_pr_command_triggers(
-            self, repo, gh, tmp_directory, update_circle,
+            self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
 
@@ -71,6 +72,12 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-linter, please lint',
                 'sure wish @conda-forge-admin would please add noarch python',
              ]),
+            (update_cb3, False, [
+                '@conda-forge-admin, please update for CB3',
+                '@conda-forge-admin, please update for conda-build 3',
+            ], [
+                '@conda-forge-admin, please lint'
+            ]),
             (relint, True, [
                 '@conda-forge-admin, please lint',
                 '@CONDA-FORGE-LINTER, please relint',
@@ -106,11 +113,12 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
     @mock.patch('conda_forge_webservices.commands.update_circle')
+    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('conda_forge_webservices.commands.tmp_directory')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_issue_command_triggers(
-            self, repo, gh, tmp_directory, update_circle,
+            self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
 
@@ -135,6 +143,12 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-linter, please lint',
                 'sure wish @conda-forge-admin would please add noarch python',
              ]),
+            (update_cb3, False, [
+                '@conda-forge-admin, please update for cb-3',
+                'yo @conda-forge-admin: please update for conda build 3',
+            ], [
+                '@conda-forge-admin, please lint'
+            ]),
             (update_team, [
                 '@conda-forge-admin: please update team',
                 '@conda-forge-admin, please update the team',
