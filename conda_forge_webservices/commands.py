@@ -269,7 +269,7 @@ def update_cb3(repo):
     repo.git.add(A=True)
     if repo.is_dirty():
         author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
-        repo.index.commit("Add noarch:python option", author=author)
+        repo.index.commit("Update for conda-build 3", author=author)
         return True, output
     else:
         return False, output
