@@ -16,8 +16,9 @@ wget -q https://repo.continuum.io/miniconda/Miniconda3-4.4.10-Linux-x86_64.sh -O
 bash miniconda.sh -b -p $HOME/.conda
 source $HOME/.conda/etc/profile.d/conda.sh
 conda activate
+conda config --add channels conda-forge
 conda update conda --yes
-conda install -c conda-forge --yes conda-smithy conda-forge-pinning conda=4.5 python=3.6 tornado pygithub git statuspage
+conda install --yes conda-smithy conda-forge-pinning conda=4.5 python=3.6 tornado pygithub git statuspage
 conda clean --all --yes
 
 conda info
