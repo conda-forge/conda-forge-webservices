@@ -143,7 +143,7 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-linter, please lint',
                 'sure wish @conda-forge-admin would please add noarch python',
              ]),
-            (update_cb3, False, [
+            (update_cb3, [
                 '@conda-forge-admin, please update for cb-3',
                 'yo @conda-forge-admin: please update for conda build 3',
             ], [
