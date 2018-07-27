@@ -269,6 +269,7 @@ def make_noarch(repo):
 
 def update_cb3(repo):
     output = subprocess.check_output(["conda", "smithy", "update-cb3"], cwd=repo.working_dir)
+    output = output.decode('utf-8')
     repo.git.add(A=True)
     if repo.is_dirty():
         author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
