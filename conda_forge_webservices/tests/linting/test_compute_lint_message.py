@@ -144,6 +144,25 @@ class Test_compute_lint_message(unittest.TestCase):
         self.assert_(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
+    def test_mixed_recipe(self):
+        expected_message = textwrap.dedent("""
+        Hi! This is the friendly automated conda-forge-linting service.
+        
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/hints_only```) and found it was in an excellent condition.
+        
+        
+        I do have some suggestions for making it better though...
+        
+        
+        For **recipes/hints_only**:
+        
+         * Whenever possible python packages should use pip. See https://conda-forge.org/docs/meta.html#use-pip
+        """)
+
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 217)
+        self.assert_(lint)
+        self.assertMultiLineEqual(expected_message, lint['message'])
+
     def test_no_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
