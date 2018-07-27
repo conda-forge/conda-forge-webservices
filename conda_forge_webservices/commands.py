@@ -188,7 +188,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 c, cb3_changes = update_cb3(git_repo)
                 changed_anything |= c
-                if cb3_changes is False:
+                if not c:
                     cb3_changes = "There weren't any changes to make for conda-build 3."
                 extra_msg = '\n\n' + cb3_changes
 
