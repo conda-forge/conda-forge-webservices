@@ -158,12 +158,12 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
             """)
         status = 'no recipes'
-    elif all_pass:
-        message = good
-        status = 'good'
     elif all_pass and len(hints):
         message = mixed
         status = 'mixed'
+    elif all_pass:
+        message = good
+        status = 'good'
     else:
         message = bad
         status = 'bad'
