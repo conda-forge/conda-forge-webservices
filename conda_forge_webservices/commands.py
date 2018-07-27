@@ -34,13 +34,12 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
 
-    gh = github.Github(os.environ['GH_TOKEN'])
-    repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-    pull = repo.get_pull(int(pr_num))
-
     if not is_staged_recipes and UPDATE_CIRCLECI_KEY_MSG.search(comment):
         update_circle(org_name, repo_name)
 
+        gh = github.Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        pull = repo.get_pull(int(pr_num))
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
@@ -95,6 +94,10 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                 expected_changes[-1] = 'and ' + expected_changes[-1]
             joiner = ", " if len(expected_changes) > 2 else " "
             changes_str = joiner.join(expected_changes)
+
+            gh = github.Github(os.environ['GH_TOKEN'])
+            repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            pull = repo.get_pull(int(pr_num))
 
             if changed_anything:
                 try:
