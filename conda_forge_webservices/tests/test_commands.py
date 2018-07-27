@@ -50,6 +50,7 @@ class TestCommands(unittest.TestCase):
             self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
+        update_cb3.return_value = (True, "hi")
 
         commands = [
             (rerender, False, [
@@ -121,6 +122,7 @@ class TestCommands(unittest.TestCase):
             self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
+        update_cb3.return_value = (True, "hi")
 
         commands = [
             (rerender, [
@@ -182,7 +184,7 @@ class TestCommands(unittest.TestCase):
                 issue.reset_mock()
                 issue_comment(title=msg, comment="As in title")
                 command.assert_called()
-                if command is rerender or command is make_noarch:
+                if command in (rerender, make_noarch, update_cb3):
                     assert "Fixes #" in repo.create_pull.call_args[0][1]
                 else:
                     issue.edit.assert_called_with(state="closed")
