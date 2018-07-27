@@ -107,14 +107,14 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                         Hi! This is the friendly automated conda-forge-webservice.
 
                         I tried to {} for you, but it looks like I wasn't able to push to the {} branch of {}/{}. Did you check the "Allow edits from maintainers" box?
-                        """.format(pr_branch, pr_owner, pr_repo, changes_str))
+                        """).format(pr_branch, pr_owner, pr_repo, changes_str)
                     pull.create_issue_comment(message)
             else:
                 message = textwrap.dedent("""
                     Hi! This is the friendly automated conda-forge-webservice.
 
                     I tried to {} for you, but it looks like there was nothing to do.
-                    """.format(changes_str))
+                    """).format(changes_str)
                 pull.create_issue_comment(message)
 
 
@@ -217,7 +217,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                         Here's a checklist to do before merging.
                         - [ ] Bump the build number if needed.
-                        """.format(comment_msg, issue_num, extra_msg))
+                        """).format(comment_msg, issue_num, extra_msg)
 
                 if to_close:
                     pr_message += "\nFixes #{}".format(issue_num)
@@ -230,14 +230,14 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         Hi! This is the friendly automated conda-forge-webservice.
 
                         I just wanted to let you know that I {} in {}/{}#{}.
-                        """.format(comment_msg, org_name, repo_name, pr.number))
+                        """).format(comment_msg, org_name, repo_name, pr.number)
                 issue.create_comment(message)
             else:
                 message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
                         I've {} as requested, but nothing actually changed.
-                        """.format(comment_msg))
+                        """).format(comment_msg)
                 issue.create_comment(message)
 
 
