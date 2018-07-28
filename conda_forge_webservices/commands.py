@@ -96,8 +96,8 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             changes_str = joiner.join(expected_changes)
 
             gh = github.Github(os.environ['GH_TOKEN'])
-            repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-            pull = repo.get_pull(int(pr_num))
+            gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            pull = gh_repo.get_pull(int(pr_num))
 
             if changed_anything:
                 try:
