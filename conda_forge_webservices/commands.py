@@ -239,6 +239,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         I've {} as requested, but nothing actually changed.
                         """).format(comment_msg)
                 issue.create_comment(message)
+                if to_close:
+                    issue.edit(state="closed")
 
 
 def rerender(repo):
