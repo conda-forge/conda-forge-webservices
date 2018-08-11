@@ -1,5 +1,4 @@
 conda-smithy>=3
-ruamel.yaml==0.15.51  # until https://github.com/conda-forge/conda-smithy/pull/871
 conda-forge-pinning
 tornado
 pygithub
