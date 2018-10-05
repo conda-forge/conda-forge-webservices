@@ -268,7 +268,7 @@ class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
-        elif event == 'push':
+        elif event in ['push', 'status']:
             update_me.update_me()
             print_rate_limiting_info()
         else:
