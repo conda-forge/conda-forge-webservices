@@ -22,6 +22,7 @@ import conda_forge_webservices.status as status
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
+import conda_forge_webservices.update_me as update_me
 
 
 def print_rate_limiting_info_for_token(token, user):
@@ -260,6 +261,22 @@ class CommandHookHandler(tornado.web.RequestHandler):
             self.write_error(404)
 
 
+class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
+    def post(self):
+        headers = self.request.headers
+        event = headers.get('X-GitHub-Event', None)
+
+        if event == 'ping':
+            self.write('pong')
+        elif event == 'push':
+            update_me.update_me()
+            print_rate_limiting_info()
+        else:
+            print('Unhandled event "{}".'.format(event))
+            self.set_status(404)
+            self.write_error(404)
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/hook", LintingHookHandler),
@@ -267,6 +284,7 @@ def create_webapp():
         (r"/conda-forge-feedstocks/hook", UpdateFeedstockHookHandler),
         (r"/conda-forge-teams/hook", UpdateTeamHookHandler),
         (r"/conda-forge-command/hook", CommandHookHandler),
+        (r"/conda-webservice-update/hook", UpdateWebservicesHookHandler),
     ])
     return application
 
