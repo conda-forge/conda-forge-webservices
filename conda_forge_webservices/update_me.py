@@ -11,7 +11,7 @@ def update_me():
     """
     Update the webservice on Heroku by pushing a commit to this repo.
     """
-    pkgs = ["conda-build", "conda-smithy", "conda-forge-pinning"]
+    pkgs = ["conda-smithy", "conda-forge-pinning"]
     installed_vers = get_installed_version(root_dir, pkgs)
     index = get_index(channel_urls=['conda-forge'])
     r = Resolve(index)
