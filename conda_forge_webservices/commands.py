@@ -12,12 +12,12 @@ import textwrap
 
 pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
 COMMAND_PREFIX = re.compile(pre, re.I)
-ADD_NOARCH_MSG = re.compile(pre + "please (add|make) `?noarch:? python`?", re.I)
-RERENDER_MSG = re.compile(pre + "please re-?render", re.I)
-LINT_MSG = re.compile(pre + "please (re-?)?lint", re.I)
-UPDATE_TEAM_MSG = re.compile(pre + "please (update|refresh) (the )?team", re.I)
-UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "please (update|refresh) (the )?circle", re.I)
-UPDATE_CB3_MSG = re.compile(pre + "please update (for )?(cb|conda[- ]build)[- ]?3", re.I)
+ADD_NOARCH_MSG = re.compile(pre + "(please )?(add|make) `?noarch:? python`?", re.I)
+RERENDER_MSG = re.compile(pre + "(please )?re-?render", re.I)
+LINT_MSG = re.compile(pre + "(please )?(re-?)?lint", re.I)
+UPDATE_TEAM_MSG = re.compile(pre + "(please )?(update|refresh) (the )?team", re.I)
+UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "(please )?(update|refresh) (the )?circle", re.I)
+UPDATE_CB3_MSG = re.compile(pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
