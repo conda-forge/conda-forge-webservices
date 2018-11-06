@@ -55,34 +55,53 @@ class TestCommands(unittest.TestCase):
         commands = [
             (rerender, False, [
                 '@conda-forge-admin, please rerender',
+                '@conda-forge-admin, rerender',
+                '@conda-forge-admin, re-render',
                 '@conda-forge-admin, please re-render',
                 '@conda-forge-admin: PLEASE RERENDER',
+                '@conda-forge-admin: RERENDER',
                 'something something. @conda-forge-admin: please re-render',
+                'something something. @conda-forge-admin: re-render',
              ], [
                 '@conda-forge admin is pretty cool. please rerender for me?',
+                '@conda-forge admin is pretty cool. rerender for me?',
                 '@conda-forge-admin, go ahead and rerender for me',
                 'please re-render, @conda-forge-admin',
+                're-render, @conda-forge-admin',
                 '@conda-forge-linter, please lint',
+                '@conda-forge-linter, lint',
              ]),
             (make_noarch, False, [
                 '@conda-forge-admin, please add noarch python',
+                '@conda-forge-admin, add noarch python',
                 '@conda-forge-linter, please lint, and @conda-forge-admin, please make `noarch: python`',
+                '@conda-forge-linter, lint, and @conda-forge-admin, make `noarch: python`',
                 '@CONDA-FORGE-ADMIN please add `noarch python`',
+                '@CONDA-FORGE-ADMIN add `noarch python`',
                 'hey @conda-forge-admin : please make noarch: python',
+                'hey @conda-forge-admin : make noarch: python',
              ], [
                 '@conda-forge-linter, please lint',
+                '@conda-forge-linter, lint',
                 'sure wish @conda-forge-admin would please add noarch python',
+                'sure wish @conda-forge-admin would add noarch python',
              ]),
             (update_cb3, False, [
                 '@conda-forge-admin, please update for CB3',
                 '@conda-forge-admin, please update for conda-build 3',
+                '@conda-forge-admin, update for CB3',
+                '@conda-forge-admin, update for conda-build 3',
             ], [
                 '@conda-forge-admin, please lint'
+                '@conda-forge-admin, lint'
             ]),
             (relint, True, [
                 '@conda-forge-admin, please lint',
+                '@conda-forge-admin, lint',
                 '@CONDA-FORGE-LINTER, please relint',
+                '@CONDA-FORGE-LINTER, relint',
                 'hey @conda-forge-linter please re-lint!',
+                'hey @conda-forge-linter re-lint!',
              ], [
                 '@conda-forge-admin should probably lint again',
              ]),
@@ -127,44 +146,69 @@ class TestCommands(unittest.TestCase):
         commands = [
             (rerender, [
                 '@conda-forge-admin, please rerender',
+                '@conda-forge-admin, rerender',
                 '@conda-forge-admin, please re-render',
+                '@conda-forge-admin, re-render',
                 '@conda-forge-admin: PLEASE RERENDER',
+                '@conda-forge-admin: RERENDER',
                 'something something. @conda-forge-admin: please re-render',
+                'something something. @conda-forge-admin: re-render',
              ], [
                 '@conda-forge admin is pretty cool. please rerender for me?',
+                '@conda-forge admin is pretty cool. rerender for me?',
                 '@conda-forge-admin, go ahead and rerender for me',
                 'please re-render, @conda-forge-admin',
+                're-render, @conda-forge-admin',
                 '@conda-forge-linter, please lint',
+                '@conda-forge-linter, lint',
              ]),
             (make_noarch, [
                 '@conda-forge-admin, please add noarch python',
+                '@conda-forge-admin, add noarch python',
                 '@conda-forge-admin, please make `noarch: python`',
+                '@conda-forge-admin, make `noarch: python`',
                 '@conda-forge-admin please add `noarch python`',
+                '@conda-forge-admin add `noarch python`',
                 'hey @conda-forge-admin : please make noarch: python',
+                'hey @conda-forge-admin : make noarch: python',
              ], [
                 '@conda-forge-linter, please lint',
+                '@conda-forge-linter, lint',
                 'sure wish @conda-forge-admin would please add noarch python',
+                'sure wish @conda-forge-admin would add noarch python',
              ]),
             (update_cb3, [
                 '@conda-forge-admin, please update for cb-3',
+                '@conda-forge-admin, update for cb-3',
                 'yo @conda-forge-admin: please update for conda build 3',
+                'yo @conda-forge-admin:  update for conda build 3',
             ], [
                 '@conda-forge-admin, please lint'
+                '@conda-forge-admin, lint'
             ]),
             (update_team, [
                 '@conda-forge-admin: please update team',
+                '@conda-forge-admin: update team',
                 '@conda-forge-admin, please update the team',
+                '@conda-forge-admin, update the team',
                 '@conda-forge-admin, please refresh team',
+                '@conda-forge-admin, refresh team',
              ], [
                 '@conda-forge-admin please make noarch: python',
+                '@conda-forge-admin make noarch: python',
                 '@conda-forge-linter, please lint. and can someone refresh the team?',
+                '@conda-forge-linter, lint. and can someone refresh the team?',
              ]),
             (update_circle, [
                 '@conda-forge-admin, please update circle',
+                '@conda-forge-admin, update circle',
                 'hey @conda-forge-admin, PLEASE update circle',
+                'hey @conda-forge-admin, update circle',
                 '@conda-forge-admin: please refresh the circle key',
+                '@conda-forge-admin: refresh the circle key',
              ], [
                 '@conda-forge-admin, please lint',
+                '@conda-forge-admin, lint',
              ]),
         ]
 
