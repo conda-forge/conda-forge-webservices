@@ -18,7 +18,7 @@ source $HOME/.conda/etc/profile.d/conda.sh
 conda activate
 conda config --add channels conda-forge
 conda update conda --yes
-conda install --yes conda-smithy conda-forge-pinning conda=4.5 conda-build python=3.6 tornado pygithub git statuspage
+conda install --yes conda-smithy conda-forge-pinning conda=4.5 conda-build=3.16 python=3.6 tornado pygithub git statuspage
 conda clean --all --yes
 
 conda info
