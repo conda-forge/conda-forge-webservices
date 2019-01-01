@@ -25,6 +25,17 @@ import conda_forge_webservices.commands as commands
 import conda_forge_webservices.update_me as update_me
 
 
+def get_combined_status(token, repo_name, sha):
+    # Get the combined status for the repo and sha given.
+
+    gh = github.Github(token)
+    repo = gh.get_repo(repo_slug)
+    commit = repo.get_commit(sha)
+    status = commit.get_combined_status()
+
+    return status.state
+
+
 def print_rate_limiting_info_for_token(token, user):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
@@ -268,10 +279,25 @@ class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
-        elif event in ['push', 'status']:
-            update_me.update_me()
+        elif event == 'status':
+            # Retrieve status request payload
+            body = tornado.escape.json_decode(self.request.body)
+            repo_name = body['name']
+            sha = body['sha']
+            state = body['state']
+
+            # Check the combined status
+            # Skip check if the current status is not a success
+            if state == 'success':
+                token = os.environ.get('GH_TOKEN')
+                state = get_combined_status(token, repo_name, sha)
+
+            # Update if the combined status is a success
+            if state == 'success':
+                update_me.update_me()
+
             print_rate_limiting_info()
-        else:
+        elif event != 'push':
             print('Unhandled event "{}".'.format(event))
             self.set_status(404)
             self.write_error(404)
