@@ -118,7 +118,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
-                        I tried to {} for you but ran into some issues, try doing these actions locally instead.
+                        I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance.
                         """)
                 else:
                     message = textwrap.dedent("""
