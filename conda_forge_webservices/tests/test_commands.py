@@ -270,8 +270,8 @@ class TestCommands(unittest.TestCase):
 
         rerender.assert_called()
 
-        assert 'ran into some issues' in pull_create_issue_comment.call_args[0][0]
-        assert 'try doing these actions locally' in pull_create_issue_comment.call_args[0][0]
+        assert 'ran into some issues' in pull_create_issue.call_args[0][0]
+        assert 'try doing these actions locally' in pull_create_issue.call_args[0][0]
 
 if __name__ == '__main__':
     unittest.main()
