@@ -247,6 +247,31 @@ class TestCommands(unittest.TestCase):
                 command.assert_not_called()
                 issue.edit.assert_not_called()
 
+    @mock.patch('conda_forge_webservices.commands.rerender')
+    @mock.patch('conda_forge_webservices.commands.make_noarch')
+    @mock.patch('conda_forge_webservices.commands.relint')
+    @mock.patch('conda_forge_webservices.commands.update_team')
+    @mock.patch('conda_forge_webservices.commands.update_circle')
+    @mock.patch('conda_forge_webservices.commands.update_cb3')
+    @mock.patch('conda_forge_webservices.commands.tmp_directory')
+    @mock.patch('github.Github')
+    @mock.patch('conda_forge_webservices.commands.Repo')
+    def test_rerender_failure(
+            self, repo, gh, tmp_directory, update_cb3, update_circle,
+            update_team, relint, make_noarch, rerender):
+        rerender.side_effect = RuntimeError
+
+        repo = gh.return_value.get_repo.return_value
+        pull_create_issue = repo.get_pull.return_value.create_issue_comment
+
+        msg = '@conda-forge-admin, please rerender'
+
+        pr_detailed_comment(msg)
+
+        rerender.assert_called()
+
+        assert 'ran into some issues' in pull_create_issue.call_args[0][0]
+        assert 'try doing these actions locally' in pull_create_issue.call_args[0][0]
 
 if __name__ == '__main__':
     unittest.main()

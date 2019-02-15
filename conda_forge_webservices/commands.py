@@ -64,6 +64,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             relint(org_name, repo_name, pr_num)
 
         changed_anything = False
+        rerender_error = False
         expected_changes = []
         extra_msg = ''
         if not is_staged_recipes:
@@ -87,7 +88,10 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                 extra_msg += '\n\n' + cb3_changes
 
             if do_rerender:
-                changed_anything |= rerender(repo)
+                try:
+                    changed_anything |= rerender(repo)
+                except RuntimeError:
+                    rerender_error = True
 
         if expected_changes:
             if len(expected_changes) > 1:
@@ -110,11 +114,18 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                         """).format(pr_branch, pr_owner, pr_repo, changes_str)
                     pull.create_issue_comment(message)
             else:
-                message = textwrap.dedent("""
-                    Hi! This is the friendly automated conda-forge-webservice.
+                if rerender_error:
+                    message = textwrap.dedent("""
+                        Hi! This is the friendly automated conda-forge-webservice.
 
-                    I tried to {} for you, but it looks like there was nothing to do.
-                    """).format(changes_str)
+                        I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance.
+                        """)
+                else:
+                    message = textwrap.dedent("""
+                        Hi! This is the friendly automated conda-forge-webservice.
+
+                        I tried to {} for you, but it looks like there was nothing to do.
+                        """).format(changes_str)
                 pull.create_issue_comment(message)
 
 
@@ -245,8 +256,12 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
 def rerender(repo):
     curr_head = repo.active_branch.commit
-    subprocess.call(["conda", "smithy", "rerender", "-c", "auto"], cwd=repo.working_dir)
-    return repo.active_branch.commit != curr_head
+    ret = subprocess.call(["conda", "smithy", "rerender", "-c", "auto"], cwd=repo.working_dir)
+
+    if ret:
+        raise RuntimeError
+    else:
+        return repo.active_branch.commit != curr_head
 
 
 def make_noarch(repo):
