@@ -119,7 +119,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                         Hi! This is the friendly automated conda-forge-webservice.
 
                         I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance.
-                        """)
+                        """).format(changes_str)
                 else:
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
