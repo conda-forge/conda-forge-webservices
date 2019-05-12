@@ -43,7 +43,8 @@ class TestBucketHandler(TestHandlerBase):
                                                      PR_number, False)
 
         comment_on_pr.assert_called_once_with('conda-forge', 'repo_name',
-                                              PR_number, mock.sentinel.message)
+                                              PR_number, mock.sentinel.message,
+                                              search='conda-forge-linting service')
 
         set_pr_status.assert_called_once_with('conda-forge', 'repo_name',
                                               {'message': mock.sentinel.message},
@@ -69,7 +70,8 @@ class TestBucketHandler(TestHandlerBase):
                                                      PR_number, True)
 
         comment_on_pr.assert_called_once_with('conda-forge', 'staged-recipes',
-                                              PR_number, mock.sentinel.message)
+                                              PR_number, mock.sentinel.message,
+                                              search='conda-forge-linting service')
 
         set_pr_status.assert_called_once_with('conda-forge', 'staged-recipes',
                                               {'message': mock.sentinel.message},
