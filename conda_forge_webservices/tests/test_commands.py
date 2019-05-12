@@ -259,6 +259,7 @@ class TestCommands(unittest.TestCase):
     def test_rerender_failure(
             self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
+        tmp_directory.return_value.__enter__.return_value = '/tmp'
         rerender.side_effect = RuntimeError
 
         repo = gh.return_value.get_repo.return_value
