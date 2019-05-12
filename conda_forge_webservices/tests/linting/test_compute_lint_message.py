@@ -156,7 +156,7 @@ class Test_compute_lint_message(unittest.TestCase):
         
         For **recipes/hints_only**:
         
-         * Whenever possible python packages should use pip. See https://conda-forge.org/docs/meta.html#use-pip
+         * Whenever possible python packages should use pip. See https://conda-forge.org/docs/maintainer/adding_pkgs.html#use-pip
         """)
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 217)
