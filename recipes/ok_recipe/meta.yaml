@@ -1,6 +1,6 @@
 package:
   name: ok_recipe
-  version: 2
+  version: 3
 
 build:
   number: 0
