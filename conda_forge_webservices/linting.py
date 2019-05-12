@@ -179,7 +179,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     return lint_info
 
 
-def comment_on_pr(owner, repo_name, pr_id, message, force=False):
+def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
     gh = github.Github(os.environ['GH_TOKEN'])
 
     user = gh.get_user(owner)
@@ -195,8 +195,12 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False):
     my_last_comment = None
     my_login = gh.get_user().login
     if my_login in comment_owners:
-        my_last_comment = [comment for comment in comments
-                           if comment.user.login == my_login][-1]
+        my_comments = [comment for comment in comments
+                           if comment.user.login == my_login]
+        if search is not None:
+            my_comments = [comment for comment in my_comments
+                           if search in comment.body]
+        my_last_comment = my_comments[-1]
 
     # Only comment if we haven't before, or if the message we have is different.
     if my_last_comment is None or my_last_comment.body != message:

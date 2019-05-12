@@ -259,6 +259,7 @@ class TestCommands(unittest.TestCase):
     def test_rerender_failure(
             self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
+        tmp_directory.return_value.__enter__.return_value = '/tmp'
         rerender.side_effect = RuntimeError
 
         repo = gh.return_value.get_repo.return_value
@@ -271,7 +272,7 @@ class TestCommands(unittest.TestCase):
         rerender.assert_called()
 
         assert 'ran into some issues' in pull_create_issue.call_args[0][0]
-        assert 'try doing these actions locally' in pull_create_issue.call_args[0][0]
+        assert 'please ping conda-forge/core for further assistance' in pull_create_issue.call_args[0][0]
 
 if __name__ == '__main__':
     unittest.main()
