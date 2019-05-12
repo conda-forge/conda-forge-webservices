@@ -130,7 +130,8 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 lint_info = linting.compute_lint_message(owner, repo_name, pr_id,
                                                          repo_name == 'staged-recipes')
                 if lint_info:
-                    msg = linting.comment_on_pr(owner, repo_name, pr_id, lint_info['message'])
+                    msg = linting.comment_on_pr(owner, repo_name, pr_id, lint_info['message'],
+                                                search='conda-forge-linting service')
                     linting.set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
             print_rate_limiting_info()
         else:
