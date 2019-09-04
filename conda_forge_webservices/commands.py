@@ -3,6 +3,7 @@ import github
 import os
 import re
 import subprocess
+import time
 from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
@@ -14,6 +15,7 @@ pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
 COMMAND_PREFIX = re.compile(pre, re.I)
 ADD_NOARCH_MSG = re.compile(pre + "(please )?(add|make) `?noarch:? python`?", re.I)
 RERENDER_MSG = re.compile(pre + "(please )?re-?render", re.I)
+RESTART_CI = re.compile(pre + "(please )?restart (build|builds|ci)", re.I)
 LINT_MSG = re.compile(pre + "(please )?(re-?)?lint", re.I)
 UPDATE_TEAM_MSG = re.compile(pre + "(please )?(update|refresh) (the )?team", re.I)
 UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "(please )?(update|refresh) (the )?circle", re.I)
@@ -46,6 +48,14 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                 I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
                 """)
         pull.create_issue_comment(message)
+
+    if RESTART_CI.search(comment):
+        gh = github.Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        pull = repo.get_pull(int(pr_num))
+        pull.edit(state='closed')
+        time.sleep(1)  # wait a bit to be sure things are ok
+        pull.edit(state='open')
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:
