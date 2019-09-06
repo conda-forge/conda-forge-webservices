@@ -37,6 +37,7 @@ class TestCommands(unittest.TestCase):
         if self.kill_token:
             del os.environ['GH_TOKEN']
 
+    @mock.patch('conda_forge_webservices.commands.close_and_open_pr')
     @mock.patch('conda_forge_webservices.commands.rerender')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
@@ -48,7 +49,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_pr_command_triggers(
             self, repo, gh, tmp_directory, update_cb3, update_circle,
-            update_team, relint, make_noarch, rerender):
+            update_team, relint, make_noarch, rerender, close_and_open_pr):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
 
@@ -105,6 +106,22 @@ class TestCommands(unittest.TestCase):
              ], [
                 '@conda-forge-admin should probably lint again',
              ]),
+            (close_and_open_pr, True, [
+                '@conda-forge-admin, please restart build',
+                '@conda-forge-admin, please restart builds',
+                '@conda-forge-admin, please restart ci',
+                '@conda-forge-admin, restart build',
+                '@conda-forge-admin, restart builds',
+                '@conda-forge-admin, restart ci',
+             ], [
+                '@conda-forge admin is pretty cool. please restart builds for me?',
+                '@conda-forge admin is pretty cool. restart builds for me for me?',
+                '@conda-forge-admin, go ahead and rerender for me',
+                'please restart builds, @conda-forge-admin',
+                'restart build, @conda-forge-admin',
+                '@conda-forge-linter, please lint',
+                '@conda-forge-linter, lint',
+             ]),            
         ]
 
         for command, on_sr, should, should_not in commands:
