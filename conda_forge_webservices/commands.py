@@ -52,10 +52,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     if RESTART_CI.search(comment):
         gh = github.Github(os.environ['GH_TOKEN'])
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        pull = repo.get_pull(int(pr_num))
-        pull.edit(state='closed')
-        time.sleep(1)  # wait a bit to be sure things are ok
-        pull.edit(state='open')
+        close_and_open_pr(repo, pr_num)
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:
@@ -138,6 +135,13 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                         I tried to {} for you, but it looks like there was nothing to do.
                         """).format(changes_str)
                 pull.create_issue_comment(message)
+
+
+def close_and_open_pr(repo, pr_num):
+    pull = repo.get_pull(int(pr_num))
+    pull.edit(state='closed')
+    time.sleep(1)  # wait a bit to be sure things are ok
+    pull.edit(state='open')
 
 
 def issue_comment(org_name, repo_name, issue_num, title, comment):
