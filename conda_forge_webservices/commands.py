@@ -112,7 +112,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                         Hi! This is the friendly automated conda-forge-webservice.
 
                         I tried to {} for you, but it looks like I wasn't able to push to the {} branch of {}/{}. Did you check the "Allow edits from maintainers" box?
-                        """).format(pr_branch, pr_owner, pr_repo, changes_str)
+                        """).format(changes_str, pr_branch, pr_owner, pr_repo)
                     pull.create_issue_comment(message)
             else:
                 if rerender_error:
