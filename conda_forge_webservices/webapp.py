@@ -29,7 +29,7 @@ def get_combined_status(token, repo_name, sha):
     # Get the combined status for the repo and sha given.
 
     gh = github.Github(token)
-    repo = gh.get_repo(repo_slug)
+    repo = gh.get_repo(repo_name)
     commit = repo.get_commit(sha)
     status = commit.get_combined_status()
 
