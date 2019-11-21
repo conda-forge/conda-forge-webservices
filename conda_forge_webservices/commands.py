@@ -126,11 +126,12 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                     pull.create_issue_comment(message)
             else:
                 if rerender_error:
+                    doc_url = 'https://conda-forge.org/docs/maintainer/updating_pkgs.html#rerendering-with-conda-smithy-locally'
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
-                        I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance.
-                        """).format(changes_str)
+                        I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
+                        """).format(changes_str, doc_url)
                 else:
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
