@@ -63,7 +63,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         pull = repo.get_pull(int(pr_num))
         team = repo_name.replace('-feedstock', '')
-        message = textwrap.dedent(""""
+        message = textwrap.dedent("""
             Hi! This is the friendly automated conda-forge-webservice.
 
             I was asked to ping @conda-forge/%s and so here I am doing that.
