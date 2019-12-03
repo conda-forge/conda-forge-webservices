@@ -20,6 +20,7 @@ LINT_MSG = re.compile(pre + "(please )?(re-?)?lint", re.I)
 UPDATE_TEAM_MSG = re.compile(pre + "(please )?(update|refresh) (the )?team", re.I)
 UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "(please )?(update|refresh) (the )?circle", re.I)
 UPDATE_CB3_MSG = re.compile(pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
+PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -56,6 +57,18 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         pull.edit(state='closed')
         time.sleep(1)  # wait a bit to be sure things are ok
         pull.edit(state='open')
+
+    if PING_TEAM.search(comment):
+        gh = github.Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        pull = repo.get_pull(int(pr_num))
+        team = repo_name.replace('-feedstock', '')
+        message = textwrap.dedent("""
+            Hi! This is the friendly automated conda-forge-webservice.
+
+            I was asked to ping @conda-forge/%s and so here I am doing that.
+            """ % team)
+        pull.create_issue_comment(message)
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:
@@ -126,11 +139,12 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                     pull.create_issue_comment(message)
             else:
                 if rerender_error:
+                    doc_url = 'https://conda-forge.org/docs/maintainer/updating_pkgs.html#rerendering-with-conda-smithy-locally'
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
-                        I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance.
-                        """).format(changes_str)
+                        I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
+                        """).format(changes_str, doc_url)
                 else:
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
