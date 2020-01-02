@@ -87,7 +87,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                     'to retry issuing a particular '
                     'pull-request'))
         except github.GithubException as e:
-            # an error here is not fatal to swallow it and 
+            # an error here is not fatal so swallow it and 
             # move on
             pass
 
