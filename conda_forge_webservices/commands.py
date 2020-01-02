@@ -74,6 +74,26 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
     if not is_staged_recipes and RERUN_BOT.search(comment):
         gh = github.Github(os.environ['GH_TOKEN'])
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        
+        # try to add the label if it does not exist
+        # this makes things look nicer but is not needed
+        try:
+            # color and description are from the bot repo
+            repo.create_label(
+                'bot-rerun',
+                '#191970',
+                description=(
+                    'Apply this label if you want the bot '
+                    'to retry issuing a particular '
+                    'pull-request'))
+        except github.GithubException as e:
+            # an error here is not fatal to swallow it and 
+            # move on
+            pass
+
+        # now add the label
+        # this API call will work even if the label does not
+        # exist yet or is already on the PR
         pull = repo.get_pull(int(pr_num))
         pull.add_to_labels("bot-rerun")
 
