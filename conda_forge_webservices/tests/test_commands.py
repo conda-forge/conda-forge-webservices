@@ -37,6 +37,7 @@ class TestCommands(unittest.TestCase):
         if self.kill_token:
             del os.environ['GH_TOKEN']
 
+    @mock.patch('conda_forge_webservices.commands.add_bot_rerun_label')
     @mock.patch('conda_forge_webservices.commands.rerender')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
@@ -48,7 +49,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_pr_command_triggers(
             self, repo, gh, tmp_directory, update_cb3, update_circle,
-            update_team, relint, make_noarch, rerender):
+            update_team, relint, make_noarch, rerender, add_bot_rerun_label):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
 
@@ -104,6 +105,20 @@ class TestCommands(unittest.TestCase):
                 'hey @conda-forge-linter re-lint!',
              ], [
                 '@conda-forge-admin should probably lint again',
+             ]),
+            (add_bot_rerun_label, False, [
+                '@conda-forge-admin, please rerun the bot',
+                '@conda-forge-admin, rerun the bot',
+                '@conda-forge-admin, please rerun bot',
+                '@conda-forge-admin, rerun bot',
+                '@conda-forge-admin: RERUN BOT',
+                'something something. @conda-forge-admin: please rerun bot',
+             ], [
+                '@conda-forge admin is pretty cool. please rerun bot for me?',
+                '@conda-forge admin is pretty cool. rerun the bot for me?',
+                '@conda-forge-admin, go ahead and rerun the bot for me',
+                'please rerun the bot, @conda-forge-admin',
+                'rerun bot, @conda-forge-admin',
              ]),
         ]
 

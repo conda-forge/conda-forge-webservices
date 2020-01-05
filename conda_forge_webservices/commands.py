@@ -21,6 +21,7 @@ UPDATE_TEAM_MSG = re.compile(pre + "(please )?(update|refresh) (the )?team", re.
 UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "(please )?(update|refresh) (the )?circle", re.I)
 UPDATE_CB3_MSG = re.compile(pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
 PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
+RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -69,6 +70,11 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             I was asked to ping @conda-forge/%s and so here I am doing that.
             """ % team)
         pull.create_issue_comment(message)
+
+    if not is_staged_recipes and RERUN_BOT.search(comment):
+        gh = github.Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        add_bot_rerun_label(repo, pr_num)
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:
@@ -329,3 +335,27 @@ def relint(owner, repo_name, pr_num):
     else:
         msg = comment_on_pr(owner, repo_name, pr, lint_info['message'], force=True)
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
+
+
+def add_bot_rerun_label(repo, pr_num):
+    # try to add the label if it does not exist
+    # this makes things look nicer but is not needed
+    try:
+        # color and description are from the bot repo
+        repo.create_label(
+            'bot-rerun',
+            '#191970',
+            description=(
+                'Apply this label if you want the bot '
+                'to retry issuing a particular '
+                'pull-request'))
+    except github.GithubException:
+        # an error here is not fatal so swallow it and
+        # move on
+        pass
+
+    # now add the label
+    # this API call will work even if the label does not
+    # exist yet or is already on the PR
+    pull = repo.get_pull(int(pr_num))
+    pull.add_to_labels("bot-rerun")
