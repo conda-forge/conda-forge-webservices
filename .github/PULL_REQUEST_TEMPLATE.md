@@ -7,7 +7,9 @@ If you have push access to this repo, please push directly to a branch in this r
 a PR from that branch
 
 If you do not have push access to this repo, create a PR from your fork's branch and ask the
-conda-forge/core team to push your commits to a branch on this repo
+conda-forge/core team to push your commits to a branch on this repo. 
+
+Note that the tests will not pass until the branch is on the main repo and not your fork!
 -->
 
 Checklist
