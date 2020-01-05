@@ -17,3 +17,9 @@ It is then a case of adding the appropriate webhook to trigger the service on ``
 The buildpack for this repo comes from https://github.com/pl31/heroku-buildpack-conda, which allows a conda
 environment to be deployed as part of the slug.
 
+testing
+-------
+
+The tests for this repo require a GitHub API key which is not available on forks. Thus the tests only pass 
+for PRs made from a branch in this repo. If your PR is in a fork, please ask a member of `@conda-forge/core`
+to push your PR branch to the main repo to enable the tests.
