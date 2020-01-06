@@ -6,9 +6,14 @@ import unittest
 
 import github
 
+import pytest
+
 from conda_forge_webservices.linting import comment_on_pr
 
 
+@pytest.mark.skipif(
+    'GH_TOKEN' not in os.environ, 
+    reason="GitHub API token is not in environment")
 class Test_comment_on_pr(unittest.TestCase):
     def test_comment_same_as_before(self):
         PR_number = 18
