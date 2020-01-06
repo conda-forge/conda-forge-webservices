@@ -1,5 +1,5 @@
 import json
-import unittest
+import os
 try:
     from urllib.parse import urlencode
     import unittest.mock as mock
@@ -8,6 +8,7 @@ except ImportError:
     import mock
 
 from tornado.testing import AsyncHTTPTestCase
+import pytest
 
 from conda_forge_webservices.webapp import create_webapp
 
@@ -17,6 +18,9 @@ class TestHandlerBase(AsyncHTTPTestCase):
         return create_webapp()
 
 
+@pytest.mark.skipif(
+    'GH_TOKEN' not in os.environ,
+    reason="GitHub API token is not in environment")
 class TestBucketHandler(TestHandlerBase):
     def test_bad_header(self):
         response = self.fetch('/conda-linting/hook', method='POST',
