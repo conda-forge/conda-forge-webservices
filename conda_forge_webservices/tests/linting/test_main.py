@@ -5,7 +5,12 @@ import subprocess
 import sys
 import unittest
 
+import pytest
 
+
+@pytest.mark.skipif(
+    'GH_TOKEN' not in os.environ, 
+    reason="GitHub API token is not in environment")
 class TestCLI_recipe_lint(unittest.TestCase):
     def test_cli_skip_ci(self):
         child = subprocess.Popen([sys.executable, '-m' 'conda_forge_webservices.linting',
