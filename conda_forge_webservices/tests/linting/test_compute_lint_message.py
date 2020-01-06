@@ -8,6 +8,8 @@ import tempfile
 import textwrap
 import unittest
 
+import pytest
+
 from conda_forge_webservices.linting import compute_lint_message
 
 
@@ -18,6 +20,9 @@ def tmp_directory():
     shutil.rmtree(tmp_dir)
 
 
+@pytest.mark.skipif(
+    'GH_TOKEN' not in os.environ, 
+    reason="GitHub API token is not in environment")
 class Test_compute_lint_message(unittest.TestCase):
     def test_skip_ci_recipe(self):
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 58)
