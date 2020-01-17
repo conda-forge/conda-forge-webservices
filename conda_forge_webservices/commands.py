@@ -257,7 +257,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 changed_anything |= rerender(git_repo)
 
             elif ADD_BOT_AUTOMERGE.search(text):
-                pr_title = "[ci skip] ***NO CI*** adding bot automerge"
+                pr_title = "[ci skip] ***NO_CI*** adding bot automerge"
                 comment_msg = "added bot automerge"
                 to_close = ADD_BOT_AUTOMERGE.search(title)
                 check_bump_build = False
@@ -326,7 +326,7 @@ def add_bot_automerge(repo):
     repo.index.add([dest_main_yml, cf_yml])
     author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
     repo.index.commit(
-        "[ci skip] ***NO CI*** added bot automerge", author=author)
+        "[ci skip] ***NO_CI*** added bot automerge", author=author)
     return True
 
 
