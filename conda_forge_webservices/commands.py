@@ -310,7 +310,7 @@ def add_bot_automerge(repo):
     os.makedirs(workflows_dir, exist_ok=True)
     dest_main_yml = os.path.join(workflows_dir, "main.yml")
     src_main_yml = os.path.join(
-        conda_forge_content, "templates", main.yml.tmpl")
+        conda_forge_content, "templates", "main.yml.tmpl")
     shutil.copyfile(src_main_yml, dest_main_yml)
 
     # now add to conda-forge.yml
