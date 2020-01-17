@@ -4,6 +4,9 @@ import os
 import re
 import subprocess
 import time
+import shutil
+from ruamel.yaml import YAML
+
 from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
@@ -22,6 +25,7 @@ UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "(please )?(update|refresh) (the )?ci
 UPDATE_CB3_MSG = re.compile(pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
 PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
+ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?add bot automerge", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -167,8 +171,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     text = comment + title
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
-                      RERENDER_MSG, UPDATE_CB3_MSG]
-    send_pr_commands = [ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG]
+                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE]
+    send_pr_commands = [
+        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -217,6 +222,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             new_branch.checkout()
 
             changed_anything = False
+            check_bump_build = True
             extra_msg = ""
             if UPDATE_CB3_MSG.search(text):
                 pr_title = "MNT: Update for conda-build 3"
@@ -250,12 +256,23 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 changed_anything |= rerender(git_repo)
 
+            elif ADD_BOT_AUTOMERGE.search(text):
+                pr_title = "[ci skip] ***NO CI*** adding bot automerge"
+                comment_msg = "added bot automerge"
+                to_close = ADD_BOT_AUTOMERGE.search(title)
+                check_bump_build = False
+
+                changed_anything |= add_bot_automerge(git_repo)
+
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)
                 pr_message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
                         I've {} as instructed in #{}.{}
+                        """).format(comment_msg, issue_num, extra_msg)
+                if check_bump_build:
+                    pr_message += textwrap.dedent("""
 
                         Here's a checklist to do before merging.
                         - [ ] Bump the build number if needed.
@@ -283,6 +300,34 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 issue.create_comment(message)
                 if to_close:
                     issue.edit(state="closed")
+
+
+def add_bot_automerge(repo):
+    # copy in the workflow def from smithy
+    from conda_smithy.configure_feedstock import conda_forge_content
+
+    workflows_dir = os.path.join(repo.working_dir, ".github", "workflows")
+    os.makedirs(workflows_dir, exist_ok=True)
+    dest_main_yml = os.path.join(workflows_dir, "main.yml")
+    src_main_yml = os.path.join(
+        conda_forge_content, "templates"", main.yml.tmpl")
+    shutil.copyfile(src_main_yml, dest_main_yml)
+
+    # now add to conda-forge.yml
+    cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
+    yaml = YAML()
+    with open(cf_yml, 'r') as fp:
+        cfg = yaml.load(fp)
+    cfg['bot'] = {'automerge': True}
+    with open(cf_yml, 'w') as fp:
+        yaml.dump(cfg, fp)
+
+    # now commit
+    repo.index.add([dest_main_yml, cf_yml])
+    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    repo.index.commit(
+        "[ci skip] ***NO CI*** added bot automerge", author=author)
+    return True
 
 
 def rerender(repo):
