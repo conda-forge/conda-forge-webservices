@@ -315,9 +315,12 @@ def add_bot_automerge(repo):
 
     # now add to conda-forge.yml
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
-    yaml = YAML()
-    with open(cf_yml, 'r') as fp:
-        cfg = yaml.load(fp)
+    if os.path.exists(cf_yml):
+        yaml = YAML()
+        with open(cf_yml, 'r') as fp:
+            cfg = yaml.load(fp)
+    else:
+        cfg = {}
     cfg['bot'] = {'automerge': True}
     with open(cf_yml, 'w') as fp:
         yaml.dump(cfg, fp)
