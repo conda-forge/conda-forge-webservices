@@ -261,6 +261,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 comment_msg = "added bot automerge"
                 to_close = ADD_BOT_AUTOMERGE.search(title)
                 check_bump_build = False
+                extra_msg = "\n\nMerge this PR to enable bot automerging."
 
                 changed_anything |= add_bot_automerge(git_repo)
 
@@ -276,7 +277,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                         Here's a checklist to do before merging.
                         - [ ] Bump the build number if needed.
-                        """).format(comment_msg, issue_num, extra_msg)
+                        """)
 
                 if to_close:
                     pr_message += "\nFixes #{}".format(issue_num)
