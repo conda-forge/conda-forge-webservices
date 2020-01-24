@@ -143,6 +143,7 @@ class TestCommands(unittest.TestCase):
                 pr_detailed_comment(msg)
                 command.assert_not_called()
 
+    @mock.patch('conda_forge_webservices.commands.add_bot_automerge')
     @mock.patch('conda_forge_webservices.commands.rerender')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
@@ -154,11 +155,25 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_issue_command_triggers(
             self, repo, gh, tmp_directory, update_cb3, update_circle,
-            update_team, relint, make_noarch, rerender):
+            update_team, relint, make_noarch, rerender, add_bot_automerge):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
 
         commands = [
+            (add_bot_automerge, [
+                '@conda-forge-admin, please add bot automerge',
+                '@conda-forge-admin, add bot automerge',
+                '@conda-forge-admin: PLEASE ADD BOT AUTOMERGE',
+                '@conda-forge-admin: ADD BOT AUTOMERGE',
+                'something something. @conda-forge-admin: please add bot automerge',
+                'something something. @conda-forge-admin: add bot automerge',
+            ], [
+                '@conda-forge admin is pretty cool. please add bot automerge for me?',
+                '@conda-forge admin is pretty cool. add bot automerge for me?',
+                '@conda-forge-admin, go ahead and add bot automerge for me',
+                'please add bot automerge, @conda-forge-admin',
+                'add bot automerge, @conda-forge-admin',
+            ]),
             (rerender, [
                 '@conda-forge-admin, please rerender',
                 '@conda-forge-admin, rerender',
@@ -243,7 +258,7 @@ class TestCommands(unittest.TestCase):
                 issue.reset_mock()
                 issue_comment(title=msg, comment="As in title")
                 command.assert_called()
-                if command in (rerender, make_noarch, update_cb3):
+                if command in (rerender, make_noarch, update_cb3, add_bot_automerge):
                     assert "Fixes #" in repo.create_pull.call_args[0][1]
                 else:
                     issue.edit.assert_called_with(state="closed")
