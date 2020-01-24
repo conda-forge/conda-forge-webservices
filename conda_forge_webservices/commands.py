@@ -261,7 +261,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 comment_msg = "added bot automerge"
                 to_close = ADD_BOT_AUTOMERGE.search(title)
                 check_bump_build = False
-                extra_msg = "\n\nMerge this PR to enable bot automerging."
+                extra_msg = "\n\nMerge this PR to enable bot automerging.\n"
 
                 changed_anything |= add_bot_automerge(git_repo)
 
