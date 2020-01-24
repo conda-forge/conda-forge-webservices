@@ -17,7 +17,7 @@ bash miniconda.sh -b -p $HOME/.conda
 source $HOME/.conda/etc/profile.d/conda.sh
 conda activate
 conda config --add channels conda-forge
-conda install --yes "conda-smithy>=3.4.5" conda-forge-pinning "conda=4.6" conda-build "python=3.7" tornado pygithub git statuspage "ruamel.yaml=0.16"
+conda install --yes "conda-smithy>=3.6.6" conda-forge-pinning "conda=4.6" conda-build "python=3.7" tornado pygithub git statuspage "ruamel.yaml=0.16"
 conda clean -tipsy --yes
 
 conda info
