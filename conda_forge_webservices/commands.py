@@ -313,7 +313,7 @@ def add_bot_automerge(repo):
         cfg = {}
 
     if cfg.get('bot', {}).get('automerge', False):
-        # alrady have it
+        # already have it
         return False
 
     # add to conda-forge.yml
