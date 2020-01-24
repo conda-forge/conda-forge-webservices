@@ -303,17 +303,6 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
 
 def add_bot_automerge(repo):
-    # copy in the workflow def from smithy
-    from conda_smithy.configure_feedstock import conda_forge_content
-
-    workflows_dir = os.path.join(repo.working_dir, ".github", "workflows")
-    os.makedirs(workflows_dir, exist_ok=True)
-    dest_main_yml = os.path.join(workflows_dir, "main.yml")
-    src_main_yml = os.path.join(
-        conda_forge_content, "templates", "main.yml.tmpl")
-    shutil.copyfile(src_main_yml, dest_main_yml)
-
-    # now add to conda-forge.yml
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
         yaml = YAML()
@@ -321,9 +310,34 @@ def add_bot_automerge(repo):
             cfg = yaml.load(fp)
     else:
         cfg = {}
-    cfg['bot'] = {'automerge': True}
+
+    if cfg.get('bot', {}).get('automerge', False):
+        # alrady have it
+        return False
+
+    # add to conda-forge.yml
+    # we do it this way to make room
+    # for other keys in the future
+    if 'bot' not in cfg:
+        cfg['bot'] = {}
+    cfg['bot']['automerge'] = True
     with open(cf_yml, 'w') as fp:
         yaml.dump(cfg, fp)
+
+    # copy in the workflow def from smithy
+    from conda_smithy.configure_feedstock import conda_forge_content
+
+    workflows_dir = os.path.join(repo.working_dir, ".github", "workflows")
+    os.makedirs(workflows_dir, exist_ok=True)
+    dest_main_yml = os.path.join(workflows_dir, "main.yml")
+    src_main_yml = os.path.join(
+        conda_forge_content,
+        "feedstock_content",
+        ".github",
+        "workflows",
+        "main.yml",
+    )
+    shutil.copyfile(src_main_yml, dest_main_yml)
 
     # now commit
     repo.index.add([dest_main_yml, cf_yml])
