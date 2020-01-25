@@ -5,3 +5,4 @@ pygithub
 nose
 mock
 git
+parameterized

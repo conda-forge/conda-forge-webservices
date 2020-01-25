@@ -304,9 +304,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
 
 def add_bot_automerge(repo):
+    yaml = YAML()
+
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
-        yaml = YAML()
         with open(cf_yml, 'r') as fp:
             cfg = yaml.load(fp)
     else:
