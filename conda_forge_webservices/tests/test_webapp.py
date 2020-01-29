@@ -104,7 +104,7 @@ class TestBucketHandler(TestHandlerBase):
         is_pr_stale.assert_called_once_with('conda-forge', 'staged-recipes',
                                             PR_number)
 
-        compute_lint_message.assert_not_called())
+        compute_lint_message.assert_not_called()
 
         comment_on_pr.assert_not_called()
 
