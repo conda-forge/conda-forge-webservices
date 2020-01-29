@@ -125,8 +125,13 @@ class LintingHookHandler(tornado.web.RequestHandler):
             pr_id = int(body['pull_request']['number'])
             is_open = body['pull_request']['state'] == 'open'
 
+            if repo_name == 'staged-recipes':
+                stale = linting.is_pr_stale(owner, repo_name, pr_id)
+            else:
+                stale = False
+
             # Only do anything if we are working with conda-forge, and an open PR.
-            if is_open and owner == 'conda-forge':
+            if is_open and owner == 'conda-forge' and not stale:
                 lint_info = linting.compute_lint_message(owner, repo_name, pr_id,
                                                          repo_name == 'staged-recipes')
                 if lint_info:
