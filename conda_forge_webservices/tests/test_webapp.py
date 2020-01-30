@@ -69,9 +69,6 @@ class TestBucketHandler(TestHandlerBase):
                               headers={'X-GitHub-Event': 'pull_request'})
 
         self.assertEqual(response.code, 200)
-        is_pr_stale.assert_called_once_with('conda-forge', 'staged-recipes',
-                                            PR_number)
-
         compute_lint_message.assert_called_once_with('conda-forge', 'staged-recipes',
                                                      PR_number, True)
 
