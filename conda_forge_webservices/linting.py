@@ -10,6 +10,15 @@ import conda_smithy.lint_recipe
 
 from .utils import tmp_directory
 
+
+def is_pr_stale(owner, repo_name, pr_id):
+    gh = github.Github(os.environ['GH_TOKEN'])
+    user = gh.get_user(owner)
+    repo = user.get_repo(repo_name)
+    pr = repo.get_pull(pr_id)
+    return any(l.name == 'stale' for l in pr.get_labels())
+
+
 def find_recipes(a_dir):
     return [os.path.dirname(y) for x in os.walk(a_dir)
             for y in glob(os.path.join(x[0], 'meta.yaml'))]
@@ -64,10 +73,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
         if not mergeable:
             message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-linting service.
-                
+
                 I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
                 Please try to merge or rebase with the base branch to resolve this conflict.
-                
+
                 Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
                 """)
             status = 'merge_conflict'
@@ -136,7 +145,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
     mixed = good + textwrap.dedent("""
     I do have some suggestions for making it better though...
-    
+
     {}
     """).format('\n'.join(messages))
 
@@ -153,7 +162,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     if not pr_recipes:
         message = textwrap.dedent("""
             Hi! This is the friendly automated conda-forge-linting service.
-            
+
             I was trying to look for recipes to lint for you, but couldn't find any.
             Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
             """)
