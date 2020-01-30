@@ -11,14 +11,6 @@ import conda_smithy.lint_recipe
 from .utils import tmp_directory
 
 
-def is_pr_stale(owner, repo_name, pr_id):
-    gh = github.Github(os.environ['GH_TOKEN'])
-    user = gh.get_user(owner)
-    repo = user.get_repo(repo_name)
-    pr = repo.get_pull(pr_id)
-    return any(l.name == 'stale' for l in pr.get_labels())
-
-
 def find_recipes(a_dir):
     return [os.path.dirname(y) for x in os.walk(a_dir)
             for y in glob(os.path.join(x[0], 'meta.yaml'))]
