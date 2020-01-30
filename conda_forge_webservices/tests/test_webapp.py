@@ -33,7 +33,7 @@ class TestBucketHandler(TestHandlerBase):
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
                                  'state': 'open',
-                                 'labels': [{'name': 'stale'},]}}
+                                 'labels': [{'name': 'stale'}]}}
 
         response = self.fetch('/conda-linting/hook', method='POST',
                               body=json.dumps(body),
