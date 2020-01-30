@@ -23,7 +23,6 @@ class TestBucketHandler(TestHandlerBase):
                               body=urlencode({'a': 1}))
         self.assertEqual(response.code, 404)
 
-    @mock.patch('conda_forge_webservices.linting.is_pr_stale', return_value=False)
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
@@ -33,14 +32,14 @@ class TestBucketHandler(TestHandlerBase):
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
-                                 'state': 'open'}}
+                                 'state': 'open',
+                                 'labels': [{'name': 'stale'}]}}
 
         response = self.fetch('/conda-linting/hook', method='POST',
                               body=json.dumps(body),
                               headers={'X-GitHub-Event': 'pull_request'})
 
         self.assertEqual(response.code, 200)
-        is_pr_stale.assert_not_called()
 
         compute_lint_message.assert_called_once_with('conda-forge', 'repo_name',
                                                      PR_number, False)
@@ -53,7 +52,6 @@ class TestBucketHandler(TestHandlerBase):
                                               {'message': mock.sentinel.message},
                                               target_url=mock.sentinel.html_url)
 
-    @mock.patch('conda_forge_webservices.linting.is_pr_stale', return_value=False)
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
@@ -63,7 +61,8 @@ class TestBucketHandler(TestHandlerBase):
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
-                                 'state': 'open'}}
+                                 'state': 'open',
+                                 'labels': [{'name': 'blah'}]}}
 
         response = self.fetch('/conda-linting/hook', method='POST',
                               body=json.dumps(body),
@@ -84,7 +83,6 @@ class TestBucketHandler(TestHandlerBase):
                                               {'message': mock.sentinel.message},
                                               target_url=mock.sentinel.html_url)
 
-    @mock.patch('conda_forge_webservices.linting.is_pr_stale', return_value=True)
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
@@ -94,16 +92,14 @@ class TestBucketHandler(TestHandlerBase):
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
-                                 'state': 'open'}}
+                                 'state': 'open',
+                                 'labels': [{'name': 'stale'}]}}
 
         response = self.fetch('/conda-linting/hook', method='POST',
                               body=json.dumps(body),
                               headers={'X-GitHub-Event': 'pull_request'})
 
         self.assertEqual(response.code, 200)
-        is_pr_stale.assert_called_once_with('conda-forge', 'staged-recipes',
-                                            PR_number)
-
         compute_lint_message.assert_not_called()
 
         comment_on_pr.assert_not_called()

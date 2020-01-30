@@ -126,7 +126,10 @@ class LintingHookHandler(tornado.web.RequestHandler):
             is_open = body['pull_request']['state'] == 'open'
 
             if repo_name == 'staged-recipes':
-                stale = linting.is_pr_stale(owner, repo_name, pr_id)
+                stale = any(
+                    label['name'] == 'stale'
+                    for label in body['pull_request']['labels']
+                )
             else:
                 stale = False
 
