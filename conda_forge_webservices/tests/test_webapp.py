@@ -26,7 +26,7 @@ class TestBucketHandler(TestHandlerBase):
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
-    def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message, is_pr_stale):
+    def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'repo_name',
                                'clone_url': 'repo_clone_url',
@@ -55,7 +55,7 @@ class TestBucketHandler(TestHandlerBase):
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
-    def test_staged_recipes(self, set_pr_status, comment_on_pr, compute_lint_message, is_pr_stale):
+    def test_staged_recipes(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'staged-recipes',
                                'clone_url': 'repo_clone_url',
@@ -86,7 +86,7 @@ class TestBucketHandler(TestHandlerBase):
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
-    def test_staged_recipes_stale(self, set_pr_status, comment_on_pr, compute_lint_message, is_pr_stale):
+    def test_staged_recipes_stale(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'staged-recipes',
                                'clone_url': 'repo_clone_url',
