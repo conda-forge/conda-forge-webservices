@@ -130,7 +130,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                     label['name'] == 'stale'
                     for label in body['pull_request']['labels']
                 )
-            elif not repo.endswith("-feedstock"):
+            elif not repo_name.endswith("-feedstock"):
                 self.set_status(404)
                 self.write_error(404)
                 return
