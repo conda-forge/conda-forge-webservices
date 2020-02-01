@@ -130,6 +130,10 @@ class LintingHookHandler(tornado.web.RequestHandler):
                     label['name'] == 'stale'
                     for label in body['pull_request']['labels']
                 )
+            elif not repo.endswith("-feedstock"):
+                self.set_status(404)
+                self.write_error(404)
+                return
             else:
                 stale = False
 
@@ -207,7 +211,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             if 'head_commit' in body:
                 commit = body['head_commit']['id']
             # Only do anything if we are working with conda-forge, and a push to master.
-            if owner == 'conda-forge' and ref == "refs/heads/master":
+            if owner == 'conda-forge' and repo.endswith("-feedstock") and ref == "refs/heads/master":
                 update_teams.update_team(owner, repo_name, commit)
             print_rate_limiting_info()
         else:
@@ -230,7 +234,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
             # Only do anything if we are working with conda-forge
-            if owner != 'conda-forge':
+            if owner != 'conda-forge' or not (repo == "staged-recipes" or repo.endswith("-feedstock")):
                 return
             pr_repo = body['pull_request']['head']['repo']
             pr_owner = pr_repo['owner']['login']
@@ -257,7 +261,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
             issue_num = body['issue']['number']
 
             # Only do anything if we are working with conda-forge
-            if owner != 'conda-forge':
+            if owner != 'conda-forge' or not (repo == "staged-recipes" or repo.endswith("-feedstock")):
                 return
             pull_request = False
             if "pull_request" in body["issue"]:
@@ -314,11 +318,11 @@ class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
 
 def create_webapp():
     application = tornado.web.Application([
-        (r"/conda-linting/hook", LintingHookHandler),
+        (r"/conda-linting/org-hook", LintingHookHandler),
         (r"/conda-forge-status/hook", StatusHookHandler),
-        (r"/conda-forge-feedstocks/hook", UpdateFeedstockHookHandler),
-        (r"/conda-forge-teams/hook", UpdateTeamHookHandler),
-        (r"/conda-forge-command/hook", CommandHookHandler),
+        (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
+        (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
+        (r"/conda-forge-command/org-hook", CommandHookHandler),
         (r"/conda-webservice-update/hook", UpdateWebservicesHookHandler),
     ])
     return application
