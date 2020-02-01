@@ -125,15 +125,16 @@ class LintingHookHandler(tornado.web.RequestHandler):
             pr_id = int(body['pull_request']['number'])
             is_open = body['pull_request']['state'] == 'open'
 
+            if owner != 'conda-forge' or not (repo_name == 'staged-recipes' or repo_name.endswith("-feedstock")):
+                self.set_status(404)
+                self.write_error(404)
+                return
+
             if repo_name == 'staged-recipes':
                 stale = any(
                     label['name'] == 'stale'
                     for label in body['pull_request']['labels']
                 )
-            elif not repo_name.endswith("-feedstock"):
-                self.set_status(404)
-                self.write_error(404)
-                return
             else:
                 stale = False
 
@@ -159,6 +160,7 @@ class StatusHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
+            return
         elif event == 'issues' or event == 'issue_comment' or event == 'push':
             body = tornado.escape.json_decode(self.request.body)
             repo_full_name = body['repository']['full_name']
@@ -166,11 +168,12 @@ class StatusHookHandler(tornado.web.RequestHandler):
             # Only do something if it involves the status page
             if repo_full_name == 'conda-forge/status':
                 status.update()
-            print_rate_limiting_info()
+                print_rate_limiting_info()
+                return
         else:
             print('Unhandled event "{}".'.format(event))
-            self.set_status(404)
-            self.write_error(404)
+        self.set_status(404)
+        self.write_error(404)
 
 
 class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
@@ -180,6 +183,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
+            return
         elif event == 'push':
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body['repository']['name']
@@ -187,12 +191,14 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             ref = body['ref']
             # Only do anything if we are working with conda-forge, and a push to master.
             if owner == 'conda-forge' and ref == "refs/heads/master":
-                feedstocks_service.handle_feedstock_event(owner, repo_name)
-            print_rate_limiting_info()
+                handled = feedstocks_service.handle_feedstock_event(owner, repo_name)
+                if handled:
+                    print_rate_limiting_info()
+                    return
         else:
             print('Unhandled event "{}".'.format(event))
-            self.set_status(404)
-            self.write_error(404)
+        self.set_status(404)
+        self.write_error(404)
 
 
 class UpdateTeamHookHandler(tornado.web.RequestHandler):
@@ -202,6 +208,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
+            return
         elif event == 'push':
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body['repository']['name']
@@ -213,11 +220,13 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge, and a push to master.
             if owner == 'conda-forge' and repo_name.endswith("-feedstock") and ref == "refs/heads/master":
                 update_teams.update_team(owner, repo_name, commit)
-            print_rate_limiting_info()
+                print_rate_limiting_info()
+                return
         else:
             print('Unhandled event "{}".'.format(event))
-            self.set_status(404)
-            self.write_error(404)
+
+        self.set_status(404)
+        self.write_error(404)
 
 
 class CommandHookHandler(tornado.web.RequestHandler):
@@ -227,6 +236,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
+            return
         elif event == 'pull_request_review' or event == 'pull_request' \
             or event == 'pull_request_review_comment':
             body = tornado.escape.json_decode(self.request.body)
@@ -235,6 +245,8 @@ class CommandHookHandler(tornado.web.RequestHandler):
             owner = body['repository']['owner']['login']
             # Only do anything if we are working with conda-forge
             if owner != 'conda-forge' or not (repo_name == "staged-recipes" or repo_name.endswith("-feedstock")):
+                self.set_status(404)
+                self.write_error(404)
                 return
             pr_repo = body['pull_request']['head']['repo']
             pr_owner = pr_repo['owner']['login']
@@ -251,7 +263,8 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
             if comment:
                 commands.pr_detailed_comment(owner, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment)
-            print_rate_limiting_info()
+                print_rate_limiting_info()
+                return
 
         elif event == 'issue_comment' or event == "issues":
             body = tornado.escape.json_decode(self.request.body)
@@ -262,6 +275,8 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
             # Only do anything if we are working with conda-forge
             if owner != 'conda-forge' or not (repo_name == "staged-recipes" or repo_name.endswith("-feedstock")):
+                self.set_status(404)
+                self.write_error(404)
                 return
             pull_request = False
             if "pull_request" in body["issue"]:
@@ -269,6 +284,8 @@ class CommandHookHandler(tornado.web.RequestHandler):
             if pull_request and action != 'deleted':
                 comment = body['comment']['body']
                 commands.pr_comment(owner, repo_name, issue_num, comment)
+                print_rate_limiting_info()
+                return
 
             if not pull_request and action in ['opened', 'edited', 'created', 'reopened']:
                 title = body['issue']['title'] if event == "issues" else ""
@@ -277,12 +294,14 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 else:
                     comment = body['issue']['body']
                 commands.issue_comment(owner, repo_name, issue_num, title, comment)
-            print_rate_limiting_info()
+                print_rate_limiting_info()
+                return
 
         else:
             print('Unhandled event "{}".'.format(event))
-            self.set_status(404)
-            self.write_error(404)
+
+        self.set_status(404)
+        self.write_error(404)
 
 
 class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
@@ -292,6 +311,7 @@ class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
 
         if event == 'ping':
             self.write('pong')
+            return
         elif event == 'status':
             # Retrieve status request payload
             body = tornado.escape.json_decode(self.request.body)
@@ -305,15 +325,16 @@ class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
                 token = os.environ.get('GH_TOKEN')
                 state = get_combined_status(token, repo_name, sha)
 
-            # Update if the combined status is a success
-            if state == 'success':
-                update_me.update_me()
-
-            print_rate_limiting_info()
+                # Update if the combined status is a success
+                if state == 'success':
+                    update_me.update_me()
+                print_rate_limiting_info()
+                return
         elif event != 'push':
             print('Unhandled event "{}".'.format(event))
-            self.set_status(404)
-            self.write_error(404)
+
+        self.set_status(404)
+        self.write_error(404)
 
 
 def create_webapp():
