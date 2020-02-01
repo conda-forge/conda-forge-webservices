@@ -19,7 +19,7 @@ class TestHandlerBase(AsyncHTTPTestCase):
 
 class TestBucketHandler(TestHandlerBase):
     def test_bad_header(self):
-        response = self.fetch('/conda-linting/hook', method='POST',
+        response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=urlencode({'a': 1}))
         self.assertEqual(response.code, 404)
 
@@ -28,27 +28,27 @@ class TestBucketHandler(TestHandlerBase):
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
     def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
-        body = {'repository': {'name': 'repo_name',
+        body = {'repository': {'name': 'repo_name-feedstock',
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
                                  'state': 'open',
                                  'labels': [{'name': 'stale'}]}}
 
-        response = self.fetch('/conda-linting/hook', method='POST',
+        response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=json.dumps(body),
                               headers={'X-GitHub-Event': 'pull_request'})
 
         self.assertEqual(response.code, 200)
 
-        compute_lint_message.assert_called_once_with('conda-forge', 'repo_name',
+        compute_lint_message.assert_called_once_with('conda-forge', 'repo_name-feedstock',
                                                      PR_number, False)
 
-        comment_on_pr.assert_called_once_with('conda-forge', 'repo_name',
+        comment_on_pr.assert_called_once_with('conda-forge', 'repo_name-feedstock',
                                               PR_number, mock.sentinel.message,
                                               search='conda-forge-linting service')
 
-        set_pr_status.assert_called_once_with('conda-forge', 'repo_name',
+        set_pr_status.assert_called_once_with('conda-forge', 'repo_name-feedstock',
                                               {'message': mock.sentinel.message},
                                               target_url=mock.sentinel.html_url)
 
@@ -64,7 +64,7 @@ class TestBucketHandler(TestHandlerBase):
                                  'state': 'open',
                                  'labels': [{'name': 'blah'}]}}
 
-        response = self.fetch('/conda-linting/hook', method='POST',
+        response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=json.dumps(body),
                               headers={'X-GitHub-Event': 'pull_request'})
 
@@ -92,7 +92,7 @@ class TestBucketHandler(TestHandlerBase):
                                  'state': 'open',
                                  'labels': [{'name': 'stale'}]}}
 
-        response = self.fetch('/conda-linting/hook', method='POST',
+        response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=json.dumps(body),
                               headers={'X-GitHub-Event': 'pull_request'})
 
