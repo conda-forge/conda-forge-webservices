@@ -52,6 +52,34 @@ class TestBucketHandler(TestHandlerBase):
                                               {'message': mock.sentinel.message},
                                               target_url=mock.sentinel.html_url)
 
+    @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value=None)
+    def test_accept_repos(self, set_pr_status, comment_on_pr, compute_lint_message):
+        test_slugs = {
+            "conda-forge/repo-feedstock": True,
+            "conda-forge/staged-recipes": True,
+            "conda-forge/conda-smithy": False,
+            "dummy/repo-feedstock": False,
+            "dummy/staged-recipes": False,
+        }
+        PR_number = 16
+        for slug, success in test_slugs.items():
+            owner, name = slug.split("/")
+            body = {'repository': {'name': name,
+                                   'clone_url': 'repo_clone_url',
+                                   'owner': {'login': owner}},
+                    'pull_request': {'number': PR_number,
+                                     'state': 'open',
+                                     'labels': [{'name': 'stale'}]}}
+
+            response = self.fetch('/conda-linting/org-hook', method='POST',
+                              body=json.dumps(body),
+                              headers={'X-GitHub-Event': 'pull_request'})
+            if success:
+                self.assertEqual(response.code, 200)
+            else:
+                self.assertNotEqual(response.code, 200)
+
+
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
     @mock.patch('conda_forge_webservices.linting.set_pr_status')
