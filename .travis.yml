@@ -24,4 +24,4 @@ install:
 
 
 script:
- - nosetests conda_forge_webservices -v
+ - pytest -vv conda_forge_webservices -v
