@@ -15,7 +15,7 @@ import conda_smithy.lint_recipe
 import shutil
 from contextlib import contextmanager
 from datetime import datetime
-
+import pytz
 
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.status as status
@@ -24,12 +24,15 @@ import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 import conda_forge_webservices.update_me as update_me
 
+UPDATED_ME_DELAY = 55 * 60  # 55 mins
+UPDATED_ME_LAST = datetime.now().astimezone(pytz.UTC)
+
 
 def get_combined_status(token, repo_name, sha):
     # Get the combined status for the repo and sha given.
 
     gh = github.Github(token)
-    repo = gh.get_repo(repo_slug)
+    repo = gh.get_repo(repo_name)
     commit = repo.get_commit(sha)
     status = commit.get_combined_status()
 
@@ -337,6 +340,22 @@ class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
+class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
+    def post(self):
+        # we throttle this internally for safety
+        global UPDATED_ME_LAST
+
+        now = datetime.now().astimezone(pytz.UTC)
+        dt = now - UPDATED_ME_LAST
+        if dt.total_seconds() >= UPDATED_ME_DELAY:
+            update_me.update_me()
+            print_rate_limiting_info()
+            UPDATED_ME_LAST = now
+        else:
+            self.set_status(404)
+            self.write_error(404)
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/org-hook", LintingHookHandler),
@@ -345,6 +364,7 @@ def create_webapp():
         (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
         (r"/conda-forge-command/org-hook", CommandHookHandler),
         (r"/conda-webservice-update/hook", UpdateWebservicesHookHandler),
+        (r"/conda-webservice-update/cron", UpdateWebservicesCronHandler),
     ])
     return application
 
