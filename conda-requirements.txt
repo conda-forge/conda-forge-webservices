@@ -2,7 +2,7 @@ conda-smithy>=3.6.6
 conda-forge-pinning
 conda=4.8
 conda-build
-python=3.7
+python=3.7.*
 tornado
 pygithub
 git
