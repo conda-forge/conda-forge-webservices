@@ -24,4 +24,4 @@ install:
 
 
 script:
- - pytest -vv conda_forge_webservices -v
+ - pytest -vv conda_forge_webservices
