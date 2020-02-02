@@ -28,8 +28,7 @@ conda install --yes \
   pygithub \
   git \
   statuspage \
-  "ruamel.yaml=0.16" \
-  pytz
+  "ruamel.yaml=0.16"
 conda clean -tipsy --yes
 
 conda info

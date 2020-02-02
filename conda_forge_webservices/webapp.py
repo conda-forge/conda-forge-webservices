@@ -14,8 +14,6 @@ import github
 import conda_smithy.lint_recipe
 import shutil
 from contextlib import contextmanager
-from datetime import datetime
-import pytz
 
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.status as status
@@ -23,9 +21,6 @@ import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 import conda_forge_webservices.update_me as update_me
-
-UPDATED_ME_DELAY = 55 * 60  # 55 mins
-UPDATED_ME_LAST = datetime.now().astimezone(pytz.UTC)
 
 
 def print_rate_limiting_info_for_token(token, user):
@@ -298,15 +293,12 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
 class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
     def post(self):
-        # we throttle this internally for safety
-        global UPDATED_ME_LAST
+        headers = self.request.headers
+        key = headers.get('UPDATE_ME_KEY', None)
 
-        now = datetime.now().astimezone(pytz.UTC)
-        dt = now - UPDATED_ME_LAST
-        if dt.total_seconds() >= UPDATED_ME_DELAY:
+        if os.environ['UPDATE_ME_KEY'] == key:
             update_me.update_me()
             print_rate_limiting_info()
-            UPDATED_ME_LAST = now
         else:
             self.set_status(404)
             self.write_error(404)

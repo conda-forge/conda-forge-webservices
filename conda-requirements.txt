@@ -6,4 +6,3 @@ nose
 mock
 git
 parameterized
-pytz
