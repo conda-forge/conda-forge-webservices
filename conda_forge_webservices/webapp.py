@@ -300,8 +300,8 @@ class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
             update_me.update_me()
             print_rate_limiting_info()
         else:
-            self.set_status(404)
-            self.write_error(404)
+            self.set_status(403)
+            self.write_error(403)
 
 
 def create_webapp():
