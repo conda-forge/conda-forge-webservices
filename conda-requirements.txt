@@ -6,5 +6,4 @@ nose
 mock
 git
 parameterized
-datetime
 pytz

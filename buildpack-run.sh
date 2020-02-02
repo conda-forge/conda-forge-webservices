@@ -29,7 +29,6 @@ conda install --yes \
   git \
   statuspage \
   "ruamel.yaml=0.16" \
-  datetime \
   pytz
 conda clean -tipsy --yes
 
