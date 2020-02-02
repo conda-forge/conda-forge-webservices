@@ -5,8 +5,7 @@ sudo: false
 
 env:
   matrix:
-#    - python=2.7
-    - python=3.6
+    - python=3.7
 
   global:
     # Adds a GH_TOKEN (pelson) for testing
