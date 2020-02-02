@@ -28,17 +28,6 @@ UPDATED_ME_DELAY = 55 * 60  # 55 mins
 UPDATED_ME_LAST = datetime.now().astimezone(pytz.UTC)
 
 
-def get_combined_status(token, repo_name, sha):
-    # Get the combined status for the repo and sha given.
-
-    gh = github.Github(token)
-    repo = gh.get_repo(repo_name)
-    commit = repo.get_commit(sha)
-    status = commit.get_combined_status()
-
-    return status.state
-
-
 def print_rate_limiting_info_for_token(token, user):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
@@ -307,39 +296,6 @@ class CommandHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
-class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
-    def post(self):
-        headers = self.request.headers
-        event = headers.get('X-GitHub-Event', None)
-
-        if event == 'ping':
-            self.write('pong')
-            return
-        elif event == 'status':
-            # Retrieve status request payload
-            body = tornado.escape.json_decode(self.request.body)
-            repo_name = body['name']
-            sha = body['sha']
-            state = body['state']
-
-            # Check the combined status
-            # Skip check if the current status is not a success
-            if state == 'success':
-                token = os.environ.get('GH_TOKEN')
-                state = get_combined_status(token, repo_name, sha)
-
-                # Update if the combined status is a success
-                if state == 'success':
-                    update_me.update_me()
-                print_rate_limiting_info()
-                return
-        elif event != 'push':
-            print('Unhandled event "{}".'.format(event))
-
-        self.set_status(404)
-        self.write_error(404)
-
-
 class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
     def post(self):
         # we throttle this internally for safety
@@ -363,7 +319,6 @@ def create_webapp():
         (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
         (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
         (r"/conda-forge-command/org-hook", CommandHookHandler),
-        (r"/conda-webservice-update/hook", UpdateWebservicesHookHandler),
         (r"/conda-webservice-update/cron", UpdateWebservicesCronHandler),
     ])
     return application
