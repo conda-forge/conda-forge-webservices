@@ -85,6 +85,7 @@ CMD ["/opt/conda/bin/tini", \
      "--", \
      "/opt/docker/bin/entrypoint", \
      "python", \
+     "-u", \
      "-m", \
      "conda_forge_webservices.webapp", \
      "--logging=info" \
