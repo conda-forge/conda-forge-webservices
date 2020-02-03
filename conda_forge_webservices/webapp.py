@@ -230,9 +230,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
             ref = body['ref']
-            commit = None
-            if 'head_commit' in body:
-                commit = body['head_commit']['id']
+            commit = body.get('head', None)
             # Only do anything if we are working with conda-forge,
             # and a push to master.
             if (
