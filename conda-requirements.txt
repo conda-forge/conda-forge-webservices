@@ -1,5 +1,8 @@
-conda-smithy
+conda-smithy>=3
+conda-forge-pinning
 tornado
 pygithub
 nose
 mock
+git
+parameterized
