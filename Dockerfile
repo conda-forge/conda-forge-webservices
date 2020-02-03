@@ -81,4 +81,4 @@ RUN cd conda_forge_webservices && \
     conda activate base && \
     pip install -e .
 
-ENTRYPOINT ["/opt/conda/bin/tini", "--", "/opt/docker/bin/entrypoint"]
+CMD ["/opt/conda/bin/tini", "--", "/opt/docker/bin/entrypoint", "python", "-m", "conda_forge_webservices.webapp"]

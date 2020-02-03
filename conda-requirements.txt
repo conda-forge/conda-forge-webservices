@@ -13,3 +13,4 @@ nose
 mock
 git
 parameterized
+tini
