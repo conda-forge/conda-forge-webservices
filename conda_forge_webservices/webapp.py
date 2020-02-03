@@ -302,6 +302,7 @@ class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
         if hmac.compare_digest(our_token, header_token):
             update_me.update_me()
             print_rate_limiting_info()
+            self.write('updated')
         else:
             self.set_status(403)
             self.write_error(403)
