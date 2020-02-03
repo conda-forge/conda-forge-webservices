@@ -9,7 +9,8 @@ jobs:
       - run:
           name: update web services
           command: |
-            curl -X POST https://conda-forge.herokuapp.com//conda-webservice-update/cron
+            ret=`curl -H "CF_WEBSERVICES_TOKEN: ${CF_WEBSERVICES_TOKEN}" -X POST https://conda-forge.herokuapp.com//conda-webservice-update/cron`
+            echo $ret | grep "updated"
 
 workflows:
   version: 2
