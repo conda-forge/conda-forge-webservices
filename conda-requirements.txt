@@ -1,7 +1,14 @@
-conda-smithy>=3
+python=3.7.*
+conda-smithy>=3.6.6  # this pin is for bot automerge
 conda-forge-pinning
+conda=4.8
+conda-build
 tornado
 pygithub
+git
+statuspage
+ruamel.yaml>=0.16
+pytest
 nose
 mock
 git
