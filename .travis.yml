@@ -4,6 +4,10 @@ sudo: false
 
 
 env:
+  matrix:
+#    - python=2.7
+    - python=3.6
+
   global:
     # Adds a GH_TOKEN (pelson) for testing
     - secure: "qVn2Vvnl+dWrg0zZEQgt0xmW/XAawTxGtas0QUYnxcaa5fSp2KtKtLjNf/xI+4ghAM/f3rAw1O3K/RfJnzHWqC3/PZ5oYduiO6zflV4Saqe+67mFBaCAyKNpm6kgZc8TNoP+nSuVn1IfJXXeVeT9mRVa1PbX9RGUDBV4DhZZLvGfDQIrRmAUdjRTp3uhFcA4LJIGvaJ8KiHDYKTEjIs+0GCNrEUIjW5xQmyMSRizcOOYsJYew3VnEeT5YvAaAAuk+E7L92tKAerDcxztix7etAUgnFAk2rEdit5IhOruJDQ581ulhGgu/c4rYR6E/kSoBscVQAD4hHi5nceSSzw4khsCYNvGNli4ZRJB/vBQMjzdYlXPmaLvPvvYcu5LBsg+Y80+43UF/RKtJpgRiQgdgjPwfu6e7pSX9ydUq7A+/YM3lFSHqDywmXIYR0RTerzxhgv0Et8H+FuvcFL0qxGkJk8NKZhnJLnCx/FLSZX1XJXaEwsNq9aYxp5AXCCJiDkVTo9017NjMashnNLFkfmo4PPQGDi6B53a9Z9t46Qp6suqw++Eb/Cx0To5O0kQaOBq7xyenLb2kCahBy/8OHwqfnrA00H/zQFsNImG1CWxP/w/lpQ9Xt922jWkoyOxHYZb7oiPkSWnCu46bexxmmd0jtDleOlEU+y1Rvh0IUugMu4="
@@ -18,10 +22,10 @@ install:
  - conda config --set show_channel_urls True
  - conda config --add channels conda-forge
  - conda update --yes conda
- - conda install --yes --quiet --file conda-requirements.txt
+ - conda install --yes --quiet python=${python} --file conda-requirements.txt
  - mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
  - python setup.py install
 
 
 script:
- - pytest -vv conda_forge_webservices
+ - nosetests conda_forge_webservices -v

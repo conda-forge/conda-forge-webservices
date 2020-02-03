@@ -300,10 +300,9 @@ class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
         our_token = os.environ['CF_WEBSERVICES_TOKEN']
 
         if hmac.compare_digest(our_token, header_token):
-            self.write('received')
-            print("!!!!!!!!!!!!!!!!!!! running update me script !!!!!!!!!!!!!!!!!!!")
             update_me.update_me()
             print_rate_limiting_info()
+            self.write('updated')
         else:
             self.set_status(403)
             self.write_error(403)
