@@ -296,12 +296,10 @@ class CommandHookHandler(tornado.web.RequestHandler):
 class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
     def post(self):
         headers = self.request.headers
-        key = headers.get('UPDATE_ME_TOKEN', None)
+        header_token = headers.get('CF_WEBSERVICES_TOKEN', None)
+        our_token = os.environ['CF_WEBSERVICES_TOKEN']
 
-        if (
-            len(key) == len(os.environ['UPDATE_ME_TOKEN']) and
-            hmac.compare_digest(os.environ['UPDATE_ME_TOKEN'], key)
-        ):
+        if hmac.compare_digest(our_token, header_token):
             update_me.update_me()
             print_rate_limiting_info()
         else:
