@@ -29,6 +29,7 @@ class TestBucketHandler(TestHandlerBase):
     def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'repo_name-feedstock',
+                               'full_name': 'conda-forge/repo_name-feedstock',
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
@@ -82,6 +83,7 @@ class TestBucketHandler(TestHandlerBase):
                 body = {
                     'repository': {
                         'name': name,
+                        'full_name': '%s/%s' % (owner, name),
                         'clone_url': 'repo_clone_url',
                         'owner': {'login': owner},
                     },
@@ -125,6 +127,7 @@ class TestBucketHandler(TestHandlerBase):
     def test_staged_recipes(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'staged-recipes',
+                               'full_name': 'conda-forge/staged-recipes',
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
@@ -153,6 +156,7 @@ class TestBucketHandler(TestHandlerBase):
     def test_staged_recipes_stale(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'staged-recipes',
+                               'full_name': 'conda-forge/staged-recipes',
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
                 'pull_request': {'number': PR_number,
