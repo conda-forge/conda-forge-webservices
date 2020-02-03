@@ -3,6 +3,7 @@ import tornado.escape
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
+import hmac
 
 import requests
 import os
@@ -16,24 +17,12 @@ import shutil
 from contextlib import contextmanager
 from datetime import datetime
 
-
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.status as status
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 import conda_forge_webservices.update_me as update_me
-
-
-def get_combined_status(token, repo_name, sha):
-    # Get the combined status for the repo and sha given.
-
-    gh = github.Github(token)
-    repo = gh.get_repo(repo_slug)
-    commit = repo.get_commit(sha)
-    status = commit.get_combined_status()
-
-    return status.state
 
 
 def print_rate_limiting_info_for_token(token, user):
@@ -304,37 +293,19 @@ class CommandHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
-class UpdateWebservicesHookHandler(tornado.web.RequestHandler):
+class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
     def post(self):
         headers = self.request.headers
-        event = headers.get('X-GitHub-Event', None)
+        header_token = headers.get('CF_WEBSERVICES_TOKEN', None)
+        our_token = os.environ['CF_WEBSERVICES_TOKEN']
 
-        if event == 'ping':
-            self.write('pong')
-            return
-        elif event == 'status':
-            # Retrieve status request payload
-            body = tornado.escape.json_decode(self.request.body)
-            repo_name = body['name']
-            sha = body['sha']
-            state = body['state']
-
-            # Check the combined status
-            # Skip check if the current status is not a success
-            if state == 'success':
-                token = os.environ.get('GH_TOKEN')
-                state = get_combined_status(token, repo_name, sha)
-
-                # Update if the combined status is a success
-                if state == 'success':
-                    update_me.update_me()
-                print_rate_limiting_info()
-                return
-        elif event != 'push':
-            print('Unhandled event "{}".'.format(event))
-
-        self.set_status(404)
-        self.write_error(404)
+        if hmac.compare_digest(our_token, header_token):
+            update_me.update_me()
+            print_rate_limiting_info()
+            self.write('updated')
+        else:
+            self.set_status(403)
+            self.write_error(403)
 
 
 def create_webapp():
@@ -344,7 +315,7 @@ def create_webapp():
         (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
         (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
         (r"/conda-forge-command/org-hook", CommandHookHandler),
-        (r"/conda-webservice-update/hook", UpdateWebservicesHookHandler),
+        (r"/conda-webservice-update/cron", UpdateWebservicesCronHandler),
     ])
     return application
 
