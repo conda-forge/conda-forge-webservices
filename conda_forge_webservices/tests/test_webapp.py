@@ -1,4 +1,7 @@
 import json
+import hmac
+import os
+import hashlib
 import unittest
 try:
     from urllib.parse import urlencode
@@ -36,9 +39,17 @@ class TestBucketHandler(TestHandlerBase):
                                  'state': 'open',
                                  'labels': [{'name': 'stale'}]}}
 
+        hash = hmac.new(
+            os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+            json.dumps(body).encode('utf-8'),
+            hashlib.sha1
+        ).hexdigest()
+
         response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=json.dumps(body),
-                              headers={'X-GitHub-Event': 'pull_request'})
+                              headers={
+                                'X-GitHub-Event': 'pull_request',
+                                'X-Hub-Signature': 'sha1=%s' % hash})
 
         self.assertEqual(response.code, 200)
 
@@ -110,10 +121,19 @@ class TestBucketHandler(TestHandlerBase):
 
                 }
 
+                hash = hmac.new(
+                    os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+                    json.dumps(body).encode('utf-8'),
+                    hashlib.sha1
+                ).hexdigest()
+
                 for event in ["pull_request", "issues", "push"]:
+
                     response = self.fetch(hook, method='POST',
                                   body=json.dumps(body),
-                                  headers={'X-GitHub-Event': event})
+                                  headers={
+                                    'X-GitHub-Event': event,
+                                    'X-Hub-Signature': 'sha1=%s' % hash})
 
                     if owner == "conda-forge" and name in accepted_repos and event in accepted_events:
                         self.assertEqual(response.code, 200, msg=f"event: {event}, slug: {slug}, hook: {hook}")
@@ -134,9 +154,17 @@ class TestBucketHandler(TestHandlerBase):
                                  'state': 'open',
                                  'labels': [{'name': 'blah'}]}}
 
+        hash = hmac.new(
+            os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+            json.dumps(body).encode('utf-8'),
+            hashlib.sha1
+        ).hexdigest()
+
         response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=json.dumps(body),
-                              headers={'X-GitHub-Event': 'pull_request'})
+                              headers={
+                                'X-GitHub-Event': 'pull_request',
+                                'X-Hub-Signature': 'sha1=%s' % hash})
 
         self.assertEqual(response.code, 200)
         compute_lint_message.assert_called_once_with('conda-forge', 'staged-recipes',
@@ -163,9 +191,17 @@ class TestBucketHandler(TestHandlerBase):
                                  'state': 'open',
                                  'labels': [{'name': 'stale'}]}}
 
+        hash = hmac.new(
+            os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+            json.dumps(body).encode('utf-8'),
+            hashlib.sha1
+        ).hexdigest()
+
         response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=json.dumps(body),
-                              headers={'X-GitHub-Event': 'pull_request'})
+                              headers={
+                                'X-GitHub-Event': 'pull_request',
+                                'X-Hub-Signature': 'sha1=%s' % hash})
 
         self.assertEqual(response.code, 200)
         compute_lint_message.assert_not_called()
