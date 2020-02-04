@@ -22,8 +22,25 @@ class TestHandlerBase(AsyncHTTPTestCase):
 
 class TestBucketHandler(TestHandlerBase):
     def test_bad_header(self):
+        hash = hmac.new(
+            os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+            urlencode({'a': 1}).encode('utf-8'),
+            hashlib.sha1
+        ).hexdigest()
+
         response = self.fetch('/conda-linting/org-hook', method='POST',
-                              body=urlencode({'a': 1}))
+                              body=urlencode({'a': 1}),
+                              headers={'X-Hub-Signature': 'sha1=%s' % hash})
+        self.assertEqual(response.code, 404)
+
+    def test_bad_hash(self):
+        response = self.fetch(
+            '/conda-linting/org-hook',
+            method='POST',
+            body=urlencode({'a': 1}),
+            headers={
+                'X-GitHub-Event': 'pull_request',
+                'X-Hub-Signature': 'sha1=43abf34'})
         self.assertEqual(response.code, 403)
 
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
