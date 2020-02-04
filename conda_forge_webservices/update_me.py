@@ -33,6 +33,8 @@ def update_me():
     Update the webservice on Heroku by pushing a commit to this repo.
     """
 
+    # conda build appears to cache data or something and the memory usage
+    # spikes - so we run it in a separate process
     with ProcessPoolExecutor(max_workers=1) as pool:
         to_install = pool.submit(_run_solver).result()
 
