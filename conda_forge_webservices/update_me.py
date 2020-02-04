@@ -25,6 +25,8 @@ def _run_solver():
         if VersionOrder(latest_version) > VersionOrder(installed_vers[pkg]):
             to_install[pkg] = latest_version
 
+    return to_install
+
 
 def update_me():
     """
