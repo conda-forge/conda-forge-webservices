@@ -4,6 +4,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import hmac
+import hashlib
 
 import requests
 import github
@@ -53,6 +54,18 @@ def print_rate_limiting_info():
     print("")
 
 
+def valid_request(body, signature):
+    our_hash = hmac.new(
+        os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+        body,
+        hashlib.sha1,
+    ).hexdigest()
+
+    their_hash = signature.split("=")[1]
+
+    return hmac.compare_digest(their_hash, our_hash)
+
+
 class RegisterHandler(tornado.web.RequestHandler):
     def get(self):
         token = os.environ.get('GH_TOKEN')
@@ -95,6 +108,15 @@ class LintingHookHandler(tornado.web.RequestHandler):
     def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
+
+        if not valid_request(
+            self.request.body,
+            headers.get('X-Hub-Signature', ''),
+        ):
+            print('invalid request!')
+            self.set_status(403)
+            self.write_error(403)
+            return
 
         if event == 'ping':
             self.write('pong')
@@ -163,6 +185,15 @@ class StatusHookHandler(tornado.web.RequestHandler):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
 
+        if not valid_request(
+            self.request.body,
+            headers.get('X-Hub-Signature', ''),
+        ):
+            print('invalid request!')
+            self.set_status(403)
+            self.write_error(403)
+            return
+
         if event == 'ping':
             self.write('pong')
             return
@@ -189,6 +220,15 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
     def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
+
+        if not valid_request(
+            self.request.body,
+            headers.get('X-Hub-Signature', ''),
+        ):
+            print('invalid request!')
+            self.set_status(403)
+            self.write_error(403)
+            return
 
         if event == 'ping':
             self.write('pong')
@@ -221,6 +261,15 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
     def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
+
+        if not valid_request(
+            self.request.body,
+            headers.get('X-Hub-Signature', ''),
+        ):
+            print('invalid request!')
+            self.set_status(403)
+            self.write_error(403)
+            return
 
         if event == 'ping':
             self.write('pong')
@@ -255,6 +304,15 @@ class CommandHookHandler(tornado.web.RequestHandler):
     def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
+
+        if not valid_request(
+            self.request.body,
+            headers.get('X-Hub-Signature', ''),
+        ):
+            print('invalid request!')
+            self.set_status(403)
+            self.write_error(403)
+            return
 
         if event == 'ping':
             self.write('pong')
