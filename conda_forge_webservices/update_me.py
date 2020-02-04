@@ -34,7 +34,7 @@ def update_me():
     """
 
     # conda build appears to cache data or something and the memory usage
-    # spikes - so we run it in a separate process
+    # spikes - so we run it in a separate process via multiprocessing
     with ProcessPoolExecutor(max_workers=1) as pool:
         to_install = pool.submit(_run_solver).result()
 
