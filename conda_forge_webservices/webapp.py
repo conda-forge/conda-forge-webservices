@@ -111,7 +111,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
 
         if not valid_request(
             self.request.body,
-            headers.get('X-Hub-Signature', b''),
+            headers.get('X-Hub-Signature', ''),
         ):
             print('invalid request!')
             self.set_status(403)
@@ -187,7 +187,7 @@ class StatusHookHandler(tornado.web.RequestHandler):
 
         if not valid_request(
             self.request.body,
-            headers.get('X-Hub-Signature', b''),
+            headers.get('X-Hub-Signature', ''),
         ):
             print('invalid request!')
             self.set_status(403)
@@ -223,7 +223,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
 
         if not valid_request(
             self.request.body,
-            headers.get('X-Hub-Signature', b''),
+            headers.get('X-Hub-Signature', ''),
         ):
             print('invalid request!')
             self.set_status(403)
@@ -264,7 +264,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
 
         if not valid_request(
             self.request.body,
-            headers.get('X-Hub-Signature', b''),
+            headers.get('X-Hub-Signature', ''),
         ):
             print('invalid request!')
             self.set_status(403)
@@ -307,7 +307,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
         if not valid_request(
             self.request.body,
-            headers.get('X-Hub-Signature', b''),
+            headers.get('X-Hub-Signature', ''),
         ):
             print('invalid request!')
             self.set_status(403)

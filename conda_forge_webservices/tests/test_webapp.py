@@ -24,7 +24,7 @@ class TestBucketHandler(TestHandlerBase):
     def test_bad_header(self):
         response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=urlencode({'a': 1}))
-        self.assertEqual(response.code, 404)
+        self.assertEqual(response.code, 403)
 
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
