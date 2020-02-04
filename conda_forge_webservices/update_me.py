@@ -1,16 +1,15 @@
 import os
-from git import Repo, Actor
-
-from conda_build.conda_interface import (VersionOrder, MatchSpec,
-    get_installed_version, root_dir, get_index, Resolve)
+from git import Repo
+from concurrent.futures import ProcessPoolExecutor
 
 from .utils import tmp_directory
 
 
-def update_me():
-    """
-    Update the webservice on Heroku by pushing a commit to this repo.
-    """
+def _run_solver():
+    from conda_build.conda_interface import (
+        VersionOrder, MatchSpec,
+        get_installed_version, root_dir, get_index, Resolve)
+
     pkgs = ["conda-build", "conda-smithy", "conda-forge-pinning"]
     installed_vers = get_installed_version(root_dir, pkgs)
     index = get_index(channel_urls=['conda-forge'])
@@ -22,9 +21,18 @@ def update_me():
         available_versions = [p.version for p in r.get_pkgs(MatchSpec(pkg))]
         available_versions = sorted(available_versions, key=VersionOrder)
         latest_version = available_versions[-1]
-        print(latest_version, installed_vers[pkg])
+        print("%s:" % pkg, latest_version, installed_vers[pkg])
         if VersionOrder(latest_version) > VersionOrder(installed_vers[pkg]):
             to_install[pkg] = latest_version
+
+
+def update_me():
+    """
+    Update the webservice on Heroku by pushing a commit to this repo.
+    """
+
+    with ProcessPoolExecutor(max_workers=1) as pool:
+        to_install = pool.submit(_run_solver).result()
 
     if not to_install:
         return
@@ -36,8 +44,6 @@ def update_me():
             os.environ['GH_TOKEN'], repo_name)
 
         repo = Repo.clone_from(url, clone_dir)
-        msg_vers = ", ".join(["{}={}".format(k, v) for k,v in to_install.items()])
-        author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+        msg_vers = ", ".join(["{}={}".format(k, v) for k, v in to_install.items()])
         repo.index.commit("Empty commit to rebuild for {}".format(msg_vers))
         repo.git.push("origin", "master")
-
