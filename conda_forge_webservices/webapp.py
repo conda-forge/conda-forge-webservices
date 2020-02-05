@@ -11,7 +11,6 @@ import github
 from datetime import datetime
 
 import conda_forge_webservices.linting as linting
-import conda_forge_webservices.status as status
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
@@ -178,42 +177,6 @@ class LintingHookHandler(tornado.web.RequestHandler):
             print('Unhandled event "{}".'.format(event))
             self.set_status(404)
             self.write_error(404)
-
-
-class StatusHookHandler(tornado.web.RequestHandler):
-    def post(self):
-        headers = self.request.headers
-        event = headers.get('X-GitHub-Event', None)
-
-        if not valid_request(
-            self.request.body,
-            headers.get('X-Hub-Signature', ''),
-        ):
-            print('invalid request!')
-            self.set_status(403)
-            self.write_error(403)
-            return
-
-        if event == 'ping':
-            self.write('pong')
-            return
-        elif event == 'issues' or event == 'issue_comment' or event == 'push':
-            body = tornado.escape.json_decode(self.request.body)
-            repo_full_name = body['repository']['full_name']
-
-            # Only do something if it involves the status page
-            if repo_full_name == 'conda-forge/status':
-                print("===================================================")
-                print("updating status page")
-                print("===================================================")
-
-                status.update()
-                print_rate_limiting_info()
-                return
-        else:
-            print('Unhandled event "{}".'.format(event))
-        self.set_status(404)
-        self.write_error(404)
 
 
 class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
@@ -453,7 +416,6 @@ class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/org-hook", LintingHookHandler),
-        (r"/conda-forge-status/hook", StatusHookHandler),
         (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
         (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
         (r"/conda-forge-command/org-hook", CommandHookHandler),
