@@ -6,7 +6,6 @@ conda-build
 tornado
 pygithub
 git
-statuspage
 ruamel.yaml>=0.16
 pytest
 nose
