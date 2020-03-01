@@ -157,6 +157,115 @@ class TestBucketHandler(TestHandlerBase):
                     else:
                         self.assertNotEqual(response.code, 200, msg=f"event: {event}, slug: {slug}, hook: {hook}")
 
+    @mock.patch(
+        'conda_forge_webservices.feedstocks_service.update_listing',
+        return_value=None,
+    )
+    @mock.patch(
+        'conda_forge_webservices.feedstocks_service.update_feedstock',
+        return_value=None,
+    )
+    @mock.patch(
+        'conda_forge_webservices.update_teams.update_team',
+        return_value=None,
+    )
+    @mock.patch(
+        'conda_forge_webservices.webapp.print_rate_limiting_info',
+        return_value=None,
+    )
+    @mock.patch('conda_forge_webservices.webapp.get_commit_message')
+    def test_skip_commits(self, commit_mock, *args):
+        for hook, accepted_repos, accepted_events, skip_slugs in [
+            ("/conda-forge-feedstocks/org-hook",
+             ["staged-recipes", "repo-feedstock", "conda-forge.github.io"],
+             ["push"],
+             ["[cf admin skip]", "[cf admin skip feedstocks]"],
+             ),
+            ("/conda-forge-teams/org-hook",
+             ["repo-feedstock"],
+             ["push"],
+             ["[cf admin skip]", "[cf admin skip teams]"],
+             ),
+        ]:
+            for commit_msg in (["blah"] + skip_slugs):
+                commit_mock.return_value = commit_msg
+
+                test_slugs = [
+                    "conda-forge/repo-feedstock",
+                    "conda-forge/staged-recipes",
+                    "conda-forge/conda-smithy",
+                    "dummy/repo-feedstock",
+                    "dummy/staged-recipes",
+                ]
+
+                for slug in test_slugs:
+                    owner, name = slug.split("/")
+                    body = {
+                        'repository': {
+                            'name': name,
+                            'full_name': '%s/%s' % (owner, name),
+                            'clone_url': 'repo_clone_url',
+                            'owner': {'login': owner},
+                        },
+                        'pull_request': {
+                            'number': 16,
+                            'state': 'open',
+                            'labels': [{'name': 'stale'}],
+                            'head': {
+                                'repo': {
+                                    'name': "pr_repo_name",
+                                    'owner': {'login': 'pr_repo_owner'},
+                                },
+                                'ref': 'ref',
+                            },
+                            'body': 'body',
+                        },
+                        'issue': {
+                            'number': 16,
+                            'body': 'body',
+                            'title': 'title',
+                        },
+                        'action': 'opened',
+                        'ref': 'refs/heads/master',
+                        'head': 'xyz',
+                    }
+
+                    hash = hmac.new(
+                        os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+                        json.dumps(body).encode('utf-8'),
+                        hashlib.sha1
+                    ).hexdigest()
+
+                    for event in ["push"]:
+
+                        response = self.fetch(
+                            hook,
+                            method='POST',
+                            body=json.dumps(body),
+                            headers={
+                                'X-GitHub-Event': event,
+                                'X-Hub-Signature': 'sha1=%s' % hash,
+                            },
+                        )
+
+                        if (
+                            owner == "conda-forge" and
+                            name in accepted_repos and
+                            event in accepted_events and
+                            all(s not in commit_msg for s in skip_slugs)
+                        ):
+                            assert commit_msg == "blah"
+                            self.assertEqual(
+                                response.code,
+                                200,
+                                msg=f"event: {event}, slug: {slug}, hook: {hook}",
+                            )
+                        else:
+                            self.assertNotEqual(
+                                response.code,
+                                200,
+                                msg=f"event: {event}, slug: {slug}, hook: {hook}",
+                            )
 
     @mock.patch('conda_forge_webservices.linting.compute_lint_message', return_value={'message': mock.sentinel.message})
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
