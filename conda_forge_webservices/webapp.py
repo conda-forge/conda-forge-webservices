@@ -201,9 +201,26 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
             ref = body['ref']
+            commit = body.get('head', None)
+
+            if commit:
+                commit_msg = (
+                    github.GitHub(os.environ['GH_TOKEN'])
+                    .get_repo(body['repository']['full_name'])
+                    .get_commit(commit)
+                    .commit
+                    .message)
+            else:
+                commit_msg = ""
+
             # Only do anything if we are working with conda-forge, and a
             # push to master.
-            if owner == 'conda-forge' and ref == "refs/heads/master":
+            if (
+                owner == 'conda-forge' and
+                ref == "refs/heads/master" and
+                "[cf admin skip feedstocks]" not in commit_msg and
+                "[cf admin skip]" not in commit_msg
+            ):
                 print("===================================================")
                 print("feedstocks service:", body['repository']['full_name'])
                 print("===================================================")
@@ -243,12 +260,25 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             owner = body['repository']['owner']['login']
             ref = body['ref']
             commit = body.get('head', None)
+
+            if commit:
+                commit_msg = (
+                    github.GitHub(os.environ['GH_TOKEN'])
+                    .get_repo(body['repository']['full_name'])
+                    .get_commit(commit)
+                    .commit
+                    .message)
+            else:
+                commit_msg = ""
+
             # Only do anything if we are working with conda-forge,
             # and a push to master.
             if (
                 owner == 'conda-forge' and
                 repo_name.endswith("-feedstock") and
-                ref == "refs/heads/master"
+                ref == "refs/heads/master" and
+                "[cf admin skip teams]" not in commit_msg and
+                "[cf admin skip]" not in commit_msg
             ):
                 print("===================================================")
                 print("updating team:", body['repository']['full_name'])
