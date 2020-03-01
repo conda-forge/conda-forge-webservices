@@ -17,6 +17,15 @@ import conda_forge_webservices.commands as commands
 import conda_forge_webservices.update_me as update_me
 
 
+def get_commit_message(full_name, commit):
+    return (
+        github.Github(os.environ['GH_TOKEN'])
+        .get_repo(full_name)
+        .get_commit(commit)
+        .commit
+        .message)
+
+
 def print_rate_limiting_info_for_token(token, user):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
@@ -204,12 +213,10 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             commit = body.get('head', None)
 
             if commit:
-                commit_msg = (
-                    github.GitHub(os.environ['GH_TOKEN'])
-                    .get_repo(body['repository']['full_name'])
-                    .get_commit(commit)
-                    .commit
-                    .message)
+                commit_msg = get_commit_message(
+                    body['repository']['full_name'],
+                    commit,
+                )
             else:
                 commit_msg = ""
 
@@ -262,12 +269,10 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             commit = body.get('head', None)
 
             if commit:
-                commit_msg = (
-                    github.GitHub(os.environ['GH_TOKEN'])
-                    .get_repo(body['repository']['full_name'])
-                    .get_commit(commit)
-                    .commit
-                    .message)
+                commit_msg = get_commit_message(
+                    body['repository']['full_name'],
+                    commit,
+                )
             else:
                 commit_msg = ""
 
