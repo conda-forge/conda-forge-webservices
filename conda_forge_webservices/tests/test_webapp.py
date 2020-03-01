@@ -254,6 +254,7 @@ class TestBucketHandler(TestHandlerBase):
                             event in accepted_events and
                             all(s not in commit_msg for s in skip_slugs)
                         ):
+                            assert commit_msg == "blah"
                             self.assertEqual(
                                 response.code,
                                 200,
