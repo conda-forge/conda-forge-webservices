@@ -114,6 +114,10 @@ def pr_detailed_comment(
             os.environ['GH_TOKEN'], pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
 
+        gh = github.Github(os.environ['GH_TOKEN'])
+        gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        pull = gh_repo.get_pull(int(pr_num))
+
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
 
@@ -145,10 +149,6 @@ def pr_detailed_comment(
                 expected_changes[-1] = 'and ' + expected_changes[-1]
             joiner = ", " if len(expected_changes) > 2 else " "
             changes_str = joiner.join(expected_changes)
-
-            gh = github.Github(os.environ['GH_TOKEN'])
-            gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-            pull = gh_repo.get_pull(int(pr_num))
 
             if changed_anything:
                 try:
