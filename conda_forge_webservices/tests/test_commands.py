@@ -301,7 +301,7 @@ class TestCommands(unittest.TestCase):
 
         rerender.assert_called()
 
-        assert 'ran into some issues' in pull_create_issue.call_args[0][0]
+        assert 'ran into an issue with' in pull_create_issue.call_args[0][0]
         assert 'please ping conda-forge/core for further assistance' in pull_create_issue.call_args[0][0]
 
 if __name__ == '__main__':
