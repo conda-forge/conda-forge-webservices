@@ -8,6 +8,7 @@ import json
 import shutil
 from ruamel.yaml import YAML
 import requests
+from requests.exceptions import RequestException
 
 from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
@@ -174,7 +175,7 @@ def pr_detailed_comment(
         if not is_staged_recipes and do_rerender:
             try:
                 rerender_error = rerender(org_name + '/' + repo_name, int(pr_num))
-            except RuntimeError:  # TODO use requests specific error here
+            except RequestException:
                 rerender_error = True
 
         if rerender_error:

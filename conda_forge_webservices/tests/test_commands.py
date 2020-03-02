@@ -6,6 +6,8 @@ try:
 except ImportError:
     import mock
 
+from requests.exceptions import RequestException
+
 from conda_forge_webservices.commands import (
     pr_detailed_comment as _pr_detailed_comment,
     issue_comment as _issue_comment)
@@ -75,8 +77,14 @@ class TestCommands(unittest.TestCase):
             (make_noarch, False, [
                 '@conda-forge-admin, please add noarch python',
                 '@conda-forge-admin, add noarch python',
-                '@conda-forge-linter, please lint, and @conda-forge-admin, please make `noarch: python`',
-                '@conda-forge-linter, lint, and @conda-forge-admin, make `noarch: python`',
+                (
+                    '@conda-forge-linter, please lint, and @conda-forge-admin, '
+                    'please make `noarch: python`'
+                ),
+                (
+                    '@conda-forge-linter, lint, and @conda-forge-admin, make '
+                    '`noarch: python`'
+                ),
                 '@CONDA-FORGE-ADMIN please add `noarch python`',
                 '@CONDA-FORGE-ADMIN add `noarch python`',
                 'hey @conda-forge-admin : please make noarch: python',
@@ -290,7 +298,7 @@ class TestCommands(unittest.TestCase):
             self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
-        rerender.side_effect = RuntimeError
+        rerender.side_effect = RequestException
 
         repo = gh.return_value.get_repo.return_value
         pull_create_issue = repo.get_pull.return_value.create_issue_comment
@@ -302,7 +310,11 @@ class TestCommands(unittest.TestCase):
         rerender.assert_called()
 
         assert 'ran into an issue with' in pull_create_issue.call_args[0][0]
-        assert 'please ping conda-forge/core for further assistance' in pull_create_issue.call_args[0][0]
+        assert (
+            'please ping conda-forge/core for further assistance'
+            in pull_create_issue.call_args[0][0]
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
