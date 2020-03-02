@@ -261,6 +261,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             changed_anything = False
             check_bump_build = True
             do_rerender = False
+            is_rerender = False
             extra_msg = ""
             if UPDATE_CB3_MSG.search(text):
                 pr_title = "MNT: Update for conda-build 3"
@@ -292,6 +293,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 to_close = RERENDER_MSG.search(title)
 
                 do_rerender = True
+                is_rerender = True
 
             elif ADD_BOT_AUTOMERGE.search(text):
                 pr_title = "[ci skip] ***NO_CI*** adding bot automerge"
@@ -302,7 +304,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 changed_anything |= add_bot_automerge(git_repo)
 
-            if changed_anything or do_rerender:
+            if changed_anything or is_rerender:
                 git_repo.git.push("origin", forked_repo_branch)
                 pr_message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
