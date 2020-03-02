@@ -227,7 +227,7 @@ class TestBucketHandler(TestHandlerBase):
                         },
                         'action': 'opened',
                         'ref': 'refs/heads/master',
-                        'head': 'xyz',
+                        'head_commit': {'id': 'xyz'},
                     }
 
                     hash = hmac.new(

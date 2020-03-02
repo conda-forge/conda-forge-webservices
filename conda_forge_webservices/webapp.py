@@ -210,7 +210,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
             ref = body['ref']
-            commit = body.get('head', None)
+            commit = body.get('head_commit', {}).get('id', None)
 
             if commit:
                 commit_msg = get_commit_message(
@@ -266,7 +266,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
             ref = body['ref']
-            commit = body.get('head', None)
+            commit = body.get('head_commit', {}).get('id', None)
 
             if commit:
                 commit_msg = get_commit_message(
