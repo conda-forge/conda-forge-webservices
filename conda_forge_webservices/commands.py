@@ -158,17 +158,15 @@ def pr_detailed_comment(
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
-                        I tried to {} for you, but it looks like I wasn't able to push
-                        to the {} branch of {}/{}. Did you check the "Allow edits from
-                        maintainers" box?
-                        """).format(changes_str, pr_branch, pr_owner, pr_repo)
+                        I tried to {} for you, but it looks like I wasn't able to push to the {} branch of {}/{}.
+                        Did you check the "Allow edits from maintainers" box?
+                        """).format(changes_str, pr_branch, pr_owner, pr_repo)  # noqa
                     pull.create_issue_comment(message)
             else:
                 message = textwrap.dedent("""
                     Hi! This is the friendly automated conda-forge-webservice.
 
-                    I tried to {} for you, but it looks like there was nothing
-                    to do.
+                    I tried to {} for you, but it looks like there was nothing to do.
                     """).format(changes_str)
 
         rerender_error = False
@@ -190,11 +188,9 @@ def pr_detailed_comment(
 
             message += textwrap.dedent("""
 
-                I tried to rerender for you but ran into an issue with kicking
-                GitHub Actions to do the rerender. Please ping
-                conda-forge/core for further assistance. You can also try
-                [re-rendering locally]({}).
-                """).format(doc_url)
+                I tried to rerender for you but ran into an issue with kicking GitHub Actions to do the rerender.
+                Please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
+                """).format(doc_url)  # noqa
 
         if message is not None:
             pull.create_issue_comment(message)
@@ -225,9 +221,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
-                I just wanted to let you know that I updated the team with maintainers
-                from master.
-                """)
+                I just wanted to let you know that I updated the team with maintainers from master.
+                """)  # noqa
         issue.create_comment(message)
 
     if UPDATE_CIRCLECI_KEY_MSG.search(text):
@@ -237,9 +232,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
-                I just wanted to let you know that I updated the circle-ci deploy
-                key and followed the project.
-                """)
+                I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
+                """)  # noqa
         issue.create_comment(message)
 
     if any(command.search(text) for command in send_pr_commands):
@@ -350,10 +344,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         message = textwrap.dedent("""
                             Hi! This is the friendly automated conda-forge-webservice.
 
-                            I tried to rerender for you but ran into an issue with kicking
-                            GitHub Actions to do the rerender. Please ping
-                            conda-forge/core for further assistance. You can also try
-                            [re-rendering locally]({}).
+                            I tried to rerender for you but ran into an issue with kicking GitHub Actions to do the rerender.
+                            Please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
                             """).format(doc_url)  # noqa
 
                     if message is not None:
