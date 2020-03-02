@@ -260,6 +260,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
             changed_anything = False
             check_bump_build = True
+            do_rerender = False
             extra_msg = ""
             if UPDATE_CB3_MSG.search(text):
                 pr_title = "MNT: Update for conda-build 3"
@@ -277,21 +278,20 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     cb3_changes = "There weren't any changes to make for conda-build 3."
                 extra_msg = '\n\n' + cb3_changes
 
-                changed_anything |= rerender(git_repo)
+                do_rerender = True
             elif ADD_NOARCH_MSG.search(text):
                 pr_title = "MNT: Add noarch: python"
                 comment_msg = "made the recipe `noarch: python`"
                 to_close = ADD_NOARCH_MSG.search(title)
 
                 changed_anything |= make_noarch(git_repo)
-                changed_anything |= rerender(git_repo)
-
+                do_rerender = True
             elif RERENDER_MSG.search(text):
                 pr_title = "MNT: rerender"
                 comment_msg = "rerendered the recipe"
                 to_close = RERENDER_MSG.search(title)
 
-                changed_anything |= rerender(git_repo)
+                do_rerender = True
 
             elif ADD_BOT_AUTOMERGE.search(text):
                 pr_title = "[ci skip] ***NO_CI*** adding bot automerge"
@@ -329,6 +329,34 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         I just wanted to let you know that I {} in {}/{}#{}.
                         """).format(comment_msg, org_name, repo_name, pr.number)
                 issue.create_comment(message)
+
+                if do_rerender:
+                    rerender_error = False
+                    try:
+                        rerender_error = rerender(
+                            org_name + '/' + repo_name,
+                            pr.number,
+                        )
+                    except RequestException:
+                        rerender_error = True
+
+                    if rerender_error:
+                        doc_url = (
+                            'https://conda-forge.org/docs/maintainer/updating_pkgs.html'
+                            '#rerendering-with-conda-smithy-locally'
+                        )
+                        message = textwrap.dedent("""
+                            Hi! This is the friendly automated conda-forge-webservice.
+
+                            I tried to rerender for you but ran into an issue with kicking
+                            GitHub Actions to do the rerender. Please ping
+                            conda-forge/core for further assistance. You can also try
+                            [re-rendering locally]({}).
+                            """).format(doc_url)  # noqa
+
+                    if message is not None:
+                        pr.create_issue_comment(message)
+
             else:
                 message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
