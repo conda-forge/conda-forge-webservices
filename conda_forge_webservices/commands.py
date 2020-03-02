@@ -302,7 +302,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 changed_anything |= add_bot_automerge(git_repo)
 
-            if changed_anything:
+            if changed_anything or do_rerender:
                 git_repo.git.push("origin", forked_repo_branch)
                 pr_message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.

@@ -311,7 +311,7 @@ class TestCommands(unittest.TestCase):
 
         assert 'ran into an issue with' in pull_create_issue.call_args[0][0]
         assert (
-            'please ping conda-forge/core for further assistance'
+            'conda-forge/core for further assistance'
             in pull_create_issue.call_args[0][0]
         )
 
