@@ -4,8 +4,10 @@ import os
 import re
 import subprocess
 import time
+import json
 import shutil
 from ruamel.yaml import YAML
+import requests
 
 from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
@@ -21,8 +23,10 @@ RERENDER_MSG = re.compile(pre + "(please )?re-?render", re.I)
 RESTART_CI = re.compile(pre + "(please )?restart (build|builds|ci)", re.I)
 LINT_MSG = re.compile(pre + "(please )?(re-?)?lint", re.I)
 UPDATE_TEAM_MSG = re.compile(pre + "(please )?(update|refresh) (the )?team", re.I)
-UPDATE_CIRCLECI_KEY_MSG = re.compile(pre + "(please )?(update|refresh) (the )?circle", re.I)
-UPDATE_CB3_MSG = re.compile(pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
+UPDATE_CIRCLECI_KEY_MSG = re.compile(
+    pre + "(please )?(update|refresh) (the )?circle", re.I)
+UPDATE_CB3_MSG = re.compile(
+    pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
 PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?add bot automerge", re.I)
@@ -34,10 +38,26 @@ def pr_comment(org_name, repo_name, issue_num, comment):
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
     pr = repo.get_pull(int(issue_num))
-    pr_detailed_comment(org_name, repo_name, pr.head.user.login, pr.head.repo.name, pr.head.ref, issue_num, comment)
+    pr_detailed_comment(
+        org_name,
+        repo_name,
+        pr.head.user.login,
+        pr.head.repo.name,
+        pr.head.ref,
+        issue_num,
+        comment,
+    )
 
 
-def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment):
+def pr_detailed_comment(
+    org_name,
+    repo_name,
+    pr_owner,
+    pr_repo,
+    pr_branch,
+    pr_num,
+    comment,
+):
     is_staged_recipes = (repo_name == "staged-recipes")
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
@@ -51,7 +71,8 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
-                I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
+                I just wanted to let you know that I updated the circle-ci
+                deploy key and followed the project.
                 """)
         pull.create_issue_comment(message)
 
@@ -88,7 +109,6 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
         return
 
     with tmp_directory() as tmp_dir:
-        print(tmp_dir, repo_name)
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = "https://{}@github.com/{}/{}.git".format(
             os.environ['GH_TOKEN'], pr_owner, pr_repo)
@@ -98,7 +118,6 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
             relint(org_name, repo_name, pr_num)
 
         changed_anything = False
-        rerender_error = False
         expected_changes = []
         extra_msg = ''
         if not is_staged_recipes:
@@ -111,7 +130,6 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                 expected_changes.append('update for conda-build 3')
             if RERENDER_MSG.search(comment):
                 do_rerender = True
-                expected_changes.append('re-render')
 
             if do_noarch:
                 changed_anything |= make_noarch(repo)
@@ -121,12 +139,7 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                 changed_anything |= c
                 extra_msg += '\n\n' + cb3_changes
 
-            if do_rerender:
-                try:
-                    changed_anything |= rerender(repo)
-                except RuntimeError:
-                    rerender_error = True
-
+        message = None
         if expected_changes:
             if len(expected_changes) > 1:
                 expected_changes[-1] = 'and ' + expected_changes[-1]
@@ -144,24 +157,46 @@ def pr_detailed_comment(org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_nu
                     message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
-                        I tried to {} for you, but it looks like I wasn't able to push to the {} branch of {}/{}. Did you check the "Allow edits from maintainers" box?
+                        I tried to {} for you, but it looks like I wasn't able to push
+                        to the {} branch of {}/{}. Did you check the "Allow edits from
+                        maintainers" box?
                         """).format(changes_str, pr_branch, pr_owner, pr_repo)
                     pull.create_issue_comment(message)
             else:
-                if rerender_error:
-                    doc_url = 'https://conda-forge.org/docs/maintainer/updating_pkgs.html#rerendering-with-conda-smithy-locally'
-                    message = textwrap.dedent("""
-                        Hi! This is the friendly automated conda-forge-webservice.
+                message = textwrap.dedent("""
+                    Hi! This is the friendly automated conda-forge-webservice.
 
-                        I tried to {} for you but ran into some issues, please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
-                        """).format(changes_str, doc_url)
-                else:
-                    message = textwrap.dedent("""
-                        Hi! This is the friendly automated conda-forge-webservice.
+                    I tried to {} for you, but it looks like there was nothing
+                    to do.
+                    """).format(changes_str)
 
-                        I tried to {} for you, but it looks like there was nothing to do.
-                        """).format(changes_str)
-                pull.create_issue_comment(message)
+        rerender_error = False
+        if not is_staged_recipes and do_rerender:
+            try:
+                rerender_error = rerender(org_name + '/' + repo_name, int(pr_num))
+            except RuntimeError:  # TODO use requests specific error here
+                rerender_error = True
+
+        if rerender_error:
+            doc_url = (
+                'https://conda-forge.org/docs/maintainer/updating_pkgs.html'
+                '#rerendering-with-conda-smithy-locally'
+            )
+            if message is None:
+                message = textwrap.dedent("""
+                    Hi! This is the friendly automated conda-forge-webservice.
+                    """)
+
+            message += textwrap.dedent("""
+
+                I tried to rerender for you but ran into an issue with kicking
+                GitHub Actions to do the rerender. Please ping
+                conda-forge/core for further assistance. You can also try
+                [re-rendering locally]({}).
+                """).format(doc_url)
+
+        if message is not None:
+            pull.create_issue_comment(message)
 
 
 def issue_comment(org_name, repo_name, issue_num, title, comment):
@@ -189,7 +224,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
-                I just wanted to let you know that I updated the team with maintainers from master.
+                I just wanted to let you know that I updated the team with maintainers
+                from master.
                 """)
         issue.create_comment(message)
 
@@ -200,13 +236,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
-                I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
+                I just wanted to let you know that I updated the circle-ci deploy
+                key and followed the project.
                 """)
         issue.create_comment(message)
 
     if any(command.search(text) for command in send_pr_commands):
         forked_user = gh.get_user().login
-        forked_repo = gh.get_user().create_fork(repo)
 
         with tmp_directory() as tmp_dir:
             feedstock_dir = os.path.join(tmp_dir, repo_name)
@@ -349,14 +385,19 @@ def add_bot_automerge(repo):
     return True
 
 
-def rerender(repo):
-    curr_head = repo.active_branch.commit
-    ret = subprocess.call(["conda", "smithy", "rerender", "-c", "auto"], cwd=repo.working_dir)
-
-    if ret:
-        raise RuntimeError
-    else:
-        return repo.active_branch.commit != curr_head
+def rerender(full_name, pr_num):
+    # dispatch events do not seem to be in the pygithub API
+    # so we are rolling the API request by hand
+    headers = {
+        "authorization": "Bearer %s" % os.environ['GH_TOKEN'],
+        'content-type': 'application/json',
+    }
+    r = requests.post(
+        "https://api.github.com/repos/%s/dispatches" % full_name,
+        data=json.dumps({"event_type": "rerender", "client_payload": {"pr": pr_num}}),
+        headers=headers,
+    )
+    return r.status_code != 204
 
 
 def make_noarch(repo):
@@ -380,7 +421,10 @@ def make_noarch(repo):
 
 
 def update_cb3(repo):
-    output = subprocess.check_output(["conda", "smithy", "update-cb3"], cwd=repo.working_dir)
+    output = subprocess.check_output(
+        ["conda", "smithy", "update-cb3"],
+        cwd=repo.working_dir,
+    )
     output = output.decode('utf-8')
     repo.git.add(A=True)
     if repo.is_dirty():
@@ -393,7 +437,12 @@ def update_cb3(repo):
 
 def relint(owner, repo_name, pr_num):
     pr = int(pr_num)
-    lint_info = compute_lint_message(owner, repo_name, pr, repo_name == 'staged-recipes')
+    lint_info = compute_lint_message(
+        owner,
+        repo_name,
+        pr,
+        repo_name == 'staged-recipes',
+    )
     if not lint_info:
         print('Linting was skipped.')
     else:

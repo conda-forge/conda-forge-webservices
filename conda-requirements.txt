@@ -13,3 +13,4 @@ mock
 git
 parameterized
 tini
+requests
