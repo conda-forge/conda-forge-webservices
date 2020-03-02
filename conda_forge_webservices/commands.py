@@ -348,7 +348,6 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                             Please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
                             """).format(doc_url)  # noqa
 
-                    if message is not None:
                         pr.create_issue_comment(message)
 
             else:
