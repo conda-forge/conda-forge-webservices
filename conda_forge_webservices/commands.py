@@ -191,7 +191,7 @@ def pr_detailed_comment(
         if message is not None:
             gh = github.Github(os.environ['GH_TOKEN'])
             gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-            pull = gh_repo.get_pull(int(pr_num))            
+            pull = gh_repo.get_pull(int(pr_num))
             pull.create_issue_comment(message)
 
 
