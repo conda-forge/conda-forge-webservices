@@ -115,10 +115,6 @@ def pr_detailed_comment(
             os.environ['GH_TOKEN'], pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
 
-        gh = github.Github(os.environ['GH_TOKEN'])
-        gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        pull = gh_repo.get_pull(int(pr_num))
-
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
 
@@ -193,6 +189,9 @@ def pr_detailed_comment(
                 """).format(doc_url)  # noqa
 
         if message is not None:
+            gh = github.Github(os.environ['GH_TOKEN'])
+            gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            pull = gh_repo.get_pull(int(pr_num))            
             pull.create_issue_comment(message)
 
 
