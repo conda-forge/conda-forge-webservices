@@ -5,6 +5,7 @@ import tornado.ioloop
 import tornado.web
 import hmac
 import hashlib
+import json
 
 import requests
 import github
@@ -14,7 +15,7 @@ import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
-import conda_forge_webservices.update_me as update_me
+from conda_forge_webservices.update_me import get_current_versions
 
 
 def get_commit_message(full_name, commit):
@@ -429,23 +430,9 @@ class CommandHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
-class UpdateWebservicesCronHandler(tornado.web.RequestHandler):
-    def post(self):
-        headers = self.request.headers
-        header_token = headers.get('CF_WEBSERVICES_TOKEN', None)
-        our_token = os.environ['CF_WEBSERVICES_TOKEN']
-
-        if hmac.compare_digest(our_token, header_token):
-            self.write('received')
-            print(
-                "!!!!!!!!!!!!!!!!!!! running update me script"
-                " !!!!!!!!!!!!!!!!!!!"
-            )
-            update_me.update_me()
-            print_rate_limiting_info()
-        else:
-            self.set_status(403)
-            self.write_error(403)
+class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(json.dumps(get_current_versions()))
 
 
 def create_webapp():
@@ -454,7 +441,7 @@ def create_webapp():
         (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
         (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
         (r"/conda-forge-command/org-hook", CommandHookHandler),
-        (r"/conda-webservice-update/cron", UpdateWebservicesCronHandler),
+        (r"/conda-webservice-update/versions", UpdateWebservicesVersionsHandler),
     ])
     return application
 

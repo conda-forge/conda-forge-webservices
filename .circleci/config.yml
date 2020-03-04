@@ -3,13 +3,21 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.7.6
-    working_directory: ~/repo
+    working_directory: ~/admin-migrations
 
     steps:
+      - checkout
       - run:
-          name: update web services
+          name: install conda
           command: |
-            curl -H "CF_WEBSERVICES_TOKEN: ${CF_WEBSERVICES_TOKEN}" -X POST https://conda-forge.herokuapp.com/conda-webservice-update/cron
+            source ./circleci/install_miniconda.sh
+
+      - run:
+          name: update
+          command: |
+            export PATH=${HOME}/miniconda/bin:$PATH
+            source activate base
+            update-webservices
 
 workflows:
   version: 2
