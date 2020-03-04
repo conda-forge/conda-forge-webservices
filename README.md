@@ -14,11 +14,6 @@ appropriate conda-forge permissions. It has been configured with:
 
 The service deploys to the "conda-forge" heroku project: https://dashboard.heroku.com/apps/conda-forge/resources
 
-It is then a case of adding the appropriate webhook to trigger the service on ``pull_request``.
-
-The buildpack for this repo comes from https://github.com/pl31/heroku-buildpack-conda, which allows a conda
-environment to be deployed as part of the slug.
-
 ## Testing
 
 The tests for this repo require a GitHub API key which is not available on forks. Thus the tests only pass
