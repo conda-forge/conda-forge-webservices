@@ -236,7 +236,16 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         issue.create_comment(message)
 
     if any(command.search(text) for command in send_pr_commands):
-        forked_user = gh.get_user().login
+        forked_user_gh = gh.get_user()
+        forked_user = forked_user_gh.login
+
+        # make the fork if it does not exist
+        try:
+            gh.get_repo("{}/{}.git".format(forked_user, repo_name))
+        except github.UnknownObjectException:
+            forked_user_gh.create_fork(gh.get_repo('{}/{}'.format(
+                org_name,
+                repo_name)))
 
         with tmp_directory() as tmp_dir:
             feedstock_dir = os.path.join(tmp_dir, repo_name)
@@ -273,6 +282,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 extra_msg = '\n\n' + cb3_changes
 
                 do_rerender = True
+                changed_anything |= make_rerender_dummy_commit(git_repo)
             elif ADD_NOARCH_MSG.search(text):
                 pr_title = "MNT: Add noarch: python"
                 comment_msg = "made the recipe `noarch: python`"
@@ -280,6 +290,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 changed_anything |= make_noarch(git_repo)
                 do_rerender = True
+                changed_anything |= make_rerender_dummy_commit(git_repo)
             elif RERENDER_MSG.search(text):
                 pr_title = "MNT: rerender"
                 comment_msg = "rerendered the recipe"
@@ -287,9 +298,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 do_rerender = True
                 is_rerender = True
+                changed_anything |= make_rerender_dummy_commit(git_repo)
 
             elif ADD_BOT_AUTOMERGE.search(text):
-                pr_title = "[ci skip] ***NO_CI*** adding bot automerge"
+                pr_title = "[ci skip] [cf admin skip] ***NO_CI*** adding bot automerge"
                 comment_msg = "added bot automerge"
                 to_close = ADD_BOT_AUTOMERGE.search(title)
                 check_bump_build = False
@@ -403,6 +415,24 @@ def add_bot_automerge(repo):
     author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
     repo.index.commit(
         "[ci skip] ***NO_CI*** added bot automerge", author=author)
+    return True
+
+
+def make_rerender_dummy_commit(repo):
+    # add a dummy commit
+    readme_file = os.path.join(repo.working_dir, "README.md")
+    with open(readme_file, "a") as fp:
+        fp.write("""\
+
+<!-- dummy commit to enable rerendering -->
+
+""")
+    repo.index.add([readme_file])
+    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    repo.index.commit(
+        "[ci skip] [cf admin skip] dummy commit for rerendering",
+        author=author,
+    )
     return True
 
 
