@@ -81,10 +81,10 @@ def main():
             repo = Repo.clone_from(url, clone_dir)
 
             # keep a record around
-            readme_pth = os.path.join(clone_dir, "pkg_versions.json")
-            with open(readme_pth, "w") as fp:
+            pth = os.path.join(clone_dir, "pkg_versions.json")
+            with open(pth, "w") as fp:
                 json.dump(final_install, fp)
-            repo.index.add(readme_pth)
+            repo.index.add(pth)
 
             msg_vers = ", ".join(["{}={}".format(k, v) for k, v in to_install.items()])
             repo.index.commit("[ci skip] ***NO_CI*** redeploy for '%s'" % msg_vers)
