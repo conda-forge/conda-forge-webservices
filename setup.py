@@ -9,8 +9,11 @@ def main():
         author='Phil Elson',
         author_email='pelson.pub@gmail.com',
         url='https://github.com/conda-forge/conda-forge-webservices',
-        # entry_points=dict(console_scripts=[
-        #                    'conda_forge_webservices.linting = conda_forge_webservices.linting:main']),
+        entry_points={
+            "console_scripts": [
+                'update-webservices=conda_forge_webservices.update_me:main',
+            ],
+        },
         packages=find_packages(),
         include_package_data=True,
         )
