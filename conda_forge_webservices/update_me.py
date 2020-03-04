@@ -65,7 +65,7 @@ def main():
         available_versions = sorted(available_versions, key=VersionOrder)
         latest_version = available_versions[-1]
         print("%s|latest|installed:" % pkg, latest_version, installed_vers[pkg])
-        if VersionOrder(latest_version) > VersionOrder(installed_vers[pkg]):
+        if VersionOrder(latest_version) != VersionOrder(installed_vers[pkg]):
             to_install[pkg] = latest_version
             final_install[pkg] = latest_version
         else:
