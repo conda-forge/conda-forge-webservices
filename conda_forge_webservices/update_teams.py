@@ -1,13 +1,17 @@
-from git import GitCommandError, Repo
-from conda_build.metadata import MetaData
+from git import Repo
 import github
 import os
-import subprocess
 from .utils import tmp_directory
-from conda_smithy.github import configure_github_team, get_cached_team
+from conda_smithy.github import configure_github_team
 import textwrap
 from functools import lru_cache
-import conda_build.api
+
+from ruamel.yaml import YAML
+
+YAML_JINJA2 = YAML(typ='jinja2')
+YAML_JINJA2.indent(mapping=2, sequence=4, offset=2)
+YAML_JINJA2.width = 160
+YAML_JINJA2.allow_duplicate_keys = True
 
 
 @lru_cache(maxsize=None)
@@ -32,6 +36,11 @@ def get_handles(members):
     return ', '.join(mem)
 
 
+class DummyMeta(object):
+    def __init__(self, meta_yaml):
+        self.meta = YAML_JINJA2.load(meta_yaml)
+
+
 def update_team(org_name, repo_name, commit=None):
     if not repo_name.endswith("-feedstock"):
         return
@@ -41,13 +50,27 @@ def update_team(org_name, repo_name, commit=None):
     gh_repo = org.get_repo(repo_name)
 
     with tmp_directory() as tmp_dir:
-        repo = Repo.clone_from(gh_repo.clone_url, tmp_dir)
-        meta = conda_build.api.render(tmp_dir,
-                  permit_undefined_jinja=True, finalize=False,
-                  bypass_env_check=True, trim_skip=False)[0][0]
+        Repo.clone_from(gh_repo.clone_url, tmp_dir)
+        with open(os.path.join(tmp_dir, "recipe", "meta.yaml"), "r") as fp:
+            keep_lines = []
+            skip = True
+            for line in fp.readlines():
+                if line.startswith("extra:"):
+                    skip = False
+                if not skip:
+                    keep_lines.append(line)
+        meta = DummyMeta("".join(keep_lines))
 
-        current_maintainers, prev_maintainers, new_conda_forge_members = \
-            configure_github_team(meta, gh_repo, org, repo_name.replace("-feedstock", ""))
+        (
+            current_maintainers,
+            prev_maintainers,
+            new_conda_forge_members,
+        ) = configure_github_team(
+            meta,
+            gh_repo,
+            org,
+            repo_name.replace("-feedstock", ""),
+        )
 
         if commit:
             message = textwrap.dedent("""
@@ -60,9 +83,10 @@ def update_team(org_name, repo_name, commit=None):
                 message += textwrap.dedent("""
                     - {} {} added to conda-forge. Welcome to conda-forge!
                       Go to https://github.com/orgs/conda-forge/invitation see your invitation.
-                """.format(newm, "were" if newm.count(",") >= 1 else "was"))
+                """.format(newm, "were" if newm.count(",") >= 1 else "was"))  # noqa
 
-            addm = get_handles(current_maintainers - prev_maintainers - new_conda_forge_members)
+            addm = get_handles(
+                current_maintainers - prev_maintainers - new_conda_forge_members)
             if addm:
                 message += textwrap.dedent("""
                     - {} {} added to this feedstock maintenance team.
@@ -77,7 +101,7 @@ def update_team(org_name, repo_name, commit=None):
                     NOTE: Please make sure to not push to the repository directly.
                           Use branches in your fork for any changes and send a PR.
                           More details [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests)
-                """)
+                """)  # noqa
 
                 c = gh_repo.get_commit(commit)
                 c.create_comment(message)
