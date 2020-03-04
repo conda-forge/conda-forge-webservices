@@ -428,7 +428,7 @@ def make_rerender_dummy_commit(repo):
     repo.index.add([readme_file])
     author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
     repo.index.commit(
-        "[ci skip] [cf admin skip] dummy commit for rerendering",
+        "[ci skip] dummy commit for rerendering",
         author=author,
     )
     return True
