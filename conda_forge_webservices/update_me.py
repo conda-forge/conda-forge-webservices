@@ -87,5 +87,5 @@ def main():
             repo.index.add(pth)
 
             msg_vers = ", ".join(["{}={}".format(k, v) for k, v in to_install.items()])
-            repo.index.commit("[ci skip] ***NO_CI*** redeploy for '%s'" % msg_vers)
+            repo.index.commit("redeploy for '%s'" % msg_vers)
             repo.git.push("origin", "master")
