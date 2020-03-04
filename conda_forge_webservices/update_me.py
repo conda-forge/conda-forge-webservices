@@ -1,7 +1,10 @@
 import os
 import subprocess
 import tempfile
+from git import Repo
+
 import contextlib
+
 import json
 
 import requests
@@ -70,33 +73,19 @@ def main():
 
     if to_install:
         with tempfile.TemporaryDirectory() as tmpdir:
-            with pushd(tmpdir):
-                repo_name = "conda-forge-webservices"
-                url = "https://{}@github.com/conda-forge/{}.git".format(
-                    os.environ['GH_TOKEN'], repo_name)
+            repo_name = "conda-forge-webservices"
+            clone_dir = os.path.join(tmpdir, repo_name)
+            url = "https://{}@github.com/conda-forge/{}.git".format(
+                os.environ['GH_TOKEN'], repo_name)
 
-                _run_git_command(["clone", url])
+            repo = Repo.clone_from(url, clone_dir)
 
-                with pushd(repo_name):
-                    _run_git_command([
-                        "remote",
-                        "set-url",
-                        "--push",
-                        "origin",
-                        url,
-                    ])
+            # keep a record around
+            readme_pth = os.path.join(clone_dir, "pkg_versions.json")
+            with open(readme_pth, "w") as fp:
+                json.dump(final_install, fp)
+            repo.index.add(readme_pth)
 
-                    # keep a record around
-                    with open("pkg_versions.json", "w") as fp:
-                        json.dump(final_install, fp)
-
-                    _run_git_command(["add", "pkg_versions.json"])
-                    msg_vers = ", ".join([
-                        "{}={}".format(k, v) for k, v in to_install.items()])
-
-                    _run_git_command([
-                        "commit",
-                        "-m",
-                        "[ci skip] ***NO_CI*** redeploy for '%s'" % msg_vers,
-                    ])
-                    _run_git_command(["push"])
+            msg_vers = ", ".join(["{}={}".format(k, v) for k, v in to_install.items()])
+            repo.index.commit("[ci skip] ***NO_CI*** redeploy for '%s'" % msg_vers)
+            repo.git.push("origin", "master")
