@@ -151,6 +151,7 @@ class TestCommands(unittest.TestCase):
                 pr_detailed_comment(msg)
                 command.assert_not_called()
 
+    @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
     @mock.patch('conda_forge_webservices.commands.add_bot_automerge')
     @mock.patch('conda_forge_webservices.commands.rerender')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
@@ -162,8 +163,9 @@ class TestCommands(unittest.TestCase):
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_issue_command_triggers(
-            self, repo, gh, tmp_directory, update_cb3, update_circle,
-            update_team, relint, make_noarch, rerender, add_bot_automerge):
+            self, git_repo, gh, tmp_directory, update_cb3, update_circle,
+            update_team, relint, make_noarch, rerender, add_bot_automerge,
+            rerender_dummy_commit):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
 
@@ -256,12 +258,20 @@ class TestCommands(unittest.TestCase):
             for msg in should:
                 print(msg, end=' ' * 30 + '\r')
 
+                rerender_dummy_commit.reset_mock()
+                rerender_dummy_commit.return_value = True
                 command.reset_mock()
                 issue.reset_mock()
                 issue_comment(title="hi", comment=msg)
                 command.assert_called()
                 issue.edit.assert_not_called()
+                if command in (rerender, make_noarch, update_cb3):
+                    rerender_dummy_commit.assert_called()
+                else:
+                    rerender_dummy_commit.assert_not_called()
 
+                rerender_dummy_commit.reset_mock()
+                rerender_dummy_commit.return_value = True
                 command.reset_mock()
                 issue.reset_mock()
                 issue_comment(title=msg, comment="As in title")
@@ -270,11 +280,18 @@ class TestCommands(unittest.TestCase):
                     assert "Fixes #" in repo.create_pull.call_args[0][1]
                 else:
                     issue.edit.assert_called_with(state="closed")
+                if command in (rerender, make_noarch, update_cb3):
+                    rerender_dummy_commit.assert_called()
+                else:
+                    rerender_dummy_commit.assert_not_called()
 
+                rerender_dummy_commit.reset_mock()
+                rerender_dummy_commit.return_value = True
                 command.reset_mock()
                 print(msg, end=' ' * 30 + '\r')
                 issue_comment(msg, msg, repo_name='staged-recipes')
                 command.assert_not_called()
+                rerender_dummy_commit.assert_not_called()
 
             for msg in should_not:
                 print(msg, end=' ' * 30 + '\r')
