@@ -234,14 +234,15 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 print("===================================================")
                 print("feedstocks service:", body['repository']['full_name'])
                 print("===================================================")
-                await tornado.ioloop.IOLoop.current().run_in_executor(
+                handled = await tornado.ioloop.IOLoop.current().run_in_executor(
                     None,
                     feedstocks_service.handle_feedstock_event,
                     owner,
                     repo_name,
                 )
-                print_rate_limiting_info()
-                return
+                if handled:
+                    print_rate_limiting_info()
+                    return
         else:
             print('Unhandled event "{}".'.format(event))
         self.set_status(404)
