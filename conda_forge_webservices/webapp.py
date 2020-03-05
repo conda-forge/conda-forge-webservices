@@ -114,7 +114,7 @@ class RegisterHandler(tornado.web.RequestHandler):
 
 
 class LintingHookHandler(tornado.web.RequestHandler):
-    def post(self):
+    async def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
 
@@ -162,7 +162,9 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 print("linting:", body['repository']['full_name'])
                 print("===================================================")
 
-                lint_info = linting.compute_lint_message(
+                lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
+                    None,
+                    linting.compute_lint_message,
                     owner,
                     repo_name,
                     pr_id,
@@ -190,7 +192,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
 
 
 class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
-    def post(self):
+    async def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
 
@@ -232,7 +234,9 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 print("===================================================")
                 print("feedstocks service:", body['repository']['full_name'])
                 print("===================================================")
-                handled = feedstocks_service.handle_feedstock_event(
+                handled = await tornado.ioloop.IOLoop.current().run_in_executor(
+                    None,
+                    feedstocks_service.handle_feedstock_event,
                     owner,
                     repo_name,
                 )
@@ -246,7 +250,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
 
 
 class UpdateTeamHookHandler(tornado.web.RequestHandler):
-    def post(self):
+    async def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
 
@@ -289,7 +293,13 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 print("===================================================")
                 print("updating team:", body['repository']['full_name'])
                 print("===================================================")
-                update_teams.update_team(owner, repo_name, commit)
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    None,
+                    update_teams.update_team,
+                    owner,
+                    repo_name,
+                    commit,
+                )
                 print_rate_limiting_info()
                 return
         else:
