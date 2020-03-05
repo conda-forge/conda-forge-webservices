@@ -113,7 +113,7 @@ def pr_detailed_comment(
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = "https://{}@github.com/{}/{}.git".format(
             os.environ['GH_TOKEN'], pr_owner, pr_repo)
-        repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch)
+        repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch, depth=1)
 
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
@@ -253,7 +253,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 os.environ['GH_TOKEN'], forked_user, repo_name)
             upstream_repo_url = "https://{}@github.com/{}/{}.git".format(
                 os.environ['GH_TOKEN'], org_name, repo_name)
-            git_repo = Repo.clone_from(repo_url, feedstock_dir)
+            git_repo = Repo.clone_from(repo_url, feedstock_dir, depth=1)
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
             upstream = git_repo.create_remote('upstream', upstream_repo_url)
             upstream.fetch()

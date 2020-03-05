@@ -78,7 +78,7 @@ def main():
             url = "https://{}@github.com/conda-forge/{}.git".format(
                 os.environ['GH_TOKEN'], repo_name)
 
-            repo = Repo.clone_from(url, clone_dir)
+            repo = Repo.clone_from(url, clone_dir, depth=1)
 
             # keep a record around
             pth = os.path.join(clone_dir, "pkg_versions.json")
