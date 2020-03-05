@@ -23,7 +23,8 @@ def update_listing():
         )
         webpage_repo = git.Repo.clone_from(
             webpage_url,
-            os.path.join(tmp_dir, "webpage")
+            os.path.join(tmp_dir, "webpage"),
+            depth=1,
         )
         webpage_dir = os.path.dirname(webpage_repo.git_dir)
 
@@ -32,7 +33,8 @@ def update_listing():
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
-            os.path.join(tmp_dir, "feedstocks")
+            os.path.join(tmp_dir, "feedstocks"),
+            depth=1,
         )
         feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
 
@@ -43,7 +45,8 @@ def update_listing():
         feedstocks_page_repo = git.Repo.clone_from(
             feedstocks_page_url,
             os.path.join(tmp_dir, "feedstocks_page"),
-            branch="gh-pages"
+            branch="gh-pages",
+            depth=1,
         )
         feedstocks_page_dir = os.path.dirname(feedstocks_page_repo.git_dir)
 
@@ -98,7 +101,8 @@ def update_feedstock(org_name, repo_name):
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
-            tmp_dir
+            tmp_dir,
+            depth=1,
         )
 
         # Get the submodule
