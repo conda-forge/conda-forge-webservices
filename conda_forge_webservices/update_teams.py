@@ -50,7 +50,7 @@ def update_team(org_name, repo_name, commit=None):
     gh_repo = org.get_repo(repo_name)
 
     with tmp_directory() as tmp_dir:
-        Repo.clone_from(gh_repo.clone_url, tmp_dir)
+        Repo.clone_from(gh_repo.clone_url, tmp_dir, depth=1)
         with open(os.path.join(tmp_dir, "recipe", "meta.yaml"), "r") as fp:
             keep_lines = []
             skip = True

@@ -1,6 +1,7 @@
 import git
 import jinja2
 import os
+import time
 
 from collections import namedtuple
 from .utils import tmp_directory
@@ -18,6 +19,7 @@ def handle_feedstock_event(org_name, repo_name):
 
 def update_listing():
     with tmp_directory() as tmp_dir:
+        t0 = time.time()
         webpage_url = (
             "https://github.com/conda-forge/conda-forge.github.io.git"
         )
@@ -49,7 +51,9 @@ def update_listing():
             depth=1,
         )
         feedstocks_page_dir = os.path.dirname(feedstocks_page_repo.git_dir)
+        print("    listing clone:", time.time() - t0)
 
+        t0 = time.time()
         Feedstock = namedtuple("Feedstock", ["name", "package_name"])
         repos = sorted(os.listdir(os.path.join(
             feedstocks_dir, "feedstocks"
@@ -77,7 +81,9 @@ def update_listing():
         feedstocks_page_repo.index.add([os.path.relpath(
             nojekyll, feedstocks_page_dir
         )])
+        print("    listing render:", time.time() - t0)
 
+        t0 = time.time()
         if feedstocks_page_repo.is_dirty(working_tree=False, untracked_files=True):
             author = git.Actor(
                 "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
@@ -89,12 +95,14 @@ def update_listing():
             )
             feedstocks_page_repo.remote().pull(rebase=True)
             feedstocks_page_repo.remote().push()
+        print("    listing push:", time.time() - t0)
 
 
 def update_feedstock(org_name, repo_name):
     name = repo_name[:-len("-feedstock")]
 
     with tmp_directory() as tmp_dir:
+        t0 = time.time()
         feedstocks_url = (
             "https://{}@github.com/conda-forge/feedstocks.git"
             "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
@@ -104,7 +112,9 @@ def update_feedstock(org_name, repo_name):
             tmp_dir,
             depth=1,
         )
+        print("    update clone:", time.time() - t0)
 
+        t0 = time.time()
         # Get the submodule
         feedstock_submodule = feedstocks_repo.create_submodule(
             name=name,
@@ -121,7 +131,9 @@ def update_feedstock(org_name, repo_name):
             to_latest_revision=True
         )
         feedstocks_repo.git.add([".gitmodules", feedstock_submodule.path])
+        print("    update submodule:", time.time() - t0)
 
+        t0 = time.time()
         # Submit changes
         if feedstocks_repo.is_dirty(working_tree=False, untracked_files=True):
             author = git.Actor(
@@ -134,6 +146,7 @@ def update_feedstock(org_name, repo_name):
             )
             feedstocks_repo.remote().pull(rebase=True)
             feedstocks_repo.remote().push()
+        print("    update push:", time.time() - t0)
 
 
 if __name__ == '__main__':

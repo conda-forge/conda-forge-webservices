@@ -30,7 +30,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
         mergeable = pull_request.mergeable
 
     with tmp_directory() as tmp_dir:
-        repo = Repo.clone_from(remote_repo.clone_url, tmp_dir)
+        repo = Repo.clone_from(remote_repo.clone_url, tmp_dir, depth=1)
 
         # Retrieve the PR refs.
         try:
