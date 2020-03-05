@@ -163,6 +163,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 print("===================================================")
 
                 lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
+                    None,
                     linting.compute_lint_message,
                     owner,
                     repo_name,
