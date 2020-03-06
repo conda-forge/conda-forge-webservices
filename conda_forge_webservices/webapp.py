@@ -6,8 +6,9 @@ import tornado.web
 import hmac
 import hashlib
 import json
+from concurrent.futures import ThreadPoolExecutor
+import atexit
 
-import requests
 import github
 from datetime import datetime
 
@@ -16,6 +17,25 @@ import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 from conda_forge_webservices.update_me import get_current_versions
+
+
+POOL = None
+
+
+def _thread_pool():
+    global POOL
+    if POOL is None:
+        POOL = ThreadPoolExecutor(max_workers=8)
+    return POOL
+
+
+def _shutdown_thread_pool():
+    global POOL
+    if POOL is not None:
+        POOL.shutdown(wait=False)
+
+
+atexit.register(_shutdown_thread_pool)
 
 
 def get_commit_message(full_name, commit):
@@ -75,44 +95,6 @@ def valid_request(body, signature):
     return hmac.compare_digest(their_hash, our_hash)
 
 
-class RegisterHandler(tornado.web.RequestHandler):
-    def get(self):
-        token = os.environ.get('GH_TOKEN')
-        headers = {'Authorization': 'token {}'.format(token)}
-
-        url = 'https://api.github.com/repos/conda-forge/staged-recipes/hooks'
-
-        payload = {
-              "name": "web",
-              "active": True,
-              "events": [
-                "pull_request"
-              ],
-              "config": {
-                "url": "http://conda-linter.herokuapp.com/hook",
-                "content_type": "json"
-              }
-            }
-
-        requests.post(url, json=payload, headers=headers)
-
-        url = 'https://api.github.com/repos/conda-forge/status/hooks'
-
-        payload = {
-              "name": "web",
-              "active": True,
-              "events": [
-                "issues"
-              ],
-              "config": {
-                "url": "http://conda-forge-status.herokuapp.com/hook",
-                "content_type": "json"
-              }
-            }
-
-        requests.post(url, json=payload, headers=headers)
-
-
 class LintingHookHandler(tornado.web.RequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -163,7 +145,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 print("===================================================")
 
                 lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    None,
+                    _thread_pool(),
                     linting.compute_lint_message,
                     owner,
                     repo_name,
@@ -235,7 +217,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 print("feedstocks service:", body['repository']['full_name'])
                 print("===================================================")
                 handled = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    None,
+                    _thread_pool(),
                     feedstocks_service.handle_feedstock_event,
                     owner,
                     repo_name,
@@ -294,7 +276,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 print("updating team:", body['repository']['full_name'])
                 print("===================================================")
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    None,
+                    _thread_pool(),
                     update_teams.update_team,
                     owner,
                     repo_name,
@@ -310,7 +292,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
 
 
 class CommandHookHandler(tornado.web.RequestHandler):
-    def post(self):
+    async def post(self):
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
 
@@ -371,7 +353,9 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 print("PR command:", body['repository']['full_name'])
                 print("===================================================")
 
-                commands.pr_detailed_comment(
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),
+                    commands.pr_detailed_comment,
                     owner,
                     repo_name,
                     pr_owner,
@@ -410,7 +394,14 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 print("PR command:", body['repository']['full_name'])
                 print("===================================================")
 
-                commands.pr_comment(owner, repo_name, issue_num, comment)
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),
+                    commands.pr_comment,
+                    owner,
+                    repo_name,
+                    issue_num,
+                    comment,
+                )
                 print_rate_limiting_info()
                 return
 
@@ -428,8 +419,15 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 print("issue command:", body['repository']['full_name'])
                 print("===================================================")
 
-                commands.issue_comment(
-                    owner, repo_name, issue_num, title, comment)
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),
+                    commands.issue_comment,
+                    owner,
+                    repo_name,
+                    issue_num,
+                    title,
+                    comment,
+                )
                 print_rate_limiting_info()
                 return
 
