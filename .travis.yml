@@ -17,6 +17,9 @@ install:
   - conda update --yes conda
   - conda install --yes --quiet --file conda-requirements.txt
   - mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
-  - python setup.py install
+  - pip install --no-deps -e .
 script:
+  # maybe later...
+  # - black --check conda_forge_webservices
+  - flake8 conda_forge_webservices
   - pytest -vv conda_forge_webservices

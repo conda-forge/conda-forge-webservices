@@ -16,9 +16,9 @@ class Test_comment_on_pr(unittest.TestCase):
                            "was the same as before. ```{}```"
                            "".format(random.randint(100000, 200000)))
         for _ in range(2):
-            msg = comment_on_pr('conda-forge', 'conda-forge-webservices', PR_number,
-                                message_to_post)
-  
+            comment_on_pr('conda-forge', 'conda-forge-webservices', PR_number,
+                          message_to_post)
+
         gh = github.Github(os.environ['GH_TOKEN'])
         linting_repo = gh.get_user('conda-forge').get_repo('conda-forge-webservices')
         pr = linting_repo.get_issue(PR_number)
@@ -29,6 +29,6 @@ class Test_comment_on_pr(unittest.TestCase):
 
         self.assertMultiLineEqual(comments[-1].body, message_to_post)
 
-        
+
 if __name__ == '__main__':
     unittest.main()
