@@ -169,6 +169,7 @@ class TestCommands(unittest.TestCase):
             rerender_dummy_commit, add_py27):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
+        add_py27.return_value = True
 
         commands = [
             (add_bot_automerge, [

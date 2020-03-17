@@ -31,7 +31,7 @@ UPDATE_CB3_MSG = re.compile(
 PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?add bot automerge", re.I)
-ADD_PY27 = re.compile(pre + "(please )?add (python 2.7|py27)", re.I)
+ADD_PY27 = re.compile(pre + r"(please )?add (python 2\.7|py27)", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -203,7 +203,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     text = comment + title
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
-                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE]
+                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY27]
     send_pr_commands = [
         ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY27]
 
@@ -308,7 +308,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 changed_anything |= add_bot_automerge(git_repo)
             elif ADD_PY27.search(text):
-                pr_title = "adding python 2.7"
+                pr_title = "ENH adding python 2.7"
                 comment_msg = "added python 2.7"
                 to_close = ADD_PY27.search(title)
                 extra_msg = (
@@ -320,6 +320,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 do_rerender = True
                 changed_anything |= add_py27(git_repo)
+                changed_anything |= make_rerender_dummy_commit(git_repo)
 
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)
