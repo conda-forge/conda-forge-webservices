@@ -1,9 +1,6 @@
 from __future__ import print_function
-from collections import OrderedDict
 from contextlib import contextmanager
-import os
 import shutil
-import subprocess
 import tempfile
 import textwrap
 import unittest
@@ -38,10 +35,10 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_good_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```) and found it was in an excellent condition.
 
-        """)
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
         self.assert_(lint)
@@ -50,10 +47,10 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_ok_recipe_above_good_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```, ```recipes/ok_recipe```) and found it was in an excellent condition.
-        
-        """)
+
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 54)
         self.assertMultiLineEqual(expected_message, lint['message'])
@@ -61,10 +58,10 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_ok_recipe_beside_good_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```, ```recipes/ok_recipe```) and found it was in an excellent condition.
-        
-        """)
+
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 62)
         self.assertMultiLineEqual(expected_message, lint['message'])
@@ -72,10 +69,10 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_ok_recipe_above_ignored_good_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/ok_recipe```) and found it was in an excellent condition.
-        
-        """)
+
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 54, True)
         self.assertMultiLineEqual(expected_message, lint['message'])
@@ -83,10 +80,10 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_ok_recipe_beside_ignored_good_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/ok_recipe```) and found it was in an excellent condition.
-        
-        """)
+
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 62, True)
         self.assertMultiLineEqual(expected_message, lint['message'])
@@ -94,12 +91,12 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_conflict_ok_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
         Please try to merge or rebase with the base branch to resolve this conflict.
-        
+
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-        """)
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 56)
         self.assert_(lint)
@@ -108,12 +105,12 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_conflict_2_ok_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
         Please try to merge or rebase with the base branch to resolve this conflict.
-        
+
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-        """)
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 57)
         self.assert_(lint)
@@ -122,14 +119,14 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_bad_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I wanted to let you know that I linted all conda-recipes in your PR (```recipes/bad_recipe```) and found some lint.
-        
+
         Here's what I've got...
-        
-        
+
+
         For **recipes/bad_recipe**:
-        
+
          * The home item is expected in the about section.
          * The license item is expected in the about section.
          * The summary item is expected in the about section.
@@ -138,7 +135,7 @@ class Test_compute_lint_message(unittest.TestCase):
          * There are 2 too many lines.  There should be one empty line at the end of the file.
          * Feedstock with the same name exists in conda-forge
          * Recipe maintainer "support" does not exist
-        """)
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 17)
         self.assert_(lint)
@@ -147,17 +144,17 @@ class Test_compute_lint_message(unittest.TestCase):
     def test_mixed_recipe(self):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
-        
+
         I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/hints_only```) and found it was in an excellent condition.
-        
-        
+
+
         I do have some suggestions for making it better though...
-        
-        
+
+
         For **recipes/hints_only**:
-        
+
          * Whenever possible python packages should use pip. See https://conda-forge.org/docs/maintainer/adding_pkgs.html#use-pip
-        """)
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 217)
         self.assert_(lint)
@@ -169,7 +166,7 @@ class Test_compute_lint_message(unittest.TestCase):
 
         I was trying to look for recipes to lint for you, but couldn't find any.
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-        """)
+        """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 18)
         self.assert_(lint)

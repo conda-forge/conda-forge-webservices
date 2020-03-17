@@ -3,7 +3,6 @@ import os
 import textwrap
 import time
 
-import requests
 from git import GitCommandError, Repo
 import github
 import conda_smithy.lint_recipe
@@ -14,6 +13,7 @@ from .utils import tmp_directory
 def find_recipes(a_dir):
     return [os.path.dirname(y) for x in os.walk(a_dir)
             for y in glob(os.path.join(x[0], 'meta.yaml'))]
+
 
 def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     gh = github.Github(os.environ['GH_TOKEN'])
@@ -70,7 +70,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                 Please try to merge or rebase with the base branch to resolve this conflict.
 
                 Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-                """)
+                """)  # noqa
             status = 'merge_conflict'
 
             lint_info = {'message': message,
@@ -108,22 +108,27 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             rel_path = os.path.relpath(recipe_dir, tmp_dir)
             rel_pr_recipes.append(rel_path)
             try:
-                lints, hints = conda_smithy.lint_recipe.main(recipe_dir, conda_forge=True, return_hints=True)
+                lints, hints = conda_smithy.lint_recipe.main(
+                    recipe_dir, conda_forge=True, return_hints=True)
 
             except Exception as err:
                 print('ERROR:', err)
-                lints = ["Failed to even lint the recipe, probably because of a conda-smithy bug :cry:. "
-                         "This likely indicates a problem in your `meta.yaml`, though. "
-                         "To get a traceback to help figure out what's going on, install conda-smithy "
-                         "and run `conda smithy recipe-lint .` from the recipe directory. "]
+                lints = [
+                    "Failed to even lint the recipe, probably because "
+                    "of a conda-smithy bug :cry:. "
+                    "This likely indicates a problem in your `meta.yaml`, though. "
+                    "To get a traceback to help figure out what's going on, "
+                    "install conda-smithy "
+                    "and run `conda smithy recipe-lint .` from the recipe directory. "]
             if lints:
                 all_pass = False
-                messages.append("\nFor **{}**:\n\n{}".format(rel_path,
-                                                             '\n'.join(' * {}'.format(lint) for lint in lints)))
+                messages.append("\nFor **{}**:\n\n{}".format(
+                    rel_path,
+                    '\n'.join(' * {}'.format(lint) for lint in lints)))
             if hints:
-                messages.append("\nFor **{}**:\n\n{}".format(rel_path,
-                                                             '\n'.join(' * {}'.format(hint) for hint in hints)))
-
+                messages.append("\nFor **{}**:\n\n{}".format(
+                    rel_path,
+                    '\n'.join(' * {}'.format(hint) for hint in hints)))
 
     # Put the recipes in the form "```recipe/a```, ```recipe/b```".
     recipe_code_blocks = ', '.join('```{}```'.format(r) for r in rel_pr_recipes)
@@ -133,7 +138,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
     I just wanted to let you know that I linted all conda-recipes in your PR ({}) and found it was in an excellent condition.
 
-    """.format(recipe_code_blocks))
+    """.format(recipe_code_blocks))  # noqa
 
     mixed = good + textwrap.dedent("""
     I do have some suggestions for making it better though...
@@ -149,7 +154,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     Here's what I've got...
 
     {{}}
-    """.format(recipe_code_blocks)).format('\n'.join(messages))
+    """.format(recipe_code_blocks)).format('\n'.join(messages))   # noqa
 
     if not pr_recipes:
         message = textwrap.dedent("""
@@ -157,7 +162,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
             I was trying to look for recipes to lint for you, but couldn't find any.
             Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-            """)
+            """)  # noqa
         status = 'no recipes'
     elif all_pass and len(hints):
         message = mixed
@@ -196,8 +201,9 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
     my_last_comment = None
     my_login = gh.get_user().login
     if my_login in comment_owners:
-        my_comments = [comment for comment in comments
-                           if comment.user.login == my_login]
+        my_comments = [
+            comment for comment in comments
+            if comment.user.login == my_login]
         if search is not None:
             my_comments = [comment for comment in my_comments
                            if search in comment.body]
@@ -224,8 +230,9 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
             commit.create_status("success", description="Some recipes have hints.",
                                  context="conda-forge-linter", target_url=target_url)
         else:
-            commit.create_status("failure", description="Some recipes need some changes.",
-                                 context="conda-forge-linter", target_url=target_url)
+            commit.create_status(
+                "failure", description="Some recipes need some changes.",
+                context="conda-forge-linter", target_url=target_url)
 
 
 def main():
@@ -250,7 +257,9 @@ def main():
         msg = comment_on_pr(owner, repo_name, args.pr, lint_info['message'])
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
     else:
-        print('Comments not published, but the following would have been the message:\n{}'.format(lint_info['message']))
+        print(
+            'Comments not published, but the following would '
+            'have been the message:\n{}'.format(lint_info['message']))
 
 
 if __name__ == '__main__':
