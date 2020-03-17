@@ -31,6 +31,11 @@ UPDATE_CB3_MSG = re.compile(
 PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?add bot automerge", re.I)
+ADD_PY = re.compile(
+    pre
+    + r"(please )?add (python (?P<verfloat>[0-9]{1}\.[0-9]{1})|py(?P<verint>[0-9]{2}))",
+    re.I,
+)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -202,9 +207,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     text = comment + title
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
-                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE]
+                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY]
     send_pr_commands = [
-        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE]
+        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -260,6 +265,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             new_branch = git_repo.create_head(forked_repo_branch, upstream.refs.master)
             new_branch.checkout()
 
+            err_msg = None
             changed_anything = False
             check_bump_build = True
             do_rerender = False
@@ -306,6 +312,41 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 extra_msg = "\n\nMerge this PR to enable bot automerging.\n"
 
                 changed_anything |= add_bot_automerge(git_repo)
+            elif ADD_PY.search(text):
+                m = ADD_PY.search(text)
+                if m.group('verfloat'):
+                    pyver = m.group('verfloat')
+                elif m.group('verint'):
+                    verint = m.group('verint')
+                    pyver = verint[0] + '.' + verint[1]
+                else:
+                    pyver = None
+
+                if pyver is None:
+                    err_msg = (
+                        "the Python version could not be found "
+                        "from the issue text"
+                    )
+                else:
+                    pr_title = "ENH adding python %s" % pyver
+                    comment_msg = "added python %s" % pyver
+                    to_close = ADD_PY.search(title)
+
+                    extra_msg = "\n\nMerge this PR to enable Python %s.\n" % pyver
+
+                    if pyver == "2.7":
+                        extra_msg += (
+                            "WARNING: Python {pyver} reached "
+                            "end-of-life on 2020-01-01. "
+                            "`conda-forge` provides no support for Python {pyver} "
+                            "builds and "
+                            "all builds are provided on an "
+                            "\"as-is\" basis.\n".format(pyver=pyver)
+                        )
+
+                    do_rerender = True
+                    changed_anything |= add_py(git_repo, pyver)
+                    changed_anything |= make_rerender_dummy_commit(git_repo)
 
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)
@@ -360,14 +401,62 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         pr.create_issue_comment(message)
 
             else:
-                message = textwrap.dedent("""
-                        Hi! This is the friendly automated conda-forge-webservice.
+                if err_msg:
+                    message = textwrap.dedent("""
+                            Hi! This is the friendly automated conda-forge-webservice.
 
-                        I've {} as requested, but nothing actually changed.
-                        """).format(comment_msg)
+                            I tried to {} as requested, but {} so no changes were made.
+                            """).format(comment_msg, err_msg)
+                else:
+                    message = textwrap.dedent("""
+                            Hi! This is the friendly automated conda-forge-webservice.
+
+                            I've {} as requested, but nothing actually changed.
+                            """).format(comment_msg)
                 issue.create_comment(message)
                 if to_close:
                     issue.edit(state="closed")
+
+
+def add_py(repo, pyver):
+    pystr = "%s.* *_cpython" % pyver
+
+    yaml = YAML()
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    cbc_pth = os.path.join(repo.working_dir, "recipe", "conda_build_config.yaml")
+
+    if os.path.exists(cbc_pth):
+        with open(cbc_pth, "r") as fp:
+            cbc = yaml.load(fp)
+    else:
+        cbc = {}
+
+    if "python" in cbc:
+        cbc["python"].append([pystr])
+    else:
+        cbc["python"] = [pystr]
+
+    with open(cbc_pth, "w") as fp:
+        yaml.dump(cbc, fp)
+
+    # need to apply the selector - being very lazy here
+    with open(cbc_pth, "r") as fp:
+        lines = fp.readlines()
+    with open(cbc_pth, "w") as fp:
+        for line in lines:
+            if "pystr" in line:
+                line = line.replace(
+                    "pystr",
+                    "%s  # [not (aarch64 or ppc64le)]]" % pystr
+                )
+            fp.write(line)
+
+    # commit
+    repo.index.add([cbc_pth])
+    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    repo.index.commit("added python %s" % pyver, author=author)
+
+    return True
 
 
 def add_bot_automerge(repo):

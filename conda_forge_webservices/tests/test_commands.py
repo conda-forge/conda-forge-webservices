@@ -151,6 +151,7 @@ class TestCommands(unittest.TestCase):
                 pr_detailed_comment(msg)
                 command.assert_not_called()
 
+    @mock.patch('conda_forge_webservices.commands.add_py')
     @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
     @mock.patch('conda_forge_webservices.commands.add_bot_automerge')
     @mock.patch('conda_forge_webservices.commands.rerender')
@@ -165,9 +166,10 @@ class TestCommands(unittest.TestCase):
     def test_issue_command_triggers(
             self, git_repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender, add_bot_automerge,
-            rerender_dummy_commit):
+            rerender_dummy_commit, add_py):
         tmp_directory.return_value.__enter__.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
+        add_py.return_value = True
 
         commands = [
             (add_bot_automerge, [
@@ -250,6 +252,23 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-admin, please lint',
                 '@conda-forge-admin, lint',
              ]),
+            (add_py, [
+                '@conda-forge-admin, please add python 2.7',
+                '@conda-forge-admin, add python 2.7',
+                '@conda-forge-admin, please add py27',
+                '@conda-forge-admin, add py27',
+                '@conda-forge-admin: add PY27',
+                'something something. @conda-forge-admin: please add py27',
+                '@conda-forge-admin, please add python 3.6',
+                '@conda-forge-admin, add python 3.6',
+                '@conda-forge-admin, please add py36',
+             ], [
+                '@conda-forge admin is pretty cool. please add py27?',
+                '@conda-forge admin is pretty cool. rerun add py27?',
+                '@conda-forge-admin, go ahead and rerun add python 2.7',
+                'please add python 2.7, @conda-forge-admin',
+                'add py27, @conda-forge-admin',
+             ]),
         ]
 
         for command, should, should_not in commands:
@@ -265,10 +284,17 @@ class TestCommands(unittest.TestCase):
                 issue_comment(title="hi", comment=msg)
                 command.assert_called()
                 issue.edit.assert_not_called()
-                if command in (rerender, make_noarch, update_cb3):
+                if command in (rerender, make_noarch, update_cb3, add_py):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
+                if command is add_py:
+                    if "2.7" in msg or "27" in msg:
+                        command.assert_called_with(
+                            git_repo.clone_from.return_value, "2.7")
+                    else:
+                        command.assert_called_with(
+                            git_repo.clone_from.return_value, "3.6")
 
                 rerender_dummy_commit.reset_mock()
                 rerender_dummy_commit.return_value = True
@@ -276,14 +302,25 @@ class TestCommands(unittest.TestCase):
                 issue.reset_mock()
                 issue_comment(title=msg, comment="As in title")
                 command.assert_called()
-                if command in (rerender, make_noarch, update_cb3, add_bot_automerge):
+                if (
+                    command in (
+                        rerender, make_noarch, update_cb3, add_bot_automerge, add_py
+                    )
+                ):
                     assert "Fixes #" in repo.create_pull.call_args[0][1]
                 else:
                     issue.edit.assert_called_with(state="closed")
-                if command in (rerender, make_noarch, update_cb3):
+                if command in (rerender, make_noarch, update_cb3, add_py):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
+                if command is add_py:
+                    if "2.7" in msg or "27" in msg:
+                        command.assert_called_with(
+                            git_repo.clone_from.return_value, "2.7")
+                    else:
+                        command.assert_called_with(
+                            git_repo.clone_from.return_value, "3.6")
 
                 rerender_dummy_commit.reset_mock()
                 rerender_dummy_commit.return_value = True
