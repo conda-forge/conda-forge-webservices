@@ -1,3 +1,4 @@
+anaconda-client
 black
 conda=4.8
 conda-build
