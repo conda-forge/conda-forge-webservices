@@ -31,6 +31,7 @@ UPDATE_CB3_MSG = re.compile(
 PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?add bot automerge", re.I)
+ADD_PY27 = re.compile(pre + "(please )?add (python 2.7|py27)", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -204,7 +205,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
                       RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE]
     send_pr_commands = [
-        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE]
+        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY27]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -306,6 +307,19 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 extra_msg = "\n\nMerge this PR to enable bot automerging.\n"
 
                 changed_anything |= add_bot_automerge(git_repo)
+            elif ADD_PY27.search(text):
+                pr_title = "adding python 2.7"
+                comment_msg = "added python 2.7"
+                to_close = ADD_PY27.search(title)
+                extra_msg = (
+                    "\n\nMerge this PR to enable Python 2.7.\n"
+                    "WARNING: Python 2.7 reached end-of-life on 2020-01-01. "
+                    "`conda-forge` provides no support for Python 2.7 builds and "
+                    "all builds are provided on an \"as-is\" basis.\n"
+                )
+
+                do_rerender = True
+                changed_anything |= add_py27(git_repo)
 
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)
@@ -368,6 +382,45 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 issue.create_comment(message)
                 if to_close:
                     issue.edit(state="closed")
+
+
+def add_py27(repo):
+    yaml = YAML()
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    cbc_pth = os.path.join(repo.working_dir, "recipe", "conda_build_config.yaml")
+
+    if os.path.exists(cbc_pth):
+        with open(cbc_pth, "r") as fp:
+            cbc = yaml.load(fp)
+    else:
+        cbc = {}
+
+    if "python" in cbc:
+        cbc["python"].append(["2.7.* *_cpython"])
+    else:
+        cbc["python"] = ["2.7.* *_cpython"]
+
+    with open(cbc_pth, "w") as fp:
+        yaml.dump(cbc, fp)
+
+    # need to apply the selector - being very lazy here
+    with open(cbc_pth, "r") as fp:
+        lines = fp.readlines()
+    with open(cbc_pth, "w") as fp:
+        for line in lines:
+            if "2.7.* *_cpython" in line:
+                line = line.replace(
+                    "2.7.* *_cpython",
+                    "2.7.* *_cpython  # [not (aarch64 or ppc64le)]]"
+                )
+            fp.write(line)
+
+    # commit
+    repo.index.add([cbc_pth])
+    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    repo.index.commit("added python 2.7", author=author)
+
+    return True
 
 
 def add_bot_automerge(repo):
