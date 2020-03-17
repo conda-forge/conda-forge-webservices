@@ -12,8 +12,6 @@ from binstar_client import BinstarError
 
 import git
 
-from conda_smithy.feedstock_tokens import is_valid_feedstock_token
-
 STAGING = "cf-staging"
 PROD = "conda-forge"
 OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
@@ -191,6 +189,8 @@ def _validate_feedstock_outputs(
         is valid and False otherwise.
     """
     valid = {o: False for o in outputs}
+
+    from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 
     if not is_valid_feedstock_token(
         "conda-forge", project, feedstock_token, TOKENS_REPO
