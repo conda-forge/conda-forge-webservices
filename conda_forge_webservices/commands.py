@@ -447,7 +447,7 @@ def add_py(repo, pyver):
             if "pystr" in line:
                 line = line.replace(
                     "pystr",
-                    "%s  # [not (aarch64 or ppc64le)]]" % pystr
+                    "%s  # [not (aarch64 or ppc64le or win)]]" % pystr
                 )
             fp.write(line)
 
