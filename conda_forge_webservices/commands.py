@@ -336,12 +336,12 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                     if pyver == "2.7":
                         extra_msg += (
-                            "WARNING: Python {pyver} reached "
-                            "end-of-life on 2020-01-01. "
-                            "`conda-forge` provides no support for Python {pyver} "
-                            "builds and "
-                            "all builds are provided on an "
-                            "\"as-is\" basis.\n".format(pyver=pyver)
+                            "\n**WARNING: Python 2.7 reached end-of-life on "
+                            "2020-01-01. `conda-forge` provides no support for "
+                            "Python 2.7 builds and all existing builds are provided "
+                            "on an \"as-is\" basis. Python 2.7 builds on the `win` "
+                            "platform are not possible since we do not build against "
+                            "`vs2008` in our CI providers.**\n"
                         )
 
                     do_rerender = True
@@ -444,9 +444,9 @@ def add_py(repo, pyver):
         lines = fp.readlines()
     with open(cbc_pth, "w") as fp:
         for line in lines:
-            if "pystr" in line:
+            if pystr in line:
                 line = line.replace(
-                    "pystr",
+                    pystr,
                     "%s  # [not (aarch64 or ppc64le or win)]]" % pystr
                 )
             fp.write(line)
