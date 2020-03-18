@@ -432,7 +432,7 @@ def add_py(repo, pyver):
         cbc = {}
 
     if "python" in cbc:
-        cbc["python"].append([pystr])
+        cbc["python"].append(pystr)
     else:
         cbc["python"] = [pystr]
 
