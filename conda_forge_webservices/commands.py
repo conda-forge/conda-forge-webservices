@@ -332,7 +332,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     comment_msg = "added python %s" % pyver
                     to_close = ADD_PY.search(title)
 
-                    extra_msg = "\n\nMerge this PR to enable Python %s.\n" % pyver
+                    extra_msg = (
+                        "\n\nMerge this PR into a new branch on the "
+                        "feedstock to enable Python %s.\n" % pyver
+                    )
 
                     if pyver == "2.7":
                         extra_msg += (
