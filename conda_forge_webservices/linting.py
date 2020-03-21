@@ -223,16 +223,34 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
     repo = user.get_repo(repo_name)
     if lint_info:
         commit = repo.get_commit(lint_info['sha'])
-        if lint_info['status'] == 'good':
-            commit.create_status("success", description="All recipes are excellent.",
-                                 context="conda-forge-linter", target_url=target_url)
-        elif lint_info['status'] == 'mixed':
-            commit.create_status("success", description="Some recipes have hints.",
-                                 context="conda-forge-linter", target_url=target_url)
-        else:
-            commit.create_status(
-                "failure", description="Some recipes need some changes.",
-                context="conda-forge-linter", target_url=target_url)
+
+        # get the last github status by the linter, if any
+        # API emmits these in reverse time order so first is latest
+        statuses = commit.get_statuses()
+        last_state = None
+        for status in statuses:
+            if status.context == "conda-forge-linter":
+                last_state = status.state
+
+        # convert the linter status to a state
+        lint_status_to_state = {"good": "success", "mixed": "success"}
+        lint_last_state = lint_status_to_state.get(lint_info['status'], "failure")
+
+        # make a status only if it is different or we have not ever done it
+        # for this commit
+        if last_state is None or last_state != lint_last_state:
+            if lint_info['status'] == 'good':
+                commit.create_status(
+                    "success", description="All recipes are excellent.",
+                    context="conda-forge-linter", target_url=target_url)
+            elif lint_info['status'] == 'mixed':
+                commit.create_status(
+                    "success", description="Some recipes have hints.",
+                    context="conda-forge-linter", target_url=target_url)
+            else:
+                commit.create_status(
+                    "failure", description="Some recipes need some changes.",
+                    context="conda-forge-linter", target_url=target_url)
 
 
 def main():
