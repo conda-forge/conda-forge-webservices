@@ -235,13 +235,13 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
 
         # convert the linter status to a state
         lint_status_to_state = {"good": "success", "mixed": "success"}
-        lint_last_state = lint_status_to_state.get(lint_info['status'], "failure")
+        lint_new_state = lint_status_to_state.get(lint_info['status'], "failure")
 
         # make a status only if it is different or we have not ever done it
         # for this commit
         if (
             last_status is None or
-            last_status.state != lint_last_state or
+            last_status.state != lint_new_state or
             last_status.target_url != target_url
         ):
             if lint_info['status'] == 'good':
