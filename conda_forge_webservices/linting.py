@@ -227,10 +227,11 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
         # get the last github status by the linter, if any
         # API emmits these in reverse time order so first is latest
         statuses = commit.get_statuses()
-        last_state = None
+        last_status = None
         for status in statuses:
             if status.context == "conda-forge-linter":
-                last_state = status.state
+                last_status = status
+                break
 
         # convert the linter status to a state
         lint_status_to_state = {"good": "success", "mixed": "success"}
@@ -238,7 +239,11 @@ def set_pr_status(owner, repo_name, lint_info, target_url=None):
 
         # make a status only if it is different or we have not ever done it
         # for this commit
-        if last_state is None or last_state != lint_last_state:
+        if (
+            last_status is None or
+            last_status.state != lint_last_state or
+            last_status.target_url != target_url
+        ):
             if lint_info['status'] == 'good':
                 commit.create_status(
                     "success", description="All recipes are excellent.",
