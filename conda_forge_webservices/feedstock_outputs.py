@@ -24,7 +24,7 @@ def _get_ac_api():
     return get_server_api(token=os.environ["BINSTAR_TOKEN"])
 
 
-def _copy_feedstock_outputs(outputs):
+def copy_feedstock_outputs(outputs):
     """Copy outputs from one chanel to another.
 
     Parameters
@@ -161,7 +161,7 @@ def _is_valid_feedstock_output(project, outputs, register=True):
     return valid
 
 
-def _validate_feedstock_outputs(
+def validate_feedstock_outputs(
     project,
     outputs,
     feedstock_token,

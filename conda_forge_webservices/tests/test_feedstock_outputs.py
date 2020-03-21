@@ -10,8 +10,8 @@ from binstar_client import BinstarError
 from conda_forge_webservices.feedstock_outputs import (
     _is_valid_feedstock_output,
     _is_valid_output_hash,
-    _copy_feedstock_outputs,
-    _validate_feedstock_outputs,
+    copy_feedstock_outputs,
+    validate_feedstock_outputs,
 )
 
 
@@ -23,7 +23,7 @@ def test_copy_feedstock_outputs(ac):
     outputs["boo"] = {"version": "1", "name": "boohoo"}
     outputs["blah"] = {"version": "2", "name": "blahha"}
 
-    copied = _copy_feedstock_outputs(outputs)
+    copied = copy_feedstock_outputs(outputs)
 
     assert copied == {"boo": True, "blah": False}
 
@@ -62,7 +62,7 @@ def test_validate_feedstock_outputs_badtoken(
     valid_token, valid_out, valid_hash
 ):
     valid_token.return_value = False
-    valid, errs = _validate_feedstock_outputs(
+    valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
         {"a": {}, "b": {}},
         "abc",
@@ -95,7 +95,7 @@ def test_validate_feedstock_outputs_badoutputhash(
         "c": True,
         "d": False,
     }
-    valid, errs = _validate_feedstock_outputs(
+    valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
         {
             "a": {"name": "a-name"},
