@@ -332,7 +332,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     comment_msg = "added python %s" % pyver
                     to_close = ADD_PY.search(title)
 
-                    extra_msg = "\n\nMerge this PR to enable Python %s.\n" % pyver
+                    extra_msg = (
+                        "\n\nMerge this PR to enable Python %s. Note that you "
+                        "may need to merge this PR into a new branch "
+                        "on the feedstock to enable Python %s while also keeping "
+                        "`win`, `aarch64`, `ppc64le`, or other Python builds "
+                        "working.\n" % (pyver, pyver)
+                    )
 
                     if pyver == "2.7":
                         extra_msg += (
@@ -341,7 +347,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                             "Python 2.7 builds and all existing builds are provided "
                             "on an \"as-is\" basis. Python 2.7 builds on the `win` "
                             "platform are not possible since we do not build against "
-                            "`vs2008` in our CI providers.**\n"
+                            "`vs2008` in our CI providers. We also do not support "
+                            "Python 2.7 builds on the `aarch64` or `ppc64le` "
+                            "platforms.**\n"
                         )
 
                     do_rerender = True
