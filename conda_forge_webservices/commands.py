@@ -335,7 +335,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     extra_msg = (
                         "\n\nYou may need to merge this PR into a new branch "
                         "on the feedstock to enable Python %s while also keeping "
-                        "`win` or newer Python builds working.\n" % pyver
+                        "`win`, `aarch64`, `ppc64le`, or other Python builds "
+                        "working.\n" % pyver
                     )
 
                     if pyver == "2.7":
@@ -345,7 +346,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                             "Python 2.7 builds and all existing builds are provided "
                             "on an \"as-is\" basis. Python 2.7 builds on the `win` "
                             "platform are not possible since we do not build against "
-                            "`vs2008` in our CI providers.**\n"
+                            "`vs2008` in our CI providers. We also do not support "
+                            "Python 2.7 builds on the `aarch64` or `ppc64le` "
+                            "platforms.**\n"
                         )
 
                     do_rerender = True
