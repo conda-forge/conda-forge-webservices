@@ -333,8 +333,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     to_close = ADD_PY.search(title)
 
                     extra_msg = (
-                        "\n\nMerge this PR into a new branch on the "
-                        "feedstock to enable Python %s.\n" % pyver
+                        "\n\nYou may need to merge this PR into a new branch "
+                        "on the feedstock to enable Python %s while also keeping "
+                        "`win` or newer Python builds working.\n" % pyver
                     )
 
                     if pyver == "2.7":
