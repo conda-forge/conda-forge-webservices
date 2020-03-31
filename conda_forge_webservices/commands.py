@@ -28,7 +28,7 @@ UPDATE_CIRCLECI_KEY_MSG = re.compile(
     pre + "(please )?(update|refresh) (the )?circle", re.I)
 UPDATE_CB3_MSG = re.compile(
     pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
-PING_TEAM = re.compile(pre + "(please )?ping team", re.I)
+PING_TEAM = re.compile(pre + r"(please )?ping (?P<team>\S+)", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?add bot automerge", re.I)
 ADD_PY = re.compile(
@@ -91,10 +91,23 @@ def pr_detailed_comment(
         pull.edit(state='open')
 
     if PING_TEAM.search(comment):
+        # get the team
+        m = PING_TEAM.search(comment)
+        if m.group('team'):
+            team = m.group('team').strip()
+            if team == 'team':
+                team = repo_name.replace('-feedstock', '')
+            else:
+                if 'conda-forge/' in team:
+                    team = team.split('/')[1].strip()
+                if team.endswith('-feedstock'):
+                    team = team[:-len('-feedstock')]
+        else:
+            team = repo_name.replace('-feedstock', '')
+
         gh = github.Github(os.environ['GH_TOKEN'])
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         pull = repo.get_pull(int(pr_num))
-        team = repo_name.replace('-feedstock', '')
         message = textwrap.dedent("""
             Hi! This is the friendly automated conda-forge-webservice.
 
