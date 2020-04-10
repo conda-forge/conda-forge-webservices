@@ -24,6 +24,7 @@ from conda_forge_webservices.feedstock_outputs import (
     register_feedstock_token_handler,
     validate_feedstock_outputs,
     copy_feedstock_outputs,
+    is_valid_feedstock_output,
 )
 
 POOL = None
@@ -452,23 +453,19 @@ class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
 
 class OutputsValidationHandler(tornado.web.RequestHandler):
     async def post(self):
-        headers = self.request.headers
-        feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
         feedstock = self.request.body.get("feedstock", None)
         outputs = self.request.body.get("outputs", None)
-        if (
-            feedstock_token is None
-            or feedstock is None
-            or outputs is None
-            or not is_valid_feedstock_token(
-                "conda-forge", "staged-recipes", feedstock_token, TOKEN_REPO)
-        ):
-            print('invalid outputs validation request for %s!' % feedstock)
-            self.set_status(403)
-            self.write_error(403)
+
+        if feedstock is None or outputs is None:
+            print(
+                "invalid output validation request! "
+                "feedstock = %s outputs = %s" % (feedstock, outputs)
+            )
+            self.set_status(404)
+            self.write_error(404)
         else:
             _validate = functools.partial(
-                validate_feedstock_outputs,
+                is_valid_feedstock_output,
                 register=False,
             )
             valid = await tornado.ioloop.IOLoop.current().run_in_executor(
@@ -476,7 +473,6 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
                 _validate,
                 feedstock,
                 outputs,
-                feedstock_token,
             )
 
             print("feedstock %s:\n    valid: %s" % (feedstock, valid))
@@ -507,13 +503,9 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.set_status(403)
             self.write_error(403)
         else:
-            _validate = functools.partial(
-                validate_feedstock_outputs,
-                register=True,
-            )
             valid = await tornado.ioloop.IOLoop.current().run_in_executor(
                 _thread_pool(),
-                _validate,
+                validate_feedstock_outputs,
                 feedstock,
                 outputs,
                 feedstock_token,

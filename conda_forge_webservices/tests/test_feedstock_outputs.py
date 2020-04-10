@@ -8,7 +8,7 @@ import pytest
 from binstar_client import BinstarError
 
 from conda_forge_webservices.feedstock_outputs import (
-    _is_valid_feedstock_output,
+    is_valid_feedstock_output,
     _is_valid_output_hash,
     copy_feedstock_outputs,
     validate_feedstock_outputs,
@@ -66,7 +66,6 @@ def test_validate_feedstock_outputs_badtoken(
         "bar-feedstock",
         {"a": {}, "b": {}},
         "abc",
-        register=True,
     )
 
     assert not any(v for v in valid.values())
@@ -104,7 +103,6 @@ def test_validate_feedstock_outputs_badoutputhash(
             "d": {"name": "d-name"},
         },
         "abc",
-        register=True,
     )
 
     assert valid == {
@@ -184,7 +182,7 @@ def test_is_valid_feedstock_output(
 
     outputs = ["bar", "goo", "glob"]
 
-    valid = _is_valid_feedstock_output(
+    valid = is_valid_feedstock_output(
         project, outputs, register=register
     )
 

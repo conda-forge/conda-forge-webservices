@@ -145,7 +145,7 @@ def _is_valid_output_hash(outputs):
     return valid
 
 
-def _is_valid_feedstock_output(project, outputs, register=True):
+def is_valid_feedstock_output(project, outputs, register=True):
     """Test if feedstock outputs are valid. Optionally register them if they do not exist.
 
     Parameters
@@ -205,7 +205,6 @@ def validate_feedstock_outputs(
     project,
     outputs,
     feedstock_token,
-    register=True,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -219,9 +218,6 @@ def validate_feedstock_outputs(
     feedstock_token : str
         The secret token used to validate that this feedstock is who it says
         it is.
-    register : bool
-        If True, attempt to register any outputs that do not exist by pushing
-        the proper json blob to `output_repo`. Default is True.
 
     Returns
     -------
@@ -236,10 +232,10 @@ def validate_feedstock_outputs(
     ):
         return valid, ["invalid feedstock token"]
 
-    valid_outputs = _is_valid_feedstock_output(
+    valid_outputs = is_valid_feedstock_output(
         project,
         [o["name"] for _, o in outputs.items()],
-        register=register,
+        register=True,
     )
 
     valid_hashes = _is_valid_output_hash(outputs)
