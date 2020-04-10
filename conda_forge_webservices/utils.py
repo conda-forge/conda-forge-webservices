@@ -11,6 +11,7 @@ def tmp_directory():
     shutil.rmtree(tmp_dir)
 
 
+# https://stackoverflow.com/questions/6194499/pushd-through-os-system
 @contextmanager
 def pushd(new_dir):
     previous_dir = os.getcwd()
