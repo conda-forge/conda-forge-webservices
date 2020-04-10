@@ -8,6 +8,7 @@ import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
 import atexit
+import functools
 
 import github
 from datetime import datetime
@@ -17,7 +18,13 @@ import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 from conda_forge_webservices.update_me import get_current_versions
-
+from conda_smithy.feedstock_tokens import is_valid_feedstock_token
+from conda_forge_webservices.feedstock_outputs import (
+    TOKEN_REPO,
+    register_feedstock_token_handler,
+    validate_feedstock_outputs,
+    copy_feedstock_outputs,
+)
 
 POOL = None
 
@@ -443,6 +450,131 @@ class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
         self.write(json.dumps(get_current_versions()))
 
 
+class OutputsValidationHandler(tornado.web.RequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
+        feedstock = self.request.body("feedstock", None)
+        outputs = self.request.body.get("outputs", None)
+        if (
+            feedstock_token is None
+            or feedstock is None
+            or outputs is None
+            or not is_valid_feedstock_token(
+                "conda-forge", "staged-recipes", feedstock_token, TOKEN_REPO)
+        ):
+            print('invalid outputs validation request for %s!' % feedstock)
+            self.set_status(403)
+            self.write_error(403)
+        else:
+            _validate = functools.partial(
+                validate_feedstock_outputs,
+                register=False,
+            )
+            valid = await tornado.ioloop.IOLoop.current().run_in_executor(
+                _thread_pool(),
+                _validate,
+                feedstock,
+                outputs,
+                feedstock_token,
+            )
+
+            print("feedstock %s:\n    valid: %s" % (feedstock, valid))
+
+            self.write(json.dumps(valid))
+
+            if not all(v for v in valid.values()):
+                self.set_status(403)
+                self.write_error(403)
+
+        return
+
+
+class OutputsCopyHandler(tornado.web.RequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
+        feedstock = self.request.body("feedstock", None)
+        outputs = self.request.body.get("outputs", None)
+        if (
+            feedstock_token is None
+            or feedstock is None
+            or outputs is None
+            or not is_valid_feedstock_token(
+                "conda-forge", "staged-recipes", feedstock_token, TOKEN_REPO)
+        ):
+            print('invalid outputs copy request for %s!' % feedstock)
+            self.set_status(403)
+            self.write_error(403)
+        else:
+            _validate = functools.partial(
+                validate_feedstock_outputs,
+                register=True,
+            )
+            valid = await tornado.ioloop.IOLoop.current().run_in_executor(
+                _thread_pool(),
+                _validate,
+                feedstock,
+                outputs,
+                feedstock_token,
+            )
+
+            outputs_to_copy = {}
+            for o in valid:
+                if valid[o]:
+                    outputs_to_copy[o] = outputs[o]
+
+            if outputs_to_copy:
+                copied = await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),
+                    copy_feedstock_outputs,
+                    feedstock,
+                )
+
+                if not all(v for v in copied.values()):
+                    self.set_status(403)
+                    self.write_error(403)
+            else:
+                copied = {}
+
+            self.write(json.dumps(copied))
+
+            print("feedstock %s:\n    valid: %s\n    copied: %s" % (
+                feedstock, valid, copied))
+
+        return
+
+
+class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
+        feedstock = self.request.body("feedstock", None)
+
+        if (
+            feedstock_token is None
+            or feedstock is None
+            or not is_valid_feedstock_token(
+                "conda-forge", "staged-recipes", feedstock_token, TOKEN_REPO)
+        ):
+            print('invalid token registration request for %s!' % feedstock)
+            self.set_status(403)
+            self.write_error(403)
+        else:
+            register_error = await tornado.ioloop.IOLoop.current().run_in_executor(
+                _thread_pool(),
+                register_feedstock_token_handler,
+                feedstock,
+            )
+
+            if register_error:
+                print('failed token registration request for %s!' % feedstock)
+                self.set_status(404)
+                self.write_error(404)
+
+        return
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/org-hook", LintingHookHandler),
@@ -450,6 +582,9 @@ def create_webapp():
         (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
         (r"/conda-forge-command/org-hook", CommandHookHandler),
         (r"/conda-webservice-update/versions", UpdateWebservicesVersionsHandler),
+        (r"/feedstock-outputs/validate", OutputsValidationHandler),
+        (r"/feedstock-outputs/copy", OutputsCopyHandler),
+        (r"/feedstock-tokens/register", RegisterFeedstockTokenHandler),
     ])
     return application
 

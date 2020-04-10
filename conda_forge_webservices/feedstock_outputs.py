@@ -6,6 +6,7 @@ import os
 import json
 import hmac
 import urllib.parse
+import subprocess
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
@@ -13,10 +14,49 @@ import git
 
 from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 
+from .utils import pushd
+
 STAGING = "cf-staging"
 PROD = "conda-forge"
 OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 TOKENS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git"
+
+
+def register_feedstock_token_handler(feedstock):
+    if feedstock.endswith("-feedstock"):
+        feedstock_name = feedstock[:-len("-feedstock")]
+    else:
+        feedstock_name = feedstock
+    feedstock_url = "https://github.com/conda-forge/%s-feedstock.git" % feedstock_name
+
+    error = False
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pushd(tmpdir):
+            subprocess.run(
+                ["git", "clone", "--depth=1", feedstock_url],
+                check=True,
+            )
+
+            with pushd(feedstock_name):
+                try:
+                    subprocess.run(
+                        ["conda-smithy", "generate-feedstock-token"],
+                        check=True,
+                    )
+                    subprocess.run(
+                        ["conda-smithy", "register-feedstock-token"],
+                        check=True,
+                    )
+                finally:
+                    try:
+                        os.remove(os.path.expanduser(
+                            "~/.conda_smithy/conda-forge_"
+                            "%s_feedstock.token" % feedstock_name
+                        ))
+                    except Exception:
+                        error = True
+    return error
 
 
 def _get_ac_api():
