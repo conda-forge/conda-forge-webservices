@@ -20,7 +20,7 @@ import conda_forge_webservices.commands as commands
 from conda_forge_webservices.update_me import get_current_versions
 from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 from conda_forge_webservices.feedstock_outputs import (
-    TOKEN_REPO,
+    TOKENS_REPO,
     register_feedstock_token_handler,
     validate_feedstock_outputs,
     copy_feedstock_outputs,
@@ -497,7 +497,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or feedstock is None
             or outputs is None
             or not is_valid_feedstock_token(
-                "conda-forge", "staged-recipes", feedstock_token, TOKEN_REPO)
+                "conda-forge", "staged-recipes", feedstock_token, TOKENS_REPO)
         ):
             print('invalid outputs copy request for %s!' % feedstock)
             self.set_status(403)
@@ -547,7 +547,7 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
             feedstock_token is None
             or feedstock is None
             or not is_valid_feedstock_token(
-                "conda-forge", "staged-recipes", feedstock_token, TOKEN_REPO)
+                "conda-forge", "staged-recipes", feedstock_token, TOKENS_REPO)
         ):
             print('invalid token registration request for %s!' % feedstock)
             self.set_status(403)
