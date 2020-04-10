@@ -56,7 +56,7 @@ def test_copy_feedstock_outputs(ac):
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
+@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
 @mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
 def test_validate_feedstock_outputs_badtoken(
     valid_token, valid_out, valid_hash
@@ -76,7 +76,7 @@ def test_validate_feedstock_outputs_badtoken(
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
+@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
 @mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
 def test_validate_feedstock_outputs_badoutputhash(
     valid_token, valid_out, valid_hash
