@@ -454,7 +454,7 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
     async def post(self):
         headers = self.request.headers
         feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
-        feedstock = self.request.body("feedstock", None)
+        feedstock = self.request.body.get("feedstock", None)
         outputs = self.request.body.get("outputs", None)
         if (
             feedstock_token is None
@@ -494,7 +494,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
     async def post(self):
         headers = self.request.headers
         feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
-        feedstock = self.request.body("feedstock", None)
+        feedstock = self.request.body.get("feedstock", None)
         outputs = self.request.body.get("outputs", None)
         if (
             feedstock_token is None
@@ -549,7 +549,7 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
     async def post(self):
         headers = self.request.headers
         feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
-        feedstock = self.request.body("feedstock", None)
+        feedstock = self.request.body.get("feedstock", None)
 
         if (
             feedstock_token is None
