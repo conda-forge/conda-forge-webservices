@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [ ! -d ${HOME}/miniconda ]; then
-  curl -s https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
+  curl -s https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
   bash miniconda.sh -b -p ${HOME}/miniconda
   rm -f miniconda.sh
 
