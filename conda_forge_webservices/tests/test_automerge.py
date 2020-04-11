@@ -1,7 +1,6 @@
 import os
 import unittest
 import tempfile
-import contextlib
 from parameterized import parameterized
 
 from ruamel.yaml import YAML
@@ -9,17 +8,7 @@ from ruamel.yaml import YAML
 from git import Repo
 
 from ..commands import add_bot_automerge
-
-
-# from https://stackoverflow.com/questions/6194499/pushd-through-os-system
-@contextlib.contextmanager
-def pushd(new_dir):
-    previous_dir = os.getcwd()
-    os.chdir(new_dir)
-    try:
-        yield
-    finally:
-        os.chdir(previous_dir)
+from ..utils import pushd
 
 
 class TestAutomerge(unittest.TestCase):
