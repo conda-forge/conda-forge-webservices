@@ -64,7 +64,7 @@ def _get_ac_api():
     return get_server_api(token=os.environ["BINSTAR_TOKEN"])
 
 
-def copy_feedstock_outputs(outputs):
+def copy_feedstock_outputs(outputs, channel):
     """Copy outputs from one chanel to another.
 
     Parameters
@@ -72,6 +72,9 @@ def copy_feedstock_outputs(outputs):
     outputs : dict
         A dictionary mapping each full qualified output in the conda index
         to a hash ("md5"), its name ("name"), and version ("version").
+    channel : str
+        The source and target channel to use. Pass "main" for the default
+        channel.
 
     Returns
     -------
@@ -91,8 +94,8 @@ def copy_feedstock_outputs(outputs):
                 out["version"],
                 basename=urllib.parse.quote(out_name, safe=""),
                 to_owner=PROD,
-                from_label="main",
-                to_label="main",
+                from_label=channel,
+                to_label=channel,
             )
             copied[out_name] = True
         except BinstarError:

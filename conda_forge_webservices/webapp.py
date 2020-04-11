@@ -492,10 +492,12 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
         feedstock = self.request.body.get("feedstock", None)
         outputs = self.request.body.get("outputs", None)
+        channel = self.request.body.get("channel", None)
         if (
             feedstock_token is None
             or feedstock is None
             or outputs is None
+            or channel is None
             or not is_valid_feedstock_token(
                 "conda-forge", "staged-recipes", feedstock_token, TOKENS_REPO)
         ):
@@ -521,6 +523,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                     _thread_pool(),
                     copy_feedstock_outputs,
                     feedstock,
+                    channel,
                 )
 
                 if not all(v for v in copied.values()):

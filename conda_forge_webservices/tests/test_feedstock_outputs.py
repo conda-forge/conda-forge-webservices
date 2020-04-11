@@ -23,7 +23,7 @@ def test_copy_feedstock_outputs(ac):
     outputs["boo"] = {"version": "1", "name": "boohoo"}
     outputs["blah"] = {"version": "2", "name": "blahha"}
 
-    copied = copy_feedstock_outputs(outputs)
+    copied = copy_feedstock_outputs(outputs, "blah")
 
     assert copied == {"boo": True, "blah": False}
 
@@ -33,8 +33,8 @@ def test_copy_feedstock_outputs(ac):
         "1",
         basename="boo",
         to_owner="conda-forge",
-        from_label="main",
-        to_label="main",
+        from_label="blahh",
+        to_label="blahh",
     )
 
     assert ac.return_value.remove_dist.called_once_with(
@@ -50,8 +50,8 @@ def test_copy_feedstock_outputs(ac):
         "2",
         basename="blah",
         to_owner="conda-forge",
-        from_label="main",
-        to_label="main",
+        from_label="blahh",
+        to_label="blahh",
     )
 
 
