@@ -10,7 +10,6 @@ import subprocess
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
-import git
 
 from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 
@@ -22,57 +21,72 @@ OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git
 TOKENS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git"
 
 
+def _run_git_command(*args):
+    subprocess.run(
+        " ".join(["git"] + list(args)),
+        check=True,
+        shell=True,
+    )
+
+
 def register_feedstock_token_handler(feedstock):
+    """Generate and register feedstock tokens.
+
+    Parameters
+    ----------
+    feedstock : str
+        The name of the feedstock.
+
+    Returns
+    -------
+    error : bool
+        True if there is an error, False otherwise.
+    """
     if feedstock.endswith("-feedstock"):
         feedstock_name = feedstock[:-len("-feedstock")]
     else:
         feedstock_name = feedstock
+
     feedstock_url = "https://github.com/conda-forge/%s-feedstock.git" % feedstock_name
+    token_path = os.path.expanduser(
+        "~/.conda-smithy/conda-forge_%s_feedstock.token" % feedstock_name
+    )
 
-    error = False
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pushd(tmpdir):
+                try:
+                    _run_git_command("clone", "--depth=1", feedstock_url)
+                except subprocess.CalledProcessError:
+                    print("    could not clone the feedstock")
+                    return True
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with pushd(tmpdir):
-            try:
-                subprocess.run(
-                    ["git", "clone", "--depth=1", feedstock_url],
-                    check=True,
-                )
-            except subprocess.CalledProcessError:
-                print("    could not clone the feedstock")
-                error = True
-
-            if not error:
                 with pushd(feedstock_name + "-feedstock"):
                     try:
-                        try:
-                            subprocess.run(
-                                ["conda-smithy", "generate-feedstock-token"],
-                                check=True,
-                            )
-                        except subprocess.CalledProcessError:
-                            print("    could not generate feedstock token")
-                            error = True
+                        subprocess.run(
+                            ["conda-smithy", "generate-feedstock-token"],
+                            check=True,
+                        )
+                    except subprocess.CalledProcessError:
+                        print("    could not generate feedstock token")
+                        return True
 
-                        if not error:
-                            try:
-                                subprocess.run(
-                                    ["conda-smithy", "register-feedstock-token"],
-                                    check=True,
-                                )
-                            except subprocess.CalledProcessError:
-                                print("    could not register feedstock token")
-                                error = True
-                    finally:
-                        try:
-                            os.remove(os.path.expanduser(
-                                "~/.conda-smithy/conda-forge_"
-                                "%s_feedstock.token" % feedstock_name
-                            ))
-                        except Exception:
-                            print("    could not delete the feedstock token")
-                            error = True
-    return error
+                    try:
+                        subprocess.run(
+                            ["conda-smithy", "register-feedstock-token"],
+                            check=True,
+                        )
+                    except subprocess.CalledProcessError:
+                        print("    could not register feedstock token")
+                        return True
+    finally:
+        try:
+            os.remove(token_path)
+        except Exception:
+            print("    could not delete the feedstock token")
+            return True
+
+    return False
 
 
 def _get_ac_api():
@@ -195,36 +209,46 @@ def is_valid_feedstock_output(project, outputs, register=True):
     made_commit = False
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        _output_repo = OUTPUTS_REPO.replace("${GH_TOKEN}", os.environ["GH_TOKEN"])
-        repo = git.Repo.clone_from(_output_repo, tmpdir, depth=1)
+        with pushd(tmpdir):
+            _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
 
-        for o in outputs:
-            pth = os.path.join(tmpdir, "outputs", o + ".json")
+            with pushd("feedstock-outputs"):
+                _run_git_command(
+                    "remote",
+                    "set-url",
+                    "--push",
+                    "origin",
+                    OUTPUTS_REPO)
 
-            if not os.path.exists(pth):
-                # no output exists, so we can add it
-                valid[o] = True
+                for o in outputs:
+                    pth = os.path.join("outputs", o + ".json")
 
-                print("    does not exist|valid: %s|%s" % (o, valid[o]))
-                if register:
-                    print("    registered:", o)
-                    with open(pth, "w") as fp:
-                        json.dump({"feedstocks": [feedstock]}, fp)
-                    repo.index.add(pth)
-                    repo.index.commit(
-                        "added output %s for conda-forge/%s" % (o, project)
-                    )
-                    made_commit = True
-            else:
-                # make sure feedstock is ok
-                with open(pth, "r") as fp:
-                    data = json.load(fp)
-                valid[o] = feedstock in data["feedstocks"]
-                print("    checked|valid: %s|%s" % (o, valid[o]))
+                    if not os.path.exists(pth):
+                        # no output exists, so we can add it
+                        valid[o] = True
 
-        if register and made_commit:
-            repo.remote().pull(rebase=True)
-            repo.remote().push()
+                        print("    does not exist|valid: %s|%s" % (o, valid[o]))
+                        if register:
+                            print("    registered:", o)
+                            with open(pth, "w") as fp:
+                                json.dump({"feedstocks": [feedstock]}, fp)
+                            _run_git_command("add", pth)
+                            _run_git_command(
+                                "commit",
+                                "-m",
+                                "'added output %s for conda-forge/%s'" % (o, project),
+                            )
+                            made_commit = True
+                    else:
+                        # make sure feedstock is ok
+                        with open(pth, "r") as fp:
+                            data = json.load(fp)
+                        valid[o] = feedstock in data["feedstocks"]
+                        print("    checked|valid: %s|%s" % (o, valid[o]))
+
+                if register and made_commit:
+                    _run_git_command("pull", "--commit", "--rebase")
+                    _run_git_command("push")
 
     return valid
 
@@ -262,16 +286,35 @@ def validate_feedstock_outputs(
     ):
         return valid, ["invalid feedstock token"]
 
+    correctly_formatted = {o: True for o in outputs}
+
+    errors = []
+
+    for o, v in outputs.items():
+        if "name" not in v:
+            errors.append("output %s does not have a 'name' key" % o)
+            correctly_formatted[o] = False
+        if "version" not in v:
+            errors.append("output %s does not have a 'version' key" % o)
+            correctly_formatted[o] = False
+        if "md5" not in v:
+            errors.append("output %s does not have a 'md5' checksum key" % o)
+            correctly_formatted[o] = False
+
     valid_outputs = is_valid_feedstock_output(
         project,
-        [o["name"] for _, o in outputs.items()],
+        [o["name"] for _, o in outputs.items() if "name" in o],
         register=True,
     )
 
-    valid_hashes = _is_valid_output_hash(outputs)
+    valid_hashes = _is_valid_output_hash(
+        {o: v for o, v in outputs.items() if correctly_formatted[o]}
+    )
 
-    errors = []
     for o in outputs:
+        if not correctly_formatted[o]:
+            continue
+
         _errors = []
         if not valid_outputs[outputs[o]["name"]]:
             _errors.append(

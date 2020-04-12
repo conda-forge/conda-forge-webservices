@@ -97,10 +97,10 @@ def test_validate_feedstock_outputs_badoutputhash(
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
         {
-            "a": {"name": "a-name"},
-            "b": {"name": "b-name"},
-            "c": {"name": "c-name"},
-            "d": {"name": "d-name"},
+            "a": {"name": "a-name", "version": 10, "md5": 100},
+            "b": {"name": "b-name", "version": 10, "md5": 100},
+            "c": {"name": "c-name", "version": 10, "md5": 100},
+            "d": {"name": "d-name", "version": 10, "md5": 100},
         },
         "abc",
     )
@@ -163,7 +163,7 @@ def test_is_valid_output_hash():
     "project", ["foo", "foo-feedstock", "blah", "blarg", "boo"]
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.tempfile")
-@mock.patch("conda_forge_webservices.feedstock_outputs.git")
+@mock.patch("conda_forge_webservices.feedstock_outputs._run_git_command")
 def test_is_valid_feedstock_output(
     git_mock, tmp_mock, tmpdir, monkeypatch, project, register
 ):
@@ -171,11 +171,17 @@ def test_is_valid_feedstock_output(
         tmpdir
     )
     monkeypatch.setenv("GH_TOKEN", "abc123")
-    os.makedirs(os.path.join(tmpdir, "outputs"), exist_ok=True)
-    with open(os.path.join(tmpdir, "outputs", "bar.json"), "w") as fp:
+    os.makedirs(os.path.join(tmpdir, "feedstock-outputs", "outputs"), exist_ok=True)
+    with open(
+        os.path.join(tmpdir, "feedstock-outputs", "outputs", "bar.json"),
+        "w"
+    ) as fp:
         json.dump({"feedstocks": ["foo", "blah"]}, fp)
 
-    with open(os.path.join(tmpdir, "outputs", "goo.json"), "w") as fp:
+    with open(
+        os.path.join(tmpdir, "feedstock-outputs", "outputs", "goo.json"),
+        "w"
+    ) as fp:
         json.dump({"feedstocks": ["blarg"]}, fp)
 
     user = "conda-forge"
@@ -186,12 +192,10 @@ def test_is_valid_feedstock_output(
         project, outputs, register=register
     )
 
-    repo = git_mock.Repo.clone_from.return_value
-
-    assert git_mock.Repo.clone_from.called_with(
-        "https://abc123@github.com/conda-forge/feedstock-outputs.git",
-        str(tmpdir),
-        depth=1,
+    assert git_mock.called_with(
+        "clone",
+        "--depth=1",
+        "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
     )
 
     if project in ["foo", "foo-feedstock"]:
@@ -204,23 +208,33 @@ def test_is_valid_feedstock_output(
         assert valid == {"bar": False, "goo": False, "glob": True}
 
     if register:
-        assert os.path.exists(os.path.join(tmpdir, "outputs", "glob.json"))
-        with open(os.path.join(tmpdir, "outputs", "glob.json"), "r") as fp:
+        assert os.path.exists(
+            os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"))
+        with open(
+            os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"),
+            "r"
+        ) as fp:
             data = json.load(fp)
         assert data == {"feedstocks": [project.replace("-feedstock", "")]}
 
-        assert repo.index.add.called_with(
-            os.path.join(tmpdir, "outputs", "glob.json")
-        )
-        assert repo.index.commit.called_with(
+        assert git_mock.called_with("add", "outputs/glob.json")
+        assert git_mock.called_with(
+            "commit",
+            "-m",
             "added output %s %s/%s"
             % ("glob", user, project.replace("-feedstock", ""))
         )
-        assert repo.remote.return_value.pull.called_with(rebase=True)
-        assert repo.remote.return_value.push.called_with()
+        assert git_mock.called_with("pull", "--commit", "--rebase")
+        assert git_mock.called_with("push")
     else:
-        repo.remote.return_value.pull.assert_not_called()
-        repo.remote.return_value.push.assert_not_called()
-        repo.index.commit.assert_not_called()
-        repo.index.add.assert_not_called()
-        assert not os.path.exists(os.path.join(tmpdir, "outputs", "glob.json"))
+        assert ("add", "outputs/glob.json") not in git_mock.call_args_list
+        assert (
+            "commit",
+            "-m",
+            "added output %s %s/%s"
+            % ("glob", user, project.replace("-feedstock", ""))
+        ) not in git_mock.call_args_list
+        assert ("pull", "--commit", "--rebase") not in git_mock.call_args_list
+        assert ("push",) not in git_mock.call_args_list
+        assert not os.path.exists(
+            os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"))

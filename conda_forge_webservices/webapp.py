@@ -532,14 +532,14 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 copied = await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),
                     copy_feedstock_outputs,
-                    feedstock,
+                    outputs_to_copy,
                     channel,
                 )
-
-                if not all(v for v in copied.values()):
-                    self.set_status(403)
             else:
                 copied = {}
+
+            if len(outputs) != len(copied):
+                self.set_status(403)
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
 

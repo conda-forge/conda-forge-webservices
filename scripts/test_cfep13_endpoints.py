@@ -16,12 +16,13 @@ To run these tests
 import os
 import tempfile
 import subprocess
+import uuid
 
 import requests
 import pytest
 
 from conda_forge_webservices.utils import pushd
-from conda_forge_webservices.feedstock_outputs import TOKENS_REPO
+from conda_forge_webservices.feedstock_outputs import TOKENS_REPO, OUTPUTS_REPO
 
 token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes_feedstock.token"
 with open(os.path.expandvars(token_path), "r") as fp:
@@ -32,57 +33,41 @@ headers = {
 }
 
 
-def test_feedstock_tokens_register_works():
+def _run_git_command(*args):
+    subprocess.run(
+        " ".join(["git"] + list(args)),
+        check=True,
+        shell=True,
+    )
+
+
+def _clone_and_remove(repo, file_to_remove):
     with tempfile.TemporaryDirectory() as tmpdir:
         with pushd(tmpdir):
-            subprocess.run(
-                " ".join([
-                    "git",
-                    "clone",
-                    "--depth=1",
-                    TOKENS_REPO,
-                ]),
-                check=True,
-                shell=True,
-            )
+            _run_git_command("clone", "--depth=1", repo)
 
-            with pushd("feedstock-tokens"):
-                subprocess.run(
-                    " ".join([
-                        "git",
-                        "remote",
-                        "set-url",
-                        "--push",
-                        "origin",
-                        TOKENS_REPO,
-                    ]),
-                    check=True,
-                    shell=True,
+            with pushd(os.path.split(repo)[1].replace(".git", "")):
+                _run_git_command(
+                    "remote",
+                    "set-url",
+                    "--push",
+                    "origin",
+                    repo,
                 )
-                subprocess.run(
-                    ["git", "rm", "tokens/cf-autotick-bot-test-package.json"],
-                    check=True,
-                )
-
-                subprocess.run(
-                    [
-                        "git",
+                if os.path.exists(file_to_remove):
+                    _run_git_command("rm", file_to_remove)
+                    _run_git_command(
                         "commit",
                         "-m",
-                        "'removed cf-autotick-bot-test-package.json for testing'"
-                    ],
-                    check=True,
-                )
+                        "'removed %s for testing'" % file_to_remove,
+                    )
+                    _run_git_command("pull", "--rebase", "--commit")
+                    _run_git_command("push")
 
-                subprocess.run(
-                    ["git", "pull"],
-                    check=True,
-                )
 
-                subprocess.run(
-                    ["git", "push"],
-                    check=True,
-                )
+def test_feedstock_tokens_register_works():
+    file_to_remove = "tokens/cf-autotick-bot-test-package.json"
+    _clone_and_remove(TOKENS_REPO, file_to_remove)
 
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-tokens/register",
@@ -193,3 +178,27 @@ def test_feedstock_outputs_copy_missing_data(key):
         json=json_data,
     )
     assert r.status_code == 403, r.status_code
+
+
+@pytest.mark.parametrize('key', ["name", "version", "md5", None])
+def test_feedstock_outputs_copy_bad_data(key):
+    name = "blah_h" + uuid.uuid4().hex
+    try:
+        _clone_and_remove(OUTPUTS_REPO, "outputs/%s.json" % name)
+
+        data = {"name": name, "version": "0.0.1", "md5": "sdafkjld"}
+        if key is not None:
+            del data[key]
+        json_data = {
+            "feedstock": "staged-recipes",
+            "outputs": {"blah": data},
+            "channel": "main",
+        }
+        r = requests.post(
+            "http://127.0.0.1:5000/feedstock-outputs/copy",
+            headers=headers,
+            json=json_data,
+        )
+        assert r.status_code == 403, r.status_code
+    finally:
+        _clone_and_remove(OUTPUTS_REPO, "outputs/%s.json" % name)
