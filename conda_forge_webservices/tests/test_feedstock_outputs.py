@@ -15,44 +15,107 @@ from conda_forge_webservices.feedstock_outputs import (
 )
 
 
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api")
-def test_copy_feedstock_outputs(ac):
-    ac.return_value.copy.side_effect = [True, BinstarError("blah")]
+@pytest.mark.parametrize('remove', [True, False])
+@mock.patch("conda_forge_webservices.feedstock_outputs._dist_exists")
+@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_staging")
+@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
+def test_copy_feedstock_outputs_exists(
+    ac_prod, ac_staging, dist_exists, remove
+):
+    dist_exists.side_effect = [True, remove]
 
     outputs = OrderedDict()
     outputs["boo"] = {"version": "1", "name": "boohoo"}
-    outputs["blah"] = {"version": "2", "name": "blahha"}
 
     copied = copy_feedstock_outputs(outputs, "blah")
 
-    assert copied == {"boo": True, "blah": False}
+    assert copied == {"boo": True}
 
-    assert ac.return_value.copy.called_with(
+    ac_prod.assert_called_once()
+    ac_staging.assert_called_once()
+
+    dist_exists.assert_any_call(
+        ac_prod.return_value,
+        "conda-forge",
+        "boohoo",
+        "1",
+        "boo"
+    )
+
+    dist_exists.assert_any_call(
+        ac_staging.return_value,
+        "cf-staging",
+        "boohoo",
+        "1",
+        "boo"
+    )
+
+    if remove:
+        ac_staging.return_value.remove_dist.assert_called_once()
+        ac_staging.return_value.remove_dist.assert_any_call(
+            "cf-staging",
+            "boohoo",
+            "1",
+            basename="boo"
+        )
+
+
+@pytest.mark.parametrize('error', [False, True])
+@mock.patch("conda_forge_webservices.feedstock_outputs._dist_exists")
+@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_staging")
+@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
+def test_copy_feedstock_outputs_does_no_exist(
+    ac_prod, ac_staging, dist_exists, error
+):
+    dist_exists.side_effect = [False, True]
+    if error:
+        ac_prod.return_value.copy.side_effect = [BinstarError("error in copy")]
+
+    outputs = OrderedDict()
+    outputs["boo"] = {"version": "1", "name": "boohoo"}
+
+    copied = copy_feedstock_outputs(outputs, "blah")
+
+    assert copied == {"boo": not error}
+
+    ac_prod.assert_called_once()
+    ac_staging.assert_called_once()
+
+    dist_exists.assert_any_call(
+        ac_prod.return_value,
+        "conda-forge",
+        "boohoo",
+        "1",
+        "boo"
+    )
+
+    ac_prod.return_value.copy.assert_called_once()
+    ac_prod.return_value.copy.assert_any_call(
         "cf-staging",
         "boohoo",
         "1",
         basename="boo",
         to_owner="conda-forge",
-        from_label="blahh",
-        to_label="blahh",
+        from_label="blah",
+        to_label="blah",
     )
 
-    assert ac.return_value.remove_dist.called_once_with(
-        "cf-staging",
-        "boohoo",
-        "1",
-        basename="boo",
-    )
+    if not error:
+        dist_exists.assert_any_call(
+            ac_staging.return_value,
+            "cf-staging",
+            "boohoo",
+            "1",
+            "boo"
+        )
 
-    assert ac.return_value.copy.called_with(
-        "cf-staging",
-        "blahha",
-        "2",
-        basename="blah",
-        to_owner="conda-forge",
-        from_label="blahh",
-        to_label="blahh",
-    )
+        ac_staging.return_value.remove_dist.assert_called_once()
+        ac_staging.return_value.remove_dist.assert_any_call(
+            "cf-staging",
+            "boohoo",
+            "1",
+            basename="boo"
+        )
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
@@ -192,7 +255,7 @@ def test_is_valid_feedstock_output(
         project, outputs, register=register
     )
 
-    assert git_mock.called_with(
+    git_mock.assert_any_call(
         "clone",
         "--depth=1",
         "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
@@ -217,21 +280,23 @@ def test_is_valid_feedstock_output(
             data = json.load(fp)
         assert data == {"feedstocks": [project.replace("-feedstock", "")]}
 
-        assert git_mock.called_with("add", "outputs/glob.json")
-        assert git_mock.called_with(
+        git_mock.assert_any_call("add", "outputs/glob.json")
+        git_mock.assert_any_call(
             "commit",
             "-m",
-            "added output %s %s/%s"
+            "'added output %s for %s/%s'"
             % ("glob", user, project.replace("-feedstock", ""))
         )
-        assert git_mock.called_with("pull", "--commit", "--rebase")
-        assert git_mock.called_with("push")
+
+        git_mock.assert_any_call("pull", "--commit", "--rebase")
+        git_mock.assert_any_call("push")
     else:
+        assert len(git_mock.call_args_list) == 2
         assert ("add", "outputs/glob.json") not in git_mock.call_args_list
         assert (
             "commit",
             "-m",
-            "added output %s %s/%s"
+            "added output %s for %s/%s"
             % ("glob", user, project.replace("-feedstock", ""))
         ) not in git_mock.call_args_list
         assert ("pull", "--commit", "--rebase") not in git_mock.call_args_list

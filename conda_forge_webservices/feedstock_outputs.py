@@ -10,6 +10,7 @@ import subprocess
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
+import binstar_client.errors
 
 from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 
@@ -89,9 +90,27 @@ def register_feedstock_token_handler(feedstock):
     return False
 
 
-def _get_ac_api():
+def _get_ac_api_prod():
     """wrap this a function so we can more easily mock it when testing"""
-    return get_server_api(token=os.environ["BINSTAR_TOKEN"])
+    return get_server_api(token=os.environ["PROD_BINSTAR_TOKEN"])
+
+
+def _get_ac_api_staging():
+    """wrap this a function so we can more easily mock it when testing"""
+    return get_server_api(token=os.environ["STAGING_BINSTAR_TOKEN"])
+
+
+def _dist_exists(ac, channel, name, version, basename):
+    try:
+        ac.distribution(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(basename, safe=""),
+        )
+        return True
+    except binstar_client.errors.NotFound:
+        return False
 
 
 def copy_feedstock_outputs(outputs, channel):
@@ -112,30 +131,46 @@ def copy_feedstock_outputs(outputs, channel):
         A dict keyed on the output name with True if the copy worked and False
         otherwise.
     """
-    ac = _get_ac_api()
+    ac_prod = _get_ac_api_prod()
+    ac_staging = _get_ac_api_staging()
 
     copied = {o: False for o in outputs}
 
     for out_name, out in outputs.items():
-        try:
-            ac.copy(
+        # if we already have it, then we mark it copied
+        # this matches the old behavior where outputs are never
+        # replaced once pushed
+        if _dist_exists(ac_prod, PROD, out["name"], out["version"], out_name):
+            copied[out_name] = True
+        else:
+            try:
+                ac_prod.copy(
+                    STAGING,
+                    out["name"],
+                    out["version"],
+                    basename=urllib.parse.quote(out_name, safe=""),
+                    to_owner=PROD,
+                    from_label=channel,
+                    to_label=channel,
+                )
+                copied[out_name] = True
+                print("    copied:", out_name)
+            except BinstarError:
+                print("    did not copy:", out_name)
+                pass
+
+        if (
+            copied[out_name]
+            and _dist_exists(
+                ac_staging,
                 STAGING,
                 out["name"],
                 out["version"],
-                basename=urllib.parse.quote(out_name, safe=""),
-                to_owner=PROD,
-                from_label=channel,
-                to_label=channel,
+                out_name
             )
-            copied[out_name] = True
-            print("    copied:", out_name)
-        except BinstarError:
-            print("    did not copy:", out_name)
-            pass
-
-        if copied[out_name]:
+        ):
             try:
-                ac.remove_dist(
+                ac_staging.remove_dist(
                     STAGING,
                     out["name"],
                     out["version"],
@@ -143,7 +178,7 @@ def copy_feedstock_outputs(outputs, channel):
                 )
                 print("    removed:", out_name)
             except BinstarError:
-                print("    did not remove:", out_name)
+                print("    could not remove:", out_name)
                 pass
     return copied
 
@@ -236,7 +271,7 @@ def is_valid_feedstock_output(project, outputs, register=True):
                             _run_git_command(
                                 "commit",
                                 "-m",
-                                "'added output %s for conda-forge/%s'" % (o, project),
+                                "'added output %s for conda-forge/%s'" % (o, feedstock),
                             )
                             made_commit = True
                     else:

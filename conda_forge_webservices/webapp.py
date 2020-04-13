@@ -538,7 +538,11 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             else:
                 copied = {}
 
-            if len(outputs) != len(copied) or not all(v for v in copied.values()):
+            for o in outputs:
+                if o not in copied:
+                    copied[o] = False
+
+            if not all(v for v in copied.values()):
                 self.set_status(403)
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
