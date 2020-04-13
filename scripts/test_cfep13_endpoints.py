@@ -116,12 +116,13 @@ def test_feedstock_outputs_validate():
         "http://127.0.0.1:5000/feedstock-outputs/validate",
         json={
             "feedstock": "cf-autotick-bot-test-package-feedstock",
-            "outputs": ["cf-autotick-bot-test-package"],
+            "outputs": ["noarch/cf-autotick-bot-test-package-0.1-py_11.tar.bz2"],
         },
     )
 
     assert r.status_code == 200, r.status_code
-    assert r.json() == {"cf-autotick-bot-test-package": True}, r.json()
+    assert r.json() == {
+        "noarch/cf-autotick-bot-test-package-0.1-py_11.tar.bz2": True}, r.json()
 
 
 def test_feedstock_outputs_validate_badoutput():
@@ -129,12 +130,17 @@ def test_feedstock_outputs_validate_badoutput():
         "http://127.0.0.1:5000/feedstock-outputs/validate",
         json={
             "feedstock": "cf-autotick-bot-test-package-feedstock",
-            "outputs": ["cf-autotick-bot-test-package", "python"],
+            "outputs": [
+                "noarch/cf-autotick-bot-test-package-0.1-py_11.tar.bz2",
+                "noarch/python-0.1-py_10.tar.bz2"
+            ],
         },
     )
 
     assert r.status_code == 403, r.status_code
-    assert r.json() == {"cf-autotick-bot-test-package": True, "python": False}, r.json()
+    assert r.json() == {
+        "noarch/cf-autotick-bot-test-package-0.1-py_11.tar.bz2": True,
+        "noarch/python-0.1-py_10.tar.bz2": False}, r.json()
 
 
 def test_feedstock_outputs_copy_bad_token():
@@ -180,18 +186,14 @@ def test_feedstock_outputs_copy_missing_data(key):
     assert r.status_code == 403, r.status_code
 
 
-@pytest.mark.parametrize('key', ["name", "version", "md5", None])
-def test_feedstock_outputs_copy_bad_data(key):
+def test_feedstock_outputs_copy_bad_data():
     name = "blah_h" + uuid.uuid4().hex
     try:
         _clone_and_remove(OUTPUTS_REPO, "outputs/%s.json" % name)
 
-        data = {"name": name, "version": "0.0.1", "md5": "sdafkjld"}
-        if key is not None:
-            del data[key]
         json_data = {
             "feedstock": "staged-recipes",
-            "outputs": {"blah": data},
+            "outputs": {"blah": "jkdfhslk"},
             "channel": "main",
         }
         r = requests.post(

@@ -2,6 +2,7 @@ import os
 import json
 from unittest import mock
 from collections import OrderedDict
+import urllib.parse
 
 import pytest
 
@@ -25,11 +26,11 @@ def test_copy_feedstock_outputs_exists(
     dist_exists.side_effect = [True, remove]
 
     outputs = OrderedDict()
-    outputs["boo"] = {"version": "1", "name": "boohoo"}
+    outputs["noarch/boo-0.1-py_10.tar.bz2"] = "sdasDsa"
 
     copied = copy_feedstock_outputs(outputs, "blah")
 
-    assert copied == {"boo": True}
+    assert copied == {"noarch/boo-0.1-py_10.tar.bz2": True}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
@@ -37,26 +38,22 @@ def test_copy_feedstock_outputs_exists(
     dist_exists.assert_any_call(
         ac_prod.return_value,
         "conda-forge",
-        "boohoo",
-        "1",
-        "boo"
+        "noarch/boo-0.1-py_10.tar.bz2"
     )
 
     dist_exists.assert_any_call(
         ac_staging.return_value,
         "cf-staging",
-        "boohoo",
-        "1",
-        "boo"
+        "noarch/boo-0.1-py_10.tar.bz2"
     )
 
     if remove:
         ac_staging.return_value.remove_dist.assert_called_once()
         ac_staging.return_value.remove_dist.assert_any_call(
             "cf-staging",
-            "boohoo",
-            "1",
-            basename="boo"
+            "boo",
+            "0.1",
+            basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe="")
         )
 
 
@@ -72,29 +69,30 @@ def test_copy_feedstock_outputs_does_no_exist(
         ac_prod.return_value.copy.side_effect = [BinstarError("error in copy")]
 
     outputs = OrderedDict()
-    outputs["boo"] = {"version": "1", "name": "boohoo"}
+    outputs["noarch/boo-0.1-py_10.tar.bz2"] = "skldjhasl"
 
     copied = copy_feedstock_outputs(outputs, "blah")
 
-    assert copied == {"boo": not error}
+    assert copied == {"noarch/boo-0.1-py_10.tar.bz2": not error}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
 
+    print(ac_prod.return_value.copy.call_args_list)
+    print(dist_exists.call_args_list)
+
     dist_exists.assert_any_call(
         ac_prod.return_value,
         "conda-forge",
-        "boohoo",
-        "1",
-        "boo"
+        "noarch/boo-0.1-py_10.tar.bz2",
     )
 
     ac_prod.return_value.copy.assert_called_once()
     ac_prod.return_value.copy.assert_any_call(
         "cf-staging",
-        "boohoo",
-        "1",
-        basename="boo",
+        "boo",
+        "0.1",
+        basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe=""),
         to_owner="conda-forge",
         from_label="blah",
         to_label="blah",
@@ -104,17 +102,15 @@ def test_copy_feedstock_outputs_does_no_exist(
         dist_exists.assert_any_call(
             ac_staging.return_value,
             "cf-staging",
-            "boohoo",
-            "1",
-            "boo"
+            "noarch/boo-0.1-py_10.tar.bz2",
         )
 
         ac_staging.return_value.remove_dist.assert_called_once()
         ac_staging.return_value.remove_dist.assert_any_call(
             "cf-staging",
-            "boohoo",
-            "1",
-            basename="boo"
+            "boo",
+            "0.1",
+            basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe=""),
         )
 
 
@@ -127,7 +123,10 @@ def test_validate_feedstock_outputs_badtoken(
     valid_token.return_value = False
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
-        {"a": {}, "b": {}},
+        {
+            "noarch/a-0.1-py_0.tar.bz2": "sadas",
+            "noarch/b-0.2-py_0.tar.bz2": "sadKJHSAL",
+        },
         "abc",
     )
 
@@ -146,67 +145,63 @@ def test_validate_feedstock_outputs_badoutputhash(
 ):
     valid_token.return_value = True
     valid_out.return_value = {
-        "a-name": True,
-        "b-name": False,
-        "c-name": True,
-        "d-name": False,
+        "noarch/a-0.1-py_0.tar.bz2": True,
+        "noarch/b-0.1-py_0.tar.bz2": False,
+        "noarch/c-0.1-py_0.tar.bz2": True,
+        "noarch/d-0.1-py_0.tar.bz2": False,
     }
     valid_hash.return_value = {
-        "a": False,
-        "b": True,
-        "c": True,
-        "d": False,
+        "noarch/a-0.1-py_0.tar.bz2": False,
+        "noarch/b-0.1-py_0.tar.bz2": True,
+        "noarch/c-0.1-py_0.tar.bz2": True,
+        "noarch/d-0.1-py_0.tar.bz2": False,
     }
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
         {
-            "a": {"name": "a-name", "version": 10, "md5": 100},
-            "b": {"name": "b-name", "version": 10, "md5": 100},
-            "c": {"name": "c-name", "version": 10, "md5": 100},
-            "d": {"name": "d-name", "version": 10, "md5": 100},
+            "noarch/a-0.1-py_0.tar.bz2": "daD",
+            "noarch/b-0.1-py_0.tar.bz2": "safdsa",
+            "noarch/c-0.1-py_0.tar.bz2": "sadSA",
+            "noarch/d-0.1-py_0.tar.bz2": "SAdsa",
         },
         "abc",
     )
 
     assert valid == {
-        "a": False,
-        "b": False,
-        "c": True,
-        "d": False,
+        "noarch/a-0.1-py_0.tar.bz2": False,
+        "noarch/b-0.1-py_0.tar.bz2": False,
+        "noarch/c-0.1-py_0.tar.bz2": True,
+        "noarch/d-0.1-py_0.tar.bz2": False,
     }
     assert len(errs) == 4
-    assert "output b not allowed for conda-forge/bar-feedstock" in errs
-    assert "output d not allowed for conda-forge/bar-feedstock" in errs
-    assert "output a does not have a valid md5 checksum" in errs
-    assert "output d does not have a valid md5 checksum" in errs
+    assert (
+        "output noarch/b-0.1-py_0.tar.bz2 not allowed for "
+        "conda-forge/bar-feedstock") in errs
+    assert (
+        "output noarch/d-0.1-py_0.tar.bz2 not allowed for "
+        "conda-forge/bar-feedstock") in errs
+    assert "output noarch/a-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
+    assert "output noarch/d-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs.STAGING", new="conda-forge")
 def test_is_valid_output_hash():
     outputs = {
-        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar.bz2": {
-            "name": "python",
-            "version": "3.8.2",
-            "md5": "7382171fb4c13dbedf98e0bd9b60f165",
-        },
+        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar.bz2": (
+            "7382171fb4c13dbedf98e0bd9b60f165"
+        ),
         # bad hash
-        "osx-64/python-3.8.2-hdc38147_4_cpython.tar.bz2": {
-            "name": "python",
-            "version": "3.8.2",
-            "md5": "7382171fb4c13dbedf98e0bd9b60f165",
-        },
+        "osx-64/python-3.8.2-hdc38147_4_cpython.tar.bz2": (
+            "7382171fb4c13dbedf98e0bd9b60f165"
+        ),
         # not a package
-        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar": {
-            "name": "python",
-            "version": "3.8.2",
-            "md5": "7382171fb4c13dbedf98e0bd9b60f165",
-        },
+        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar": (
+            "7382171fb4c13dbedf98e0bd9b60f165"
+        ),
         # bad metadata
-        "linux-64/python-3.7.6-h357f687_4_cpython.tar.bz2": {
-            "name": "dskljfals",
-            "version": "3.4.5",
-            "md5": "2f347da4a40715a5228412e56fb035d8",
-        },
+        "linux-64/python-3.7-h3f687_4_cpython.tar.bz2": (
+            "2f347da4a40715a5228412e56fb035d8"
+        ),
     }
 
     valid = _is_valid_output_hash(outputs)
@@ -217,7 +212,7 @@ def test_is_valid_output_hash():
         # not a package
         "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar": False,
         # bad metadata
-        "linux-64/python-3.7.6-h357f687_4_cpython.tar.bz2": False,
+        "linux-64/python-3.7-h3f687_4_cpython.tar.bz2": False,
     }
 
 
@@ -249,7 +244,11 @@ def test_is_valid_feedstock_output(
 
     user = "conda-forge"
 
-    outputs = ["bar", "goo", "glob"]
+    outputs = [
+        "noarch/bar-0.1-py_0.tar.bz2",
+        "noarch/goo-0.3-py_10.tar.bz2",
+        "noarch/glob-0.2-py_12.tar.bz2",
+    ]
 
     valid = is_valid_feedstock_output(
         project, outputs, register=register
@@ -262,13 +261,29 @@ def test_is_valid_feedstock_output(
     )
 
     if project in ["foo", "foo-feedstock"]:
-        assert valid == {"bar": True, "goo": False, "glob": True}
+        assert valid == {
+            "noarch/bar-0.1-py_0.tar.bz2": True,
+            "noarch/goo-0.3-py_10.tar.bz2": False,
+            "noarch/glob-0.2-py_12.tar.bz2": True
+        }
     elif project == "blah":
-        assert valid == {"bar": True, "goo": False, "glob": True}
+        assert valid == {
+            "noarch/bar-0.1-py_0.tar.bz2": True,
+            "noarch/goo-0.3-py_10.tar.bz2": False,
+            "noarch/glob-0.2-py_12.tar.bz2": True,
+        }
     elif project == "blarg":
-        assert valid == {"bar": False, "goo": True, "glob": True}
+        assert valid == {
+            "noarch/bar-0.1-py_0.tar.bz2": False,
+            "noarch/goo-0.3-py_10.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": True,
+        }
     elif project == "boo":
-        assert valid == {"bar": False, "goo": False, "glob": True}
+        assert valid == {
+            "noarch/bar-0.1-py_0.tar.bz2": False,
+            "noarch/goo-0.3-py_10.tar.bz2": False,
+            "noarch/glob-0.2-py_12.tar.bz2": True,
+        }
 
     if register:
         assert os.path.exists(
