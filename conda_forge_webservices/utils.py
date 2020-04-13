@@ -24,7 +24,7 @@ def pushd(new_dir):
 
 def parse_conda_pkg(pkg):
     """Parse a conda package into its parts.
-    
+
     code due to Isuru F. and CJ Wright
 
     Returns platform, name, version and build string
