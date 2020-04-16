@@ -30,6 +30,13 @@ def _run_git_command(*args):
     )
 
 
+def _run_smithy_command(*args):
+    subprocess.run(
+        ["conda-smithy"] + list(args),
+        check=True,
+    )
+
+
 def register_feedstock_token_handler(feedstock):
     """Generate and register feedstock tokens.
 
@@ -54,32 +61,25 @@ def register_feedstock_token_handler(feedstock):
     )
 
     try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with pushd(tmpdir):
+        with tempfile.TemporaryDirectory() as tmpdir, pushd(tmpdir):
+            try:
+                _run_git_command("clone", "--depth=1", feedstock_url)
+            except subprocess.CalledProcessError:
+                print("    could not clone the feedstock")
+                return True
+
+            with pushd(feedstock_name + "-feedstock"):
                 try:
-                    _run_git_command("clone", "--depth=1", feedstock_url)
+                    _run_smithy_command("generate-feedstock-token")
                 except subprocess.CalledProcessError:
-                    print("    could not clone the feedstock")
+                    print("    could not generate feedstock token")
                     return True
 
-                with pushd(feedstock_name + "-feedstock"):
-                    try:
-                        subprocess.run(
-                            ["conda-smithy", "generate-feedstock-token"],
-                            check=True,
-                        )
-                    except subprocess.CalledProcessError:
-                        print("    could not generate feedstock token")
-                        return True
-
-                    try:
-                        subprocess.run(
-                            ["conda-smithy", "register-feedstock-token"],
-                            check=True,
-                        )
-                    except subprocess.CalledProcessError:
-                        print("    could not register feedstock token")
-                        return True
+                try:
+                    _run_smithy_command("register-feedstock-token")
+                except subprocess.CalledProcessError:
+                    print("    could not register feedstock token")
+                    return True
     finally:
         try:
             os.remove(token_path)
@@ -257,52 +257,51 @@ def is_valid_feedstock_output(project, outputs, register=True):
     valid = {o: False for o in outputs}
     made_commit = False
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with pushd(tmpdir):
-            _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
+    with tempfile.TemporaryDirectory() as tmpdir, pushd(tmpdir):
+        _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
 
-            with pushd("feedstock-outputs"):
-                _run_git_command(
-                    "remote",
-                    "set-url",
-                    "--push",
-                    "origin",
-                    OUTPUTS_REPO)
+        with pushd("feedstock-outputs"):
+            _run_git_command(
+                "remote",
+                "set-url",
+                "--push",
+                "origin",
+                OUTPUTS_REPO)
 
-                for dist in outputs:
-                    try:
-                        _, o, _, _ = parse_conda_pkg(dist)
-                    except RuntimeError:
-                        continue
+            for dist in outputs:
+                try:
+                    _, o, _, _ = parse_conda_pkg(dist)
+                except RuntimeError:
+                    continue
 
-                    pth = os.path.join("outputs", o + ".json")
+                pth = os.path.join("outputs", o + ".json")
 
-                    if not os.path.exists(pth):
-                        # no output exists, so we can add it
-                        valid[dist] = True
+                if not os.path.exists(pth):
+                    # no output exists, so we can add it
+                    valid[dist] = True
 
-                        print("    does not exist|valid: %s|%s" % (o, valid[dist]))
-                        if register:
-                            print("    registered:", o)
-                            with open(pth, "w") as fp:
-                                json.dump({"feedstocks": [feedstock]}, fp)
-                            _run_git_command("add", pth)
-                            _run_git_command(
-                                "commit",
-                                "-m",
-                                "'added output %s for conda-forge/%s'" % (o, feedstock),
-                            )
-                            made_commit = True
-                    else:
-                        # make sure feedstock is ok
-                        with open(pth, "r") as fp:
-                            data = json.load(fp)
-                        valid[dist] = feedstock in data["feedstocks"]
-                        print("    checked|valid: %s|%s" % (o, valid[dist]))
+                    print("    does not exist|valid: %s|%s" % (o, valid[dist]))
+                    if register:
+                        print("    registered:", o)
+                        with open(pth, "w") as fp:
+                            json.dump({"feedstocks": [feedstock]}, fp)
+                        _run_git_command("add", pth)
+                        _run_git_command(
+                            "commit",
+                            "-m",
+                            "'added output %s for conda-forge/%s'" % (o, feedstock),
+                        )
+                        made_commit = True
+                else:
+                    # make sure feedstock is ok
+                    with open(pth, "r") as fp:
+                        data = json.load(fp)
+                    valid[dist] = feedstock in data["feedstocks"]
+                    print("    checked|valid: %s|%s" % (o, valid[dist]))
 
-                if register and made_commit:
-                    _run_git_command("pull", "--commit", "--rebase")
-                    _run_git_command("push")
+            if register and made_commit:
+                _run_git_command("pull", "--commit", "--rebase")
+                _run_git_command("push")
 
     return valid
 
