@@ -17,3 +17,4 @@ ruamel.yaml>=0.16
 ruamel.yaml.jinja2
 tini
 tornado
+tqdm

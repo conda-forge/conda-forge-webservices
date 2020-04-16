@@ -88,5 +88,4 @@ CMD ["/opt/conda/bin/tini", \
      "-u", \
      "-m", \
      "conda_forge_webservices.webapp", \
-     "--logging=info" \
     ]

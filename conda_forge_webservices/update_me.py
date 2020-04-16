@@ -1,30 +1,17 @@
 import os
 import subprocess
 import tempfile
-from git import Repo
-
-import contextlib
-
 import json
 
+from git import Repo
 import requests
+
 
 PKGS = ["conda-build", "conda-smithy", "conda-forge-pinning"]
 
 
 def _run_git_command(args):
     subprocess.run(['git'] + args, check=True)
-
-
-# https://stackoverflow.com/questions/6194499/pushd-through-os-system
-@contextlib.contextmanager
-def pushd(new_dir):
-    previous_dir = os.getcwd()
-    os.chdir(new_dir)
-    try:
-        yield
-    finally:
-        os.chdir(previous_dir)
 
 
 def get_current_versions():
