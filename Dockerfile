@@ -87,5 +87,5 @@ CMD ["/opt/conda/bin/tini", \
      "python", \
      "-u", \
      "-m", \
-     "conda_forge_webservices.webapp", \
+     "conda_forge_webservices.webapp" \
     ]
