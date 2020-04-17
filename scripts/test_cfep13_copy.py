@@ -84,6 +84,45 @@ def _clone_and_remove(repo, file_to_remove):
 
 
 def _build_recipe(uid):
+    with open("recipe/meta.yaml", "w") as fp:
+        fp.write("""\
+{% set version = datetime.datetime.utcnow().strftime('%Y.%m.%d.%H.%M.%S') %}
+{% set name = "blah-" ~ uuid %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: .
+
+build:
+  number: 0
+  noarch: python
+
+requirements:
+  host:
+    - python
+    - pip
+  run:
+    - python
+
+test:
+  commands:
+    - echo "works!"
+
+about:
+  home: https://github.com/conda-forge/conda-forge-webservices
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: testing package for the conda forge webservices
+
+extra:
+  recipe-maintainers:
+    - conda-forge/core
+""")
+
     with open("recipe/conda_build_config.yaml", "w") as fp:
         fp.write("""\
 uuid:
