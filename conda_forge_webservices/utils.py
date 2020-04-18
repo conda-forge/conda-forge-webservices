@@ -1,15 +1,12 @@
 import os
 import shutil
 import tempfile
-import uuid
 from contextlib import contextmanager
 
 
 @contextmanager
 def tmp_directory():
-    # I am pretty sure the uuid here does nothjing, but lets make sure the
-    # tmpdir is always unique
-    tmp_dir = tempfile.mkdtemp('_recipe_h' + uuid.uuid4().hex[0:6])
+    tmp_dir = tempfile.mkdtemp('_recipe_h')
     yield tmp_dir
     shutil.rmtree(tmp_dir)
 
