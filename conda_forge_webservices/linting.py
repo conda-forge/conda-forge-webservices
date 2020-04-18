@@ -29,17 +29,25 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             return {}
         mergeable = pull_request.mergeable
 
+    print("LINTING: init repo|mergeable:", repo_name, mergeable, flush=True)
+
     # I think the api reports False and then changes to
     # true later after it computes the mergeable status
     # so if it came out false, let's wait a bit and try again
     # up to 5 seconds
     if not mergeable:
-        for _ in range(5):
+        for _try_ind in range(5):
             time.sleep(1)
             pull_request = remote_repo.get_pull(pr_id)
             if pull_request.state != "open":
                 return {}
             _mergeable = pull_request.mergeable
+            print(
+                "LINTING: try %d repo|mergreable:" % _try_ind,
+                repo_name,
+                mergeable,
+                flush=True,
+            )
             if _mergeable:
                 mergeable = _mergeable
                 break
