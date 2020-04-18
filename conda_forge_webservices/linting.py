@@ -29,7 +29,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             return {}
         mergeable = pull_request.mergeable
 
-    # I think the api reports False and then changes to 
+    # I think the api reports False and then changes to
     # true later after it computes the mergeable status
     # so if it came out false, let's wait a bit and try again
     # up to 5 seconds
