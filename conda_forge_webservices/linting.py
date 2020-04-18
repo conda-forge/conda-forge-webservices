@@ -39,8 +39,9 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             pull_request = remote_repo.get_pull(pr_id)
             if pull_request.state != "open":
                 return {}
-            mergeable = pull_request.mergeable
-            if mergeable:
+            _mergeable = pull_request.mergeable
+            if _mergeable:
+                mergeable = _mergeable
                 break
 
     with tmp_directory() as tmp_dir:
