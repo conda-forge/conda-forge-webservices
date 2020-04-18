@@ -1,11 +1,11 @@
 import os
 import subprocess
-import tempfile
 import json
 
 from git import Repo
 import requests
 
+from .utils import tmp_directory
 
 PKGS = ["conda-build", "conda-smithy", "conda-forge-pinning"]
 
@@ -59,7 +59,7 @@ def main():
             final_install[pkg] = installed_vers[pkg]
 
     if to_install:
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tmp_directory() as tmpdir:
             repo_name = "conda-forge-webservices"
             clone_dir = os.path.join(tmpdir, repo_name)
             url = "https://{}@github.com/conda-forge/{}.git".format(

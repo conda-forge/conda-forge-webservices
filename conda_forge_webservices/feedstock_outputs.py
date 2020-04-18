@@ -1,7 +1,6 @@
 """
 This module registers and validates feedstock outputs.
 """
-import tempfile
 import os
 import json
 import hmac
@@ -14,7 +13,7 @@ import binstar_client.errors
 
 from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 
-from .utils import pushd, parse_conda_pkg
+from .utils import pushd, parse_conda_pkg, tmp_directory
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
@@ -61,7 +60,7 @@ def register_feedstock_token_handler(feedstock):
     )
 
     try:
-        with tempfile.TemporaryDirectory() as tmpdir, pushd(tmpdir):
+        with tmp_directory() as tmpdir, pushd(tmpdir):
             try:
                 _run_git_command("clone", "--depth=1", feedstock_url)
             except subprocess.CalledProcessError:
@@ -257,7 +256,7 @@ def is_valid_feedstock_output(project, outputs, register=True):
     valid = {o: False for o in outputs}
     made_commit = False
 
-    with tempfile.TemporaryDirectory() as tmpdir, pushd(tmpdir):
+    with tmp_directory() as tmpdir, pushd(tmpdir):
         _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
 
         with pushd("feedstock-outputs"):
