@@ -8,11 +8,6 @@ from functools import lru_cache
 
 from ruamel.yaml import YAML
 
-YAML_JINJA2 = YAML(typ='jinja2')
-YAML_JINJA2.indent(mapping=2, sequence=4, offset=2)
-YAML_JINJA2.width = 160
-YAML_JINJA2.allow_duplicate_keys = True
-
 
 @lru_cache(maxsize=None)
 def get_filter_out_members():
@@ -38,7 +33,11 @@ def get_handles(members):
 
 class DummyMeta(object):
     def __init__(self, meta_yaml):
-        self.meta = YAML_JINJA2.load(meta_yaml)
+        _yml = YAML(typ='jinja2')
+        _yml.indent(mapping=2, sequence=4, offset=2)
+        _yml.width = 160
+        _yml.allow_duplicate_keys = True
+        self.meta = _yml.load(meta_yaml)
 
 
 def update_team(org_name, repo_name, commit=None):
