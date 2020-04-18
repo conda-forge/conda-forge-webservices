@@ -53,6 +53,7 @@ class TestBucketHandler(TestHandlerBase):
                                'full_name': 'conda-forge/repo_name-feedstock',
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
+                'action': 'synchronize',
                 'pull_request': {'number': PR_number,
                                  'state': 'open',
                                  'labels': [{'name': 'stale'}]}}
@@ -298,6 +299,7 @@ class TestBucketHandler(TestHandlerBase):
                                'full_name': 'conda-forge/staged-recipes',
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
+                'action': 'synchronize',
                 'pull_request': {'number': PR_number,
                                  'state': 'open',
                                  'labels': [{'name': 'blah'}]}}
@@ -339,6 +341,7 @@ class TestBucketHandler(TestHandlerBase):
                                'full_name': 'conda-forge/staged-recipes',
                                'clone_url': 'repo_clone_url',
                                'owner': {'login': 'conda-forge'}},
+                'action': 'synchronize',
                 'pull_request': {'number': PR_number,
                                  'state': 'open',
                                  'labels': [{'name': 'stale'}]}}
