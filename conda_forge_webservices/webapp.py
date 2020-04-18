@@ -137,6 +137,9 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 self.write_error(404)
                 return
 
+            if body["action"] not in ["opened", "reopened", "synchronize", "unlocked"]:
+                return
+
             if repo_name == 'staged-recipes':
                 stale = any(
                     label['name'] == 'stale'
