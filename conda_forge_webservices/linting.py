@@ -135,7 +135,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                     recipe_dir, conda_forge=True, return_hints=True)
 
             except Exception as err:
-                print('ERROR:', err)
+                print('LINTING ERROR:', err)
                 lints = [
                     "Failed to even lint the recipe, probably because "
                     "of a conda-smithy bug :cry:. "
