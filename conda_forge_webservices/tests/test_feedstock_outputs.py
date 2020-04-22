@@ -220,12 +220,13 @@ def test_is_valid_output_hash():
 @pytest.mark.parametrize(
     "project", ["foo", "foo-feedstock", "blah", "blarg", "boo"]
 )
+@mock.patch("conda_forge_webservices.feedstock_outputs.shutil.rmtree")
 @mock.patch("conda_forge_webservices.feedstock_outputs.tempfile.mkdtemp")
 @mock.patch("conda_forge_webservices.feedstock_outputs._run_git_command")
 def test_is_valid_feedstock_output(
-    git_mock, tmp_mock, tmpdir, monkeypatch, project, register
+    git_mock, tmp_mock, rm_mock, tmpdir, monkeypatch, project, register
 ):
-    tmp_mock.return_value = tmpdir
+    tmp_mock.return_value = str(tmpdir)
     monkeypatch.setenv("GH_TOKEN", "abc123")
     os.makedirs(os.path.join(tmpdir, "feedstock-outputs", "outputs"), exist_ok=True)
     with open(
@@ -252,10 +253,14 @@ def test_is_valid_feedstock_output(
         project, outputs, register=register
     )
 
+    rm_mock.assert_any_call(str(tmpdir))
+
+    repo_cwd = os.path.join(tmpdir, "feedstock-outputs")
     git_mock.assert_any_call(
         "clone",
         "--depth=1",
-        "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
+        "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git",
+        repo_cwd,
     )
 
     if project in ["foo", "foo-feedstock"]:
@@ -293,16 +298,17 @@ def test_is_valid_feedstock_output(
             data = json.load(fp)
         assert data == {"feedstocks": [project.replace("-feedstock", "")]}
 
-        git_mock.assert_any_call("add", "outputs/glob.json")
+        git_mock.assert_any_call("add", repo_cwd + "/outputs/glob.json", cwd=repo_cwd)
         git_mock.assert_any_call(
             "commit",
             "-m",
             "'added output %s for %s/%s'"
-            % ("glob", user, project.replace("-feedstock", ""))
+            % ("glob", user, project.replace("-feedstock", "")),
+            cwd=repo_cwd
         )
 
-        git_mock.assert_any_call("pull", "--commit", "--rebase")
-        git_mock.assert_any_call("push")
+        git_mock.assert_any_call("pull", "--commit", "--rebase", cwd=repo_cwd)
+        git_mock.assert_any_call("push", cwd=repo_cwd)
     else:
         assert len(git_mock.call_args_list) == 2
         assert ("add", "outputs/glob.json") not in git_mock.call_args_list
