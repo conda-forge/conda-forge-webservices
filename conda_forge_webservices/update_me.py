@@ -1,11 +1,13 @@
 import os
 import subprocess
 import json
+import tempfile
+import shutil
 
 from git import Repo
 import requests
 
-from .utils import tmp_directory
+# from .utils import tmp_directory
 
 PKGS = ["conda-build", "conda-smithy", "conda-forge-pinning"]
 
@@ -59,7 +61,10 @@ def main():
             final_install[pkg] = installed_vers[pkg]
 
     if to_install:
-        with tmp_directory() as tmpdir:
+        tmpdir = None
+        try:
+            tmpdir = tempfile.mkdtemp('_recipe')
+
             repo_name = "conda-forge-webservices"
             clone_dir = os.path.join(tmpdir, repo_name)
             url = "https://{}@github.com/conda-forge/{}.git".format(
@@ -76,3 +81,7 @@ def main():
             msg_vers = ", ".join(["{}={}".format(k, v) for k, v in to_install.items()])
             repo.index.commit("redeploy for '%s'" % msg_vers)
             repo.git.push("origin", "master")
+
+        finally:
+            if tmpdir is not None:
+                shutil.rmtree(tmpdir)

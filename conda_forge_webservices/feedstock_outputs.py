@@ -6,6 +6,8 @@ import json
 import hmac
 import urllib.parse
 import subprocess
+import shutil
+import tempfile
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
@@ -13,7 +15,7 @@ import binstar_client.errors
 
 from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 
-from .utils import pushd, parse_conda_pkg, tmp_directory
+from .utils import parse_conda_pkg
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
@@ -21,18 +23,20 @@ OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git
 TOKENS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git"
 
 
-def _run_git_command(*args):
+def _run_git_command(*args, cwd=None):
     subprocess.run(
         " ".join(["git"] + list(args)),
         check=True,
         shell=True,
+        cwd=cwd,
     )
 
 
-def _run_smithy_command(*args):
+def _run_smithy_command(*args, cwd=None):
     subprocess.run(
         ["conda-smithy"] + list(args),
         check=True,
+        cwd=cwd,
     )
 
 
@@ -59,32 +63,38 @@ def register_feedstock_token_handler(feedstock):
         "~/.conda-smithy/conda-forge_%s_feedstock.token" % feedstock_name
     )
 
+    tmpdir = None
     try:
-        with tmp_directory() as tmpdir, pushd(tmpdir):
-            try:
-                _run_git_command("clone", "--depth=1", feedstock_url)
-            except subprocess.CalledProcessError:
-                print("    could not clone the feedstock")
-                return True
+        tmpdir = tempfile.mkdtemp('_recipe')
+        fspath = os.path.join(tmpdir, "%s-feedstock" % feedstock_name)
+        try:
+            _run_git_command(
+                "clone", "--depth=1",
+                feedstock_url, fspath,
+            )
+        except subprocess.CalledProcessError:
+            print("    could not clone the feedstock")
+            return True
 
-            with pushd(feedstock_name + "-feedstock"):
-                try:
-                    _run_smithy_command("generate-feedstock-token")
-                except subprocess.CalledProcessError:
-                    print("    could not generate feedstock token")
-                    return True
+        try:
+            _run_smithy_command("generate-feedstock-token", cwd=fspath)
+        except subprocess.CalledProcessError:
+            print("    could not generate feedstock token")
+            return True
 
-                try:
-                    _run_smithy_command("register-feedstock-token")
-                except subprocess.CalledProcessError:
-                    print("    could not register feedstock token")
-                    return True
+        try:
+            _run_smithy_command("register-feedstock-token", cwd=fspath)
+        except subprocess.CalledProcessError:
+            print("    could not register feedstock token")
+            return True
     finally:
+        if tmpdir is not None:
+            shutil.rmtree(tmpdir)
+
         try:
             os.remove(token_path)
         except Exception:
-            print("    could not delete the feedstock token")
-            return True
+            pass
 
     return False
 
@@ -256,51 +266,60 @@ def is_valid_feedstock_output(project, outputs, register=True):
     valid = {o: False for o in outputs}
     made_commit = False
 
-    with tmp_directory() as tmpdir, pushd(tmpdir):
-        _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
+    tmpdir = None
+    try:
+        tmpdir = tempfile.mkdtemp('_recipe')
+        repo_path = os.path.join(tmpdir, "feedstock-outputs")
 
-        with pushd("feedstock-outputs"):
-            _run_git_command(
-                "remote",
-                "set-url",
-                "--push",
-                "origin",
-                OUTPUTS_REPO)
+        _run_git_command("clone", "--depth=1", OUTPUTS_REPO, repo_path)
 
-            for dist in outputs:
-                try:
-                    _, o, _, _ = parse_conda_pkg(dist)
-                except RuntimeError:
-                    continue
+        _run_git_command(
+            "remote",
+            "set-url",
+            "--push",
+            "origin",
+            OUTPUTS_REPO,
+            cwd=repo_path)
 
-                pth = os.path.join("outputs", o + ".json")
+        for dist in outputs:
+            try:
+                _, o, _, _ = parse_conda_pkg(dist)
+            except RuntimeError:
+                continue
 
-                if not os.path.exists(pth):
-                    # no output exists, so we can add it
-                    valid[dist] = True
+            pth = os.path.join(repo_path, "outputs", o + ".json")
 
-                    print("    does not exist|valid: %s|%s" % (o, valid[dist]))
-                    if register:
-                        print("    registered:", o)
-                        with open(pth, "w") as fp:
-                            json.dump({"feedstocks": [feedstock]}, fp)
-                        _run_git_command("add", pth)
-                        _run_git_command(
-                            "commit",
-                            "-m",
-                            "'added output %s for conda-forge/%s'" % (o, feedstock),
-                        )
-                        made_commit = True
-                else:
-                    # make sure feedstock is ok
-                    with open(pth, "r") as fp:
-                        data = json.load(fp)
-                    valid[dist] = feedstock in data["feedstocks"]
-                    print("    checked|valid: %s|%s" % (o, valid[dist]))
+            if not os.path.exists(pth):
+                # no output exists, so we can add it
+                valid[dist] = True
 
-            if register and made_commit:
-                _run_git_command("pull", "--commit", "--rebase")
-                _run_git_command("push")
+                print("    does not exist|valid: %s|%s" % (o, valid[dist]))
+                if register:
+                    print("    registered:", o)
+                    with open(pth, "w") as fp:
+                        json.dump({"feedstocks": [feedstock]}, fp)
+                    _run_git_command("add", pth, cwd=repo_path)
+                    _run_git_command(
+                        "commit",
+                        "-m",
+                        "'added output %s for conda-forge/%s'" % (o, feedstock),
+                        cwd=repo_path
+                    )
+                    made_commit = True
+            else:
+                # make sure feedstock is ok
+                with open(pth, "r") as fp:
+                    data = json.load(fp)
+                valid[dist] = feedstock in data["feedstocks"]
+                print("    checked|valid: %s|%s" % (o, valid[dist]))
+
+        if register and made_commit:
+            _run_git_command("pull", "--commit", "--rebase", cwd=repo_path)
+            _run_git_command("push", cwd=repo_path)
+
+    finally:
+        if tmpdir is not None:
+            shutil.rmtree(tmpdir)
 
     return valid
 

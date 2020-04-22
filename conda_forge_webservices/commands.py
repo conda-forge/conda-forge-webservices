@@ -6,11 +6,12 @@ import subprocess
 import time
 import json
 import shutil
+import tempfile
 from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
 
-from .utils import tmp_directory
+# from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from .circle_ci import update_circle
@@ -127,7 +128,10 @@ def pr_detailed_comment(
     if not any(command.search(comment) for command in pr_commands):
         return
 
-    with tmp_directory() as tmp_dir:
+    tmp_dir = None
+    try:
+        tmp_dir = tempfile.mkdtemp('_recipe')
+
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = "https://{}@github.com/{}/{}.git".format(
             os.environ['GH_TOKEN'], pr_owner, pr_repo)
@@ -212,6 +216,10 @@ def pr_detailed_comment(
             pull = gh_repo.get_pull(int(pr_num))
             pull.create_issue_comment(message)
 
+    finally:
+        if tmp_dir is not None:
+            shutil.rmtree(tmp_dir)
+
 
 def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not repo_name.endswith("-feedstock"):
@@ -265,7 +273,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 org_name,
                 repo_name)))
 
-        with tmp_directory() as tmp_dir:
+        tmp_dir = None
+        try:
+            tmp_dir = tempfile.mkdtemp("_recipe")
+
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://{}@github.com/{}/{}.git".format(
                 os.environ['GH_TOKEN'], forked_user, repo_name)
@@ -437,6 +448,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 issue.create_comment(message)
                 if to_close:
                     issue.edit(state="closed")
+
+        finally:
+            if tmp_dir is not None:
+                shutil.rmtree(tmp_dir)
 
 
 def add_py(repo, pyver):
