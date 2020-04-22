@@ -287,7 +287,7 @@ def is_valid_feedstock_output(project, outputs, register=True):
             except RuntimeError:
                 continue
 
-            pth = os.path.join("outputs", o + ".json")
+            pth = os.path.join(repo_path, "outputs", o + ".json")
 
             if not os.path.exists(pth):
                 # no output exists, so we can add it
