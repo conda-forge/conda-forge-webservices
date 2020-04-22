@@ -46,13 +46,13 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.update_team')
     @mock.patch('conda_forge_webservices.commands.update_circle')
     @mock.patch('conda_forge_webservices.commands.update_cb3')
-    @mock.patch('conda_forge_webservices.commands.tmp_directory')
+    @mock.patch('conda_forge_webservices.commands.tempfile.mkdtemp')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_pr_command_triggers(
             self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender, add_bot_rerun_label):
-        tmp_directory.return_value.__enter__.return_value = '/tmp'
+        tmp_directory.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
 
         commands = [
@@ -160,14 +160,14 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.update_team')
     @mock.patch('conda_forge_webservices.commands.update_circle')
     @mock.patch('conda_forge_webservices.commands.update_cb3')
-    @mock.patch('conda_forge_webservices.commands.tmp_directory')
+    @mock.patch('conda_forge_webservices.commands.tempfile.mkdtemp')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_issue_command_triggers(
             self, git_repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender, add_bot_automerge,
             rerender_dummy_commit, add_py):
-        tmp_directory.return_value.__enter__.return_value = '/tmp'
+        tmp_directory.return_value = '/tmp'
         update_cb3.return_value = (True, "hi")
         add_py.return_value = True
 
@@ -345,13 +345,13 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.update_team')
     @mock.patch('conda_forge_webservices.commands.update_circle')
     @mock.patch('conda_forge_webservices.commands.update_cb3')
-    @mock.patch('conda_forge_webservices.commands.tmp_directory')
+    @mock.patch('conda_forge_webservices.commands.tempfile.mkdtemp')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_rerender_failure(
             self, repo, gh, tmp_directory, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender):
-        tmp_directory.return_value.__enter__.return_value = '/tmp'
+        tmp_directory.return_value = '/tmp'
         rerender.side_effect = RequestException
 
         repo = gh.return_value.get_repo.return_value

@@ -2,9 +2,11 @@ import git
 import jinja2
 import os
 import time
+import tempfile
+import shutil
 
 from collections import namedtuple
-from .utils import tmp_directory
+# from .utils import tmp_directory
 
 
 def handle_feedstock_event(org_name, repo_name):
@@ -18,7 +20,10 @@ def handle_feedstock_event(org_name, repo_name):
 
 
 def update_listing():
-    with tmp_directory() as tmp_dir:
+    tmp_dir = None
+    try:
+        tmp_dir = tempfile.mkdtemp('_recipe')
+
         t0 = time.time()
         webpage_url = (
             "https://github.com/conda-forge/conda-forge.github.io.git"
@@ -97,11 +102,18 @@ def update_listing():
             feedstocks_page_repo.remote().push()
         print("    listing push:", time.time() - t0)
 
+    finally:
+        if tmp_dir is not None:
+            shutil.rmtree(tmp_dir)
+
 
 def update_feedstock(org_name, repo_name):
     name = repo_name[:-len("-feedstock")]
 
-    with tmp_directory() as tmp_dir:
+    tmp_dir = None
+    try:
+        tmp_dir = tempfile.mkdtemp('_recipe')
+
         t0 = time.time()
         feedstocks_url = (
             "https://{}@github.com/conda-forge/feedstocks.git"
@@ -147,6 +159,10 @@ def update_feedstock(org_name, repo_name):
             feedstocks_repo.remote().pull(rebase=True)
             feedstocks_repo.remote().push()
         print("    update push:", time.time() - t0)
+
+    finally:
+        if tmp_dir is not None:
+            shutil.rmtree(tmp_dir)
 
 
 if __name__ == '__main__':

@@ -220,14 +220,12 @@ def test_is_valid_output_hash():
 @pytest.mark.parametrize(
     "project", ["foo", "foo-feedstock", "blah", "blarg", "boo"]
 )
-@mock.patch("conda_forge_webservices.feedstock_outputs.tmp_directory")
+@mock.patch("conda_forge_webservices.feedstock_outputs.tempfile.mkdtemp")
 @mock.patch("conda_forge_webservices.feedstock_outputs._run_git_command")
 def test_is_valid_feedstock_output(
     git_mock, tmp_mock, tmpdir, monkeypatch, project, register
 ):
-    tmp_mock.return_value.__enter__.return_value = str(
-        tmpdir
-    )
+    tmp_mock.return_value = tmpdir
     monkeypatch.setenv("GH_TOKEN", "abc123")
     os.makedirs(os.path.join(tmpdir, "feedstock-outputs", "outputs"), exist_ok=True)
     with open(

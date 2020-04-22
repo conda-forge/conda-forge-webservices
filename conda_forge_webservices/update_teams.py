@@ -1,7 +1,9 @@
 from git import Repo
 import github
 import os
-from .utils import tmp_directory
+import shutil
+import tempfile
+# from .utils import tmp_directory
 from conda_smithy.github import configure_github_team
 import textwrap
 from functools import lru_cache
@@ -48,7 +50,10 @@ def update_team(org_name, repo_name, commit=None):
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
-    with tmp_directory() as tmp_dir:
+    tmp_dir = None
+    try:
+        tmp_dir = tempfile.mkdtemp('_recipe')
+
         Repo.clone_from(gh_repo.clone_url, tmp_dir, depth=1)
         with open(os.path.join(tmp_dir, "recipe", "meta.yaml"), "r") as fp:
             keep_lines = []
@@ -104,6 +109,9 @@ def update_team(org_name, repo_name, commit=None):
 
                 c = gh_repo.get_commit(commit)
                 c.create_comment(message)
+    finally:
+        if tmp_dir is not None:
+            shutil.rmtree(tmp_dir)
 
 
 if __name__ == '__main__':

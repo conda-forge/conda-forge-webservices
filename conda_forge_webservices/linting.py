@@ -2,12 +2,14 @@ from glob import glob
 import os
 import textwrap
 import time
+import tempfile
+import shutil
 
 from git import GitCommandError, Repo
 import github
 import conda_smithy.lint_recipe
 
-from .utils import tmp_directory
+# from .utils import tmp_directory
 
 
 def find_recipes(a_dir):
@@ -29,7 +31,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             return {}
         mergeable = pull_request.mergeable
 
-    with tmp_directory() as tmp_dir:
+    tmp_dir = None
+    try:
+        tmp_dir = tempfile.mkdtemp('_recipe')
+
         repo = Repo.clone_from(remote_repo.clone_url, tmp_dir, depth=1)
 
         # Retrieve the PR refs.
@@ -129,6 +134,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                 messages.append("\nFor **{}**:\n\n{}".format(
                     rel_path,
                     '\n'.join(' * {}'.format(hint) for hint in hints)))
+
+    finally:
+        if tmp_dir is not None:
+            shutil.rmtree(tmp_dir)
 
     # Put the recipes in the form "```recipe/a```, ```recipe/b```".
     recipe_code_blocks = ', '.join('```{}```'.format(r) for r in rel_pr_recipes)
