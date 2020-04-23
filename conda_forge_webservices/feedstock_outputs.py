@@ -8,6 +8,7 @@ import urllib.parse
 import subprocess
 import shutil
 import tempfile
+import logging
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
@@ -16,6 +17,8 @@ import binstar_client.errors
 from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 
 from .utils import parse_conda_pkg
+
+LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
@@ -66,19 +69,19 @@ def register_feedstock_token_handler(feedstock):
                 feedstock_url, fspath,
             )
         except subprocess.CalledProcessError:
-            print("    could not clone the feedstock")
+            LOGGER.info("    could not clone the feedstock")
             return True
 
         try:
             _run_smithy_command("generate-feedstock-token", cwd=fspath)
         except subprocess.CalledProcessError:
-            print("    could not generate feedstock token")
+            LOGGER.info("    could not generate feedstock token")
             return True
 
         try:
             _run_smithy_command("register-feedstock-token", cwd=fspath)
         except subprocess.CalledProcessError:
-            print("    could not register feedstock token")
+            LOGGER.info("    could not register feedstock token")
             return True
     finally:
         if tmpdir is not None:
@@ -182,9 +185,9 @@ def copy_feedstock_outputs(outputs, channel):
                     to_label=channel,
                 )
                 copied[dist] = True
-                print("    copied:", dist)
+                LOGGER.info("    copied: %s", dist)
             except BinstarError:
-                print("    did not copy:", dist)
+                LOGGER.info("    did not copy: %s", dist)
                 pass
 
         if (
@@ -198,9 +201,9 @@ def copy_feedstock_outputs(outputs, channel):
                     version,
                     basename=urllib.parse.quote(dist, safe=""),
                 )
-                print("    removed:", dist)
+                LOGGER.info("    removed: %s", dist)
             except BinstarError:
-                print("    could not remove:", dist)
+                LOGGER.info("    could not remove: %s", dist)
                 pass
     return copied
 
@@ -239,9 +242,9 @@ def _is_valid_output_hash(outputs):
                 basename=urllib.parse.quote(dist, safe=""),
             )
             valid[dist] = hmac.compare_digest(data["md5"], md5hash)
-            print("    did hash comp:", dist)
+            LOGGER.info("    did hash comp: %s", dist)
         except BinstarError:
-            print("    did not do hash comp:", dist)
+            LOGGER.info("    did not do hash comp: %s", dist)
             pass
 
     return valid
@@ -301,9 +304,9 @@ def is_valid_feedstock_output(project, outputs, register=True):
                 # no output exists, so we can add it
                 valid[dist] = True
 
-                print("    does not exist|valid: %s|%s" % (o, valid[dist]))
+                LOGGER.info("    does not exist|valid: %s|%s" % (o, valid[dist]))
                 if register:
-                    print("    registered:", o)
+                    LOGGER.info("    registered: %s", o)
                     with open(pth, "w") as fp:
                         json.dump({"feedstocks": [feedstock]}, fp)
                     _run_git_command("add", pth, cwd=repo_path)
@@ -319,7 +322,7 @@ def is_valid_feedstock_output(project, outputs, register=True):
                 with open(pth, "r") as fp:
                     data = json.load(fp)
                 valid[dist] = feedstock in data["feedstocks"]
-                print("    checked|valid: %s|%s" % (o, valid[dist]))
+                LOGGER.info("    checked|valid: %s|%s" % (o, valid[dist]))
 
         if register and made_commit:
             _run_git_command("pull", "--commit", "--rebase", cwd=repo_path)

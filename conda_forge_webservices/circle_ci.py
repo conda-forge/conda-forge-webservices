@@ -1,5 +1,8 @@
 import requests
 import os
+import logging
+
+LOGGER = logging.getLogger("conda_forge_webservices.circle_ci")
 
 
 def update_circle(user, project):
@@ -11,7 +14,7 @@ def update_circle(user, project):
         with open(os.path.expanduser('~/.conda-smithy/circle.token'), 'r') as fh:
             circle_token = fh.read().strip()
     except IOError:
-        print(
+        LOGGER.warning(
             'No circle token.  Create a token at https://circleci.com/account/api and\n'
             'put it in ~/.conda-smithy/circle.token')
 

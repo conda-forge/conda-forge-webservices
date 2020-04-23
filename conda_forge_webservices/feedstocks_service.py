@@ -4,9 +4,12 @@ import os
 import time
 import tempfile
 import shutil
+import logging
 
 from collections import namedtuple
 # from .utils import tmp_directory
+
+LOGGER = logging.getLogger("conda_forge_webservices.feedstocks_service")
 
 
 def handle_feedstock_event(org_name, repo_name):
@@ -56,7 +59,7 @@ def update_listing():
             depth=1,
         )
         feedstocks_page_dir = os.path.dirname(feedstocks_page_repo.git_dir)
-        print("    listing clone:", time.time() - t0)
+        LOGGER.info("    listing clone: %s", time.time() - t0)
 
         t0 = time.time()
         Feedstock = namedtuple("Feedstock", ["name", "package_name"])
@@ -86,7 +89,7 @@ def update_listing():
         feedstocks_page_repo.index.add([os.path.relpath(
             nojekyll, feedstocks_page_dir
         )])
-        print("    listing render:", time.time() - t0)
+        LOGGER.info("    listing render: %s", time.time() - t0)
 
         t0 = time.time()
         if feedstocks_page_repo.is_dirty(working_tree=False, untracked_files=True):
@@ -100,7 +103,7 @@ def update_listing():
             )
             feedstocks_page_repo.remote().pull(rebase=True)
             feedstocks_page_repo.remote().push()
-        print("    listing push:", time.time() - t0)
+        LOGGER.info("    listing push: %s", time.time() - t0)
 
     finally:
         if tmp_dir is not None:
@@ -124,7 +127,7 @@ def update_feedstock(org_name, repo_name):
             tmp_dir,
             depth=1,
         )
-        print("    update clone:", time.time() - t0)
+        LOGGER.info("    update clone: %s", time.time() - t0)
 
         t0 = time.time()
         # Get the submodule
@@ -143,7 +146,7 @@ def update_feedstock(org_name, repo_name):
             to_latest_revision=True
         )
         feedstocks_repo.git.add([".gitmodules", feedstock_submodule.path])
-        print("    update submodule:", time.time() - t0)
+        LOGGER.info("    update submodule: %s", time.time() - t0)
 
         t0 = time.time()
         # Submit changes
@@ -158,7 +161,7 @@ def update_feedstock(org_name, repo_name):
             )
             feedstocks_repo.remote().pull(rebase=True)
             feedstocks_repo.remote().push()
-        print("    update push:", time.time() - t0)
+        LOGGER.info("    update push: %s", time.time() - t0)
 
     finally:
         if tmp_dir is not None:

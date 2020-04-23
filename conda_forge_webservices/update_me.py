@@ -3,11 +3,14 @@ import subprocess
 import json
 import tempfile
 import shutil
+import logging
 
 from git import Repo
 import requests
 
 # from .utils import tmp_directory
+
+LOGGER = logging.getLogger("conda_forge_webservices.update_me")
 
 PKGS = ["conda-build", "conda-smithy", "conda-forge-pinning"]
 
@@ -53,7 +56,7 @@ def main():
         available_versions = [p.version for p in r.get_pkgs(MatchSpec(pkg))]
         available_versions = sorted(available_versions, key=VersionOrder)
         latest_version = available_versions[-1]
-        print("%s|latest|installed:" % pkg, latest_version, installed_vers[pkg])
+        LOGGER.info("%s|latest|installed:" % pkg, latest_version, installed_vers[pkg])
         if VersionOrder(latest_version) != VersionOrder(installed_vers[pkg]):
             to_install[pkg] = latest_version
             final_install[pkg] = latest_version

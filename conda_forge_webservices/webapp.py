@@ -29,7 +29,7 @@ from conda_forge_webservices.feedstock_outputs import (
     is_valid_feedstock_output,
 )
 
-LOGGER = logging.getLogger("cfweb")
+LOGGER = logging.getLogger("conda_forge_webservices")
 
 POOL = None
 
@@ -632,9 +632,7 @@ def create_webapp():
 
 
 def main():
-
-    from tornado.log import enable_pretty_logging
-    enable_pretty_logging(logger=LOGGER)
+    tornado.log.enable_pretty_logging()
 
     import argparse
     parser = argparse.ArgumentParser()
