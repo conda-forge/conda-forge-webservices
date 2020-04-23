@@ -53,20 +53,13 @@ def register_feedstock_token_handler(feedstock):
     error : bool
         True if there is an error, False otherwise.
     """
-    if feedstock.endswith("-feedstock"):
-        feedstock_name = feedstock[:-len("-feedstock")]
-    else:
-        feedstock_name = feedstock
 
-    feedstock_url = "https://github.com/conda-forge/%s-feedstock.git" % feedstock_name
-    token_path = os.path.expanduser(
-        "~/.conda-smithy/conda-forge_%s_feedstock.token" % feedstock_name
-    )
+    feedstock_url = "https://github.com/conda-forge/%s.git" % feedstock
 
     tmpdir = None
     try:
         tmpdir = tempfile.mkdtemp('_recipe')
-        fspath = os.path.join(tmpdir, "%s-feedstock" % feedstock_name)
+        fspath = os.path.join(tmpdir, feedstock)
         try:
             _run_git_command(
                 "clone", "--depth=1",
@@ -91,7 +84,22 @@ def register_feedstock_token_handler(feedstock):
         if tmpdir is not None:
             shutil.rmtree(tmpdir)
 
+        # remove both paths due to change in smithy
         try:
+            if feedstock.endswith("-feedstock"):
+                feedstock_name = feedstock[:-len("-feedstock")]
+            else:
+                feedstock_name = feedstock
+            token_path = os.path.expanduser(
+                "~/.conda-smithy/conda-forge_%s_feedstock.token" % feedstock_name
+            )
+            os.remove(token_path)
+        except Exception:
+            pass
+
+        try:
+            token_path = os.path.expanduser(
+                "~/.conda-smithy/conda-forge_%s.token" % feedstock)
             os.remove(token_path)
         except Exception:
             pass

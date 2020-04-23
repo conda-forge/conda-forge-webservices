@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 import functools
 
+import requests
 import github
 from datetime import datetime
 
@@ -454,6 +455,14 @@ class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
         self.write(json.dumps(get_current_versions()))
 
 
+def _repo_exists(feedstock):
+    r = requests.get("https://github.com/conda-forge/%s" % feedstock)
+    if r.status_code != 200:
+        return False
+    else:
+        return True
+
+
 class OutputsValidationHandler(tornado.web.RequestHandler):
     async def post(self):
         data = tornado.escape.json_decode(self.request.body)
@@ -461,10 +470,15 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         outputs = data.get("outputs", None)
 
         print("\n===================================================")
-        print("validate outputs:", feedstock)
+        print("validate outputs for feedstock '%s'" % feedstock)
         print("===================================================")
 
-        if feedstock is None or outputs is None:
+        if (
+            feedstock is None
+            or outputs is None
+            or len(feedstock) == 0
+            or not _repo_exists(feedstock)
+        ):
             print(
                 "    invalid output validation request! "
                 "feedstock = %s outputs = %s" % (feedstock, outputs)
