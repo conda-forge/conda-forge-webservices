@@ -10,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 import functools
 import logging
-import sys
 
 import requests
 import github
@@ -633,13 +632,7 @@ def create_webapp():
 
 
 def main():
-    # deal with logging
-    LOGGER.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(message)s')
-    handler.setFormatter(formatter)
-    LOGGER.addHandler(handler)
+    tornado.log.enable_pretty_logging()
 
     import argparse
     parser = argparse.ArgumentParser()
