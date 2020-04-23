@@ -29,7 +29,7 @@ from conda_forge_webservices.feedstock_outputs import (
     is_valid_feedstock_output,
 )
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger("cfweb")
 
 POOL = None
 
