@@ -216,11 +216,13 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
         if search is not None:
             my_comments = [comment for comment in my_comments
                            if search in comment.body]
-        my_last_comment = my_comments[-1]
+        if len(my_comments) > 0:
+            my_last_comment = my_comments[-1]
 
-    # Only comment if we haven't before, or if the message we have is different.
-    if my_last_comment is None or my_last_comment.body != message:
+    if my_last_comment is None:
         my_last_comment = issue.create_comment(message)
+    elif message != my_last_comment.body:
+        my_last_comment.edit(message)
 
     return my_last_comment
 
