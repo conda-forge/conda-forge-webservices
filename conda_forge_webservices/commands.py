@@ -10,6 +10,7 @@ import tempfile
 from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
+import logging
 
 # from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
@@ -17,6 +18,7 @@ from .update_teams import update_team
 from .circle_ci import update_circle
 import textwrap
 
+LOGGER = logging.getLogger("conda_forge_webservices.commands")
 
 pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
 COMMAND_PREFIX = re.compile(pre, re.I)
@@ -618,7 +620,7 @@ def relint(owner, repo_name, pr_num):
         repo_name == 'staged-recipes',
     )
     if not lint_info:
-        print('Linting was skipped.')
+        LOGGER.warning('Linting was skipped.')
     else:
         msg = comment_on_pr(owner, repo_name, pr, lint_info['message'], force=True)
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)

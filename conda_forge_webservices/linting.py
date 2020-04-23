@@ -4,12 +4,15 @@ import textwrap
 import time
 import tempfile
 import shutil
+import logging
 
 from git import GitCommandError, Repo
 import github
 import conda_smithy.lint_recipe
 
 # from .utils import tmp_directory
+
+LOGGER = logging.getLogger("conda_forge_webservices.linting")
 
 
 def find_recipes(a_dir):
@@ -117,7 +120,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                     recipe_dir, conda_forge=True, return_hints=True)
 
             except Exception as err:
-                print('LINTING ERROR:', err)
+                LOGGER.warning('LINTING ERROR: %s', err)
                 lints = [
                     "Failed to even lint the recipe, probably because "
                     "of a conda-smithy bug :cry:. "

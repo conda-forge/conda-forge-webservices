@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 import functools
 import logging
+import sys
 
 import requests
 import github
@@ -29,7 +30,7 @@ from conda_forge_webservices.feedstock_outputs import (
     is_valid_feedstock_output,
 )
 
-LOGGER = logging.getLogger("cfweb")
+LOGGER = logging.getLogger("conda_forge_webservices")
 
 POOL = None
 
@@ -632,9 +633,13 @@ def create_webapp():
 
 
 def main():
-
-    from tornado.log import enable_pretty_logging
-    enable_pretty_logging(logger=LOGGER)
+    # deal with logging
+    LOGGER.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(message)s')
+    handler.setFormatter(formatter)
+    LOGGER.addHandler(handler)
 
     import argparse
     parser = argparse.ArgumentParser()
