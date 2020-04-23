@@ -9,6 +9,7 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 import atexit
 import functools
+import logging
 
 import requests
 import github
@@ -27,6 +28,8 @@ from conda_forge_webservices.feedstock_outputs import (
     copy_feedstock_outputs,
     is_valid_feedstock_output,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 POOL = None
 
@@ -76,20 +79,22 @@ def print_rate_limiting_info_for_token(token, user):
         remaining=gh_api_remaining,
         total=gh_api_total, user=user,
     )
-    print("-"*len(msg))
-    print(msg)
-    print("Will reset in {time}.".format(time=gh_api_reset_time))
+    LOGGER.info(
+        "github api requests: %s - %s",
+        msg,
+        "Will reset in {time}.".format(time=gh_api_reset_time)
+    )
 
 
 def print_rate_limiting_info():
 
     d = [(os.environ['GH_TOKEN'], "conda-forge-linter")]
 
-    print("")
-    print("GitHub API Rate Limit Info:")
+    LOGGER.info("")
+    LOGGER.info("GitHub API Rate Limit Info:")
     for k, v in d:
         print_rate_limiting_info_for_token(k, v)
-    print("")
+    LOGGER.info("")
 
 
 def valid_request(body, signature):
@@ -113,7 +118,6 @@ class LintingHookHandler(tornado.web.RequestHandler):
             self.request.body,
             headers.get('X-Hub-Signature', ''),
         ):
-            print('invalid request!')
             self.set_status(403)
             self.write_error(403)
             return
@@ -152,9 +156,10 @@ class LintingHookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge,
             # and an open PR.
             if is_open and owner == 'conda-forge' and not stale:
-                print("\n===================================================")
-                print("linting:", body['repository']['full_name'])
-                print("===================================================")
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info("linting: %s", body['repository']['full_name'])
+                LOGGER.info("===================================================")
 
                 lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),
@@ -180,7 +185,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                     )
             print_rate_limiting_info()
         else:
-            print('Unhandled event "{}".'.format(event))
+            LOGGER.info('Unhandled event "{}".'.format(event))
             self.set_status(404)
             self.write_error(404)
 
@@ -194,7 +199,6 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             self.request.body,
             headers.get('X-Hub-Signature', ''),
         ):
-            print('invalid request!')
             self.set_status(403)
             self.write_error(403)
             return
@@ -225,9 +229,10 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 "[cf admin skip feedstocks]" not in commit_msg and
                 "[cf admin skip]" not in commit_msg
             ):
-                print("\n===================================================")
-                print("feedstocks service:", body['repository']['full_name'])
-                print("===================================================")
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info("feedstocks service: %s", body['repository']['full_name'])
+                LOGGER.info("===================================================")
                 handled = await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),
                     feedstocks_service.handle_feedstock_event,
@@ -238,7 +243,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                     print_rate_limiting_info()
                     return
         else:
-            print('Unhandled event "{}".'.format(event))
+            LOGGER.info('Unhandled event "{}".'.format(event))
         self.set_status(404)
         self.write_error(404)
 
@@ -252,7 +257,6 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             self.request.body,
             headers.get('X-Hub-Signature', ''),
         ):
-            print('invalid request!')
             self.set_status(403)
             self.write_error(403)
             return
@@ -284,9 +288,10 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 "[cf admin skip teams]" not in commit_msg and
                 "[cf admin skip]" not in commit_msg
             ):
-                print("\n===================================================")
-                print("updating team:", body['repository']['full_name'])
-                print("===================================================")
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info("updating team: %s", body['repository']['full_name'])
+                LOGGER.info("===================================================")
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),
                     update_teams.update_team,
@@ -297,7 +302,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 print_rate_limiting_info()
                 return
         else:
-            print('Unhandled event "{}".'.format(event))
+            LOGGER.info('Unhandled event "{}".'.format(event))
 
         self.set_status(404)
         self.write_error(404)
@@ -312,7 +317,6 @@ class CommandHookHandler(tornado.web.RequestHandler):
             self.request.body,
             headers.get('X-Hub-Signature', ''),
         ):
-            print('invalid request!')
             self.set_status(403)
             self.write_error(403)
             return
@@ -361,9 +365,10 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 comment = body['comment']['body']
 
             if comment:
-                print("\n===================================================")
-                print("PR command:", body['repository']['full_name'])
-                print("===================================================")
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info("PR command: %s", body['repository']['full_name'])
+                LOGGER.info("===================================================")
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),
@@ -402,9 +407,10 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 pull_request = True
             if pull_request and action != 'deleted':
                 comment = body['comment']['body']
-                print("\n===================================================")
-                print("PR command:", body['repository']['full_name'])
-                print("===================================================")
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info("PR command: %s", body['repository']['full_name'])
+                LOGGER.info("===================================================")
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),
@@ -427,9 +433,10 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 else:
                     comment = body['issue']['body']
 
-                print("\n===================================================")
-                print("issue command:", body['repository']['full_name'])
-                print("===================================================")
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info("issue command: %s", body['repository']['full_name'])
+                LOGGER.info("===================================================")
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),
@@ -444,7 +451,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 return
 
         else:
-            print('Unhandled event "{}".'.format(event))
+            LOGGER.info('Unhandled event "{}".'.format(event))
 
         self.set_status(404)
         self.write_error(404)
@@ -469,9 +476,10 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         feedstock = data.get("feedstock", None)
         outputs = data.get("outputs", None)
 
-        print("\n===================================================")
-        print("validate outputs for feedstock '%s'" % feedstock)
-        print("===================================================")
+        LOGGER.info("")
+        LOGGER.info("===================================================")
+        LOGGER.info("validate outputs for feedstock '%s'" % feedstock)
+        LOGGER.info("===================================================")
 
         if (
             feedstock is None
@@ -479,7 +487,7 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
             or len(feedstock) == 0
             or not _repo_exists(feedstock)
         ):
-            print(
+            LOGGER.warning(
                 "    invalid output validation request! "
                 "feedstock = %s outputs = %s" % (feedstock, outputs)
             )
@@ -497,7 +505,7 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
                 outputs,
             )
 
-            print("    valid:", valid)
+            LOGGER.info("    valid: %s", valid)
 
             self.write(json.dumps(valid))
 
@@ -516,9 +524,10 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         outputs = data.get("outputs", None)
         channel = data.get("channel", None)
 
-        print("\n===================================================")
-        print("copy outputs:", feedstock)
-        print("===================================================")
+        LOGGER.info("")
+        LOGGER.info("===================================================")
+        LOGGER.info("copy outputs for feedstock '%s'" % feedstock)
+        LOGGER.info("===================================================")
 
         if (
             feedstock_token is None
@@ -528,7 +537,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or not is_valid_feedstock_token(
                 "conda-forge", feedstock, feedstock_token, TOKENS_REPO)
         ):
-            print('    invalid outputs copy request for %s!' % feedstock)
+            LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
             self.set_status(403)
             self.write_error(403)
         else:
@@ -564,7 +573,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
 
-            print("    errors: %s\n    valid: %s\n    copied: %s" % (
+            LOGGER.info("    errors: %s\n    valid: %s\n    copied: %s" % (
                 errors, valid, copied))
 
         return
@@ -577,9 +586,10 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
         data = tornado.escape.json_decode(self.request.body)
         feedstock = data.get("feedstock", None)
 
-        print("\n===================================================")
-        print("token registration:", feedstock)
-        print("===================================================")
+        LOGGER.info("")
+        LOGGER.info("===================================================")
+        LOGGER.info("token registration for feedstock '%s'" % feedstock)
+        LOGGER.info("===================================================")
 
         if (
             feedstock_token is None
@@ -587,7 +597,7 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
             or not is_valid_feedstock_token(
                 "conda-forge", "staged-recipes", feedstock_token, TOKENS_REPO)
         ):
-            print('    invalid token registration request for %s!' % feedstock)
+            LOGGER.warning('    invalid token registration request for %s!' % feedstock)
             self.set_status(403)
             self.write_error(403)
         else:
@@ -598,11 +608,11 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
             )
 
             if register_error:
-                print('    failed token registration request for %s!' % feedstock)
+                LOGGER.info('    failed token registration request for %s!' % feedstock)
                 self.set_status(403)
                 self.write_error(403)
             else:
-                print('    token registration request for %s worked!' % feedstock)
+                LOGGER.info('    token registration request for %s worked!' % feedstock)
 
         return
 
@@ -622,6 +632,10 @@ def create_webapp():
 
 
 def main():
+
+    from tornado.log import enable_pretty_logging
+    enable_pretty_logging(logger=LOGGER)
+
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -638,10 +652,11 @@ def main():
     # https://devcenter.heroku.com/articles/optimizing-dyno-usage#python
     n_processes = int(os.environ.get("WEB_CONCURRENCY", 1))
 
-    print("starting server w/ %d processes" % n_processes)
+    LOGGER.info("starting server w/ %d processes", n_processes)
 
     if args.local:
-        print("server address: http://127.0.0.1:5000/conda-webservice-update/versions")
+        LOGGER.info(
+            "server address: http://127.0.0.1:5000/conda-webservice-update/versions")
         http_server.listen(5000, address='127.0.0.1')
     else:
         if n_processes != 1:
