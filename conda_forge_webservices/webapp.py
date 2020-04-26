@@ -6,7 +6,7 @@ import tornado.web
 import hmac
 import hashlib
 import json
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 import atexit
 import functools
 import logging
@@ -37,7 +37,7 @@ POOL = None
 def _thread_pool():
     global POOL
     if POOL is None:
-        POOL = ThreadPoolExecutor(max_workers=8)
+        POOL = ProcessPoolExecutor(max_workers=2)
     return POOL
 
 
