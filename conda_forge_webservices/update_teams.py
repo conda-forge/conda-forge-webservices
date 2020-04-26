@@ -3,12 +3,19 @@ import github
 import os
 import shutil
 import tempfile
+import io
+import logging
+
+from contextlib import redirect_stderr, redirect_stdout
+
 # from .utils import tmp_directory
 from conda_smithy.github import configure_github_team
 import textwrap
 from functools import lru_cache
 
 from ruamel.yaml import YAML
+
+LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
 
 @lru_cache(maxsize=None)
@@ -65,16 +72,19 @@ def update_team(org_name, repo_name, commit=None):
                     keep_lines.append(line)
         meta = DummyMeta("".join(keep_lines))
 
-        (
-            current_maintainers,
-            prev_maintainers,
-            new_conda_forge_members,
-        ) = configure_github_team(
-            meta,
-            gh_repo,
-            org,
-            repo_name.replace("-feedstock", ""),
-        )
+        with io.StringIO() as buf, redirect_stdout(buf), redirect_stderr(buf):
+            (
+                current_maintainers,
+                prev_maintainers,
+                new_conda_forge_members,
+            ) = configure_github_team(
+                meta,
+                gh_repo,
+                org,
+                repo_name.replace("-feedstock", ""),
+            )
+
+            LOGGER.info(buf.getvalue())
 
         if commit:
             message = textwrap.dedent("""
