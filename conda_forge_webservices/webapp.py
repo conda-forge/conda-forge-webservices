@@ -632,7 +632,13 @@ def create_webapp():
 
 
 def main():
+    # start logging and reset the log format to make it a bit easier to read
     tornado.log.enable_pretty_logging()
+    from tornado.log import LogFormatter
+    my_log_formatter = LogFormatter(fmt='%(message)s', color=True)
+    root_logger = logging.getLogger()
+    root_streamhandler = root_logger.handlers[0]
+    root_streamhandler.setFormatter(my_log_formatter)
 
     import argparse
     parser = argparse.ArgumentParser()
