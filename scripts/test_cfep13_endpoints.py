@@ -87,7 +87,7 @@ def test_feedstock_tokens_register_token_exists():
             "feedstock": "cf-autotick-bot-test-package-feedstock",
         },
     )
-    assert r.status_code == 403
+    assert r.status_code == 200
 
 
 def test_feedstock_tokens_register_not_a_feedstock():
