@@ -244,7 +244,7 @@ def test_is_valid_output_hash():
 @pytest.mark.parametrize("must_explicitly_exist", [True, False])
 @pytest.mark.parametrize("register", [True, False])
 @pytest.mark.parametrize(
-    "project", ["foo", "foo-feedstock", "blah", "blarg", "boo"]
+    "project", ["foo-feedstock", "blah-feedstock", "blarg-feedstock", "boo-feedstock"]
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.shutil.rmtree")
 @mock.patch("conda_forge_webservices.feedstock_outputs.tempfile.mkdtemp")

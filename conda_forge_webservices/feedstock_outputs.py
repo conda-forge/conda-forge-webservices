@@ -284,7 +284,7 @@ def is_valid_feedstock_output(
         A dict keyed on output name with True if it is valid and False
         otherwise.
     """
-    feedstock = project.replace("-feedstock", "")
+    feedstock = project[:-len("-feedstock")]
 
     valid = {o: False for o in outputs}
     made_commit = False
