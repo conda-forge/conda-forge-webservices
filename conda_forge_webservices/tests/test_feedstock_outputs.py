@@ -195,6 +195,7 @@ def test_validate_feedstock_outputs_winonly(
         "bar-feedstock",
         hashes,
         register=False,
+        must_explicitly_exist=True,
     )
 
     assert valid == {
@@ -240,6 +241,7 @@ def test_is_valid_output_hash():
     }
 
 
+@pytest.mark.parametrize("must_explicitly_exist", [True, False])
 @pytest.mark.parametrize("register", [True, False])
 @pytest.mark.parametrize(
     "project", ["foo", "foo-feedstock", "blah", "blarg", "boo"]
@@ -248,7 +250,8 @@ def test_is_valid_output_hash():
 @mock.patch("conda_forge_webservices.feedstock_outputs.tempfile.mkdtemp")
 @mock.patch("conda_forge_webservices.feedstock_outputs._run_git_command")
 def test_is_valid_feedstock_output(
-    git_mock, tmp_mock, rm_mock, tmpdir, monkeypatch, project, register
+    git_mock, tmp_mock, rm_mock, tmpdir, monkeypatch, project, register,
+    must_explicitly_exist
 ):
     tmp_mock.return_value = str(tmpdir)
     monkeypatch.setenv("GH_TOKEN", "abc123")
@@ -274,7 +277,7 @@ def test_is_valid_feedstock_output(
     ]
 
     valid = is_valid_feedstock_output(
-        project, outputs, register=register
+        project, outputs, register=register, must_explicitly_exist=must_explicitly_exist
     )
 
     rm_mock.assert_any_call(str(tmpdir))
@@ -291,28 +294,28 @@ def test_is_valid_feedstock_output(
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
     elif project == "blah":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
     elif project == "blarg":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": True,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
     elif project == "boo":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
 
-    if register:
+    if register and not must_explicitly_exist:
         assert os.path.exists(
             os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"))
         with open(

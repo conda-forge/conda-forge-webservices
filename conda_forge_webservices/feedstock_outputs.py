@@ -256,7 +256,9 @@ def _is_valid_output_hash(outputs):
     return valid
 
 
-def is_valid_feedstock_output(project, outputs, register=True):
+def is_valid_feedstock_output(
+    project, outputs, register=True, must_explicitly_exist=False
+):
     """Test if feedstock outputs are valid (i.e., the outputs are allowed for that
     feedstock). Optionally register them if they do not exist.
 
@@ -268,9 +270,13 @@ def is_valid_feedstock_output(project, outputs, register=True):
         A list of ouputs top validate. The list entries should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
-    register : bool
+    register : bool, optional
         If True, attempt to register any outputs that do not exist by pushing
         the proper json blob to `output_repo`. Default is True.
+    must_explicitly_exist : bool, optional
+        If True, the output must be already registered and exist for it to be
+        valid. This option is used for appveyor-only uploads where we cannot
+        verify the request.
 
     Returns
     -------
@@ -307,22 +313,23 @@ def is_valid_feedstock_output(project, outputs, register=True):
             pth = os.path.join(repo_path, "outputs", o + ".json")
 
             if not os.path.exists(pth):
-                # no output exists, so we can add it
-                valid[dist] = True
+                if not must_explicitly_exist:
+                    # no output exists and we can add it
+                    valid[dist] = True
 
-                LOGGER.info("    does not exist|valid: %s|%s" % (o, valid[dist]))
-                if register:
-                    LOGGER.info("    registered: %s", o)
-                    with open(pth, "w") as fp:
-                        json.dump({"feedstocks": [feedstock]}, fp)
-                    _run_git_command("add", pth, cwd=repo_path)
-                    _run_git_command(
-                        "commit",
-                        "-m",
-                        "'added output %s for conda-forge/%s'" % (o, feedstock),
-                        cwd=repo_path
-                    )
-                    made_commit = True
+                    LOGGER.info("    does not exist|valid: %s|%s" % (o, valid[dist]))
+                    if register:
+                        LOGGER.info("    registered: %s", o)
+                        with open(pth, "w") as fp:
+                            json.dump({"feedstocks": [feedstock]}, fp)
+                        _run_git_command("add", pth, cwd=repo_path)
+                        _run_git_command(
+                            "commit",
+                            "-m",
+                            "'added output %s for conda-forge/%s'" % (o, feedstock),
+                            cwd=repo_path
+                        )
+                        made_commit = True
             else:
                 # make sure feedstock is ok
                 with open(pth, "r") as fp:
@@ -394,7 +401,10 @@ def validate_feedstock_outputs(
     valid_outputs = is_valid_feedstock_output(
         project,
         outputs_to_test,
+        # for win-only uploads on appveyor we must have already registered
+        # the output and we cannot register new outputs
         register=not win_only,
+        must_explicitly_exist=win_only,
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test)
