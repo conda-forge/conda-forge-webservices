@@ -116,35 +116,9 @@ def test_copy_feedstock_outputs_does_no_exist(
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
 @mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
-def test_validate_feedstock_outputs_badtoken(
-    valid_token, valid_out, valid_hash
-):
-    valid_token.return_value = False
-    valid, errs = validate_feedstock_outputs(
-        "bar-feedstock",
-        {
-            "noarch/a-0.1-py_0.tar.bz2": "sadas",
-            "noarch/b-0.2-py_0.tar.bz2": "sadKJHSAL",
-        },
-        "abc",
-        False,
-    )
-
-    assert not any(v for v in valid.values())
-    assert ["invalid feedstock token"] == errs
-
-    valid_out.assert_not_called()
-    valid_hash.assert_not_called()
-
-
-@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
 def test_validate_feedstock_outputs_badoutputhash(
-    valid_token, valid_out, valid_hash
+    valid_out, valid_hash
 ):
-    valid_token.return_value = True
     valid_out.return_value = {
         "noarch/a-0.1-py_0.tar.bz2": True,
         "noarch/b-0.1-py_0.tar.bz2": False,
@@ -188,11 +162,9 @@ def test_validate_feedstock_outputs_badoutputhash(
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
 @mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
 def test_validate_feedstock_outputs_winonly(
-    valid_token, valid_out, valid_hash
+    valid_out, valid_hash
 ):
-    valid_token.return_value = True
     valid_out.return_value = {
         "noarch/a-0.1-py_0.tar.bz2": True,
         "noarch/b-0.1-py_0.tar.bz2": True,
