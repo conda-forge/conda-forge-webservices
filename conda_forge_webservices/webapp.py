@@ -563,8 +563,8 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 win_only = False
             else:
                 assert feedstock in appveyor_ok_list
-                # we have authenticated with the appveyor token, so we
-                # can only upload win packages
+                # we did not have a correct token but we are in the list, so
+                # win only
                 win_only = True
 
             valid, errors = await tornado.ioloop.IOLoop.current().run_in_executor(
