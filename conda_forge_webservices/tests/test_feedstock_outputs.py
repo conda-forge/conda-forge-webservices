@@ -193,7 +193,7 @@ def test_validate_feedstock_outputs_winonly(
 
     valid_out.assert_any_call(
         "bar-feedstock",
-        list(hashes.keys()),
+        hashes,
         register=False,
     )
 
