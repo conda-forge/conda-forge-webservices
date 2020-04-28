@@ -562,6 +562,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             ):
                 win_only = False
             else:
+                assert feedstock in appveyor_ok_list
                 # we have authenticated with the appveyor token, so we
                 # can only upload win packages
                 win_only = True
