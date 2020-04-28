@@ -128,6 +128,7 @@ def test_validate_feedstock_outputs_badtoken(
             "noarch/b-0.2-py_0.tar.bz2": "sadKJHSAL",
         },
         "abc",
+        False,
     )
 
     assert not any(v for v in valid.values())
@@ -165,6 +166,7 @@ def test_validate_feedstock_outputs_badoutputhash(
             "noarch/d-0.1-py_0.tar.bz2": "SAdsa",
         },
         "abc",
+        False,
     )
 
     assert valid == {
@@ -182,6 +184,48 @@ def test_validate_feedstock_outputs_badoutputhash(
         "conda-forge/bar-feedstock") in errs
     assert "output noarch/a-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
     assert "output noarch/d-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
+
+
+@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
+@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
+@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
+def test_validate_feedstock_outputs_winonly(
+    valid_token, valid_out, valid_hash
+):
+    valid_token.return_value = True
+    valid_out.return_value = {
+        "noarch/a-0.1-py_0.tar.bz2": True,
+        "noarch/b-0.1-py_0.tar.bz2": True,
+        "noarch/c-0.1-py_0.tar.bz2": True,
+        "win-64/d-0.1-py_0.tar.bz2": True,
+    }
+    valid_hash.return_value = {
+        "noarch/a-0.1-py_0.tar.bz2": True,
+        "noarch/b-0.1-py_0.tar.bz2": True,
+        "noarch/c-0.1-py_0.tar.bz2": True,
+        "win-64/d-0.1-py_0.tar.bz2": True,
+    }
+    valid, errs = validate_feedstock_outputs(
+        "bar-feedstock",
+        {
+            "noarch/a-0.1-py_0.tar.bz2": "daD",
+            "noarch/b-0.1-py_0.tar.bz2": "safdsa",
+            "noarch/c-0.1-py_0.tar.bz2": "sadSA",
+            "win-64/d-0.1-py_0.tar.bz2": "SAdsa",
+        },
+        "abc",
+        True,
+    )
+
+    assert valid == {
+        "noarch/a-0.1-py_0.tar.bz2": False,
+        "noarch/b-0.1-py_0.tar.bz2": False,
+        "noarch/c-0.1-py_0.tar.bz2": False,
+        "win-64/d-0.1-py_0.tar.bz2": True,
+    }
+    assert len(errs) == 3
+    for err in errs:
+        assert "win-64-only copies" in err
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs.STAGING", new="conda-forge")

@@ -15,7 +15,6 @@ from binstar_client import BinstarError
 import binstar_client.errors
 
 from conda_smithy.feedstock_tokens import (
-    is_valid_feedstock_token,
     feedstock_token_exists,
 )
 
@@ -346,6 +345,7 @@ def validate_feedstock_outputs(
     project,
     outputs,
     feedstock_token,
+    win_only,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -360,6 +360,9 @@ def validate_feedstock_outputs(
     feedstock_token : str
         The secret token used to validate that this feedstock is who it says
         it is.
+    win_only : bool
+        If True, only outputs in the win-64 subdir will be allowed. This option
+        is used for appveyor only uploads.
 
     Returns
     -------
@@ -370,11 +373,6 @@ def validate_feedstock_outputs(
         A list of any errors encountered.
     """
     valid = {o: False for o in outputs}
-
-    if not is_valid_feedstock_token(
-        "conda-forge", project, feedstock_token, TOKENS_REPO
-    ):
-        return valid, ["invalid feedstock token"]
 
     errors = []
 
@@ -414,5 +412,15 @@ def validate_feedstock_outputs(
             errors.extend(_errors)
         else:
             valid[o] = True
+
+    # this has to come last
+    if win_only:
+        for o in outputs_to_test:
+            plat, _, _, _ = parse_conda_pkg(o)
+            if plat != "win-64":
+                valid[o] = False
+                errors.append(
+                    "output %s is not allowed for win-64-only copies" % o
+                )
 
     return valid, errors
