@@ -14,7 +14,10 @@ from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
 import binstar_client.errors
 
-from conda_smithy.feedstock_tokens import is_valid_feedstock_token
+from conda_smithy.feedstock_tokens import (
+    is_valid_feedstock_token,
+    feedstock_token_exists,
+)
 
 from .utils import parse_conda_pkg
 
@@ -61,6 +64,10 @@ def register_feedstock_token_handler(feedstock):
 
     tmpdir = None
     try:
+        if feedstock_token_exists("conda-forge", feedstock, TOKENS_REPO):
+            LOGGER.info("    feedstock token already exists")
+            return False
+
         tmpdir = tempfile.mkdtemp('_recipe')
         fspath = os.path.join(tmpdir, feedstock)
         try:
