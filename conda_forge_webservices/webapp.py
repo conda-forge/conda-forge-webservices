@@ -600,8 +600,9 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
 
-            LOGGER.info("    errors: %s\n    valid: %s\n    copied: %s" % (
-                errors, valid, copied))
+            LOGGER.info("    errors: %s", errors)
+            LOGGER.info("    valid: %s", valid)
+            LOGGER.info("    copied: %s", copied)
 
         return
 

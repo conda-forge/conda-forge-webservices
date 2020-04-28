@@ -394,7 +394,7 @@ def validate_feedstock_outputs(
     valid_outputs = is_valid_feedstock_output(
         project,
         outputs_to_test,
-        register=True,
+        register=not win_only,
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test)

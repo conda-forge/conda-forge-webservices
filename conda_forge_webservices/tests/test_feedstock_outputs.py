@@ -177,16 +177,24 @@ def test_validate_feedstock_outputs_winonly(
         "noarch/c-0.1-py_0.tar.bz2": True,
         "win-64/d-0.1-py_0.tar.bz2": True,
     }
+    hashes = {
+        "noarch/a-0.1-py_0.tar.bz2": "daD",
+        "noarch/b-0.1-py_0.tar.bz2": "safdsa",
+        "noarch/c-0.1-py_0.tar.bz2": "sadSA",
+        "win-64/d-0.1-py_0.tar.bz2": "SAdsa",
+    }
+
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
-        {
-            "noarch/a-0.1-py_0.tar.bz2": "daD",
-            "noarch/b-0.1-py_0.tar.bz2": "safdsa",
-            "noarch/c-0.1-py_0.tar.bz2": "sadSA",
-            "win-64/d-0.1-py_0.tar.bz2": "SAdsa",
-        },
+        hashes,
         "abc",
         True,
+    )
+
+    valid_out.assert_any_call(
+        "bar-feedstock",
+        list(hashes.keys()),
+        register=False,
     )
 
     assert valid == {
