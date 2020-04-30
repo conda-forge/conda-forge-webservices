@@ -171,6 +171,25 @@ def test_feedstock_outputs_copy_appveyor_ok_list():
     assert r.status_code == 200, r.status_code
 
 
+def test_feedstock_outputs_copy_appveyor_ok_list_badout():
+    r = requests.post(
+        "http://127.0.0.1:5000/feedstock-outputs/copy",
+        headers=headers,  # this has the staged recipes token
+        json={
+            "feedstock": "python-feedstock",
+            "outputs": {
+                "noarch/cf-autotick-bot-test-package-0.1-py_11.tar.bz2": "ababa",
+            },
+            "channel": "main",
+        },
+    )
+
+    assert r.status_code == 403, r.status_code
+
+    info = r.json()
+    assert any("win-64-only" in e for e in info["errors"])
+
+
 def test_feedstock_outputs_copy_missing_token():
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
