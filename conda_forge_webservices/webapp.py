@@ -547,6 +547,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or feedstock is None
             or outputs is None
             or channel is None
+            or not _repo_exists(feedstock)
             or not (
                 is_valid_feedstock_token(
                     "conda-forge", feedstock, feedstock_token, TOKENS_REPO)
