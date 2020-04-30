@@ -20,13 +20,12 @@ import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 from conda_forge_webservices.update_me import get_current_versions
-from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 from conda_forge_webservices.feedstock_outputs import (
-    TOKENS_REPO,
     register_feedstock_token_handler,
     validate_feedstock_outputs,
     copy_feedstock_outputs,
     is_valid_feedstock_output,
+    is_valid_feedstock_token_process,
 )
 
 LOGGER = logging.getLogger("conda_forge_webservices")
@@ -548,8 +547,8 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or outputs is None
             or channel is None
             or not (
-                is_valid_feedstock_token(
-                    "conda-forge", feedstock, feedstock_token, TOKENS_REPO)
+                is_valid_feedstock_token_process(
+                    "conda-forge", feedstock, feedstock_token)
                 or feedstock in appveyor_ok_list
             )
         ):
@@ -557,8 +556,8 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.set_status(403)
             self.write_error(403)
         else:
-            if is_valid_feedstock_token(
-                "conda-forge", feedstock, feedstock_token, TOKENS_REPO
+            if is_valid_feedstock_token_process(
+                "conda-forge", feedstock, feedstock_token
             ):
                 win_only = False
             else:
@@ -622,8 +621,8 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
         if (
             feedstock_token is None
             or feedstock is None
-            or not is_valid_feedstock_token(
-                "conda-forge", "staged-recipes", feedstock_token, TOKENS_REPO)
+            or not is_valid_feedstock_token_process(
+                "conda-forge", "staged-recipes", feedstock_token)
         ):
             LOGGER.warning('    invalid token registration request for %s!' % feedstock)
             self.set_status(403)

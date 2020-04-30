@@ -66,7 +66,7 @@ def _clone_and_remove(repo, file_to_remove):
 
 
 def test_feedstock_tokens_register_works():
-    file_to_remove = "tokens/cf-autotick-bot-test-package.json"
+    file_to_remove = "tokens/cf-autotick-bot-test-package-feedstock.json"
     _clone_and_remove(TOKENS_REPO, file_to_remove)
 
     r = requests.post(
