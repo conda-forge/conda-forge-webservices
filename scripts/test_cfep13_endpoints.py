@@ -157,6 +157,20 @@ def test_feedstock_outputs_copy_bad_token():
     assert r.status_code == 403, r.status_code
 
 
+def test_feedstock_outputs_copy_appveyor_ok_list():
+    r = requests.post(
+        "http://127.0.0.1:5000/feedstock-outputs/copy",
+        headers=headers,  # this has the staged recipes token
+        json={
+            "feedstock": "python-feedstock",
+            "outputs": {},
+            "channel": "main",
+        },
+    )
+
+    assert r.status_code == 200, r.status_code
+
+
 def test_feedstock_outputs_copy_missing_token():
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",

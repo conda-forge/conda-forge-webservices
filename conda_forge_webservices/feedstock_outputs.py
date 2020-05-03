@@ -15,7 +15,6 @@ from binstar_client import BinstarError
 import binstar_client.errors
 
 from conda_smithy.feedstock_tokens import (
-    is_valid_feedstock_token,
     feedstock_token_exists,
 )
 
@@ -257,7 +256,9 @@ def _is_valid_output_hash(outputs):
     return valid
 
 
-def is_valid_feedstock_output(project, outputs, register=True):
+def is_valid_feedstock_output(
+    project, outputs, register=True, must_explicitly_exist=False
+):
     """Test if feedstock outputs are valid (i.e., the outputs are allowed for that
     feedstock). Optionally register them if they do not exist.
 
@@ -269,9 +270,13 @@ def is_valid_feedstock_output(project, outputs, register=True):
         A list of ouputs top validate. The list entries should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
-    register : bool
+    register : bool, optional
         If True, attempt to register any outputs that do not exist by pushing
         the proper json blob to `output_repo`. Default is True.
+    must_explicitly_exist : bool, optional
+        If True, the output must be already registered and exist for it to be
+        valid. This option is used for appveyor-only uploads where we cannot
+        verify the request.
 
     Returns
     -------
@@ -279,7 +284,10 @@ def is_valid_feedstock_output(project, outputs, register=True):
         A dict keyed on output name with True if it is valid and False
         otherwise.
     """
-    feedstock = project.replace("-feedstock", "")
+    if project.endswith("-feedstock"):
+        feedstock = project[:-len("-feedstock")]
+    else:
+        feedstock = project
 
     valid = {o: False for o in outputs}
     made_commit = False
@@ -308,22 +316,23 @@ def is_valid_feedstock_output(project, outputs, register=True):
             pth = os.path.join(repo_path, "outputs", o + ".json")
 
             if not os.path.exists(pth):
-                # no output exists, so we can add it
-                valid[dist] = True
+                if not must_explicitly_exist:
+                    # no output exists and we can add it
+                    valid[dist] = True
 
-                LOGGER.info("    does not exist|valid: %s|%s" % (o, valid[dist]))
-                if register:
-                    LOGGER.info("    registered: %s", o)
-                    with open(pth, "w") as fp:
-                        json.dump({"feedstocks": [feedstock]}, fp)
-                    _run_git_command("add", pth, cwd=repo_path)
-                    _run_git_command(
-                        "commit",
-                        "-m",
-                        "'added output %s for conda-forge/%s'" % (o, feedstock),
-                        cwd=repo_path
-                    )
-                    made_commit = True
+                    LOGGER.info("    does not exist|valid: %s|%s" % (o, valid[dist]))
+                    if register:
+                        LOGGER.info("    registered: %s", o)
+                        with open(pth, "w") as fp:
+                            json.dump({"feedstocks": [feedstock]}, fp)
+                        _run_git_command("add", pth, cwd=repo_path)
+                        _run_git_command(
+                            "commit",
+                            "-m",
+                            "'added output %s for conda-forge/%s'" % (o, feedstock),
+                            cwd=repo_path
+                        )
+                        made_commit = True
             else:
                 # make sure feedstock is ok
                 with open(pth, "r") as fp:
@@ -346,6 +355,7 @@ def validate_feedstock_outputs(
     project,
     outputs,
     feedstock_token,
+    win_only,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -360,6 +370,9 @@ def validate_feedstock_outputs(
     feedstock_token : str
         The secret token used to validate that this feedstock is who it says
         it is.
+    win_only : bool
+        If True, only outputs in the win-64 subdir will be allowed. This option
+        is used for appveyor only uploads.
 
     Returns
     -------
@@ -370,11 +383,6 @@ def validate_feedstock_outputs(
         A list of any errors encountered.
     """
     valid = {o: False for o in outputs}
-
-    if not is_valid_feedstock_token(
-        "conda-forge", project, feedstock_token, TOKENS_REPO
-    ):
-        return valid, ["invalid feedstock token"]
 
     errors = []
 
@@ -396,7 +404,10 @@ def validate_feedstock_outputs(
     valid_outputs = is_valid_feedstock_output(
         project,
         outputs_to_test,
-        register=True,
+        # for win-only uploads on appveyor we must have already registered
+        # the output and we cannot register new outputs
+        register=not win_only,
+        must_explicitly_exist=win_only,
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test)
@@ -414,5 +425,15 @@ def validate_feedstock_outputs(
             errors.extend(_errors)
         else:
             valid[o] = True
+
+    # this has to come last
+    if win_only:
+        for o in outputs_to_test:
+            plat, _, _, _ = parse_conda_pkg(o)
+            if plat != "win-64":
+                valid[o] = False
+                errors.append(
+                    "output %s is not allowed for win-64-only copies" % o
+                )
 
     return valid, errors

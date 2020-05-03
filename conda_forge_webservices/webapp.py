@@ -515,6 +515,17 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         return
 
 
+def _get_appveyor_ok_list():
+    r = requests.get(
+        "https://raw.githubusercontent.com/conda-forge/"
+        "feedstock-outputs/master/appveyor_ok_list.json"
+    )
+    if r.status_code != 200:
+        return []
+    else:
+        return r.json()["ok"]
+
+
 class OutputsCopyHandler(tornado.web.RequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -524,29 +535,49 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         outputs = data.get("outputs", None)
         channel = data.get("channel", None)
 
+        appveyor_ok_list = _get_appveyor_ok_list()
+
         LOGGER.info("")
         LOGGER.info("===================================================")
         LOGGER.info("copy outputs for feedstock '%s'" % feedstock)
         LOGGER.info("===================================================")
 
         if (
-            feedstock_token is None
-            or feedstock is None
+            feedstock is None
             or outputs is None
             or channel is None
-            or not is_valid_feedstock_token(
-                "conda-forge", feedstock, feedstock_token, TOKENS_REPO)
+            or len(feedstock) == 0
+            or not _repo_exists(feedstock)
+            or not (
+                (
+                    feedstock_token is not None
+                    and is_valid_feedstock_token(
+                        "conda-forge", feedstock, feedstock_token, TOKENS_REPO)
+                )
+                or feedstock in appveyor_ok_list
+            )
         ):
             LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
             self.set_status(403)
             self.write_error(403)
         else:
+            if is_valid_feedstock_token(
+                "conda-forge", feedstock, feedstock_token, TOKENS_REPO
+            ):
+                win_only = False
+            else:
+                assert feedstock in appveyor_ok_list
+                # we did not have a correct token but we are in the list, so
+                # win only
+                win_only = True
+
             valid, errors = await tornado.ioloop.IOLoop.current().run_in_executor(
                 _thread_pool(),
                 validate_feedstock_outputs,
                 feedstock,
                 outputs,
                 feedstock_token,
+                win_only,
             )
 
             outputs_to_copy = {}
@@ -573,8 +604,9 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
 
-            LOGGER.info("    errors: %s\n    valid: %s\n    copied: %s" % (
-                errors, valid, copied))
+            LOGGER.info("    errors: %s", errors)
+            LOGGER.info("    valid: %s", valid)
+            LOGGER.info("    copied: %s", copied)
 
         return
 
@@ -594,6 +626,8 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
         if (
             feedstock_token is None
             or feedstock is None
+            or len(feedstock) == 0
+            or not _repo_exists(feedstock)
             or not is_valid_feedstock_token(
                 "conda-forge", "staged-recipes", feedstock_token, TOKENS_REPO)
         ):

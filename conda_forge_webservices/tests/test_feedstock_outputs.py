@@ -116,34 +116,9 @@ def test_copy_feedstock_outputs_does_no_exist(
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
 @mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
-def test_validate_feedstock_outputs_badtoken(
-    valid_token, valid_out, valid_hash
-):
-    valid_token.return_value = False
-    valid, errs = validate_feedstock_outputs(
-        "bar-feedstock",
-        {
-            "noarch/a-0.1-py_0.tar.bz2": "sadas",
-            "noarch/b-0.2-py_0.tar.bz2": "sadKJHSAL",
-        },
-        "abc",
-    )
-
-    assert not any(v for v in valid.values())
-    assert ["invalid feedstock token"] == errs
-
-    valid_out.assert_not_called()
-    valid_hash.assert_not_called()
-
-
-@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_token")
 def test_validate_feedstock_outputs_badoutputhash(
-    valid_token, valid_out, valid_hash
+    valid_out, valid_hash
 ):
-    valid_token.return_value = True
     valid_out.return_value = {
         "noarch/a-0.1-py_0.tar.bz2": True,
         "noarch/b-0.1-py_0.tar.bz2": False,
@@ -165,6 +140,7 @@ def test_validate_feedstock_outputs_badoutputhash(
             "noarch/d-0.1-py_0.tar.bz2": "SAdsa",
         },
         "abc",
+        False,
     )
 
     assert valid == {
@@ -182,6 +158,55 @@ def test_validate_feedstock_outputs_badoutputhash(
         "conda-forge/bar-feedstock") in errs
     assert "output noarch/a-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
     assert "output noarch/d-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
+
+
+@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
+@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
+def test_validate_feedstock_outputs_winonly(
+    valid_out, valid_hash
+):
+    valid_out.return_value = {
+        "noarch/a-0.1-py_0.tar.bz2": True,
+        "noarch/b-0.1-py_0.tar.bz2": True,
+        "noarch/c-0.1-py_0.tar.bz2": True,
+        "win-64/d-0.1-py_0.tar.bz2": True,
+    }
+    valid_hash.return_value = {
+        "noarch/a-0.1-py_0.tar.bz2": True,
+        "noarch/b-0.1-py_0.tar.bz2": True,
+        "noarch/c-0.1-py_0.tar.bz2": True,
+        "win-64/d-0.1-py_0.tar.bz2": True,
+    }
+    hashes = {
+        "noarch/a-0.1-py_0.tar.bz2": "daD",
+        "noarch/b-0.1-py_0.tar.bz2": "safdsa",
+        "noarch/c-0.1-py_0.tar.bz2": "sadSA",
+        "win-64/d-0.1-py_0.tar.bz2": "SAdsa",
+    }
+
+    valid, errs = validate_feedstock_outputs(
+        "bar-feedstock",
+        hashes,
+        "abc",
+        True,
+    )
+
+    valid_out.assert_any_call(
+        "bar-feedstock",
+        hashes,
+        register=False,
+        must_explicitly_exist=True,
+    )
+
+    assert valid == {
+        "noarch/a-0.1-py_0.tar.bz2": False,
+        "noarch/b-0.1-py_0.tar.bz2": False,
+        "noarch/c-0.1-py_0.tar.bz2": False,
+        "win-64/d-0.1-py_0.tar.bz2": True,
+    }
+    assert len(errs) == 3
+    for err in errs:
+        assert "win-64-only copies" in err
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs.STAGING", new="conda-forge")
@@ -216,15 +241,17 @@ def test_is_valid_output_hash():
     }
 
 
+@pytest.mark.parametrize("must_explicitly_exist", [True, False])
 @pytest.mark.parametrize("register", [True, False])
 @pytest.mark.parametrize(
-    "project", ["foo", "foo-feedstock", "blah", "blarg", "boo"]
+    "project", ["foo-feedstock", "blah", "foo", "blarg-feedstock", "boo-feedstock"]
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.shutil.rmtree")
 @mock.patch("conda_forge_webservices.feedstock_outputs.tempfile.mkdtemp")
 @mock.patch("conda_forge_webservices.feedstock_outputs._run_git_command")
 def test_is_valid_feedstock_output(
-    git_mock, tmp_mock, rm_mock, tmpdir, monkeypatch, project, register
+    git_mock, tmp_mock, rm_mock, tmpdir, monkeypatch, project, register,
+    must_explicitly_exist
 ):
     tmp_mock.return_value = str(tmpdir)
     monkeypatch.setenv("GH_TOKEN", "abc123")
@@ -250,7 +277,7 @@ def test_is_valid_feedstock_output(
     ]
 
     valid = is_valid_feedstock_output(
-        project, outputs, register=register
+        project, outputs, register=register, must_explicitly_exist=must_explicitly_exist
     )
 
     rm_mock.assert_any_call(str(tmpdir))
@@ -267,28 +294,28 @@ def test_is_valid_feedstock_output(
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
     elif project == "blah":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
     elif project == "blarg":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": True,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
     elif project == "boo":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
         }
 
-    if register:
+    if register and not must_explicitly_exist:
         assert os.path.exists(
             os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"))
         with open(
