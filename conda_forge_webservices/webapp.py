@@ -542,13 +542,17 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         LOGGER.info("===================================================")
 
         if (
-            feedstock_token is None
-            or feedstock is None
+            feedstock is None
             or outputs is None
             or channel is None
+            or len(feedstock) == 0
+            or not _repo_exists(feedstock)
             or not (
-                is_valid_feedstock_token_process(
-                    "conda-forge", feedstock, feedstock_token)
+                (
+                    feedstock_token is not None
+                    and is_valid_feedstock_token_process(
+                        "conda-forge", feedstock, feedstock_token)
+                )
                 or feedstock in appveyor_ok_list
             )
         ):
@@ -557,7 +561,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.write_error(403)
         else:
             if is_valid_feedstock_token_process(
-                "conda-forge", feedstock, feedstock_token
+                "conda-forge", feedstock, feedstock_token, TOKENS_REPO
             ):
                 win_only = False
             else:
@@ -621,6 +625,8 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
         if (
             feedstock_token is None
             or feedstock is None
+            or len(feedstock) == 0
+            or not _repo_exists(feedstock)
             or not is_valid_feedstock_token_process(
                 "conda-forge", "staged-recipes", feedstock_token)
         ):
