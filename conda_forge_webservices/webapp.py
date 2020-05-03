@@ -561,7 +561,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.write_error(403)
         else:
             if is_valid_feedstock_token_process(
-                "conda-forge", feedstock, feedstock_token, TOKENS_REPO
+                "conda-forge", feedstock, feedstock_token,
             ):
                 win_only = False
             else:
