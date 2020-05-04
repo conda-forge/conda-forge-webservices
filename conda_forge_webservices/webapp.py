@@ -20,13 +20,12 @@ import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 from conda_forge_webservices.update_me import get_current_versions
-from conda_smithy.feedstock_tokens import is_valid_feedstock_token
 from conda_forge_webservices.feedstock_outputs import (
-    TOKENS_REPO,
     register_feedstock_token_handler,
     validate_feedstock_outputs,
     copy_feedstock_outputs,
     is_valid_feedstock_output,
+    is_valid_feedstock_token_process,
 )
 
 LOGGER = logging.getLogger("conda_forge_webservices")
@@ -548,25 +547,30 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or channel is None
             or len(feedstock) == 0
             or not _repo_exists(feedstock)
+            or feedstock_token is None
             or not (
-                (
-                    feedstock_token is not None
-                    and is_valid_feedstock_token(
-                        "conda-forge", feedstock, feedstock_token, TOKENS_REPO)
+                is_valid_feedstock_token_process(
+                    "conda-forge", feedstock, feedstock_token)
+                or (
+                    feedstock in appveyor_ok_list
+                    and is_valid_feedstock_token_process(
+                        "conda-forge", "appveyor-is-ok", feedstock_token)
                 )
-                or feedstock in appveyor_ok_list
             )
         ):
             LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
             self.set_status(403)
             self.write_error(403)
         else:
-            if is_valid_feedstock_token(
-                "conda-forge", feedstock, feedstock_token, TOKENS_REPO
+            if is_valid_feedstock_token_process(
+                "conda-forge", feedstock, feedstock_token,
             ):
                 win_only = False
             else:
                 assert feedstock in appveyor_ok_list
+                assert is_valid_feedstock_token_process(
+                    "conda-forge", "appveyor-is-ok", feedstock_token
+                )
                 # we did not have a correct token but we are in the list, so
                 # win only
                 win_only = True
@@ -628,8 +632,8 @@ class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
             or feedstock is None
             or len(feedstock) == 0
             or not _repo_exists(feedstock)
-            or not is_valid_feedstock_token(
-                "conda-forge", "staged-recipes", feedstock_token, TOKENS_REPO)
+            or not is_valid_feedstock_token_process(
+                "conda-forge", "staged-recipes", feedstock_token)
         ):
             LOGGER.warning('    invalid token registration request for %s!' % feedstock)
             self.set_status(403)

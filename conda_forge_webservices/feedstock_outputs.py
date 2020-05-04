@@ -9,6 +9,7 @@ import subprocess
 import shutil
 import tempfile
 import logging
+import concurrent.futures
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
@@ -16,6 +17,7 @@ import binstar_client.errors
 
 from conda_smithy.feedstock_tokens import (
     feedstock_token_exists,
+    is_valid_feedstock_token,
 )
 
 from .utils import parse_conda_pkg
@@ -26,6 +28,30 @@ STAGING = "cf-staging"
 PROD = "conda-forge"
 OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 TOKENS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git"
+
+
+def is_valid_feedstock_token_process(user, project, feedstock_token):
+    """this function from smithy redirects stdout and stderr so we cannot
+    use it directly in a threaded code since this is a global side-effect.
+    """
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        fut = executor.submit(
+            is_valid_feedstock_token,
+            user, project, feedstock_token, TOKENS_REPO,
+        )
+        return fut.result()
+
+
+def feedstock_token_exists_process(user, project):
+    """this function from smithy redirects stdout and stderr so we cannot
+    use it directly in a threaded code since this is a global side-effect.
+    """
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        fut = executor.submit(
+            feedstock_token_exists,
+            user, project, TOKENS_REPO,
+        )
+        return fut.result()
 
 
 def _run_git_command(*args, cwd=None):
@@ -63,7 +89,7 @@ def register_feedstock_token_handler(feedstock):
 
     tmpdir = None
     try:
-        if feedstock_token_exists("conda-forge", feedstock, TOKENS_REPO):
+        if feedstock_token_exists_process("conda-forge", feedstock):
             LOGGER.info("    feedstock token already exists")
             return False
 

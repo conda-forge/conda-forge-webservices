@@ -40,7 +40,7 @@ from conda_forge_webservices.feedstock_outputs import (
     _get_ac_api_staging
 )
 
-token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes_feedstock.token"
+token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
 with open(os.path.expandvars(token_path), "r") as fp:
     sr_token = fp.read().strip()
 
