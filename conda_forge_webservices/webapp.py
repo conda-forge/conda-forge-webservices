@@ -547,13 +547,15 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or channel is None
             or len(feedstock) == 0
             or not _repo_exists(feedstock)
+            or feedstock_token is None
             or not (
-                (
-                    feedstock_token is not None
+                is_valid_feedstock_token_process(
+                    "conda-forge", feedstock, feedstock_token)
+                or (
+                    feedstock in appveyor_ok_list
                     and is_valid_feedstock_token_process(
-                        "conda-forge", feedstock, feedstock_token)
+                        "conda-forge", "appveyor-is-ok", feedstock_token)
                 )
-                or feedstock in appveyor_ok_list
             )
         ):
             LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
@@ -566,6 +568,9 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 win_only = False
             else:
                 assert feedstock in appveyor_ok_list
+                assert is_valid_feedstock_token_process(
+                    "conda-forge", "appveyor-is-ok", feedstock_token
+                )
                 # we did not have a correct token but we are in the list, so
                 # win only
                 win_only = True

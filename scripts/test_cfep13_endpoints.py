@@ -6,7 +6,8 @@ To run these tests
    python -u -m conda_forge_webservices.webapp --local
 
 2. Make sure you have valid CI tokens for smithy in your `${HOME}/.conda-smithy/`
-   directory, including the feedstock token for staged recipes.
+   directory, including the feedstock token for staged recipes and the feedstock
+   token for appveyor-is-ok
 
 3. Make sure you have a github token in the GH_TOKEN environment variable.
 
@@ -24,12 +25,21 @@ import pytest
 from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.feedstock_outputs import TOKENS_REPO, OUTPUTS_REPO
 
-token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes_feedstock.token"
+token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
 with open(os.path.expandvars(token_path), "r") as fp:
     sr_token = fp.read().strip()
 
 headers = {
     "FEEDSTOCK_TOKEN": sr_token,
+}
+
+
+appveyor_token_path = "${HOME}/.conda-smithy/conda-forge_appveyor-is-ok.token"
+with open(os.path.expandvars(appveyor_token_path), "r") as fp:
+    app_token = fp.read().strip()
+
+appveyor_headers = {
+    "FEEDSTOCK_TOKEN": app_token,
 }
 
 
@@ -160,7 +170,7 @@ def test_feedstock_outputs_copy_bad_token():
 def test_feedstock_outputs_copy_appveyor_ok_list():
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=headers,  # this has the staged recipes token
+        headers=appveyor_headers,
         json={
             "feedstock": "python-feedstock",
             "outputs": {},
@@ -171,10 +181,38 @@ def test_feedstock_outputs_copy_appveyor_ok_list():
     assert r.status_code == 200, r.status_code
 
 
-def test_feedstock_outputs_copy_appveyor_ok_list_badout():
+def test_feedstock_outputs_copy_appveyor_ok_list_badtoken():
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
         headers=headers,  # this has the staged recipes token
+        json={
+            "feedstock": "python-feedstock",
+            "outputs": {},
+            "channel": "main",
+        },
+    )
+
+    assert r.status_code == 403, r.status_code
+
+
+def test_feedstock_outputs_copy_appveyor_ok_list_notonlist():
+    r = requests.post(
+        "http://127.0.0.1:5000/feedstock-outputs/copy",
+        headers=appveyor_headers,
+        json={
+            "feedstock": "blah-feedstock",
+            "outputs": {},
+            "channel": "main",
+        },
+    )
+
+    assert r.status_code == 403, r.status_code
+
+
+def test_feedstock_outputs_copy_appveyor_ok_list_badout():
+    r = requests.post(
+        "http://127.0.0.1:5000/feedstock-outputs/copy",
+        headers=appveyor_headers,
         json={
             "feedstock": "python-feedstock",
             "outputs": {
@@ -193,7 +231,7 @@ def test_feedstock_outputs_copy_appveyor_ok_list_badout():
 def test_feedstock_outputs_copy_appveyor_ok_list_badout_python():
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=headers,  # this has the staged recipes token
+        headers=appveyor_headers,
         json={
             "feedstock": "python-feedstock",
             "outputs": {
