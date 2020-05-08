@@ -487,7 +487,7 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
     gh = github.Github(os.environ['GH_TOKEN'])
 
     message = """\
-Hi! This is the friendly automated conda-forge-webservice!
+Hi @conda-forge/%s! This is the friendly automated conda-forge-webservice!
 
 It appears that one or more of your feedstock's outputs did not copy from the
 staging channel to the conda-forge production channels. :(
@@ -496,9 +496,8 @@ This failure can happen for a lot of reasons, including an outdated feedstock
 token. Below we have put some information about the failure to help you debug it.
 
 If you have any issues or questions, you can find us on gitter in the
-community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or
-you can bump us right in this comment.
-"""
+community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or you can bump us right in this comment.
+""" % (feedstock[:-len("-feedstock")])  # noqa
 
     if len(valid) > 0:
         valid_msg = "output validation (is this output allowed for your feedstock?):\n"

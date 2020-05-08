@@ -19,6 +19,7 @@ import tempfile
 import subprocess
 import uuid
 
+import github
 import requests
 import pytest
 
@@ -41,6 +42,8 @@ with open(os.path.expandvars(appveyor_token_path), "r") as fp:
 appveyor_headers = {
     "FEEDSTOCK_TOKEN": app_token,
 }
+
+GH = github.Github(os.environ["GH_TOKEN"])
 
 
 def _run_git_command(*args):
@@ -154,6 +157,8 @@ def test_feedstock_outputs_validate_badoutput():
 
 
 def test_feedstock_outputs_copy_bad_token():
+    repo = GH.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
+    sha = repo.get_branch("master").commit.commit.sha
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
         headers=headers,  # this has the staged recipes token
@@ -161,6 +166,7 @@ def test_feedstock_outputs_copy_bad_token():
             "feedstock": "cf-autotick-bot-test-package-feedstock",
             "outputs": {},
             "channel": "main",
+            "git_sha": sha,
         },
     )
 
