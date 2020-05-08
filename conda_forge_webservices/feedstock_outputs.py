@@ -11,6 +11,8 @@ import tempfile
 import logging
 import concurrent.futures
 
+import github
+
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
 import binstar_client.errors
@@ -463,3 +465,64 @@ def validate_feedstock_outputs(
                 )
 
     return valid, errors
+
+
+def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
+    """Comment on a git commit if the feedstock output copy failed.
+
+    Parameters
+    ----------
+    feedstock : str
+        The name of the feedstock.
+    git_sha : str
+        The git SHA of the commit.
+    errors : list of str
+        A list of errors, if any.
+    valid : dict
+        A dictionary mapping outputs to where or not they were valid for the
+        feedstock.
+    copied : dict
+        A dictionary mapping outputs to whether or not they were copied.
+    """
+    gh = github.Github(os.environ['GH_TOKEN'])
+
+    message = """\
+Hi @conda-forge/%s! This is the friendly automated conda-forge-webservice!
+
+It appears that one or more of your feedstock's outputs did not copy from the
+staging channel to the conda-forge production channels. :(
+
+This failure can happen for a lot of reasons, including an outdated feedstock
+token. Below we have put some information about the failure to help you debug it.
+
+If you have any issues or questions, you can find us on gitter in the
+community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or you can bump us right in this comment.
+""" % (feedstock[:-len("-feedstock")])  # noqa
+
+    if len(valid) > 0:
+        valid_msg = "output validation (is this output allowed for your feedstock?):\n"
+        for o, v in valid.items():
+            valid_msg += " - **%s**: %s\n" % (o, v)
+
+        message += "\n\n"
+        message += valid_msg
+
+    if len(copied) > 0:
+        copied_msg = "copied (did this output get copied to the production channel?):\n"
+        for o, v in copied.items():
+            copied_msg += " - **%s**: %s\n" % (o, v)
+
+        message += "\n\n"
+        message += copied_msg
+
+    if len(errors) > 0:
+        error_msg = "error messages:\n"
+        for err in errors:
+            error_msg += " - %s" % err
+
+        message += "\n\n"
+        message += error_msg
+
+    repo = gh.get_repo("conda-forge/%s" % feedstock)
+    commit = repo.get_commit(git_sha)
+    commit.create_comment(message)

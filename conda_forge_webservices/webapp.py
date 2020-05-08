@@ -26,6 +26,7 @@ from conda_forge_webservices.feedstock_outputs import (
     copy_feedstock_outputs,
     is_valid_feedstock_output,
     is_valid_feedstock_token_process,
+    comment_on_outputs_copy,
 )
 
 LOGGER = logging.getLogger("conda_forge_webservices")
@@ -533,6 +534,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         feedstock = data.get("feedstock", None)
         outputs = data.get("outputs", None)
         channel = data.get("channel", None)
+        git_sha = data.get("git_sha", None)
 
         appveyor_ok_list = _get_appveyor_ok_list()
 
@@ -559,6 +561,18 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             )
         ):
             LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
+
+            if (
+                git_sha is not None
+                and feedstock is not None
+                and _repo_exists(feedstock)
+            ):
+                comment_on_outputs_copy(
+                    feedstock, git_sha,
+                    ["invalid copy request (either bad data or bad feedstock token)"],
+                    {}, {}
+                )
+
             self.set_status(403)
             self.write_error(403)
         else:
@@ -605,6 +619,10 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
             if not all(v for v in copied.values()):
                 self.set_status(403)
+
+            if git_sha is not None and not all(copied[o] for o in outputs):
+                comment_on_outputs_copy(
+                    feedstock, git_sha, errors, valid, copied)
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
 
