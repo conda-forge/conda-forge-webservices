@@ -582,6 +582,8 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.set_status(403)
             self.write_error(403)
 
+        return
+
         # if (
         #     feedstock is None
         #     or outputs is None
