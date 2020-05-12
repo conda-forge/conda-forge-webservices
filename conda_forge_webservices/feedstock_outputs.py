@@ -357,7 +357,8 @@ def is_valid_feedstock_output(
                         _run_git_command(
                             "commit",
                             "-m",
-                            "'added output %s for conda-forge/%s'" % (o, feedstock),
+                            "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added "
+                            "output %s for conda-forge/%s'" % (o, feedstock),
                             cwd=repo_path
                         )
                         made_commit = True
