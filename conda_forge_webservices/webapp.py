@@ -8,7 +8,7 @@ import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
 import atexit
-import functools
+# import functools
 import logging
 
 import requests
@@ -22,9 +22,9 @@ import conda_forge_webservices.commands as commands
 from conda_forge_webservices.update_me import get_current_versions
 from conda_forge_webservices.feedstock_outputs import (
     register_feedstock_token_handler,
-    validate_feedstock_outputs,
+    # validate_feedstock_outputs,
     copy_feedstock_outputs,
-    is_valid_feedstock_output,
+    # is_valid_feedstock_output,
     is_valid_feedstock_token_process,
     comment_on_outputs_copy,
 )
@@ -474,45 +474,50 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
     async def post(self):
         data = tornado.escape.json_decode(self.request.body)
         feedstock = data.get("feedstock", None)
-        outputs = data.get("outputs", None)
+        # outputs = data.get("outputs", None)
 
         LOGGER.info("")
         LOGGER.info("===================================================")
         LOGGER.info("validate outputs for feedstock '%s'" % feedstock)
         LOGGER.info("===================================================")
 
-        if (
-            feedstock is None
-            or outputs is None
-            or len(feedstock) == 0
-            or not _repo_exists(feedstock)
-        ):
-            LOGGER.warning(
-                "    invalid output validation request! "
-                "feedstock = %s outputs = %s" % (feedstock, outputs)
-            )
-            self.set_status(403)
-            self.write_error(403)
-        else:
-            _validate = functools.partial(
-                is_valid_feedstock_output,
-                register=False,
-            )
-            valid = await tornado.ioloop.IOLoop.current().run_in_executor(
-                _thread_pool(),
-                _validate,
-                feedstock,
-                outputs,
-            )
-
-            LOGGER.info("    valid: %s", valid)
-
-            self.write(json.dumps(valid))
-
-            if not all(v for v in valid.values()):
-                self.set_status(403)
-
+        # TODO
+        # FIXME - comment this later
+        self.write(json.dumps({"all_valid": True}))
         return
+
+        # if (
+        #     feedstock is None
+        #     or outputs is None
+        #     or len(feedstock) == 0
+        #     or not _repo_exists(feedstock)
+        # ):
+        #     LOGGER.warning(
+        #         "    invalid output validation request! "
+        #         "feedstock = %s outputs = %s" % (feedstock, outputs)
+        #     )
+        #     self.set_status(403)
+        #     self.write_error(403)
+        # else:
+        #     _validate = functools.partial(
+        #         is_valid_feedstock_output,
+        #         register=False,
+        #     )
+        #     valid = await tornado.ioloop.IOLoop.current().run_in_executor(
+        #         _thread_pool(),
+        #         _validate,
+        #         feedstock,
+        #         outputs,
+        #     )
+        #
+        #     LOGGER.info("    valid: %s", valid)
+        #
+        #     self.write(json.dumps(valid))
+        #
+        #     if not all(v for v in valid.values()):
+        #         self.set_status(403)
+        #
+        # return
 
 
 def _get_appveyor_ok_list():
@@ -528,109 +533,144 @@ def _get_appveyor_ok_list():
 
 class OutputsCopyHandler(tornado.web.RequestHandler):
     async def post(self):
-        headers = self.request.headers
-        feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
+        # headers = self.request.headers
+        # feedstock_token = headers.get('FEEDSTOCK_TOKEN', None)
         data = tornado.escape.json_decode(self.request.body)
         feedstock = data.get("feedstock", None)
         outputs = data.get("outputs", None)
         channel = data.get("channel", None)
         git_sha = data.get("git_sha", None)
 
-        appveyor_ok_list = _get_appveyor_ok_list()
+        # appveyor_ok_list = _get_appveyor_ok_list()
 
         LOGGER.info("")
         LOGGER.info("===================================================")
         LOGGER.info("copy outputs for feedstock '%s'" % feedstock)
         LOGGER.info("===================================================")
 
-        if (
-            feedstock is None
-            or outputs is None
-            or channel is None
-            or len(feedstock) == 0
-            or not _repo_exists(feedstock)
-            or feedstock_token is None
-            or not (
-                is_valid_feedstock_token_process(
-                    "conda-forge", feedstock, feedstock_token)
-                or (
-                    feedstock in appveyor_ok_list
-                    and is_valid_feedstock_token_process(
-                        "conda-forge", "appveyor-is-ok", feedstock_token)
-                )
-            )
-        ):
-            LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
-
-            if (
-                git_sha is not None
-                and feedstock is not None
-                and _repo_exists(feedstock)
-            ):
-                comment_on_outputs_copy(
-                    feedstock, git_sha,
-                    ["invalid copy request (either bad data or bad feedstock token)"],
-                    {}, {}
-                )
-
-            self.set_status(403)
-            self.write_error(403)
-        else:
-            if is_valid_feedstock_token_process(
-                "conda-forge", feedstock, feedstock_token,
-            ):
-                win_only = False
-            else:
-                assert feedstock in appveyor_ok_list
-                assert is_valid_feedstock_token_process(
-                    "conda-forge", "appveyor-is-ok", feedstock_token
-                )
-                # we did not have a correct token but we are in the list, so
-                # win only
-                win_only = True
-
-            valid, errors = await tornado.ioloop.IOLoop.current().run_in_executor(
+        if outputs is not None and channel is not None:
+            copied = await tornado.ioloop.IOLoop.current().run_in_executor(
                 _thread_pool(),
-                validate_feedstock_outputs,
-                feedstock,
+                copy_feedstock_outputs,
                 outputs,
-                feedstock_token,
-                win_only,
+                channel,
             )
-
-            outputs_to_copy = {}
-            for o in valid:
-                if valid[o]:
-                    outputs_to_copy[o] = outputs[o]
-
-            if outputs_to_copy:
-                copied = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    copy_feedstock_outputs,
-                    outputs_to_copy,
-                    channel,
-                )
-            else:
-                copied = {}
-
-            for o in outputs:
-                if o not in copied:
-                    copied[o] = False
 
             if not all(v for v in copied.values()):
                 self.set_status(403)
 
             if git_sha is not None and not all(copied[o] for o in outputs):
                 comment_on_outputs_copy(
-                    feedstock, git_sha, errors, valid, copied)
+                    feedstock, git_sha, ["some outputs did not copy"], {}, copied)
 
-            self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
+            self.write(json.dumps(
+                {"errors": ["some outputs did not copy"],
+                 "valid": {},
+                 "copied": copied}))
 
-            LOGGER.info("    errors: %s", errors)
-            LOGGER.info("    valid: %s", valid)
+            LOGGER.info("    errors: %s", ["some outputs did not copy"])
+            LOGGER.info("    valid: %s", {})
             LOGGER.info("    copied: %s", copied)
 
-        return
+        else:
+            if git_sha is not None and feedstock is not None:
+                comment_on_outputs_copy(
+                    feedstock, git_sha,
+                    ["invalid copy request (either bad data or bad feedstock token)"],
+                    {}, {}
+                )
+            self.set_status(403)
+            self.write_error(403)
+
+        # if (
+        #     feedstock is None
+        #     or outputs is None
+        #     or channel is None
+        #     or len(feedstock) == 0
+        #     or not _repo_exists(feedstock)
+        #     or feedstock_token is None
+        #     or not (
+        #         is_valid_feedstock_token_process(
+        #             "conda-forge", feedstock, feedstock_token)
+        #         or (
+        #             feedstock in appveyor_ok_list
+        #             and is_valid_feedstock_token_process(
+        #                 "conda-forge", "appveyor-is-ok", feedstock_token)
+        #         )
+        #     )
+        # ):
+        #     LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
+        #
+        #     if (
+        #         git_sha is not None
+        #         and feedstock is not None
+        #         and _repo_exists(feedstock)
+        #     ):
+        #         comment_on_outputs_copy(
+        #             feedstock, git_sha,
+        #             ["invalid copy request (either bad data or bad feedstock token)"],
+        #             {}, {}
+        #         )
+        #
+        #     self.set_status(403)
+        #     self.write_error(403)
+        # else:
+        #     if is_valid_feedstock_token_process(
+        #         "conda-forge", feedstock, feedstock_token,
+        #     ):
+        #         win_only = False
+        #     else:
+        #         assert feedstock in appveyor_ok_list
+        #         assert is_valid_feedstock_token_process(
+        #             "conda-forge", "appveyor-is-ok", feedstock_token
+        #         )
+        #         # we did not have a correct token but we are in the list, so
+        #         # win only
+        #         win_only = True
+        #
+        #     valid, errors = await tornado.ioloop.IOLoop.current().run_in_executor(
+        #         _thread_pool(),
+        #         validate_feedstock_outputs,
+        #         feedstock,
+        #         outputs,
+        #         feedstock_token,
+        #         win_only,
+        #     )
+        #
+        #     outputs_to_copy = {}
+        #     for o in valid:
+        #         if valid[o]:
+        #             outputs_to_copy[o] = outputs[o]
+        #
+        #     if outputs_to_copy:
+        #         copied = await tornado.ioloop.IOLoop.current().run_in_executor(
+        #             _thread_pool(),
+        #             copy_feedstock_outputs,
+        #             outputs_to_copy,
+        #             channel,
+        #         )
+        #     else:
+        #         copied = {}
+        #
+        #     for o in outputs:
+        #         if o not in copied:
+        #             copied[o] = False
+        #
+        #     if not all(v for v in copied.values()):
+        #         self.set_status(403)
+        #
+        #     if git_sha is not None and not all(copied[o] for o in outputs):
+        #         comment_on_outputs_copy(
+        #             feedstock, git_sha, errors, valid, copied)
+        #
+        #     self.write(json.dumps(
+        #         {"errors": errors, "valid": valid, "copied": copied}))
+        #
+        #     LOGGER.info("    errors: %s", errors)
+        #     LOGGER.info("    valid: %s", valid)
+        #     LOGGER.info("    copied: %s", copied)
+        #
+        # return
 
 
 class RegisterFeedstockTokenHandler(tornado.web.RequestHandler):
