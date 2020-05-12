@@ -329,7 +329,8 @@ def test_is_valid_feedstock_output(
         git_mock.assert_any_call(
             "commit",
             "-m",
-            "'added output %s for %s/%s'"
+            "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added output "
+            "%s for %s/%s'"
             % ("glob", user, project.replace("-feedstock", "")),
             cwd=repo_cwd
         )
@@ -342,7 +343,7 @@ def test_is_valid_feedstock_output(
         assert (
             "commit",
             "-m",
-            "added output %s for %s/%s"
+            "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added output %s for %s/%s"
             % ("glob", user, project.replace("-feedstock", ""))
         ) not in git_mock.call_args_list
         assert ("pull", "--commit", "--rebase") not in git_mock.call_args_list
