@@ -65,85 +65,6 @@ def _run_git_command(*args, cwd=None):
     )
 
 
-def _run_smithy_command(*args, cwd=None):
-    subprocess.run(
-        ["conda-smithy"] + list(args),
-        check=True,
-        cwd=cwd,
-    )
-
-
-def register_feedstock_token_handler(feedstock):
-    """Generate and register feedstock tokens.
-
-    Parameters
-    ----------
-    feedstock : str
-        The name of the feedstock.
-
-    Returns
-    -------
-    error : bool
-        True if there is an error, False otherwise.
-    """
-
-    feedstock_url = "https://github.com/conda-forge/%s.git" % feedstock
-
-    tmpdir = None
-    try:
-        if feedstock_token_exists_process("conda-forge", feedstock):
-            LOGGER.info("    feedstock token already exists")
-            return False
-
-        tmpdir = tempfile.mkdtemp('_recipe')
-        fspath = os.path.join(tmpdir, feedstock)
-        try:
-            _run_git_command(
-                "clone", "--depth=1",
-                feedstock_url, fspath,
-            )
-        except subprocess.CalledProcessError:
-            LOGGER.info("    could not clone the feedstock")
-            return True
-
-        try:
-            _run_smithy_command("generate-feedstock-token", cwd=fspath)
-        except subprocess.CalledProcessError:
-            LOGGER.info("    could not generate feedstock token")
-            return True
-
-        try:
-            _run_smithy_command("register-feedstock-token", cwd=fspath)
-        except subprocess.CalledProcessError:
-            LOGGER.info("    could not register feedstock token")
-            return True
-    finally:
-        if tmpdir is not None:
-            shutil.rmtree(tmpdir)
-
-        # remove both paths due to change in smithy
-        try:
-            if feedstock.endswith("-feedstock"):
-                feedstock_name = feedstock[:-len("-feedstock")]
-            else:
-                feedstock_name = feedstock
-            token_path = os.path.expanduser(
-                "~/.conda-smithy/conda-forge_%s_feedstock.token" % feedstock_name
-            )
-            os.remove(token_path)
-        except Exception:
-            pass
-
-        try:
-            token_path = os.path.expanduser(
-                "~/.conda-smithy/conda-forge_%s.token" % feedstock)
-            os.remove(token_path)
-        except Exception:
-            pass
-
-    return False
-
-
 def _get_ac_api_prod():
     """wrap this a function so we can more easily mock it when testing"""
     return get_server_api(token=os.environ["PROD_BINSTAR_TOKEN"])
@@ -284,7 +205,7 @@ def _is_valid_output_hash(outputs):
     return valid
 
 
-def is_valid_feedstock_output(
+def _is_valid_feedstock_output(
     project, outputs, register=True, must_explicitly_exist=False
 ):
     """Test if feedstock outputs are valid (i.e., the outputs are allowed for that
@@ -325,15 +246,11 @@ def is_valid_feedstock_output(
         tmpdir = tempfile.mkdtemp('_recipe')
         repo_path = os.path.join(tmpdir, "feedstock-outputs")
 
-        _run_git_command("clone", "--depth=1", OUTPUTS_REPO, repo_path)
-
+        shutil.copytree(os.environ["FEEDSTOCK_OUTPUTS_REPO"], repo_path)
         _run_git_command(
-            "remote",
-            "set-url",
-            "--push",
-            "origin",
-            OUTPUTS_REPO,
-            cwd=repo_path)
+            "pull",
+            cwd=repo_path,
+        )
 
         for dist in outputs:
             try:
@@ -430,7 +347,7 @@ def validate_feedstock_outputs(
 
     outputs_to_test = {o: v for o, v in outputs.items() if correctly_formatted[o]}
 
-    valid_outputs = is_valid_feedstock_output(
+    valid_outputs = _is_valid_feedstock_output(
         project,
         outputs_to_test,
         # for win-only uploads on appveyor we must have already registered

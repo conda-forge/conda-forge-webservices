@@ -9,7 +9,7 @@ import pytest
 from binstar_client import BinstarError
 
 from conda_forge_webservices.feedstock_outputs import (
-    is_valid_feedstock_output,
+    _is_valid_feedstock_output,
     _is_valid_output_hash,
     copy_feedstock_outputs,
     validate_feedstock_outputs,
@@ -115,7 +115,7 @@ def test_copy_feedstock_outputs_does_no_exist(
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
+@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
 def test_validate_feedstock_outputs_badoutputhash(
     valid_out, valid_hash
 ):
@@ -161,7 +161,7 @@ def test_validate_feedstock_outputs_badoutputhash(
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch("conda_forge_webservices.feedstock_outputs.is_valid_feedstock_output")
+@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
 def test_validate_feedstock_outputs_winonly(
     valid_out, valid_hash
 ):
@@ -246,15 +246,17 @@ def test_is_valid_output_hash():
 @pytest.mark.parametrize(
     "project", ["foo-feedstock", "blah", "foo", "blarg-feedstock", "boo-feedstock"]
 )
+@mock.patch("conda_forge_webservices.feedstock_outputs.shutil.copytree")
 @mock.patch("conda_forge_webservices.feedstock_outputs.shutil.rmtree")
 @mock.patch("conda_forge_webservices.feedstock_outputs.tempfile.mkdtemp")
 @mock.patch("conda_forge_webservices.feedstock_outputs._run_git_command")
 def test_is_valid_feedstock_output(
-    git_mock, tmp_mock, rm_mock, tmpdir, monkeypatch, project, register,
+    git_mock, tmp_mock, rm_mock, cp_mock, tmpdir, monkeypatch, project, register,
     must_explicitly_exist
 ):
     tmp_mock.return_value = str(tmpdir)
     monkeypatch.setenv("GH_TOKEN", "abc123")
+    monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
     os.makedirs(os.path.join(tmpdir, "feedstock-outputs", "outputs"), exist_ok=True)
     with open(
         os.path.join(tmpdir, "feedstock-outputs", "outputs", "bar.json"),
@@ -276,18 +278,16 @@ def test_is_valid_feedstock_output(
         "noarch/glob-0.2-py_12.tar.bz2",
     ]
 
-    valid = is_valid_feedstock_output(
+    valid = _is_valid_feedstock_output(
         project, outputs, register=register, must_explicitly_exist=must_explicitly_exist
     )
 
     rm_mock.assert_any_call(str(tmpdir))
 
     repo_cwd = os.path.join(tmpdir, "feedstock-outputs")
-    git_mock.assert_any_call(
-        "clone",
-        "--depth=1",
-        "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git",
-        repo_cwd,
+    cp_mock.assert_any_call(
+        "efg456",
+        repo_cwd
     )
 
     if project in ["foo", "foo-feedstock"]:
@@ -338,7 +338,7 @@ def test_is_valid_feedstock_output(
         git_mock.assert_any_call("pull", "--commit", "--rebase", cwd=repo_cwd)
         git_mock.assert_any_call("push", cwd=repo_cwd)
     else:
-        assert len(git_mock.call_args_list) == 2
+        assert len(git_mock.call_args_list) == 1
         assert ("add", "outputs/glob.json") not in git_mock.call_args_list
         assert (
             "commit",
