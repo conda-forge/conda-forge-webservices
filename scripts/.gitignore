@@ -1,2 +1,2 @@
 built_dists
-recipe/conda_build_config.yaml
+recipe/*
