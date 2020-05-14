@@ -35,7 +35,7 @@ POOL = None
 def _thread_pool():
     global POOL
     if POOL is None:
-        POOL = ThreadPoolExecutor(max_workers=8)
+        POOL = ThreadPoolExecutor(max_workers=2)
     return POOL
 
 
