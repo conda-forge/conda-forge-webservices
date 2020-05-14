@@ -42,11 +42,11 @@ class TestBucketHandler(TestHandlerBase):
                 'X-Hub-Signature': 'sha1=43abf34'})
         self.assertEqual(response.code, 403)
 
-    @mock.patch('conda_forge_webservices.webapp.compute_lint_message',
+    @mock.patch('conda_forge_webservices.webapp.linting.compute_lint_message',
                 return_value={'message': mock.sentinel.message})
-    @mock.patch('conda_forge_webservices.webapp.comment_on_pr',
+    @mock.patch('conda_forge_webservices.webapp.linting.comment_on_pr',
                 return_value=mock.MagicMock(html_url=mock.sentinel.html_url))
-    @mock.patch('conda_forge_webservices.webapp.set_pr_status')
+    @mock.patch('conda_forge_webservices.webapp.linting.set_pr_status')
     def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {'repository': {'name': 'repo_name-feedstock',
