@@ -487,6 +487,37 @@ def _get_appveyor_ok_list():
         return r.json()["ok"]
 
 
+def _do_copy(feedstock, outputs, win_only, channel, git_sha):
+    valid, errors = validate_feedstock_outputs(
+        feedstock,
+        outputs,
+        win_only,
+    )
+
+    outputs_to_copy = {}
+    for o in valid:
+        if valid[o]:
+            outputs_to_copy[o] = outputs[o]
+
+    if outputs_to_copy:
+        copied = copy_feedstock_outputs(
+            outputs_to_copy,
+            channel,
+        )
+    else:
+        copied = {}
+
+    for o in outputs:
+        if o not in copied:
+            copied[o] = False
+
+    if git_sha is not None and not all(copied[o] for o in outputs):
+        comment_on_outputs_copy(
+            feedstock, git_sha, errors, valid, copied)
+
+    return valid, errors, copied
+
+
 class OutputsCopyHandler(tornado.web.RequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -549,40 +580,22 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.set_status(403)
             self.write_error(403)
         else:
-            valid, errors = await tornado.ioloop.IOLoop.current().run_in_executor(
+            (
+                valid,
+                errors,
+                copied,
+            ) = await tornado.ioloop.IOLoop.current().run_in_executor(
                 _thread_pool(),
-                validate_feedstock_outputs,
+                _do_copy,
                 feedstock,
                 outputs,
-                feedstock_token,
                 win_only,
+                channel,
+                git_sha
             )
-
-            outputs_to_copy = {}
-            for o in valid:
-                if valid[o]:
-                    outputs_to_copy[o] = outputs[o]
-
-            if outputs_to_copy:
-                copied = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    copy_feedstock_outputs,
-                    outputs_to_copy,
-                    channel,
-                )
-            else:
-                copied = {}
-
-            for o in outputs:
-                if o not in copied:
-                    copied[o] = False
 
             if not all(v for v in copied.values()):
                 self.set_status(403)
-
-            if git_sha is not None and not all(copied[o] for o in outputs):
-                comment_on_outputs_copy(
-                    feedstock, git_sha, errors, valid, copied)
 
             self.write(json.dumps(
                 {"errors": errors, "valid": valid, "copied": copied}))

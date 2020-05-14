@@ -139,7 +139,6 @@ def test_validate_feedstock_outputs_badoutputhash(
             "noarch/c-0.1-py_0.tar.bz2": "sadSA",
             "noarch/d-0.1-py_0.tar.bz2": "SAdsa",
         },
-        "abc",
         False,
     )
 
@@ -187,7 +186,6 @@ def test_validate_feedstock_outputs_winonly(
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
         hashes,
-        "abc",
         True,
     )
 

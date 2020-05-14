@@ -370,7 +370,6 @@ def _is_valid_feedstock_output(
 def validate_feedstock_outputs(
     project,
     outputs,
-    feedstock_token,
     win_only,
 ):
     """Validate feedstock outputs on the staging channel.
@@ -383,9 +382,6 @@ def validate_feedstock_outputs(
         A dictionary mapping each output to its md5 hash. The keys should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
-    feedstock_token : str
-        The secret token used to validate that this feedstock is who it says
-        it is.
     win_only : bool
         If True, only outputs in the win-64 subdir will be allowed. This option
         is used for appveyor only uploads.
