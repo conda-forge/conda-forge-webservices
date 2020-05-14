@@ -12,6 +12,7 @@ import logging
 import concurrent.futures
 import glob
 
+import scrypt
 import github
 
 from binstar_client.utils import get_server_api
@@ -32,6 +33,7 @@ PROD = "conda-forge"
 OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 TOKENS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git"
 FEEDSTOCK_OUTPUTS_CACHE = {}
+FEEDSTOCK_TOKENS_CACHE = {}
 
 
 def _build_output_cache():
@@ -48,10 +50,44 @@ if "FEEDSTOCK_OUTPUTS_REPO" in os.environ:
     _build_output_cache()
 
 
+def _build_token_cache():
+    global FEEDSTOCK_TOKENS_CACHE
+    fnames = glob.glob(
+        os.path.join(os.environ["FEEDSTOCK_TOKENS_REPO"], "tokens", "*.json"))
+    for fname in fnames:
+        key = os.path.basename(fname)[:-len(".json")]
+        with open(fname, "r") as fp:
+            FEEDSTOCK_TOKENS_CACHE[key] = json.load(fp)
+
+
+if "FEEDSTOCK_TOKENS_REPO" in os.environ:
+    _build_token_cache()
+
+
+def _is_valid_token_cache(feedstock, feedstock_token):
+    if feedstock in FEEDSTOCK_TOKENS_CACHE:
+        token_data = FEEDSTOCK_TOKENS_CACHE[feedstock]
+        salted_token = scrypt.hash(
+            feedstock_token,
+            bytes.fromhex(token_data["salt"]),
+            buflen=256,
+        )
+
+        return hmac.compare_digest(
+            salted_token, bytes.fromhex(token_data["hashed_token"]),
+        )
+    else:
+        return None
+
+
 def is_valid_feedstock_token_process(user, project, feedstock_token):
     """this function from smithy redirects stdout and stderr so we cannot
     use it directly in a threaded code since this is a global side-effect.
     """
+    _valid = _is_valid_token_cache(project, feedstock_token)
+    if _valid is not None:
+        return _valid
+
     with concurrent.futures.ProcessPoolExecutor() as executor:
         fut = executor.submit(
             is_valid_feedstock_token,
@@ -64,6 +100,9 @@ def feedstock_token_exists_process(user, project):
     """this function from smithy redirects stdout and stderr so we cannot
     use it directly in a threaded code since this is a global side-effect.
     """
+    if project in FEEDSTOCK_TOKENS_CACHE:
+        return True
+
     with concurrent.futures.ProcessPoolExecutor() as executor:
         fut = executor.submit(
             feedstock_token_exists,
