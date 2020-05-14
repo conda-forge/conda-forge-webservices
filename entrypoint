@@ -31,6 +31,9 @@ git remote set-url --push origin https://${GH_TOKEN}@github.com/conda-forge/feed
 popd
 export FEEDSTOCK_OUTPUTS_REPO=`pwd`/feedstock-outputs
 
+git clone https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git
+export FEEDSTOCK_TOKENS_REPO=`pwd`/feedstock-tokens
+
 echo " "
 echo "==================================================================================================="
 echo "==================================================================================================="
