@@ -23,7 +23,7 @@ from conda_forge_webservices.update_me import get_current_versions
 from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
     copy_feedstock_outputs,
-    is_valid_feedstock_token_process,
+    is_valid_feedstock_token,
     comment_on_outputs_copy,
 )
 
@@ -549,12 +549,12 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         ):
             if (
                 feedstock in appveyor_ok_list
-                and is_valid_feedstock_token_process(
+                and is_valid_feedstock_token(
                     "conda-forge", "appveyor-is-ok", feedstock_token)
             ):
                 valid_token = True
                 win_only = True
-            elif is_valid_feedstock_token_process(
+            elif is_valid_feedstock_token(
                     "conda-forge", feedstock, feedstock_token):
                 valid_token = True
                 win_only = False

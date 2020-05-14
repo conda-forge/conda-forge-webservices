@@ -1,8 +1,8 @@
-import os
 import json
 from unittest import mock
 from collections import OrderedDict
 import urllib.parse
+import base64
 
 import pytest
 
@@ -244,31 +244,35 @@ def test_is_valid_output_hash():
 @pytest.mark.parametrize(
     "project", ["foo-feedstock", "blah", "foo", "blarg-feedstock", "boo-feedstock"]
 )
-@mock.patch("conda_forge_webservices.feedstock_outputs.shutil.copytree")
-@mock.patch("conda_forge_webservices.feedstock_outputs.shutil.rmtree")
-@mock.patch("conda_forge_webservices.feedstock_outputs.tempfile.mkdtemp")
-@mock.patch("conda_forge_webservices.feedstock_outputs._run_git_command")
+@mock.patch("conda_forge_webservices.feedstock_outputs.requests")
 def test_is_valid_feedstock_output(
-    git_mock, tmp_mock, rm_mock, cp_mock, tmpdir, monkeypatch, project, register,
-    must_explicitly_exist
+    req_mock, monkeypatch, project, register, must_explicitly_exist
 ):
-    tmp_mock.return_value = str(tmpdir)
     monkeypatch.setenv("GH_TOKEN", "abc123")
     monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
-    os.makedirs(os.path.join(tmpdir, "feedstock-outputs", "outputs"), exist_ok=True)
-    with open(
-        os.path.join(tmpdir, "feedstock-outputs", "outputs", "bar.json"),
-        "w"
-    ) as fp:
-        json.dump({"feedstocks": ["foo", "blah"]}, fp)
 
-    with open(
-        os.path.join(tmpdir, "feedstock-outputs", "outputs", "goo.json"),
-        "w"
-    ) as fp:
-        json.dump({"feedstocks": ["blarg"]}, fp)
+    def _get_function(name, *args, **kwargs):
+        if "bar.json" in name:
+            data = {"feedstocks": ["foo", "blah"]}
+            status = 200
+        elif "goo.json" in name:
+            data = {"feedstocks": ["blarg"]}
+            status = 200
+        else:
+            status = 404
+            data = None
 
-    user = "conda-forge"
+        resp = mock.MagicMock()
+        resp.status_code = status
+        if data is not None:
+            resp.json.return_value = {
+                "encoding": "base64",
+                "content": base64.standard_b64encode(
+                    json.dumps(data).encode("utf-8")).decode("ascii")
+                }
+        return resp
+
+    req_mock.get = _get_function
 
     outputs = [
         "noarch/bar-0.1-py_0.tar.bz2",
@@ -278,14 +282,6 @@ def test_is_valid_feedstock_output(
 
     valid = _is_valid_feedstock_output(
         project, outputs, register=register, must_explicitly_exist=must_explicitly_exist
-    )
-
-    rm_mock.assert_any_call(str(tmpdir))
-
-    repo_cwd = os.path.join(tmpdir, "feedstock-outputs")
-    cp_mock.assert_any_call(
-        "efg456",
-        repo_cwd
     )
 
     if project in ["foo", "foo-feedstock"]:
@@ -314,38 +310,6 @@ def test_is_valid_feedstock_output(
         }
 
     if register and not must_explicitly_exist:
-        assert os.path.exists(
-            os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"))
-        with open(
-            os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"),
-            "r"
-        ) as fp:
-            data = json.load(fp)
-        assert data == {"feedstocks": [project.replace("-feedstock", "")]}
-
-        git_mock.assert_any_call("add", repo_cwd + "/outputs/glob.json", cwd=repo_cwd)
-        git_mock.assert_any_call(
-            "commit",
-            "-m",
-            "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added output "
-            "%s for %s/%s'"
-            % ("glob", user, project.replace("-feedstock", "")),
-            cwd=repo_cwd
-        )
-
-        git_mock.assert_any_call("pull", "--commit", "--rebase", cwd=repo_cwd)
-        git_mock.assert_any_call("push", cwd=repo_cwd)
+        assert len(req_mock.put.call_args_list) == 1
     else:
-        assert len(git_mock.call_args_list) == 1
-        assert ("add", "outputs/glob.json") not in git_mock.call_args_list
-        assert (
-            "commit",
-            "-m",
-            "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added "
-            "output %s for %s/%s'"
-            % ("glob", user, project.replace("-feedstock", ""))
-        ) not in git_mock.call_args_list
-        assert ("pull", "--commit", "--rebase") not in git_mock.call_args_list
-        assert ("push",) not in git_mock.call_args_list
-        assert not os.path.exists(
-            os.path.join(tmpdir, "feedstock-outputs", "outputs", "glob.json"))
+        req_mock.put.assert_not_called()

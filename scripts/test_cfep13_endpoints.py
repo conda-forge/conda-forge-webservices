@@ -7,10 +7,7 @@ To run these tests
 
 2. Make sure you have a github token in the GH_TOKEN environment variable.
 
-3. Make sure to clone the feedstock-outputs repo and put the path to it in the
-   env var FEEDSTOCK_OUTPUTS_REPO.
-
-4. Run these tests via pytest -vv test_cfep13_endpoints.py
+3. Run these tests via pytest -vv test_cfep13_endpoints.py
 """
 
 import os
@@ -23,7 +20,8 @@ import requests
 import pytest
 
 from conda_forge_webservices.utils import pushd
-from conda_forge_webservices.feedstock_outputs import OUTPUTS_REPO
+
+OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 
 token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
 with open(os.path.expandvars(token_path), "r") as fp:

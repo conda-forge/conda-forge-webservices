@@ -7,17 +7,15 @@ To run these tests
 
 2. Make sure you have a github token in the GH_TOKEN environment variable.
 
-3. Make sure to clone the feedstock-outputs repo and put the path to it in the
-   env var FEEDSTOCK_OUTPUTS_REPO.
-
-4. Make sure you have the STAGING_BINSTAR_TOKEN and PROD_BINSTAR_TOKEN environment
+3. Make sure you have the STAGING_BINSTAR_TOKEN and PROD_BINSTAR_TOKEN environment
    variables defined.
 
-5. Run these tests via pytest -vvs test_cfep13_copy.py
+4. Run these tests via pytest -vvs test_cfep13_copy.py
 """
 
 import os
 import tempfile
+import json
 import subprocess
 import uuid
 import glob
@@ -35,10 +33,11 @@ import binstar_client.errors
 
 from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.feedstock_outputs import (
-    OUTPUTS_REPO,
     _get_ac_api_prod,
     _get_ac_api_staging
 )
+
+OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 
 token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
 with open(os.path.expandvars(token_path), "r") as fp:
@@ -71,6 +70,7 @@ def _clone_and_remove(repo, file_to_remove):
                     repo,
                 )
                 if os.path.exists(file_to_remove):
+                    print("    repo %s: removed file %s" % (repo, file_to_remove))
                     _run_git_command("rm", file_to_remove)
                     _run_git_command(
                         "commit",
@@ -79,8 +79,6 @@ def _clone_and_remove(repo, file_to_remove):
                     )
                     _run_git_command("pull", "--rebase", "--commit")
                     _run_git_command("push")
-
-    print("    repo %s: removed file %s" % (repo, file_to_remove))
 
 
 def _build_recipe(uid):
@@ -313,6 +311,21 @@ def test_feedstock_outputs_copy_works():
         for dist in outputs:
             assert _dist_exists(ac_prod, "conda-forge", dist)
             print("    conda-forge: dist %s exists" % dist)
+
+        print("\n=========================================================")
+        print("checking the new outputs")
+        print("=========================================================", flush=True)
+        _fname = "outputs/blah-%s.json" % uid
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pushd(tmpdir):
+                _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
+
+                with pushd(os.path.split(OUTPUTS_REPO)[1].replace(".git", "")):
+                    assert os.path.exists(_fname)
+                    with open(_fname, "r") as fp:
+                        data = json.load(fp)
+                        assert data["feedstocks"] == ["staged-recipes"]
+
     finally:
         print("\n=========================================================")
         print("cleaning up repos and dists")
