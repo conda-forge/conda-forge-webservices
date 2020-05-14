@@ -10,6 +10,7 @@ import shutil
 import tempfile
 import logging
 import concurrent.futures
+import glob
 
 import github
 
@@ -30,6 +31,20 @@ STAGING = "cf-staging"
 PROD = "conda-forge"
 OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 TOKENS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git"
+FEEDSTOCK_OUTPUTS_CACHE = {}
+
+
+def _build_output_cache():
+    global FEEDSTOCK_OUTPUTS_CACHE
+    fnames = glob.glob(
+        os.path.join(os.environ["FEEDSTOCK_OUTPUTS_REPO"], "outputs", "*.json"))
+    for fname in fnames:
+        key = os.path.basename(fname)[:-len(".json")]
+        with open(fname, "r") as fp:
+            FEEDSTOCK_OUTPUTS_CACHE[key] = json.load(fp)
+
+
+_build_output_cache()
 
 
 def is_valid_feedstock_token_process(user, project, feedstock_token):
@@ -233,6 +248,8 @@ def _is_valid_feedstock_output(
         A dict keyed on output name with True if it is valid and False
         otherwise.
     """
+    global FEEDSTOCK_OUTPUTS_CACHE
+
     if project.endswith("-feedstock"):
         feedstock = project[:-len("-feedstock")]
     else:
@@ -240,6 +257,21 @@ def _is_valid_feedstock_output(
 
     valid = {o: False for o in outputs}
     made_commit = False
+
+    for dist in outputs:
+        try:
+            _, o, _, _ = parse_conda_pkg(dist)
+        except RuntimeError:
+            continue
+
+        if (
+            o in FEEDSTOCK_OUTPUTS_CACHE
+            and feedstock in FEEDSTOCK_OUTPUTS_CACHE[o]["feedstocks"]
+        ):
+            valid[dist] = True
+
+    if all(v for v in valid.values()):
+        return valid
 
     tmpdir = None
     try:

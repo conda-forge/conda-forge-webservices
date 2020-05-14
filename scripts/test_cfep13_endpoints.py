@@ -5,11 +5,10 @@ To run these tests
 
    python -u -m conda_forge_webservices.webapp --local
 
-2. Make sure you have valid CI tokens for smithy in your `${HOME}/.conda-smithy/`
-   directory, including the feedstock token for staged recipes and the feedstock
-   token for appveyor-is-ok
+2. Make sure you have a github token in the GH_TOKEN environment variable.
 
-3. Make sure you have a github token in the GH_TOKEN environment variable.
+3. Make sure to clone the feedstock-outputs repo and put the path to it in the
+   env var FEEDSTOCK_OUTPUTS_REPO.
 
 4. Run these tests via pytest -vv test_cfep13_endpoints.py
 """
