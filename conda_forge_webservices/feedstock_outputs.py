@@ -5,12 +5,9 @@ import os
 import json
 import hmac
 import urllib.parse
-import subprocess
-import shutil
-import tempfile
 import logging
-import concurrent.futures
-import glob
+import requests
+import base64
 
 import scrypt
 import github
@@ -19,105 +16,36 @@ from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
 import binstar_client.errors
 
-from conda_smithy.feedstock_tokens import (
-    feedstock_token_exists,
-    is_valid_feedstock_token,
-)
-
 from .utils import parse_conda_pkg
 
 LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
-OUTPUTS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
-TOKENS_REPO = "https://${GH_TOKEN}@github.com/conda-forge/feedstock-tokens.git"
-FEEDSTOCK_OUTPUTS_CACHE = {}
-FEEDSTOCK_TOKENS_CACHE = {}
 
 
-def _build_output_cache():
-    global FEEDSTOCK_OUTPUTS_CACHE
-    fnames = glob.glob(
-        os.path.join(os.environ["FEEDSTOCK_OUTPUTS_REPO"], "outputs", "*.json"))
-    for fname in fnames:
-        key = os.path.basename(fname)[:-len(".json")]
-        with open(fname, "r") as fp:
-            FEEDSTOCK_OUTPUTS_CACHE[key] = json.load(fp)
+def is_valid_feedstock_token(user, project, feedstock_token):
 
-
-if "FEEDSTOCK_OUTPUTS_REPO" in os.environ:
-    _build_output_cache()
-
-
-def _build_token_cache():
-    global FEEDSTOCK_TOKENS_CACHE
-    fnames = glob.glob(
-        os.path.join(os.environ["FEEDSTOCK_TOKENS_REPO"], "tokens", "*.json"))
-    for fname in fnames:
-        key = os.path.basename(fname)[:-len(".json")]
-        with open(fname, "r") as fp:
-            FEEDSTOCK_TOKENS_CACHE[key] = json.load(fp)
-
-
-if "FEEDSTOCK_TOKENS_REPO" in os.environ:
-    _build_token_cache()
-
-
-def _is_valid_token_cache(feedstock, feedstock_token):
-    if feedstock in FEEDSTOCK_TOKENS_CACHE:
-        token_data = FEEDSTOCK_TOKENS_CACHE[feedstock]
+    r = requests.get(
+        "https://api.github.com/repos/%s/"
+        "feedstock-tokens/contents/tokens/%s.json" % (user, project),
+        headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
+    )
+    if r.status_code != 200:
+        return False
+    else:
+        data = r.json()
+        assert data["encoding"] == "base64"
+        token_data = json.loads(
+            base64.standard_b64decode(data["content"]).decode('utf-8'))
         salted_token = scrypt.hash(
             feedstock_token,
             bytes.fromhex(token_data["salt"]),
             buflen=256,
         )
-
         return hmac.compare_digest(
             salted_token, bytes.fromhex(token_data["hashed_token"]),
         )
-    else:
-        return None
-
-
-def is_valid_feedstock_token_process(user, project, feedstock_token):
-    """this function from smithy redirects stdout and stderr so we cannot
-    use it directly in a threaded code since this is a global side-effect.
-    """
-    _valid = _is_valid_token_cache(project, feedstock_token)
-    if _valid is not None:
-        return _valid
-
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        fut = executor.submit(
-            is_valid_feedstock_token,
-            user, project, feedstock_token, TOKENS_REPO,
-        )
-        return fut.result()
-
-
-def feedstock_token_exists_process(user, project):
-    """this function from smithy redirects stdout and stderr so we cannot
-    use it directly in a threaded code since this is a global side-effect.
-    """
-    if project in FEEDSTOCK_TOKENS_CACHE:
-        return True
-
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        fut = executor.submit(
-            feedstock_token_exists,
-            user, project, TOKENS_REPO,
-        )
-        return fut.result()
-
-
-def _run_git_command(*args, cwd=None):
-    subprocess.run(
-        " ".join(["git"] + list(args)),
-        check=True,
-        shell=True,
-        cwd=cwd,
-    )
 
 
 def _get_ac_api_prod():
@@ -294,7 +222,60 @@ def _is_valid_feedstock_output(
         feedstock = project
 
     valid = {o: False for o in outputs}
-    made_commit = False
+
+    unique_names = set()
+    for dist in outputs:
+        try:
+            _, o, _, _ = parse_conda_pkg(dist)
+        except RuntimeError:
+            continue
+        unique_names.add(o)
+
+    unique_names_valid = {o: False for o in unique_names}
+    for un in unique_names:
+        r = requests.get(
+            "https://api.github.com/repos/conda-forge/"
+            "feedstock-outputs/contents/outputs/%s.json" % un,
+            headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]}
+        )
+        if r.status_code != 200:
+            # it failed, but we need to know if it failed due to the API or
+            # if the file is not there
+            if r.status_code == 404 and not must_explicitly_exist:
+                unique_names_valid[un] = True
+
+                LOGGER.info(
+                    "    does not exist|valid: %s|%s" % (un, unique_names_valid[un]))
+                if register:
+                    data = {"feedstocks": [feedstock]}
+                    edata = base64.standard_b64encode(
+                        json.dumps(data).encode("utf-8")).decode("ascii")
+
+                    r = requests.put(
+                        "https://api.github.com/repos/conda-forge/"
+                        "feedstock-outputs/contents/outputs/%s.json" % un,
+                        headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
+                        json={
+                            "message": (
+                                "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added "
+                                "output %s for conda-forge/%s" % (un, feedstock)),
+                            "content": edata,
+                            "branch": "master",
+                        }
+                    )
+                    if r.status_code != 201:
+                        LOGGER.info(
+                            "    output %s not created for "
+                            "feedstock conda-forge/%s" % (un, feedstock)
+                        )
+                        r.raise_for_status()
+        else:
+            data = r.json()
+            assert data["encoding"] == "base64"
+            data = json.loads(
+                base64.standard_b64decode(data["content"]).decode('utf-8'))
+            unique_names_valid[un] = feedstock in data["feedstocks"]
+            LOGGER.info("    checked|valid: %s|%s" % (un, unique_names_valid[un]))
 
     for dist in outputs:
         try:
@@ -302,67 +283,7 @@ def _is_valid_feedstock_output(
         except RuntimeError:
             continue
 
-        if (
-            o in FEEDSTOCK_OUTPUTS_CACHE
-            and feedstock in FEEDSTOCK_OUTPUTS_CACHE[o]["feedstocks"]
-        ):
-            valid[dist] = True
-
-    if all(v for v in valid.values()):
-        return valid
-
-    tmpdir = None
-    try:
-        tmpdir = tempfile.mkdtemp('_recipe')
-        repo_path = os.path.join(tmpdir, "feedstock-outputs")
-
-        shutil.copytree(os.environ["FEEDSTOCK_OUTPUTS_REPO"], repo_path)
-        _run_git_command(
-            "pull",
-            cwd=repo_path,
-        )
-
-        for dist in outputs:
-            try:
-                _, o, _, _ = parse_conda_pkg(dist)
-            except RuntimeError:
-                continue
-
-            pth = os.path.join(repo_path, "outputs", o + ".json")
-
-            if not os.path.exists(pth):
-                if not must_explicitly_exist:
-                    # no output exists and we can add it
-                    valid[dist] = True
-
-                    LOGGER.info("    does not exist|valid: %s|%s" % (o, valid[dist]))
-                    if register:
-                        LOGGER.info("    registered: %s", o)
-                        with open(pth, "w") as fp:
-                            json.dump({"feedstocks": [feedstock]}, fp)
-                        _run_git_command("add", pth, cwd=repo_path)
-                        _run_git_command(
-                            "commit",
-                            "-m",
-                            "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added "
-                            "output %s for conda-forge/%s'" % (o, feedstock),
-                            cwd=repo_path
-                        )
-                        made_commit = True
-            else:
-                # make sure feedstock is ok
-                with open(pth, "r") as fp:
-                    data = json.load(fp)
-                valid[dist] = feedstock in data["feedstocks"]
-                LOGGER.info("    checked|valid: %s|%s" % (o, valid[dist]))
-
-        if register and made_commit:
-            _run_git_command("pull", "--commit", "--rebase", cwd=repo_path)
-            _run_git_command("push", cwd=repo_path)
-
-    finally:
-        if tmpdir is not None:
-            shutil.rmtree(tmpdir)
+        valid[dist] = unique_names_valid[o]
 
     return valid
 
