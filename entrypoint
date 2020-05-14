@@ -25,7 +25,7 @@ git config --global user.email "pelson.pub+conda-forge@gmail.com"
 
 export DEBUG_FEEDSTOCK_TOKENS=1
 
-git clone --depth=1 https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git
+git clone https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git
 pushd feedstock-outputs
 git remote set-url --push origin https://${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git
 popd
