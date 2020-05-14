@@ -248,8 +248,6 @@ def _is_valid_feedstock_output(
         A dict keyed on output name with True if it is valid and False
         otherwise.
     """
-    global FEEDSTOCK_OUTPUTS_CACHE
-
     if project.endswith("-feedstock"):
         feedstock = project[:-len("-feedstock")]
     else:
