@@ -44,7 +44,8 @@ def _build_output_cache():
             FEEDSTOCK_OUTPUTS_CACHE[key] = json.load(fp)
 
 
-_build_output_cache()
+if "FEEDSTOCK_OUTPUTS_REPO" in os.environ:
+    _build_output_cache()
 
 
 def is_valid_feedstock_token_process(user, project, feedstock_token):
