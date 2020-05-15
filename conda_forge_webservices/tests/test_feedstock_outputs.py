@@ -253,9 +253,11 @@ def test_is_valid_feedstock_output(
 
     def _get_function(name, *args, **kwargs):
         if "bar.json" in name:
+            assert "b/a/r/bar.json" in name
             data = {"feedstocks": ["foo", "blah"]}
             status = 200
         elif "goo.json" in name:
+            assert "g/o/o/goo.json" in name
             data = {"feedstocks": ["blarg"]}
             status = 200
         else:

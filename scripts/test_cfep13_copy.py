@@ -315,7 +315,7 @@ def test_feedstock_outputs_copy_works():
         print("\n=========================================================")
         print("checking the new outputs")
         print("=========================================================", flush=True)
-        _fname = "outputs/blah-%s.json" % uid
+        _fname = "outputs/b/l/a/blah-%s.json" % uid
         with tempfile.TemporaryDirectory() as tmpdir:
             with pushd(tmpdir):
                 _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
@@ -338,5 +338,5 @@ def test_feedstock_outputs_copy_works():
                 if _remove_dist(ac_prod, "conda-forge", dist):
                     print("cond-forge: removed %s" % dist)
 
-        _clone_and_remove(OUTPUTS_REPO, "outputs/blah-%s.json" % uid)
+        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/blah-%s.json" % uid)
         print(" ")

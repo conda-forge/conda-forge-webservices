@@ -205,7 +205,7 @@ def test_feedstock_outputs_copy_missing_data(key):
 def test_feedstock_outputs_copy_bad_data():
     name = "blah_h" + uuid.uuid4().hex
     try:
-        _clone_and_remove(OUTPUTS_REPO, "outputs/%s.json" % name)
+        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
 
         json_data = {
             "feedstock": "staged-recipes",
@@ -219,4 +219,4 @@ def test_feedstock_outputs_copy_bad_data():
         )
         assert r.status_code == 403, r.status_code
     finally:
-        _clone_and_remove(OUTPUTS_REPO, "outputs/%s.json" % name)
+        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)

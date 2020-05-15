@@ -24,8 +24,15 @@ STAGING = "cf-staging"
 PROD = "conda-forge"
 
 
-def is_valid_feedstock_token(user, project, feedstock_token):
+def _get_sharded_path(output):
+    chars = [c for c in output if c.isalnum()]
+    while len(chars) < 3:
+        chars.append("z")
 
+    return os.path.join("outputs", chars[0], chars[1], chars[2], output + ".json")
+
+
+def is_valid_feedstock_token(user, project, feedstock_token):
     r = requests.get(
         "https://api.github.com/repos/%s/"
         "feedstock-tokens/contents/tokens/%s.json" % (user, project),
@@ -233,9 +240,10 @@ def _is_valid_feedstock_output(
 
     unique_names_valid = {o: False for o in unique_names}
     for un in unique_names:
+        un_sharded_path = _get_sharded_path(un)
         r = requests.get(
             "https://api.github.com/repos/conda-forge/"
-            "feedstock-outputs/contents/outputs/%s.json" % un,
+            "feedstock-outputs/contents/%s" % un_sharded_path,
             headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]}
         )
         if r.status_code != 200:
@@ -253,7 +261,7 @@ def _is_valid_feedstock_output(
 
                     r = requests.put(
                         "https://api.github.com/repos/conda-forge/"
-                        "feedstock-outputs/contents/outputs/%s.json" % un,
+                        "feedstock-outputs/contents/%s" % un_sharded_path,
                         headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
                         json={
                             "message": (
