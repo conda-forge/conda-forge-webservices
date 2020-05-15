@@ -24,11 +24,11 @@ install:
 script:
   # maybe later...
   # - black --check conda_forge_webservices
-  - flake8 conda_forge_webservices
-  - pytest -vv conda_forge_webservices
+  # - flake8 conda_forge_webservices
+  # - pytest -vv conda_forge_webservices
 
   - |
-    python -u -m conda_forge_webservices.webapp --local
+    python -u -m conda_forge_webservices.webapp --local &
     cd scripts
     pytest -vvs test_cfep13_endpoints.py
     retval=$?
