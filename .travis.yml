@@ -17,9 +17,18 @@ install:
   - conda update --yes conda
   - conda install --yes --quiet --file conda-requirements.txt
   - mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
+  - echo ${STAGED_RECIPES_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_staged-recipes.token
+  - echo ${APPVEYOR_IS_OK_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_appveyor-is-ok.token
   - pip install --no-deps -e .
-script:
+
+script: |
   # maybe later...
   # - black --check conda_forge_webservices
-  - flake8 conda_forge_webservices
-  - pytest -vv conda_forge_webservices
+  flake8 conda_forge_webservices
+  pytest -vv conda_forge_webservices
+
+  python -u -m conda_forge_webservices.webapp --local &
+  cd scripts
+  pytest -vvs test_cfep13_endpoints.py
+  pytest -vvs test_cfep13_copy.py
+  kill $(jobs -p)
