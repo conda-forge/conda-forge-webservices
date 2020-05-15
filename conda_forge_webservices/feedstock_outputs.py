@@ -33,7 +33,6 @@ def _get_sharded_path(output):
 
 
 def is_valid_feedstock_token(user, project, feedstock_token):
-
     r = requests.get(
         "https://api.github.com/repos/%s/"
         "feedstock-tokens/contents/tokens/%s.json" % (user, project),
