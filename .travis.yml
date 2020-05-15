@@ -24,27 +24,21 @@ install:
 script:
   # maybe later...
   # - black --check conda_forge_webservices
-  # - flake8 conda_forge_webservices
-  # - pytest -vv conda_forge_webservices
-
+  - flake8 conda_forge_webservices
+  - pytest -vv conda_forge_webservices
   - |
     python -u -m conda_forge_webservices.webapp --local &
     echo "waiting for the server..."
     sleep 5
     pushd scripts
     pytest -vvs test_cfep13_endpoints.py
-    retval=$?
-    kill $(jobs -p)
-    popd
-    exit $retval
-
-  - |
-    python -u -m conda_forge_webservices.webapp --local &
-    echo "waiting for the server..."
-    sleep 5
-    pushd scripts
+    retvale=$?
     pytest -vvs test_cfep13_copy.py
-    retval=$?
+    retvalc=$?
     kill $(jobs -p)
     popd
-    exit $retval
+    if [[ "${retvale}" == "0" && "${retvalc}" == "0" ]]; then
+      exit 0
+    else
+      exit 1
+    fi
