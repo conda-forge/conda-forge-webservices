@@ -31,7 +31,7 @@ script:
     python -u -m conda_forge_webservices.webapp --local &
     echo "waiting for the server..."
     sleep 5
-    push scripts
+    pushd scripts
     pytest -vvs test_cfep13_endpoints.py
     retval=$?
     kill $(jobs -p)
@@ -42,7 +42,7 @@ script:
     python -u -m conda_forge_webservices.webapp --local &
     echo "waiting for the server..."
     sleep 5
-    push scripts
+    pushd scripts
     pytest -vvs test_cfep13_copy.py
     retval=$?
     kill $(jobs -p)
