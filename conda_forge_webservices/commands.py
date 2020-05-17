@@ -525,15 +525,19 @@ def add_bot_automerge(repo):
 
     workflows_dir = os.path.join(repo.working_dir, ".github", "workflows")
     os.makedirs(workflows_dir, exist_ok=True)
-    dest_main_yml = os.path.join(workflows_dir, "main.yml")
-    src_main_yml = os.path.join(
-        conda_forge_content,
-        "feedstock_content",
-        ".github",
-        "workflows",
-        "main.yml",
-    )
-    shutil.copyfile(src_main_yml, dest_main_yml)
+    # older versions of smithy used main.yml - keep this here for a while
+    for fname in ["automerge.yml", "main.yml"]:
+        src_main_yml = os.path.join(
+            conda_forge_content,
+            "feedstock_content",
+            ".github",
+            "workflows",
+            fname,
+        )
+        if os.path.exists(src_main_yml):
+            dest_main_yml = os.path.join(workflows_dir, fname)
+            shutil.copyfile(src_main_yml, dest_main_yml)
+            break
 
     # now commit
     repo.index.add([dest_main_yml, cf_yml])
