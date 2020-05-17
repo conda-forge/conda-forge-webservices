@@ -520,23 +520,8 @@ def add_bot_automerge(repo):
     with open(cf_yml, 'w') as fp:
         yaml.dump(cfg, fp)
 
-    # copy in the workflow def from smithy
-    from conda_smithy.configure_feedstock import conda_forge_content
-
-    workflows_dir = os.path.join(repo.working_dir, ".github", "workflows")
-    os.makedirs(workflows_dir, exist_ok=True)
-    dest_main_yml = os.path.join(workflows_dir, "main.yml")
-    src_main_yml = os.path.join(
-        conda_forge_content,
-        "feedstock_content",
-        ".github",
-        "workflows",
-        "main.yml",
-    )
-    shutil.copyfile(src_main_yml, dest_main_yml)
-
     # now commit
-    repo.index.add([dest_main_yml, cf_yml])
+    repo.index.add([cf_yml])
     author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
     repo.index.commit(
         "[ci skip] ***NO_CI*** added bot automerge", author=author)
