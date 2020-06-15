@@ -137,7 +137,6 @@ def pr_detailed_comment(
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = "https://{}@github.com/{}/{}.git".format(
             os.environ['GH_TOKEN'], pr_owner, pr_repo)
-        print("DEBUG", repo_url, feedstock_dir, pr_branch)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch, depth=1)
 
         if LINT_MSG.search(comment):
