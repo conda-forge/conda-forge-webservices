@@ -569,7 +569,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             LOGGER.warning('    feedstock exists: %s' % feedstock_exists)
             LOGGER.warning('    outputs: %s' % outputs)
             LOGGER.warning('    channel: %s' % channel)
-            LOGGER.warning('    valid token: %s' % valid token)
+            LOGGER.warning('    valid token: %s' % valid_token)
 
             if (
                 git_sha is not None
