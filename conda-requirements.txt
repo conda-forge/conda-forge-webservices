@@ -11,7 +11,7 @@ nose
 parameterized
 pygithub
 pytest
-python=3.7.*
+python=3.8.*
 requests
 ruamel.yaml>=0.16
 ruamel.yaml.jinja2
