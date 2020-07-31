@@ -5,11 +5,13 @@ echo "waiting for the server..."
 sleep 5
 
 echo "running the tests..."
+pushd scripts
 pytest -vvs test_cfep13_endpoints.py
 retvale=$?
 pytest -vvs test_cfep13_copy.py
 retvalc=$?
 kill $(jobs -p)
+popd
 
 if [[ "${retvale}" == "0" && "${retvalc}" == "0" ]]; then
   exit 0
