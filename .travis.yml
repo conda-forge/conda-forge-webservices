@@ -25,28 +25,5 @@ script:
   # maybe later...
   # - black --check conda_forge_webservices
   - flake8 conda_forge_webservices
-  - |
-    if [[ $? == 1 ]]; then
-      exit 1
-    fi
   - pytest -vv conda_forge_webservices
-  - |
-    if [[ $? == 1 ]]; then
-      exit 1
-    fi
-  - |
-    python -u -m conda_forge_webservices.webapp --local &
-    echo "waiting for the server..."
-    sleep 5
-    pushd scripts
-    pytest -vvs test_cfep13_endpoints.py
-    retvale=$?
-    pytest -vvs test_cfep13_copy.py
-    retvalc=$?
-    kill $(jobs -p)
-    popd
-    if [[ "${retvale}" == "0" && "${retvalc}" == "0" ]]; then
-      exit 0
-    else
-      exit 1
-    fi
+  - ./scripts/run_cfep13_tests.sh
