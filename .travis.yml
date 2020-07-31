@@ -25,7 +25,15 @@ script:
   # maybe later...
   # - black --check conda_forge_webservices
   - flake8 conda_forge_webservices
+  - |
+    if [[ $? == 1 ]]; then
+      exit 1
+    fi
   - pytest -vv conda_forge_webservices
+  - |
+    if [[ $? == 1 ]]; then
+      exit 1
+    fi
   - |
     python -u -m conda_forge_webservices.webapp --local &
     echo "waiting for the server..."
