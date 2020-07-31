@@ -56,15 +56,6 @@ class TestAutomerge(unittest.TestCase):
                     if cfg:
                         assert cfg['travis'] == 'blah'
 
-                    # make sure have the config
-                    main_yml = os.path.join(
-                        repo_pth,
-                        '.github',
-                        'workflows',
-                        'main.yml',
-                    )
-                    assert os.path.exists(main_yml)
-
                     # make sure the commit is correct
                     cmt_msg = repo.head.ref.commit.message
                     assert '[ci skip] ***NO_CI*** added bot automerge' in cmt_msg
