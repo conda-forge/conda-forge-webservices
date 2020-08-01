@@ -47,6 +47,10 @@ def update_team(org_name, repo_name, commit=None):
     if not repo_name.endswith("-feedstock"):
         return
 
+    team_name = repo_name.replace("-feedstock", "").lower()
+    if team_name in ["core", "bot", "staged-recipes", "arm-arch"]:
+        return
+
     gh = github.Github(os.environ['GH_TOKEN'])
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
