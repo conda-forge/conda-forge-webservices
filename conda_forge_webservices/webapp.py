@@ -6,7 +6,7 @@ import tornado.web
 import hmac
 import hashlib
 import json
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import atexit
 # import functools
 import logging
@@ -32,20 +32,24 @@ LOGGER = logging.getLogger("conda_forge_webservices")
 POOL = None
 
 
-def _thread_pool():
+def _worker_pool():
     global POOL
     if POOL is None:
-        POOL = ThreadPoolExecutor(max_workers=2)
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            # needed for mocks in testing
+            POOL = ThreadPoolExecutor(max_workers=2)
+        else:
+            POOL = ProcessPoolExecutor(max_workers=2)
     return POOL
 
 
-def _shutdown_thread_pool():
+def _shutdown_worker_pool():
     global POOL
     if POOL is not None:
         POOL.shutdown(wait=False)
 
 
-atexit.register(_shutdown_thread_pool)
+atexit.register(_shutdown_worker_pool)
 
 
 def get_commit_message(full_name, commit):
@@ -160,7 +164,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("===================================================")
 
                 lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
+                    _worker_pool(),
                     linting.compute_lint_message,
                     owner,
                     repo_name,
@@ -232,7 +236,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("feedstocks service: %s", body['repository']['full_name'])
                 LOGGER.info("===================================================")
                 handled = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
+                    _worker_pool(),
                     feedstocks_service.handle_feedstock_event,
                     owner,
                     repo_name,
@@ -291,7 +295,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("updating team: %s", body['repository']['full_name'])
                 LOGGER.info("===================================================")
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
+                    _worker_pool(),
                     update_teams.update_team,
                     owner,
                     repo_name,
@@ -369,7 +373,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("===================================================")
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
+                    _worker_pool(),
                     commands.pr_detailed_comment,
                     owner,
                     repo_name,
@@ -411,7 +415,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("===================================================")
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
+                    _worker_pool(),
                     commands.pr_comment,
                     owner,
                     repo_name,
@@ -437,7 +441,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("===================================================")
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
+                    _worker_pool(),
                     commands.issue_comment,
                     owner,
                     repo_name,
@@ -589,7 +593,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 errors,
                 copied,
             ) = await tornado.ioloop.IOLoop.current().run_in_executor(
-                _thread_pool(),
+                _worker_pool(),
                 _do_copy,
                 feedstock,
                 outputs,
@@ -614,7 +618,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         # not used but can be to turn it all off if we need to
         # if outputs is not None and channel is not None:
         #     copied = await tornado.ioloop.IOLoop.current().run_in_executor(
-        #         _thread_pool(),
+        #         _worker_pool(),
         #         copy_feedstock_outputs,
         #         outputs,
         #         channel,
