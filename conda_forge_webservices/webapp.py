@@ -6,7 +6,7 @@ import tornado.web
 import hmac
 import hashlib
 import json
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import atexit
 # import functools
 import logging
@@ -35,7 +35,11 @@ POOL = None
 def _worker_pool():
     global POOL
     if POOL is None:
-        POOL = ProcessPoolExecutor(max_workers=2)
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            # needed for mocks in testing
+            POOL = ThreadPoolExecutor(max_workers=2)
+        else:
+            POOL = ProcessPoolExecutor(max_workers=2)
     return POOL
 
 
