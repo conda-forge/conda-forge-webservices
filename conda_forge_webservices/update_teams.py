@@ -1,10 +1,6 @@
-from git import Repo
 import github
 import os
-import shutil
-import tempfile
 
-# from .utils import tmp_directory
 from conda_smithy.github import configure_github_team
 import textwrap
 from functools import lru_cache
@@ -55,68 +51,60 @@ def update_team(org_name, repo_name, commit=None):
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
-    tmp_dir = None
-    try:
-        tmp_dir = tempfile.mkdtemp('_recipe')
+    resp = gh_repo.get_contents("recipe/meta.yaml")
+    keep_lines = []
+    skip = True
+    for line in resp.decoded_content.decode("utf-8").splitlines():
+        if line.startswith("extra:"):
+            skip = False
+        if not skip:
+            keep_lines.append(line)
+    meta = DummyMeta("\n".join(keep_lines))
 
-        Repo.clone_from(gh_repo.clone_url, tmp_dir, depth=1)
-        with open(os.path.join(tmp_dir, "recipe", "meta.yaml"), "r") as fp:
-            keep_lines = []
-            skip = True
-            for line in fp.readlines():
-                if line.startswith("extra:"):
-                    skip = False
-                if not skip:
-                    keep_lines.append(line)
-        meta = DummyMeta("".join(keep_lines))
+    (
+        current_maintainers,
+        prev_maintainers,
+        new_conda_forge_members,
+    ) = configure_github_team(
+        meta,
+        gh_repo,
+        org,
+        repo_name.replace("-feedstock", ""),
+    )
 
-        (
-            current_maintainers,
-            prev_maintainers,
-            new_conda_forge_members,
-        ) = configure_github_team(
-            meta,
-            gh_repo,
-            org,
-            repo_name.replace("-feedstock", ""),
-        )
+    if commit:
+        message = textwrap.dedent("""
+            Hi! This is the friendly automated conda-forge-webservice.
 
-        if commit:
-            message = textwrap.dedent("""
-                Hi! This is the friendly automated conda-forge-webservice.
+            I updated the Github team because of this commit.
+            """)
+        newm = get_handles(new_conda_forge_members)
+        if newm:
+            message += textwrap.dedent("""
+                - {} {} added to conda-forge. Welcome to conda-forge!
+                  Go to https://github.com/orgs/conda-forge/invitation see your invitation.
+            """.format(newm, "were" if newm.count(",") >= 1 else "was"))  # noqa
 
-                I updated the Github team because of this commit.
-                """)
-            newm = get_handles(new_conda_forge_members)
-            if newm:
-                message += textwrap.dedent("""
-                    - {} {} added to conda-forge. Welcome to conda-forge!
-                      Go to https://github.com/orgs/conda-forge/invitation see your invitation.
-                """.format(newm, "were" if newm.count(",") >= 1 else "was"))  # noqa
+        addm = get_handles(
+            current_maintainers - prev_maintainers - new_conda_forge_members)
+        if addm:
+            message += textwrap.dedent("""
+                - {} {} added to this feedstock maintenance team.
+            """.format(addm, "were" if addm.count(",") >= 1 else "was"))
 
-            addm = get_handles(
-                current_maintainers - prev_maintainers - new_conda_forge_members)
-            if addm:
-                message += textwrap.dedent("""
-                    - {} {} added to this feedstock maintenance team.
-                """.format(addm, "were" if addm.count(",") >= 1 else "was"))
+        if addm or newm:
+            message += textwrap.dedent("""
+                You should get push access to this feedstock and CI services.
 
-            if addm or newm:
-                message += textwrap.dedent("""
-                    You should get push access to this feedstock and CI services.
+                Feel free to join the community [chat room](https://gitter.im/conda-forge/conda-forge.github.io).
 
-                    Feel free to join the community [chat room](https://gitter.im/conda-forge/conda-forge.github.io).
+                NOTE: Please make sure to not push to the repository directly.
+                      Use branches in your fork for any changes and send a PR.
+                      More details [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests)
+            """)  # noqa
 
-                    NOTE: Please make sure to not push to the repository directly.
-                          Use branches in your fork for any changes and send a PR.
-                          More details [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests)
-                """)  # noqa
-
-                c = gh_repo.get_commit(commit)
-                c.create_comment(message)
-    finally:
-        if tmp_dir is not None:
-            shutil.rmtree(tmp_dir)
+            c = gh_repo.get_commit(commit)
+            c.create_comment(message)
 
 
 if __name__ == '__main__':

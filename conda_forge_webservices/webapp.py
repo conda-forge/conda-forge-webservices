@@ -52,6 +52,25 @@ def _shutdown_worker_pool():
 atexit.register(_shutdown_worker_pool)
 
 
+THREAD_POOL = None
+
+
+def _thread_pool():
+    global THREAD_POOL
+    if THREAD_POOL is None:
+        THREAD_POOL = ThreadPoolExecutor(max_workers=2)
+    return THREAD_POOL
+
+
+def _shutdown_thread_pool():
+    global THREAD_POOL
+    if THREAD_POOL is not None:
+        THREAD_POOL.shutdown(wait=False)
+
+
+atexit.register(_shutdown_thread_pool)
+
+
 def get_commit_message(full_name, commit):
     return (
         github.Github(os.environ['GH_TOKEN'])
@@ -295,7 +314,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("updating team: %s", body['repository']['full_name'])
                 LOGGER.info("===================================================")
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _thread_pool(),  # always threads due to expensive lru_cache
                     update_teams.update_team,
                     owner,
                     repo_name,
