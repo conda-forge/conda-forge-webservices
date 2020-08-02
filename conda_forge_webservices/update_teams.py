@@ -12,8 +12,8 @@ from ruamel.yaml import YAML
 def get_filter_out_members():
     gh = github.Github(os.environ['GH_TOKEN'])
     org = gh.get_organization('conda-forge')
-    teams = ['staged-recipes', 'help-r']
-    gh_teams = list(team for team in org.get_teams() if team.name in teams)
+    teams = ['staged-recipes', 'help-r', 'r']
+    gh_teams = list(org.get_team_by_slug(team) for team in teams)
     members = set()
     for team in gh_teams:
         members.update([m.login for m in team.get_members()])
