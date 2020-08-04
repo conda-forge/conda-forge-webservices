@@ -1,11 +1,14 @@
 import github
 import os
+import logging
 
 from conda_smithy.github import configure_github_team
 import textwrap
 from functools import lru_cache
 
 from ruamel.yaml import YAML
+
+LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
 
 @lru_cache(maxsize=None)
@@ -61,16 +64,35 @@ def update_team(org_name, repo_name, commit=None):
             keep_lines.append(line)
     meta = DummyMeta("\n".join(keep_lines))
 
-    (
-        current_maintainers,
-        prev_maintainers,
-        new_conda_forge_members,
-    ) = configure_github_team(
-        meta,
-        gh_repo,
-        org,
-        repo_name.replace("-feedstock", ""),
-    )
+    try:
+        if repo_name.startswith("cf-autotick-bot-test-package"):
+            LOGGER.warning(f"I AM removing team members for {repo_name}!")
+            remove = True
+        else:
+            LOGGER.warning(f"I AM NOT removing team members for {repo_name}!")
+            remove = False
+        (
+            current_maintainers,
+            prev_maintainers,
+            new_conda_forge_members,
+        ) = configure_github_team(
+            meta,
+            gh_repo,
+            org,
+            repo_name.replace("-feedstock", ""),
+            remove=remove,
+        )
+    except TypeError:
+        (
+            current_maintainers,
+            prev_maintainers,
+            new_conda_forge_members,
+        ) = configure_github_team(
+            meta,
+            gh_repo,
+            org,
+            repo_name.replace("-feedstock", ""),
+        )
 
     if commit:
         message = textwrap.dedent("""
