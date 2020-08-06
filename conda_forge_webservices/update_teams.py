@@ -64,29 +64,17 @@ def update_team(org_name, repo_name, commit=None):
             keep_lines.append(line)
     meta = DummyMeta("\n".join(keep_lines))
 
-    try:
-        (
-            current_maintainers,
-            prev_maintainers,
-            new_conda_forge_members,
-        ) = configure_github_team(
-            meta,
-            gh_repo,
-            org,
-            repo_name.replace("-feedstock", ""),
-            remove=True,
-        )
-    except TypeError:
-        (
-            current_maintainers,
-            prev_maintainers,
-            new_conda_forge_members,
-        ) = configure_github_team(
-            meta,
-            gh_repo,
-            org,
-            repo_name.replace("-feedstock", ""),
-        )
+    (
+        current_maintainers,
+        prev_maintainers,
+        new_conda_forge_members,
+    ) = configure_github_team(
+        meta,
+        gh_repo,
+        org,
+        repo_name.replace("-feedstock", ""),
+        remove=True,
+    )
 
     if commit:
         message = textwrap.dedent("""
