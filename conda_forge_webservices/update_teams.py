@@ -65,12 +65,6 @@ def update_team(org_name, repo_name, commit=None):
     meta = DummyMeta("\n".join(keep_lines))
 
     try:
-        if repo_name.startswith("cf-autotick-bot-test-package"):
-            LOGGER.warning(f"I AM removing team members for {repo_name}!")
-            remove = True
-        else:
-            LOGGER.warning(f"I AM NOT removing team members for {repo_name}!")
-            remove = False
         (
             current_maintainers,
             prev_maintainers,
@@ -80,7 +74,7 @@ def update_team(org_name, repo_name, commit=None):
             gh_repo,
             org,
             repo_name.replace("-feedstock", ""),
-            remove=remove,
+            remove=True,
         )
     except TypeError:
         (
