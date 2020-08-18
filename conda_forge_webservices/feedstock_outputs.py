@@ -138,6 +138,7 @@ def copy_feedstock_outputs(outputs, channel):
         if (
             copied[dist]
             and _dist_exists(ac_staging, STAGING, dist)
+            and "REGRO_GITHUB_TOKEN" not in os.environ
         ):
             try:
                 ac_staging.remove_dist(
