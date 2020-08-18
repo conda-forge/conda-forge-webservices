@@ -50,7 +50,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```, ```recipes/ok_recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```, ```recipes/recipe```) and found it was in an excellent condition.
 
         """)  # noqa
 
@@ -61,7 +61,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```, ```recipes/ok_recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```, ```recipes/recipe```) and found it was in an excellent condition.
 
         """)  # noqa
 
@@ -72,7 +72,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/ok_recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```) and found it was in an excellent condition.
 
         """)  # noqa
 
@@ -83,7 +83,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/ok_recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```) and found it was in an excellent condition.
 
         """)  # noqa
 
