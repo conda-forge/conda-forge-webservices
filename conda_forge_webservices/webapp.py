@@ -528,21 +528,24 @@ def _do_copy(feedstock, outputs, win_only, channel, git_sha):
             channel,
         )
         if "REGRO_GITHUB_TOKEN" in os.environ:
-            gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
-            repo = gh.get_repo("regro/releases")
-            for dist in outputs_to_copy:
-                _subdir, _pkg = os.path.split(dist)
-                repo.create_repository_dispatch(
-                    "release",
-                    {
-                        "subdir": _subdir,
-                        "package": _pkg,
-                        "url": f"https://conda.anaconda.org/cf-staging/{dist}",
-                        "feedstock": feedstock,
-                        "label": channel,
-                        "md5": outputs_to_copy[dist],
-                    }
-                )
+            try:
+                gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
+                repo = gh.get_repo("regro/releases")
+                for dist in outputs_to_copy:
+                    _subdir, _pkg = os.path.split(dist)
+                    repo.create_repository_dispatch(
+                        "release",
+                        {
+                            "subdir": _subdir,
+                            "package": _pkg,
+                            "url": f"https://conda.anaconda.org/cf-staging/{dist}",
+                            "feedstock": feedstock,
+                            "label": channel,
+                            "md5": outputs_to_copy[dist],
+                        }
+                    )
+            except Exception as e:
+                LOGGER.info(e)
     else:
         copied = {}
 
