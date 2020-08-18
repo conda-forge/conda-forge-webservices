@@ -1,0 +1,18 @@
+package:
+  name: ok_recipe
+  version: 3
+
+build:
+  number: 0
+
+test: {}
+
+about:
+  home: https://github.com/conda-forge/conda-forge-linting-service
+  license: MIT
+  license_file: LICENSE
+  summary: A test recipe for linting
+
+extra:
+  recipe-maintainers:
+    - pelson
