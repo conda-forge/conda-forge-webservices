@@ -4,6 +4,7 @@ conda=4.8
 conda-build
 conda-forge-pinning
 conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
+python-dateutil
 flake8
 git
 mock

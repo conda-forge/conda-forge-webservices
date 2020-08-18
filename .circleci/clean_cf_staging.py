@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timezone, datetime, timedelta
 
 from dateutil.parser import parse
@@ -30,6 +31,7 @@ if __name__ == "__main__":
     now = datetime.utcnow()
     now = now.replace(tzinfo=timezone.utc)
 
+    num_del = 0
     for channel in rc.json():
         r = requests.get(
             "https://api.anaconda.org/channels/cf-staging/main",
@@ -50,3 +52,6 @@ if __name__ == "__main__":
                     ),
                     headers=header,
                 )
+                num_del += 1
+                if num_del > 10:
+                    sys.exit(0)
