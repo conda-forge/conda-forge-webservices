@@ -13,6 +13,13 @@ jobs:
             source .circleci/install_miniconda.sh
 
       - run:
+          name: clean cf-staging
+          command: |
+            export PATH=${HOME}/miniconda/bin:$PATH
+            source activate base
+            python .circleci/clean_cf_staging.py
+
+      - run:
           name: update
           command: |
             export PATH=${HOME}/miniconda/bin:$PATH
@@ -26,7 +33,7 @@ workflows:
       - build
     triggers:
       - schedule:
-          cron: "0 * * * *"
+          cron: "15 * * * *"
           filters:
             branches:
               only:
