@@ -53,5 +53,5 @@ if __name__ == "__main__":
                     headers=header,
                 )
                 num_del += 1
-                if num_del > 10:
+                if num_del > 10000:
                     sys.exit(0)
