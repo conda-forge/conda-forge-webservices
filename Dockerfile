@@ -38,8 +38,8 @@ ARG CONDA_DIR="/opt/conda"
 ENV PATH="$CONDA_DIR/bin:$PATH"
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# make sure the install below is not cached by docker
-ADD http://worldclockapi.com/api/json/utc/now /opt/docker/etc/timestamp
+# bust the docker cache so that we always rerun the installs below
+ADD http://www.randomtext.me/api/gibberish /opt/docker/etc/gibberish
 
 # Install conda
 COPY conda-requirements.txt /
