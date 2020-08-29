@@ -53,7 +53,10 @@ def main():
     final_install = {}
 
     for pkg in PKGS:
-        available_versions = [p.version for p in r.get_pkgs(MatchSpec(pkg))]
+        available_versions = [
+            p.version for p in r.get_pkgs(MatchSpec(pkg))
+            if "conda-forge" in str(p.channel)
+        ]
         available_versions = sorted(available_versions, key=VersionOrder)
         latest_version = available_versions[-1]
         LOGGER.info("%s|latest|installed:" % pkg, latest_version, installed_vers[pkg])
