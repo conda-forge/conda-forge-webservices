@@ -34,7 +34,7 @@ if __name__ == "__main__":
     num_del = 0
     for channel in rc.json():
         r = requests.get(
-            "https://api.anaconda.org/channels/cf-staging/main",
+            "https://api.anaconda.org/channels/cf-staging/%s" % channel,
             headers=header,
         )
 
