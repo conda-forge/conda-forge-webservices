@@ -41,7 +41,7 @@ if __name__ == "__main__":
         for f in r.json()['files']:
             updt = parse(f["upload_time"])
             dt = now - updt
-            if dt > timedelta(hours=6):
+            if dt > timedelta(hours=2):
                 print("deleting:", f['basename'], dt)
                 _, name, version, _ = parse_conda_pkg(f["basename"])
                 r = requests.delete(
