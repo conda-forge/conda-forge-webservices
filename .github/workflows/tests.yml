@@ -1,0 +1,49 @@
+name: tests
+
+on:
+  push: null
+
+jobs:
+  tests:
+    name: deploy
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: conda-incubator/setup-miniconda@v1
+        with:
+          python-version: 3.8
+          channels: conda-forge,defaults
+          channel-priority: strict
+          show-channel-urls: true
+
+      - name: configure conda
+        shell: bash -l {0}
+        run: |
+          conda config --set show_channel_urls True
+          conda config --add channels conda-forge
+          conda install --yes --quiet --file conda-requirements.txt
+          git config --global user.name "conda-forge-linter"
+          git config --global user.email conda.forge.linter@gmail.com          
+          mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
+          echo ${STAGED_RECIPES_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_staged-recipes.token
+          echo ${APPVEYOR_IS_OK_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_appveyor-is-ok.token
+          pip install --no-deps -e .
+        env:
+          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+          STAGED_RECIPES_FEEDSTOCK_TOKEN: ${{ secrets.CONDA_FORGE_STAGED_RECIPES_TOKEN }}
+          APPVEYOR_IS_OK_FEEDSTOCK_TOKEN: ${{ secrets.CONDA_FORGE_APPVEYOR_IS_OK_TOKEN }}
+
+      - name: run tests
+        shell: bash -l {0}
+        run: |
+          # maybe later...
+          # black --check conda_forge_webservices
+          flake8 conda_forge_webservices
+          pytest -vv conda_forge_webservices
+          ./scripts/run_cfep13_tests.sh
+        env:
+          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
+          STAGING_BINSTAR_TOKEN: ${{ secrets.STAGING_BINSTAR_TOKEN }}
+          CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
