@@ -25,10 +25,12 @@ jobs:
           conda install --yes --quiet --file conda-requirements.txt
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           echo ${STAGED_RECIPES_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_staged-recipes.token
+          echo ${APPVEYOR_IS_OK_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_appveyor-is-ok.token
           pip install --no-deps -e .
         env:
           GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
           STAGED_RECIPES_FEEDSTOCK_TOKEN: ${{ secrets.CONDA_FORGE_STAGED_RECIPES_TOKEN }}
+          APPVEYOR_IS_OK_FEEDSTOCK_TOKEN: ${{ secrets.CONDA_FORGE_APPVEYOR_IS_OK_TOKEN }}
 
       - name: run tests
         shell: bash -l {0}
