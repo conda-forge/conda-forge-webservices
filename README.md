@@ -1,5 +1,5 @@
 # conda-forge-webservices
-[![Build Status](https://travis-ci.com/conda-forge/conda-forge-webservices.svg?branch=master)](https://travis-ci.com/conda-forge/conda-forge-webservices) [![CircleCI](https://circleci.com/gh/conda-forge/conda-forge-webservices.svg?style=svg)](https://circleci.com/gh/conda-forge/conda-forge-webservices)
+[![tests](https://github.com/conda-forge/conda-forge-webservices/workflows/tests/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions?query=workflow%3Atests) [![CircleCI](https://circleci.com/gh/conda-forge/conda-forge-webservices.svg?style=svg)](https://circleci.com/gh/conda-forge/conda-forge-webservices)
 
 
 This repository is the source for the Heroku hosted webapp which powers the conda-forge-admin
