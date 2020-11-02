@@ -26,7 +26,7 @@ jobs:
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           pip install --no-deps -e .
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
 
       - name: run tests
         shell: bash -l {0}
@@ -37,7 +37,7 @@ jobs:
           pytest -vv conda_forge_webservices
           ./scripts/run_cfep13_tests.sh
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.SECRET_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
