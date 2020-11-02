@@ -1,0 +1,5 @@
+name: tests
+
+on:
+  pull_request: null
+  push: null
