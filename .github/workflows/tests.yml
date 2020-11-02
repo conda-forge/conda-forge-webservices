@@ -3,3 +3,44 @@ name: tests
 on:
   pull_request: null
   push: null
+
+jobs:
+  tests:
+    name: deploy
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: conda-incubator/setup-miniconda@v1
+        with:
+          python-version: 3.7
+          channels: conda-forge,defaults
+          channel-priority: strict
+          show-channel-urls: true
+
+      - name: configure conda
+        shell: bash -l {0}
+        run: |
+          conda config --set show_channel_urls True
+          conda config --add channels conda-forge
+          conda update --yes conda
+          conda install --yes --quiet --file conda-requirements.txt
+          mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
+          pip install --no-deps -e .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
+          STAGING_BINSTAR_TOKEN: ${{ secrets.SECRET_BINSTAR_TOKEN }}
+
+      - name: run tests
+        shell: bash -l {0}
+        run: |
+          # maybe later...
+          # black --check conda_forge_webservices
+          flake8 conda_forge_webservices
+          pytest -vv conda_forge_webservices
+          ./scripts/run_cfep13_tests.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
+          STAGING_BINSTAR_TOKEN: ${{ secrets.SECRET_BINSTAR_TOKEN }}
