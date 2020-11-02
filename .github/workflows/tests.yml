@@ -23,7 +23,6 @@ jobs:
         run: |
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
-          conda update --yes conda
           conda install --yes --quiet --file conda-requirements.txt
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           pip install --no-deps -e .
