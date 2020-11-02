@@ -27,8 +27,6 @@ jobs:
           pip install --no-deps -e .
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
-          STAGING_BINSTAR_TOKEN: ${{ secrets.SECRET_BINSTAR_TOKEN }}
 
       - name: run tests
         shell: bash -l {0}
@@ -42,3 +40,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.SECRET_BINSTAR_TOKEN }}
+          CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
