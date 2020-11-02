@@ -23,6 +23,8 @@ jobs:
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
           conda install --yes --quiet --file conda-requirements.txt
+          git config --global user.name "conda-forge-linter"
+          git config --global user.email conda.forge.linter@gmail.com          
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           echo ${STAGED_RECIPES_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_staged-recipes.token
           echo ${APPVEYOR_IS_OK_FEEDSTOCK_TOKEN} > ~/.conda-smithy/conda-forge_appveyor-is-ok.token
