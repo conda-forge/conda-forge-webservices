@@ -83,6 +83,47 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
+def _make_package(name, ac_prod):
+    try:
+        pkg_info = requests.get(
+            f"https://api.anaconda.org/package/{STAGING}/{name}"
+        )
+        pkg_info.raise_for_status()
+        pkg_info = pkg_info.json()
+    except Exception:
+        return False
+
+    pkg_attrs = {
+        "name": pkg_info["name"],
+        "summary": pkg_info["summary"],
+        "description": pkg_info["description"],
+        "license": pkg_info["license"],
+        "license_url": pkg_info["license_url"],
+        "license_family": pkg_info["license_family"],
+        "dev_url": pkg_info["dev_url"],
+        "doc_url": pkg_info["doc_url"],
+        "home": pkg_info["home"],
+        "source_git_url": pkg_info["source_git_url"],
+    }
+
+    try:
+        ac_prod.add_package(
+            PROD,
+            name,
+            pkg_attrs["summary"],
+            pkg_attrs["license"],
+            public=True,
+            attrs=pkg_attrs,
+            license_url=pkg_attrs["license_url"],
+            license_family=pkg_attrs["license_family"],
+            package_type="conda",
+        )
+    except Exception:
+        return False
+
+    return True
+
+
 def copy_feedstock_outputs(outputs, channel):
     """Copy outputs from one chanel to another.
 
@@ -120,6 +161,12 @@ def copy_feedstock_outputs(outputs, channel):
             copied[dist] = True
         else:
             try:
+                if not _make_package(name, ac_prod):
+                    LOGGER.info(
+                        f"    could not make package {name} on {PROD} "
+                        "- copying anyways"
+                    )
+
                 ac_prod.copy(
                     STAGING,
                     name,
