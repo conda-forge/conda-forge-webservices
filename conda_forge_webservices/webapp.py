@@ -527,11 +527,13 @@ def _do_copy(feedstock, outputs, win_only, channel, git_sha):
             outputs_to_copy,
             channel,
         )
+
+        # send artifact to be uploaded
         if "REGRO_GITHUB_TOKEN" in os.environ:
             try:
                 gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
                 repo = gh.get_repo("regro/releases")
-                for dist in outputs_to_copy:
+                for dist in copied:
                     _subdir, _pkg = os.path.split(dist)
                     repo.create_repository_dispatch(
                         "release",
@@ -546,6 +548,21 @@ def _do_copy(feedstock, outputs, win_only, channel, git_sha):
                     )
             except Exception as e:
                 LOGGER.info(e)
+
+        # send for artifact validation
+        try:
+            gh = github.Github(os.environ["GITHUB_TOKEN"])
+            repo = gh.get_repo("conda-forge/artifact-validation")
+            for dist in copied:
+                repo.create_repository_dispatch(
+                    "validate",
+                    {
+                        "artifact_url": f"https://conda.anaconda.org/cf-staging/{dist}",
+                        "md5": outputs_to_copy[dist],
+                    }
+                )
+        except Exception as e:
+            LOGGER.info(e)
     else:
         copied = {}
 
