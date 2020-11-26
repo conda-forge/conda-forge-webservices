@@ -382,7 +382,7 @@ def validate_feedstock_outputs(
 
 
 def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
-    """Comment on a git commit if the feedstock output copy failed.
+    """Make an issue or comment if the feedstock output copy failed.
 
     Parameters
     ----------
@@ -404,13 +404,15 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
 Hi @conda-forge/%s! This is the friendly automated conda-forge-webservice!
 
 It appears that one or more of your feedstock's outputs did not copy from the
-staging channel to the conda-forge production channels. :(
+staging channel (cf-staging) to the production channel (conda-forge). :(
 
 This failure can happen for a lot of reasons, including an outdated feedstock
 token. Below we have put some information about the failure to help you debug it.
 
+**Rerendering the feedstock will usually fix these problems.**
+
 If you have any issues or questions, you can find us on gitter in the
-community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or you can bump us right in this comment.
+community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or you can bump us right here.
 """ % (feedstock[:-len("-feedstock")])  # noqa
 
     if len(valid) > 0:
@@ -438,5 +440,27 @@ community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or yo
         message += error_msg
 
     repo = gh.get_repo("conda-forge/%s" % feedstock)
-    commit = repo.get_commit(git_sha)
-    commit.create_comment(message)
+    issue = None
+    for _issue in repo.get_issues(state="all"):
+        if (
+            (git_sha is not None and git_sha in _issue.title)
+            or ("failed package copy from cf-staging to conda-forge" in _issue.title)
+        ):
+            issue = _issue
+            break
+
+    if issue is None:
+        if git_sha is not None:
+            issue = repo.create_issue(
+                "failed package copy for commit %s" % git_sha,
+                body=message,
+            )
+        else:
+            issue = repo.create_issue(
+                "failed package copy from cf-staging to conda-forge",
+                body=message,
+            )
+    else:
+        if issue.state == "closed":
+            issue.edit(state="open")
+        issue.create_comment(message)
