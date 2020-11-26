@@ -551,7 +551,7 @@ def _do_copy(feedstock, outputs, win_only, channel, git_sha):
 
         # send for artifact validation
         try:
-            gh = github.Github(os.environ["GITHUB_TOKEN"])
+            gh = github.Github(os.environ["GH_TOKEN"])
             repo = gh.get_repo("conda-forge/artifact-validation")
             for dist in copied:
                 repo.create_repository_dispatch(
