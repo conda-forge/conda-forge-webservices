@@ -99,7 +99,7 @@ def _make_package(name, ac_prod):
         "description": pkg_info["description"],
         "license": pkg_info["license"],
         "license_url": pkg_info["license_url"],
-        "license_family": pkg_info["license_family"],
+        "license_family": pkg_info.get("license_family"),
         "dev_url": pkg_info["dev_url"],
         "doc_url": pkg_info["doc_url"],
         "home": pkg_info["home"],
