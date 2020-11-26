@@ -630,13 +630,18 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             LOGGER.warning('    channel: %s' % channel)
             LOGGER.warning('    valid token: %s' % valid_token)
 
-            if (
-                git_sha is not None
-                and feedstock_exists
-            ):
+            err_msgs = []
+            if outputs is None:
+                err_msgs.append("no outputs data sent for copy")
+            if channel is None:
+                err_msgs.append("no channel sent for copy")
+            if not valid_token:
+                err_msgs.append("invalid feedstock token")
+
+            if feedstock_exists:
                 comment_on_outputs_copy(
                     feedstock, git_sha,
-                    ["invalid copy request (either bad data or bad feedstock token)"],
+                    err_msgs,
                     {}, {}
                 )
 
