@@ -197,7 +197,7 @@ def _is_valid_output_hash(outputs):
 
 
 def _is_valid_feedstock_output(
-    project, outputs, register=True, must_explicitly_exist=False
+    project, outputs, register=True,
 ):
     """Test if feedstock outputs are valid (i.e., the outputs are allowed for that
     feedstock). Optionally register them if they do not exist.
@@ -213,10 +213,6 @@ def _is_valid_feedstock_output(
     register : bool, optional
         If True, attempt to register any outputs that do not exist by pushing
         the proper json blob to `output_repo`. Default is True.
-    must_explicitly_exist : bool, optional
-        If True, the output must be already registered and exist for it to be
-        valid. This option is used for appveyor-only uploads where we cannot
-        verify the request.
 
     Returns
     -------
@@ -250,7 +246,7 @@ def _is_valid_feedstock_output(
         if r.status_code != 200:
             # it failed, but we need to know if it failed due to the API or
             # if the file is not there
-            if r.status_code == 404 and not must_explicitly_exist:
+            if r.status_code == 404:
                 unique_names_valid[un] = True
 
                 LOGGER.info(
@@ -300,7 +296,6 @@ def _is_valid_feedstock_output(
 def validate_feedstock_outputs(
     project,
     outputs,
-    win_only,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -312,9 +307,6 @@ def validate_feedstock_outputs(
         A dictionary mapping each output to its md5 hash. The keys should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
-    win_only : bool
-        If True, only outputs in the win-64 subdir will be allowed. This option
-        is used for appveyor only uploads.
 
     Returns
     -------
@@ -346,10 +338,6 @@ def validate_feedstock_outputs(
     valid_outputs = _is_valid_feedstock_output(
         project,
         outputs_to_test,
-        # for win-only uploads on appveyor we must have already registered
-        # the output and we cannot register new outputs
-        register=not win_only,
-        must_explicitly_exist=win_only,
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test)
@@ -367,16 +355,6 @@ def validate_feedstock_outputs(
             errors.extend(_errors)
         else:
             valid[o] = True
-
-    # this has to come last
-    if win_only:
-        for o in outputs_to_test:
-            plat, _, _, _ = parse_conda_pkg(o)
-            if plat != "win-64":
-                valid[o] = False
-                errors.append(
-                    "output %s is not allowed for win-64-only copies" % o
-                )
 
     return valid, errors
 
@@ -398,7 +376,12 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
     copied : dict
         A dictionary mapping outputs to whether or not they were copied.
     """
+    if not feedstock.endswith("-feedstock"):
+        return None
+
     gh = github.Github(os.environ['GH_TOKEN'])
+
+    team_name = feedstock[:-len("-feedstock")]
 
     message = """\
 Hi @conda-forge/%s! This is the friendly automated conda-forge-webservice!
@@ -413,7 +396,7 @@ token. Below we have put some information about the failure to help you debug it
 
 If you have any issues or questions, you can find us on gitter in the
 community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or you can bump us right here.
-""" % (feedstock[:-len("-feedstock")])  # noqa
+""" % team_name  # noqa
 
     if len(valid) > 0:
         valid_msg = "output validation (is this output allowed for your feedstock?):\n"

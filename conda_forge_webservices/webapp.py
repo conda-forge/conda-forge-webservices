@@ -499,22 +499,10 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         return
 
 
-def _get_appveyor_ok_list():
-    r = requests.get(
-        "https://raw.githubusercontent.com/conda-forge/"
-        "feedstock-outputs/master/appveyor_ok_list.json"
-    )
-    if r.status_code != 200:
-        return []
-    else:
-        return r.json()["ok"]
-
-
-def _do_copy(feedstock, outputs, win_only, channel, git_sha):
+def _do_copy(feedstock, outputs, channel, git_sha):
     valid, errors = validate_feedstock_outputs(
         feedstock,
         outputs,
-        win_only,
     )
 
     outputs_to_copy = {}
@@ -570,7 +558,7 @@ def _do_copy(feedstock, outputs, win_only, channel, git_sha):
         if o not in copied:
             copied[o] = False
 
-    if git_sha is not None and not all(copied[o] for o in outputs):
+    if not all(copied[o] for o in outputs):
         comment_on_outputs_copy(
             feedstock, git_sha, errors, valid, copied)
 
@@ -587,8 +575,6 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         channel = data.get("channel", None)
         git_sha = data.get("git_sha", None)
 
-        appveyor_ok_list = _get_appveyor_ok_list()
-
         LOGGER.info("")
         LOGGER.info("===================================================")
         LOGGER.info("copy outputs for feedstock '%s'" % feedstock)
@@ -600,23 +586,15 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             feedstock_exists = False
 
         valid_token = False
-        win_only = True
         if (
             feedstock_exists
             and feedstock_token is not None
             and len(feedstock_token) > 0
+            and is_valid_feedstock_token(
+                    "conda-forge", feedstock, feedstock_token
+            )
         ):
-            if (
-                feedstock in appveyor_ok_list
-                and is_valid_feedstock_token(
-                    "conda-forge", "appveyor-is-ok", feedstock_token)
-            ):
-                valid_token = True
-                win_only = True
-            elif is_valid_feedstock_token(
-                    "conda-forge", feedstock, feedstock_token):
-                valid_token = True
-                win_only = False
+            valid_token = True
 
         if (
             (not feedstock_exists)
@@ -657,7 +635,6 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 _do_copy,
                 feedstock,
                 outputs,
-                win_only,
                 channel,
                 git_sha
             )
