@@ -31,13 +31,8 @@ headers = {
     "FEEDSTOCK_TOKEN": sr_token,
 }
 
-
-appveyor_token_path = "${HOME}/.conda-smithy/conda-forge_appveyor-is-ok.token"
-with open(os.path.expandvars(appveyor_token_path), "r") as fp:
-    app_token = fp.read().strip()
-
-appveyor_headers = {
-    "FEEDSTOCK_TOKEN": app_token,
+bad_headers = {
+    "FEEDSTOCK_TOKEN": "not a valid token",
 }
 
 GH = github.Github(os.environ["GH_TOKEN"])
@@ -80,7 +75,7 @@ def test_feedstock_outputs_copy_bad_token():
     sha = repo.get_branch("master").commit.commit.sha
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=headers,  # this has the staged recipes token
+        headers=bad_headers,
         json={
             "feedstock": "cf-autotick-bot-test-package-feedstock",
             "outputs": {},
@@ -92,94 +87,16 @@ def test_feedstock_outputs_copy_bad_token():
     assert r.status_code == 403, r.status_code
 
 
-def test_feedstock_outputs_copy_appveyor_ok_list():
-    r = requests.post(
-        "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=appveyor_headers,
-        json={
-            "feedstock": "python-feedstock",
-            "outputs": {},
-            "channel": "main",
-        },
-    )
-
-    assert r.status_code == 200, r.status_code
-
-
-def test_feedstock_outputs_copy_appveyor_ok_list_badtoken():
-    r = requests.post(
-        "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=headers,  # this has the staged recipes token
-        json={
-            "feedstock": "python-feedstock",
-            "outputs": {},
-            "channel": "main",
-        },
-    )
-
-    assert r.status_code == 403, r.status_code
-
-
-def test_feedstock_outputs_copy_appveyor_ok_list_notonlist():
-    r = requests.post(
-        "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=appveyor_headers,
-        json={
-            "feedstock": "blah-feedstock",
-            "outputs": {},
-            "channel": "main",
-        },
-    )
-
-    assert r.status_code == 403, r.status_code
-
-
-def test_feedstock_outputs_copy_appveyor_ok_list_badout():
-    r = requests.post(
-        "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=appveyor_headers,
-        json={
-            "feedstock": "python-feedstock",
-            "outputs": {
-                "noarch/cf-autotick-bot-test-package-0.1-py_11.tar.bz2": "ababa",
-            },
-            "channel": "main",
-        },
-    )
-
-    assert r.status_code == 403, r.status_code
-
-    info = r.json()
-    assert any("win-64-only" in e for e in info["errors"])
-
-
-def test_feedstock_outputs_copy_appveyor_ok_list_badout_python():
-    r = requests.post(
-        "http://127.0.0.1:5000/feedstock-outputs/copy",
-        headers=appveyor_headers,
-        json={
-            "feedstock": "python-feedstock",
-            "outputs": {
-                "win-64/cf-autotick-bot-test-package-0.1-py_11.tar.bz2": "ababa",
-            },
-            "channel": "main",
-        },
-    )
-
-    assert r.status_code == 403, r.status_code
-
-    info = r.json()
-    assert any(
-        "not allowed for conda-forge/python-feedstock" in e for e in info["errors"])
-
-
 def test_feedstock_outputs_copy_missing_token():
+    repo = GH.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
+    sha = repo.get_branch("master").commit.commit.sha
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
         json={
-            "feedstock": "staged-recipes",
+            "feedstock": "cf-autotick-bot-test-package-feedstock",
             "outputs": {},
             "channel": "main",
+            "git_sha": sha,
         },
     )
 

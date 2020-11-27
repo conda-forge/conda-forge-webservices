@@ -186,14 +186,12 @@ def test_validate_feedstock_outputs_winonly(
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
         hashes,
-        True,
     )
 
     valid_out.assert_any_call(
         "bar-feedstock",
         hashes,
         register=False,
-        must_explicitly_exist=True,
     )
 
     assert valid == {
@@ -239,14 +237,13 @@ def test_is_valid_output_hash():
     }
 
 
-@pytest.mark.parametrize("must_explicitly_exist", [True, False])
 @pytest.mark.parametrize("register", [True, False])
 @pytest.mark.parametrize(
     "project", ["foo-feedstock", "blah", "foo", "blarg-feedstock", "boo-feedstock"]
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.requests")
 def test_is_valid_feedstock_output(
-    req_mock, monkeypatch, project, register, must_explicitly_exist
+    req_mock, monkeypatch, project, register,
 ):
     monkeypatch.setenv("GH_TOKEN", "abc123")
     monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
@@ -283,35 +280,35 @@ def test_is_valid_feedstock_output(
     ]
 
     valid = _is_valid_feedstock_output(
-        project, outputs, register=register, must_explicitly_exist=must_explicitly_exist
+        project, outputs, register=register,
     )
 
     if project in ["foo", "foo-feedstock"]:
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
+            "noarch/glob-0.2-py_12.tar.bz2": True,
         }
     elif project == "blah":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
+            "noarch/glob-0.2-py_12.tar.bz2": True,
         }
     elif project == "blarg":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": True,
-            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
+            "noarch/glob-0.2-py_12.tar.bz2": True,
         }
     elif project == "boo":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": not must_explicitly_exist,
+            "noarch/glob-0.2-py_12.tar.bz2": True,
         }
 
-    if register and not must_explicitly_exist:
+    if register:
         assert len(req_mock.put.call_args_list) == 1
     else:
         req_mock.put.assert_not_called()
