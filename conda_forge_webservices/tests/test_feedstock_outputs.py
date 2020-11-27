@@ -139,7 +139,6 @@ def test_validate_feedstock_outputs_badoutputhash(
             "noarch/c-0.1-py_0.tar.bz2": "sadSA",
             "noarch/d-0.1-py_0.tar.bz2": "SAdsa",
         },
-        False,
     )
 
     assert valid == {
@@ -157,52 +156,6 @@ def test_validate_feedstock_outputs_badoutputhash(
         "conda-forge/bar-feedstock") in errs
     assert "output noarch/a-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
     assert "output noarch/d-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
-
-
-@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
-def test_validate_feedstock_outputs_winonly(
-    valid_out, valid_hash
-):
-    valid_out.return_value = {
-        "noarch/a-0.1-py_0.tar.bz2": True,
-        "noarch/b-0.1-py_0.tar.bz2": True,
-        "noarch/c-0.1-py_0.tar.bz2": True,
-        "win-64/d-0.1-py_0.tar.bz2": True,
-    }
-    valid_hash.return_value = {
-        "noarch/a-0.1-py_0.tar.bz2": True,
-        "noarch/b-0.1-py_0.tar.bz2": True,
-        "noarch/c-0.1-py_0.tar.bz2": True,
-        "win-64/d-0.1-py_0.tar.bz2": True,
-    }
-    hashes = {
-        "noarch/a-0.1-py_0.tar.bz2": "daD",
-        "noarch/b-0.1-py_0.tar.bz2": "safdsa",
-        "noarch/c-0.1-py_0.tar.bz2": "sadSA",
-        "win-64/d-0.1-py_0.tar.bz2": "SAdsa",
-    }
-
-    valid, errs = validate_feedstock_outputs(
-        "bar-feedstock",
-        hashes,
-    )
-
-    valid_out.assert_any_call(
-        "bar-feedstock",
-        hashes,
-        register=False,
-    )
-
-    assert valid == {
-        "noarch/a-0.1-py_0.tar.bz2": False,
-        "noarch/b-0.1-py_0.tar.bz2": False,
-        "noarch/c-0.1-py_0.tar.bz2": False,
-        "win-64/d-0.1-py_0.tar.bz2": True,
-    }
-    assert len(errs) == 3
-    for err in errs:
-        assert "win-64-only copies" in err
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs.STAGING", new="conda-forge")
