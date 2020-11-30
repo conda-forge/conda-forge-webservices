@@ -522,13 +522,25 @@ def _do_copy(feedstock, outputs, channel, git_sha):
                 gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
                 repo = gh.get_repo("regro/releases")
                 for dist in copied:
+                    if not copied[dist]:
+                        continue
+
                     _subdir, _pkg = os.path.split(dist)
+
+                    if channel == "main":
+                        _url = f"https://conda.anaconda.org/cf-staging/{dist}"
+                    else:
+                        _url = (
+                            "https://conda.anaconda.org/cf-staging/label/"
+                            + f"{channel}/{dist}"
+                        )
+
                     repo.create_repository_dispatch(
                         "release",
                         {
                             "subdir": _subdir,
                             "package": _pkg,
-                            "url": f"https://conda.anaconda.org/cf-staging/{dist}",
+                            "url": _url,
                             "feedstock": feedstock,
                             "label": channel,
                             "md5": outputs_to_copy[dist],
@@ -542,10 +554,21 @@ def _do_copy(feedstock, outputs, channel, git_sha):
             gh = github.Github(os.environ["GH_TOKEN"])
             repo = gh.get_repo("conda-forge/artifact-validation")
             for dist in copied:
+                if not copied[dist]:
+                    continue
+
+                if channel == "main":
+                    _url = f"https://conda.anaconda.org/cf-staging/{dist}"
+                else:
+                    _url = (
+                        "https://conda.anaconda.org/cf-staging/label/"
+                        + f"{channel}/{dist}"
+                    )
+
                 repo.create_repository_dispatch(
                     "validate",
                     {
-                        "artifact_url": f"https://conda.anaconda.org/cf-staging/{dist}",
+                        "artifact_url": _url,
                         "md5": outputs_to_copy[dist],
                     }
                 )
