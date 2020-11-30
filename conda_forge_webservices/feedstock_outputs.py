@@ -83,7 +83,7 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
-def copy_feedstock_outputs(outputs, channel):
+def copy_feedstock_outputs(outputs, channel, delete=True):
     """Copy outputs from one chanel to another.
 
     Parameters
@@ -95,6 +95,9 @@ def copy_feedstock_outputs(outputs, channel):
     channel : str
         The source and target channel to use. Pass "main" for the default
         channel.
+    delete : bool, optional
+        If True, delete the artifact from STAGING if the copy is successful.
+        Default is True.
 
     Returns
     -------
@@ -138,7 +141,7 @@ def copy_feedstock_outputs(outputs, channel):
         if (
             copied[dist]
             and _dist_exists(ac_staging, STAGING, dist)
-            and "REGRO_GITHUB_TOKEN" not in os.environ
+            and delete
         ):
             try:
                 ac_staging.remove_dist(
