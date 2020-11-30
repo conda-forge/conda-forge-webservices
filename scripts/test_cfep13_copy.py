@@ -306,12 +306,6 @@ def test_feedstock_outputs_copy_works():
         print("    response:", pprint.pformat(r.json()))
 
         print("\n=========================================================")
-        print("sleeping for 3 minutes for artifact validation")
-        print("=========================================================", flush=True)
-        for _ in tqdm.trange(180):
-            time.sleep(1)
-
-        print("\n=========================================================")
         print("checking that dists exist on prod")
         print("=========================================================", flush=True)
         for dist in outputs:

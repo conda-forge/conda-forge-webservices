@@ -514,6 +514,7 @@ def _do_copy(feedstock, outputs, channel, git_sha):
         copied = copy_feedstock_outputs(
             outputs_to_copy,
             channel,
+            delete=False,
         )
 
         # send artifact to be uploaded
