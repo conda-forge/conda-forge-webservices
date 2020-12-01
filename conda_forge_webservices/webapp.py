@@ -551,30 +551,30 @@ def _do_copy(feedstock, outputs, channel, git_sha):
                 LOGGER.info(e)
 
         # send for artifact validation
-        try:
-            gh = github.Github(os.environ["GH_TOKEN"])
-            repo = gh.get_repo("conda-forge/artifact-validation")
-            for dist in copied:
-                if not copied[dist]:
-                    continue
+#         try:
+#             gh = github.Github(os.environ["GH_TOKEN"])
+#             repo = gh.get_repo("conda-forge/artifact-validation")
+#             for dist in copied:
+#                 if not copied[dist]:
+#                     continue
 
-                if channel == "main":
-                    _url = f"https://conda.anaconda.org/cf-staging/{dist}"
-                else:
-                    _url = (
-                        "https://conda.anaconda.org/cf-staging/label/"
-                        + f"{channel}/{dist}"
-                    )
+#                 if channel == "main":
+#                     _url = f"https://conda.anaconda.org/cf-staging/{dist}"
+#                 else:
+#                     _url = (
+#                         "https://conda.anaconda.org/cf-staging/label/"
+#                         + f"{channel}/{dist}"
+#                     )
 
-                repo.create_repository_dispatch(
-                    "validate",
-                    {
-                        "artifact_url": _url,
-                        "md5": outputs_to_copy[dist],
-                    }
-                )
-        except Exception as e:
-            LOGGER.info(e)
+#                 repo.create_repository_dispatch(
+#                     "validate",
+#                     {
+#                         "artifact_url": _url,
+#                         "md5": outputs_to_copy[dist],
+#                     }
+#                 )
+#         except Exception as e:
+#             LOGGER.info(e)
     else:
         copied = {}
 
