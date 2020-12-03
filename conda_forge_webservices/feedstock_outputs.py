@@ -430,7 +430,7 @@ community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or yo
     for _issue in repo.get_issues(state="all"):
         if (
             (git_sha is not None and git_sha in _issue.title)
-            or ("failed package copy from cf-staging to conda-forge" in _issue.title)
+            or ("[warning] failed package validation and/or copy" in _issue.title)
         ):
             issue = _issue
             break
@@ -438,12 +438,13 @@ community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or yo
     if issue is None:
         if git_sha is not None:
             issue = repo.create_issue(
-                "failed package copy for commit %s" % git_sha,
+                "[warning] failed package validation "
+                "and/or copy for commit %s" % git_sha,
                 body=message,
             )
         else:
             issue = repo.create_issue(
-                "failed package copy from cf-staging to conda-forge",
+                "[warning] failed package validation and/or copy",
                 body=message,
             )
     else:
