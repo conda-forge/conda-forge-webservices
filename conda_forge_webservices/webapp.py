@@ -558,6 +558,8 @@ def _do_copy(feedstock, outputs, channel, git_sha):
                 if not copied[dist]:
                     continue
 
+                _subdir, _pkg = os.path.split(dist)
+
                 if channel == "main":
                     _url = f"https://conda.anaconda.org/cf-staging/{dist}"
                 else:
@@ -571,6 +573,12 @@ def _do_copy(feedstock, outputs, channel, git_sha):
                     {
                         "artifact_url": _url,
                         "md5": outputs_to_copy[dist],
+                        "subdir": _subdir,
+                        "package": _pkg,
+                        "url": _url,
+                        "feedstock": feedstock,
+                        "label": channel,
+                        "git_sha": git_sha,
                     }
                 )
         except Exception as e:
