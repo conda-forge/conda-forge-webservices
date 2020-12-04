@@ -499,7 +499,7 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         return
 
 
-def _do_copy(feedstock, outputs, channel, git_sha):
+def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
     valid, errors = validate_feedstock_outputs(
         feedstock,
         outputs,
@@ -579,6 +579,7 @@ def _do_copy(feedstock, outputs, channel, git_sha):
                         "feedstock": feedstock,
                         "label": channel,
                         "git_sha": git_sha,
+                        "comment_on_error": comment_on_error,
                     }
                 )
         except Exception as e:
@@ -590,7 +591,7 @@ def _do_copy(feedstock, outputs, channel, git_sha):
         if o not in copied:
             copied[o] = False
 
-    if not all(copied[o] for o in outputs):
+    if not all(copied[o] for o in outputs) and comment_on_error:
         comment_on_outputs_copy(
             feedstock, git_sha, errors, valid, copied)
 
@@ -606,6 +607,9 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         outputs = data.get("outputs", None)
         channel = data.get("channel", None)
         git_sha = data.get("git_sha", None)
+        # the old default was to comment only if the git sha was not None
+        # so we keep that here
+        comment_on_error = data.get("comment_on_error", git_sha is not None)
 
         LOGGER.info("")
         LOGGER.info("===================================================")
@@ -648,7 +652,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             if not valid_token:
                 err_msgs.append("invalid feedstock token")
 
-            if feedstock_exists:
+            if feedstock_exists and comment_on_error:
                 comment_on_outputs_copy(
                     feedstock, git_sha,
                     err_msgs,
@@ -668,7 +672,8 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 feedstock,
                 outputs,
                 channel,
-                git_sha
+                git_sha,
+                comment_on_error,
             )
 
             if not all(v for v in copied.values()):
