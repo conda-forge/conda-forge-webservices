@@ -521,7 +521,7 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
         if "REGRO_GITHUB_TOKEN" in os.environ:
             try:
                 gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
-                repo = gh.get_repo("regro/releases")
+                repo = gh.get_repo("conda-forge/releases")
                 for dist in copied:
                     if not copied[dist]:
                         continue
