@@ -1,113 +1,20 @@
 import git
-import jinja2
 import os
 import time
 import tempfile
 import shutil
 import logging
 
-from collections import namedtuple
 # from .utils import tmp_directory
 
 LOGGER = logging.getLogger("conda_forge_webservices.feedstocks_service")
 
 
 def handle_feedstock_event(org_name, repo_name):
-    if repo_name in ["conda-forge.github.io", "staged-recipes"]:
-        update_listing()
-        return True
-    elif repo_name.endswith("-feedstock"):
+    if repo_name.endswith("-feedstock"):
         update_feedstock(org_name, repo_name)
         return True
     return False
-
-
-def update_listing():
-    tmp_dir = None
-    try:
-        tmp_dir = tempfile.mkdtemp('_recipe')
-
-        t0 = time.time()
-        webpage_url = (
-            "https://github.com/conda-forge/conda-forge.github.io.git"
-        )
-        webpage_repo = git.Repo.clone_from(
-            webpage_url,
-            os.path.join(tmp_dir, "webpage"),
-            depth=1,
-        )
-        webpage_dir = os.path.dirname(webpage_repo.git_dir)
-
-        feedstocks_url = (
-            "https://github.com/conda-forge/feedstocks.git"
-        )
-        feedstocks_repo = git.Repo.clone_from(
-            feedstocks_url,
-            os.path.join(tmp_dir, "feedstocks"),
-            depth=1,
-        )
-        feedstocks_dir = os.path.dirname(feedstocks_repo.git_dir)
-
-        feedstocks_page_url = (
-            "https://{}@github.com/conda-forge/feedstocks.git"
-            "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
-        )
-        feedstocks_page_repo = git.Repo.clone_from(
-            feedstocks_page_url,
-            os.path.join(tmp_dir, "feedstocks_page"),
-            branch="gh-pages",
-            depth=1,
-        )
-        feedstocks_page_dir = os.path.dirname(feedstocks_page_repo.git_dir)
-        LOGGER.info("    listing clone: %s", time.time() - t0)
-
-        t0 = time.time()
-        Feedstock = namedtuple("Feedstock", ["name", "package_name"])
-        repos = sorted(os.listdir(os.path.join(
-            feedstocks_dir, "feedstocks"
-        )))
-        repos = [Feedstock(f + "-feedstock", f) for f in repos]
-
-        env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(os.path.join(
-                webpage_dir
-            ))
-        )
-        context = {"gh_feedstocks": repos}
-        tmpl = env.get_template("feedstocks.html.tmpl")
-        feedstocks_html = os.path.join(feedstocks_page_dir, "index.html")
-        with open(feedstocks_html, 'w') as fh:
-            fh.write(tmpl.render(context))
-
-        nojekyll = os.path.join(feedstocks_page_dir, ".nojekyll")
-        with open(nojekyll, 'w') as fh:
-            pass
-
-        feedstocks_page_repo.index.add([os.path.relpath(
-            feedstocks_html, feedstocks_page_dir
-        )])
-        feedstocks_page_repo.index.add([os.path.relpath(
-            nojekyll, feedstocks_page_dir
-        )])
-        LOGGER.info("    listing render: %s", time.time() - t0)
-
-        t0 = time.time()
-        if feedstocks_page_repo.is_dirty(working_tree=False, untracked_files=True):
-            author = git.Actor(
-                "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
-            )
-            feedstocks_page_repo.index.commit(
-                "Updated the feedstock listing.",
-                author=author,
-                committer=author
-            )
-            feedstocks_page_repo.remote().pull(rebase=True)
-            feedstocks_page_repo.remote().push()
-        LOGGER.info("    listing push: %s", time.time() - t0)
-
-    finally:
-        if tmp_dir is not None:
-            shutil.rmtree(tmp_dir)
 
 
 def update_feedstock(org_name, repo_name):
