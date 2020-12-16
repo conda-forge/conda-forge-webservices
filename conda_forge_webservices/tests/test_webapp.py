@@ -88,8 +88,6 @@ class TestBucketHandler(TestHandlerBase):
                 return_value=None)
     @mock.patch('conda_forge_webservices.linting.set_pr_status', return_value=None)
     @mock.patch('conda_forge_webservices.linting.comment_on_pr', return_value=None)
-    @mock.patch('conda_forge_webservices.feedstocks_service.update_listing',
-                return_value=None)
     @mock.patch('conda_forge_webservices.feedstocks_service.update_feedstock',
                 return_value=None)
     @mock.patch('conda_forge_webservices.commands.pr_detailed_comment',
@@ -177,10 +175,6 @@ class TestBucketHandler(TestHandlerBase):
                             response.code, 200,
                             msg=f"event: {event}, slug: {slug}, hook: {hook}")
 
-    @mock.patch(
-        'conda_forge_webservices.feedstocks_service.update_listing',
-        return_value=None,
-    )
     @mock.patch(
         'conda_forge_webservices.feedstocks_service.update_feedstock',
         return_value=None,
