@@ -103,8 +103,7 @@ class TestBucketHandler(TestHandlerBase):
         for hook, accepted_repos, accepted_events in [
             ("/conda-linting/org-hook",
              ["staged-recipes", "repo-feedstock"], ["pull_request"]),
-            ("/conda-forge-feedstocks/org-hook",
-             ["staged-recipes", "repo-feedstock", "conda-forge.github.io"], ["push"]),
+            ("/conda-forge-feedstocks/org-hook", ["repo-feedstock"], ["push"]),
             ("/conda-forge-teams/org-hook", ["repo-feedstock"], ["push"]),
             ("/conda-forge-command/org-hook",
              ["staged-recipes", "repo-feedstock"], ["pull_request", "issues"]),
@@ -198,7 +197,7 @@ class TestBucketHandler(TestHandlerBase):
     def test_skip_commits(self, commit_mock, *args):
         for hook, accepted_repos, accepted_events, skip_slugs in [
             ("/conda-forge-feedstocks/org-hook",
-             ["staged-recipes", "repo-feedstock", "conda-forge.github.io"],
+             ["repo-feedstock"],
              ["push"],
              ["[cf admin skip]", "[cf admin skip feedstocks]"],
              ),
