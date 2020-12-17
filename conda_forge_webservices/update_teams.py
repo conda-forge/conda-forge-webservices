@@ -62,7 +62,7 @@ def update_team(org_name, repo_name, commit=None):
             skip += 1
         if skip > 0:
             keep_lines.append(line)
-    assert skip == 1, "team uodate failed due to 2 'extra:' commands"
+    assert skip == 1, "team update failed due to > 1 'extra:' sections"
     meta = DummyMeta("\n".join(keep_lines))
 
     (
