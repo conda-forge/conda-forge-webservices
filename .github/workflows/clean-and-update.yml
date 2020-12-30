@@ -7,7 +7,7 @@ on:
 
 jobs:
   clean-and-update:
-    clean-and-update: deploy
+    name: clean-and-update
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
