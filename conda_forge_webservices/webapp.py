@@ -518,7 +518,7 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
         )
 
         # send artifact to be uploaded
-        if "REGRO_GITHUB_TOKEN" in os.environ:
+        if "REGRO_GITHUB_TOKEN" in os.environ and False:
             try:
                 gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
                 repo = gh.get_repo("conda-forge/releases")
@@ -551,39 +551,40 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
                 LOGGER.info(e)
 
         # send for artifact validation
-        try:
-            gh = github.Github(os.environ["GH_TOKEN"])
-            repo = gh.get_repo("conda-forge/artifact-validation")
-            for dist in copied:
-                if not copied[dist]:
-                    continue
+        if False:
+            try:
+                gh = github.Github(os.environ["GH_TOKEN"])
+                repo = gh.get_repo("conda-forge/artifact-validation")
+                for dist in copied:
+                    if not copied[dist]:
+                        continue
 
-                _subdir, _pkg = os.path.split(dist)
+                    _subdir, _pkg = os.path.split(dist)
 
-                if channel == "main":
-                    _url = f"https://conda.anaconda.org/cf-staging/{dist}"
-                else:
-                    _url = (
-                        "https://conda.anaconda.org/cf-staging/label/"
-                        + f"{channel}/{dist}"
+                    if channel == "main":
+                        _url = f"https://conda.anaconda.org/cf-staging/{dist}"
+                    else:
+                        _url = (
+                            "https://conda.anaconda.org/cf-staging/label/"
+                            + f"{channel}/{dist}"
+                        )
+
+                    repo.create_repository_dispatch(
+                        "validate",
+                        {
+                            "artifact_url": _url,
+                            "md5": outputs_to_copy[dist],
+                            "subdir": _subdir,
+                            "package": _pkg,
+                            "url": _url,
+                            "feedstock": feedstock,
+                            "label": channel,
+                            "git_sha": git_sha,
+                            "comment_on_error": comment_on_error,
+                        }
                     )
-
-                repo.create_repository_dispatch(
-                    "validate",
-                    {
-                        "artifact_url": _url,
-                        "md5": outputs_to_copy[dist],
-                        "subdir": _subdir,
-                        "package": _pkg,
-                        "url": _url,
-                        "feedstock": feedstock,
-                        "label": channel,
-                        "git_sha": git_sha,
-                        "comment_on_error": comment_on_error,
-                    }
-                )
-        except Exception as e:
-            LOGGER.info(e)
+            except Exception as e:
+                LOGGER.info(e)
     else:
         copied = {}
 
