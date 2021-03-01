@@ -518,7 +518,7 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
         )
 
         # send for artifact validation
-        if False:
+        if True:
             try:
                 gh = github.Github(os.environ["GH_TOKEN"])
                 repo = gh.get_repo("conda-forge/artifact-validation")
