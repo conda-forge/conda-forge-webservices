@@ -519,9 +519,9 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
 
         # send for artifact validation and copy
         if True:
-            if "REGRO_GITHUB_TOKEN" in os.environ:
+            if "STATUS_GH_TOKEN" in os.environ:
                 try:
-                    gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
+                    gh = github.Github(os.environ["STATUS_GH_TOKEN"])
                     repo = gh.get_repo("conda-forge/releases")
                     for dist in copied:
                         if not copied[dist]:
