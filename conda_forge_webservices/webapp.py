@@ -517,8 +517,40 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
             delete=False,
         )
 
-        # send for artifact validation
+        # send for artifact validation and copy
         if True:
+            if "REGRO_GITHUB_TOKEN" in os.environ:
+                try:
+                    gh = github.Github(os.environ["REGRO_GITHUB_TOKEN"])
+                    repo = gh.get_repo("conda-forge/releases")
+                    for dist in copied:
+                        if not copied[dist]:
+                            continue
+
+                        _subdir, _pkg = os.path.split(dist)
+
+                        if channel == "main":
+                            _url = f"https://conda.anaconda.org/cf-staging/{dist}"
+                        else:
+                            _url = (
+                                "https://conda.anaconda.org/cf-staging/label/"
+                                + f"{channel}/{dist}"
+                            )
+
+                        repo.create_repository_dispatch(
+                            "release",
+                            {
+                                "subdir": _subdir,
+                                "package": _pkg,
+                                "url": _url,
+                                "feedstock": feedstock,
+                                "label": channel,
+                                "md5": outputs_to_copy[dist],
+                            }
+                        )
+                except Exception as e:
+                    LOGGER.info(e)
+
             try:
                 gh = github.Github(os.environ["GH_TOKEN"])
                 repo = gh.get_repo("conda-forge/artifact-validation")
