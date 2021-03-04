@@ -10,7 +10,7 @@ git
 mock
 nose
 parameterized
-pygithub
+pygithub>=1.54  # for GHA repo disptach
 pytest
 python=3.8.*
 requests
