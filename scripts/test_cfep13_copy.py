@@ -235,8 +235,6 @@ def _dist_exists(ac, channel, dist):
 
 def test_feedstock_outputs_copy_works():
     uid = uuid.uuid4().hex[0:6]
-    ac_prod = _get_ac_api_prod()
-    ac_staging = _get_ac_api_staging()
 
     print("\n=========================================================")
     print("running conda build")
@@ -257,6 +255,9 @@ def test_feedstock_outputs_copy_works():
         outputs.update(_compute_local_info(dist, "built_dists"))
 
     print("outputs:", pprint.pformat(outputs))
+
+    ac_prod = _get_ac_api_prod()
+    ac_staging = _get_ac_api_staging()
 
     try:
         print("\n=========================================================")
