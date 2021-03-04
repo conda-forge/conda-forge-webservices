@@ -550,10 +550,10 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
                             "comment_on_error": comment_on_error,
                         }
                     )
-                    LOGGER.info("    artifact %s sent for validation and copy", dist)
+                    LOGGER.info("    artifact %s sent for validation/copy", dist)
             except Exception as e:
                 LOGGER.info(
-                    "    repo dispatch for artifact validation and copy failed: %s", repr(e)
+                    "    repo dispatch for artifact validation/copy failed: %s", repr(e)
                 )
     else:
         copied = {}
