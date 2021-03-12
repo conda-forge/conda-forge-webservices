@@ -71,6 +71,26 @@ def pr_detailed_comment(
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
 
+    if not is_staged_recipes:
+        gh = github.Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        pull = repo.get_pull(int(pr_num))
+        if pull.head.repo.full_name.split("/")[0] == "conda-forge":
+            message = textwrap.dedent("""
+                    Hi! This is the friendly automated conda-forge-webservice.
+                    
+                    It appears you are making a pull request from a branch in your feedstock
+                    and not a fork. This procedure will generate a separate build for each 
+                    push to the branch and is thus not allowed. See our [documentation](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests)
+                    for more details. 
+                    
+                    Please close this pull request and remake it from a fork of this feedstock.
+                    
+                    Have a great day!
+                    """)
+            pull.create_issue_comment(message)
+        
+    
     if not is_staged_recipes and UPDATE_CIRCLECI_KEY_MSG.search(comment):
         update_circle(org_name, repo_name)
 
