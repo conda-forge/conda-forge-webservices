@@ -60,8 +60,8 @@ RELOAD_CACHE = True
 
 
 def _reload_cache():
-    LOGGER.info(" ")
-    LOGGER.info("!!!!!!!!!!!!!! RELOADING THE CACHE !!!!!!!!!!!!!!")
+    print(" ", flush=True)
+    print("!!!!!!!!!!!!!! RELOADING THE CACHE !!!!!!!!!!!!!!", flush=True)
 
     global APP_DATA
 
@@ -70,12 +70,12 @@ def _reload_cache():
             ("https://raw.githubusercontent.com/regro/cf-action-counter-db/"
              "master/data/latest.json")).json()
     except Exception as e:
-        print(e)
+        print(e, flush=True)
         data = None
 
     if data is not None:
         for slug in APP_DATA:
-            LOGGER.info('reloading data for %s', slug)
+            print('reloading data for %s' % slug, flush=True)
 
             if slug not in data:
                 continue
@@ -90,12 +90,12 @@ def _reload_cache():
                 key = _make_time_key(t)
                 APP_DATA[slug]['rates'][key] = _data['rates'][ts]
 
-            LOGGER.info("    reloaded %d repos", len(APP_DATA[slug]['repos']))
-            LOGGER.info("    reloaded %d rates", len(APP_DATA[slug]['rates']))
+            print("    reloaded %d repos" % len(APP_DATA[slug]['repos']), flush=True)
+            print("    reloaded %d rates" % len(APP_DATA[slug]['rates']), flush=True)
     else:
-        LOGGER.warning("could not get app cache!")
-    LOGGER.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    LOGGER.info(" ")
+        print("could not get app cache!", flush=True)
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", flush=True)
+    print(" ", flush=True)
 
 
 if RELOAD_CACHE:
