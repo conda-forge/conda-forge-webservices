@@ -40,6 +40,13 @@ jobs:
           GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.STAGING_BINSTAR_TOKEN }}
 
+      - name: cache status data
+        shell: bash -l {0}
+        run: |
+          python scripts/cache_status_data.py
+        env:
+          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+
       - name: update and redeploy if needed
         shell: bash -l {0}
         run: |
