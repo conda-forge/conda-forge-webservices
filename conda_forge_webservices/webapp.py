@@ -3,6 +3,7 @@ import tornado.escape
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
+import tornado.locks
 import hmac
 import hashlib
 import json
@@ -26,6 +27,9 @@ from conda_forge_webservices.feedstock_outputs import (
     is_valid_feedstock_token,
     comment_on_outputs_copy,
 )
+from conda_forge_webservices import status_monitor
+
+STATUS_DATA_LOCK = tornado.locks.Lock()
 
 LOGGER = logging.getLogger("conda_forge_webservices")
 
@@ -479,7 +483,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
 
 
 class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
-    def get(self):
+    async def get(self):
         self.write(json.dumps(get_current_versions()))
 
 
@@ -494,9 +498,8 @@ def _repo_exists(feedstock):
 class OutputsValidationHandler(tornado.web.RequestHandler):
     """This is a stub that we keep around so that old CI jobs still work
     if they have not bveen rerendered. We should remove it eventually."""
-    def post(self):
+    async def post(self):
         self.write(json.dumps({"deprecated": True}))
-        return
 
 
 def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
@@ -700,6 +703,72 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         # return
 
 
+class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        event = headers.get('X-GitHub-Event', None)
+
+        if not valid_request(
+            self.request.body,
+            headers.get('X-Hub-Signature', ''),
+        ):
+            self.set_status(403)
+            self.write_error(403)
+            return
+
+        if event == 'ping':
+            self.write('pong')
+            return
+
+        body = tornado.escape.json_decode(self.request.body)
+        if event == 'check_run':
+            LOGGER.info("")
+            LOGGER.info("===================================================")
+            LOGGER.info("check run: %s", body['repository']['full_name'])
+            LOGGER.info("===================================================")
+            async with STATUS_DATA_LOCK:
+                status_monitor.update_data_check_run(body)
+
+        elif event == 'check_suite':
+            self.write(event)
+            return
+        elif event == 'status':
+            LOGGER.info("")
+            LOGGER.info("===================================================")
+            LOGGER.info("status: %s", body['repository']['full_name'])
+            LOGGER.info("===================================================")
+            async with STATUS_DATA_LOCK:
+                status_monitor.update_data_status(body)
+        else:
+            LOGGER.info('Unhandled event "{}".'.format(event))
+
+        self.set_status(404)
+        self.write_error(404)
+
+
+class StatusMonitorAzureHandler(tornado.web.RequestHandler):
+    async def get(self):
+        self.add_header("Access-Control-Allow-Origin", "*")
+        self.write(status_monitor.get_azure_status())
+
+
+class StatusMonitorDBHandler(tornado.web.RequestHandler):
+    async def get(self):
+        self.add_header("Access-Control-Allow-Origin", "*")
+        self.write(status_monitor.dump_report_data())
+
+
+class StatusMonitorReportHandler(tornado.web.RequestHandler):
+    async def get(self, name):
+        self.add_header("Access-Control-Allow-Origin", "*")
+        self.write(status_monitor.dump_report_data(name=name))
+
+
+class StatusMonitorHandler(tornado.web.RequestHandler):
+    async def get(self):
+        self.write(status_monitor.render_status_index())
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/org-hook", LintingHookHandler),
@@ -709,6 +778,11 @@ def create_webapp():
         (r"/conda-webservice-update/versions", UpdateWebservicesVersionsHandler),
         (r"/feedstock-outputs/validate", OutputsValidationHandler),
         (r"/feedstock-outputs/copy", OutputsCopyHandler),
+        (r"/status-monitor/payload", StatusMonitorPayloadHookHandler),
+        (r"/status-monitor/azure", StatusMonitorAzureHandler),
+        (r"/status-monitor/db", StatusMonitorDBHandler),
+        (r"/status-monitor/report/(.*)", StatusMonitorReportHandler),
+        (r"/status-monitor", StatusMonitorHandler),
     ])
     return application
 
@@ -735,22 +809,14 @@ def main():
     http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
     port = int(os.environ.get("PORT", 5000))
 
-    # https://devcenter.heroku.com/articles/optimizing-dyno-usage#python
-    n_processes = int(os.environ.get("WEB_CONCURRENCY", 1))
-
-    LOGGER.info("starting server w/ %d processes", n_processes)
+    LOGGER.info("starting server")
 
     if args.local:
         LOGGER.info(
-            "server address: http://127.0.0.1:5000/conda-webservice-update/versions")
+            "server address: http://127.0.0.1:5000/")
         http_server.listen(5000, address='127.0.0.1')
     else:
-        if n_processes != 1:
-            # http://www.tornadoweb.org/en/stable/guide/running.html#processes-and-ports
-            http_server.bind(port)
-            http_server.start(n_processes)
-        else:
-            http_server.listen(port)
+        http_server.listen(port)
 
     tornado.ioloop.IOLoop.instance().start()
 
