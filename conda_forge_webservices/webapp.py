@@ -774,7 +774,7 @@ class StatusMonitorHandler(tornado.web.RequestHandler):
 
 class AliveHandler(tornado.web.RequestHandler):
     async def get(self):
-        self.write("I'm alive!")
+        self.write(json.dumps({"status": "operational"}))
 
 
 def create_webapp():
