@@ -769,7 +769,6 @@ class StatusMonitorReportHandler(tornado.web.RequestHandler):
 
 class StatusMonitorHandler(tornado.web.RequestHandler):
     async def get(self):
-        self.add_header("Access-Control-Allow-Origin", "*")
         self.write(status_monitor.render_status_index())
 
 
