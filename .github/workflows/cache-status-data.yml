@@ -30,7 +30,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
 
-      - name: cache app data
+      - name: cache status data
         shell: bash -l {0}
         run: |
           python scripts/cache_status_data.py
