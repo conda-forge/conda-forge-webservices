@@ -729,6 +729,7 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
             async with STATUS_DATA_LOCK:
                 status_monitor.update_data_check_run(body)
 
+            return
         elif event == 'check_suite':
             self.write(event)
             return
@@ -739,6 +740,8 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
             LOGGER.info("===================================================")
             async with STATUS_DATA_LOCK:
                 status_monitor.update_data_status(body)
+
+            return
         else:
             LOGGER.info('Unhandled event "{}".'.format(event))
 
