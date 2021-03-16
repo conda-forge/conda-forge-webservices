@@ -1,5 +1,5 @@
 # conda-forge-webservices
-[![tests](https://github.com/conda-forge/conda-forge-webservices/workflows/tests/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions?query=workflow%3Atests) [![clean-and-update](https://github.com/conda-forge/conda-forge-webservices/workflows/clean-and-update/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions?query=workflow%3Aclean-and-update)
+[![tests](https://github.com/conda-forge/conda-forge-webservices/workflows/tests/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions?query=workflow%3Atests) [![clean-and-update](https://github.com/conda-forge/conda-forge-webservices/workflows/clean-and-update/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions?query=workflow%3Aclean-and-update) [![cache-status-data](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/cache-status-data.yml/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/cache-status-data.yml)
 
 
 This repository is the source for the Heroku hosted webapp which powers the conda-forge-admin
