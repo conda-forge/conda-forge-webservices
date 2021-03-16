@@ -1,5 +1,6 @@
 anaconda-client
 black
+cachetools
 conda
 conda-build
 conda-forge-pinning
@@ -7,12 +8,15 @@ conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
 python-dateutil
 flake8
 git
+lxml
 mock
 nose
 parameterized
 pygithub>=1.54  # for GHA repo disptach
 pytest
 python=3.8.*
+pytz
+pyyaml
 requests
 ruamel.yaml>=0.16
 ruamel.yaml.jinja2
