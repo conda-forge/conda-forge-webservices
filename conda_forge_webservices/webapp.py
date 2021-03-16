@@ -772,6 +772,11 @@ class StatusMonitorHandler(tornado.web.RequestHandler):
         self.write(status_monitor.render_status_index())
 
 
+class AliveHandler(tornado.web.RequestHandler):
+    async def get(self):
+        self.write("I'm alive!")
+
+
 def create_webapp():
     application = tornado.web.Application([
         (r"/conda-linting/org-hook", LintingHookHandler),
@@ -786,6 +791,7 @@ def create_webapp():
         (r"/status-monitor/db", StatusMonitorDBHandler),
         (r"/status-monitor/report/(.*)", StatusMonitorReportHandler),
         (r"/status-monitor", StatusMonitorHandler),
+        (r"/alive", AliveHandler),
     ])
     return application
 
