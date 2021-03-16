@@ -12,7 +12,7 @@ import requests
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_me")
 
-PKGS = ["conda-build", "conda-smithy", "conda-forge-pinning"]
+PKGS = ["conda-smithy"]
 
 
 def _run_git_command(args):
