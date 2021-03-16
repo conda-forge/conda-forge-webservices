@@ -54,8 +54,8 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
     if "nothing to commit" not in status:
         subprocess.run(
-            ["git commit -m 'status data update %s'" %
-             datetime.datetime.utcnow().isoformat()],
+            "git commit -m '[ci skip] [skip ci] [cf admin skip] ***NO_CI*** "
+            "status data update %s'" % datetime.datetime.utcnow().isoformat(),
             shell=True,
             check=True,
         )
