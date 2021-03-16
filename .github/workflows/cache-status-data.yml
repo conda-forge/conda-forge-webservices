@@ -1,0 +1,38 @@
+name: cache-status-data
+
+on:
+  schedule:
+    - cron: "0,30 * * * *"
+  workflow_dispatch: null
+
+jobs:
+  cache-status-data:
+    name: cache-status-data
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.8
+          channels: conda-forge,defaults
+          channel-priority: strict
+          show-channel-urls: true
+
+      - name: configure conda
+        shell: bash -l {0}
+        run: |
+          conda config --set show_channel_urls True
+          conda config --add channels conda-forge
+          conda install --yes --quiet --file conda-requirements.txt
+          git config --global user.name "conda-forge-linter"
+          git config --global user.email conda.forge.linter@gmail.com
+        env:
+          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+
+      - name: cache status data
+        shell: bash -l {0}
+        run: |
+          python scripts/cache_status_data.py
+        env:
+          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
