@@ -1,4 +1,5 @@
 import os
+import asyncio
 import tornado.escape
 import tornado.httpserver
 import tornado.ioloop
@@ -797,6 +798,18 @@ def create_webapp():
     return application
 
 
+async def _cache_data():
+    LOGGER.info("")
+    LOGGER.info("===================================================")
+    LOGGER.info("caching status data")
+    LOGGER.info("===================================================")
+    async with STATUS_DATA_LOCK:
+        await tornado.ioloop.IOLoop.current().run_in_executor(
+            _thread_pool(),
+            status_monitor.cache_status_data,
+        )
+
+
 def main():
     # start logging and reset the log format to make it a bit easier to read
     tornado.log.enable_pretty_logging()
@@ -827,6 +840,12 @@ def main():
         http_server.listen(5000, address='127.0.0.1')
     else:
         http_server.listen(port)
+
+    pcb = tornado.ioloop.PeriodicCallback(
+        lambda: asyncio.create_task(_cache_data()),
+        status_monitor.TIME_INTERVAL * 1000,
+    )
+    pcb.start()
 
     tornado.ioloop.IOLoop.instance().start()
 

@@ -12,6 +12,7 @@ def main():
         entry_points={
             "console_scripts": [
                 'update-webservices=conda_forge_webservices.update_me:main',
+                'cache-status-data=conda_forge_webservices.status_monitor:cache_status_data',  # noqa
             ],
         },
         packages=find_packages(),
