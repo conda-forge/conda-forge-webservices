@@ -43,7 +43,7 @@ jobs:
       - name: cache status data
         shell: bash -l {0}
         run: |
-          python scripts/cache_status_data.py
+          cache-status-data
         env:
           GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
 

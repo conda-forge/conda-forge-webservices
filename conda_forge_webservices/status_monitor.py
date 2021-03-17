@@ -1,3 +1,6 @@
+import os
+import tempfile
+import subprocess
 import datetime
 import pytz
 import dateutil.parser
@@ -243,16 +246,16 @@ def update_data_status(event_data):
     elif 'drone' in event_data['context']:
         slug = 'drone'
     else:
-        LOGGER.warning("context not found: %s", event_data['context'])
+        LOGGER.warning("    context not found: %s", event_data['context'])
         return
 
-    LOGGER.info("    repo: %s", repo)
-    LOGGER.info("    app: %s", slug)
-    LOGGER.info("    state: %s", event_data['state'])
+    LOGGER.debug("    repo: %s", repo)
+    LOGGER.debug("    app: %s", slug)
+    LOGGER.debug("    state: %s", event_data['state'])
 
     if event_data['state'] in ['success', 'failure', 'error']:
 
-        LOGGER.info("    updated_at: %s", event_data['updated_at'])
+        LOGGER.debug("    updated_at: %s", event_data['updated_at'])
 
         uptime = dateutil.parser.isoparse(event_data['updated_at'])
         interval = _make_time_key(uptime)
@@ -272,17 +275,17 @@ def update_data_check_run(event_data):
     repo = event_data['repository']['full_name']
     cs = event_data['check_run']
 
-    LOGGER.info("    repo: %s", repo)
-    LOGGER.info("    app: %s", cs['app']['slug'])
-    LOGGER.info("    action: %s", event_data['action'])
-    LOGGER.info("    status: %s", cs['status'])
-    LOGGER.info("    conclusion: %s", cs['conclusion'])
+    LOGGER.debug("    repo: %s", repo)
+    LOGGER.debug("    app: %s", cs['app']['slug'])
+    LOGGER.debug("    action: %s", event_data['action'])
+    LOGGER.debug("    status: %s", cs['status'])
+    LOGGER.debug("    conclusion: %s", cs['conclusion'])
 
     if (
         cs['app']['slug'] in APP_DATA and
         cs['status'] == 'completed'
     ):
-        LOGGER.info("    completed_at: %s", cs['completed_at'])
+        LOGGER.debug("    completed_at: %s", cs['completed_at'])
         key = cs['app']['slug']
 
         uptime = dateutil.parser.isoparse(cs['completed_at'])
@@ -300,3 +303,78 @@ def update_data_check_run(event_data):
             APP_DATA[key]['repos'][repo]
             + 1
         )
+
+
+def cache_status_data():
+    try:
+        # first pull down the data
+        latest_data = requests.get(
+            "https://services.conda-forge.org/status-monitor/db"
+        ).json()
+
+        # now update the repo
+        with tempfile.TemporaryDirectory() as tmpdir:
+            subprocess.run(
+                ("cd %s && git clone --depth=1 "
+                 "https://github.com/conda-forge/conda-forge-status-monitor.git" %
+                 tmpdir
+                 ),
+                shell=True,
+                check=True,
+                capture_output=True,
+            )
+
+            pth = os.path.join(tmpdir, "conda-forge-status-monitor")
+
+            subprocess.run(
+                "cd %s && git remote set-url --push origin "
+                "https://${GH_TOKEN}@github.com/conda-forge/conda-forge-status-monitor.git" % pth,  # noqa
+                shell=True,
+                check=True,
+                capture_output=True,
+            )
+
+            os.makedirs(os.path.join(pth, "data"), exist_ok=True)
+
+            with open(os.path.join(pth, "data", "latest.json"), "w") as fp:
+                json.dump(latest_data, fp, indent=2)
+
+            subprocess.run(
+                "cd %s && git add data/latest.json" % pth,
+                shell=True,
+                check=True,
+                capture_output=True,
+            )
+
+            stat = subprocess.run(
+                "cd %s && git status" % pth,
+                shell=True,
+                check=True,
+                capture_output=True,
+            )
+            status = stat.stdout.decode('utf-8')
+            LOGGER.debug("    cache git status: %s", status)
+
+            if "nothing to commit" not in status:
+                LOGGER.info("    making status data commit")
+                subprocess.run(
+                    "cd %s && git commit -m '[ci skip] "
+                    "[skip ci] [cf admin skip] ***NO_CI*** "
+                    "status data update %s'" % (
+                        pth, datetime.datetime.utcnow().isoformat()
+                    ),
+                    shell=True,
+                    check=True,
+                    capture_output=True,
+                )
+
+                subprocess.run(
+                    "cd %s && git push" % pth,
+                    shell=True,
+                    check=True,
+                    capture_output=True,
+                )
+            else:
+                LOGGER.info("    no status data to commit")
+    except Exception as e:
+        LOGGER.warning("    caching status data failed: %s" % repr(e))
