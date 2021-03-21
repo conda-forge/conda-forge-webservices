@@ -521,11 +521,11 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
             delete=False,
         )
 
-        # send for artifact validation and copy
+        # send for github releases copy
         if True:
             try:
                 gh = github.Github(os.environ["GH_TOKEN"])
-                repo = gh.get_repo("conda-forge/artifact-validation")
+                repo = gh.get_repo("conda-forge/repodata-shards")
                 for dist in copied:
                     if not copied[dist]:
                         continue
@@ -541,7 +541,7 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
                         )
 
                     repo.create_repository_dispatch(
-                        "validate",
+                        "release",
                         {
                             "artifact_url": _url,
                             "md5": outputs_to_copy[dist],
@@ -554,10 +554,10 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
                             "comment_on_error": comment_on_error,
                         }
                     )
-                    LOGGER.info("    artifact %s sent for validation/copy", dist)
+                    LOGGER.info("    artifact %s sent for copy", dist)
             except Exception as e:
                 LOGGER.info(
-                    "    repo dispatch for artifact validation/copy failed: %s", repr(e)
+                    "    repo dispatch for artifact copy failed: %s", repr(e)
                 )
     else:
         copied = {}
