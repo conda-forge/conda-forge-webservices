@@ -39,7 +39,7 @@ ENV PATH="$CONDA_DIR/bin:$PATH"
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # bust the docker cache so that we always rerun the installs below
-ADD http://www.randomtext.me/api/gibberish /opt/docker/etc/gibberish
+ADD http://worldtimeapi.org/api/timezone/Europe/London.txt /opt/docker/etc/gibberish
 
 # Install conda
 COPY conda-requirements.txt /
