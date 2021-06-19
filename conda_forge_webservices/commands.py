@@ -11,6 +11,7 @@ from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
 import logging
+import yaml
 
 # from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
@@ -39,6 +40,7 @@ ADD_PY = re.compile(
     + r"(please )?add (python (?P<verfloat>[0-9]{1}\.[0-9]{1})|py(?P<verint>[0-9]{2}))",
     re.I,
 )
+ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -243,9 +245,11 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     text = comment + title
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
-                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY]
+                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY,
+                      ADD_USER]
     send_pr_commands = [
-        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY]
+        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY,
+        ADD_USER]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -394,6 +398,51 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     do_rerender = True
                     changed_anything |= add_py(git_repo, pyver)
                     changed_anything |= make_rerender_dummy_commit(git_repo)
+            elif ADD_USER.search(text):
+                if ADD_USER.search(title):
+                    m = ADD_USER.search(title)
+                    user = m.group('user')
+                elif ADD_USER.search(comment):
+                    m = ADD_USER.search(comment)
+                    user = m.group('user')
+                else:
+                    user = None
+                comment_msg = "added user @%s" % user
+
+                if user is None:
+                    err_msg = (
+                        "the user to add to the feedstock could not be found "
+                        "from the issue title or text"
+                    )
+                    to_close = False
+                else:
+                    _changed_anything = add_user(git_repo, user)
+                    if _changed_anything is None:
+                        err_msg = (
+                            "the recipe meta.yaml and/or CODEOWNERS file could "
+                            "not be found or parsed properly when adding "
+                            "user @%s to the feedstock" % user
+                        )
+                        to_close = False
+                    else:
+                        if not _changed_anything:
+                            err_msg = (
+                                "the recipe already has maintainer @%s" % user
+                            )
+                            to_close = True
+                        else:
+                            do_rerender = False
+                            check_bump_build = False
+                            pr_title = "[ci skip] adding user @%s" % user
+                            to_close = ADD_USER.search(title)
+                            extra_msg = (
+                                "\nMerge this PR to add the user. Please do not rerender "  # noqa
+                                "this PR or change it in any way. It has `[ci skip]` in "  # noqa
+                                "the commit message to avoid pushing a new build and so "  # noqa
+                                "the build configuration in the feedstock should not be "  # noqa
+                                "changed."
+                            )
+                            changed_anything |= _changed_anything
 
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)
@@ -492,6 +541,89 @@ def restart_pull_request_ci(repo, pr_num):
     pull.edit(state='closed')
     time.sleep(1)  # wait a bit to be sure things are ok
     pull.edit(state='open')
+
+
+def add_user(repo, user):
+    # a feedstock has user names in three spots as of 2021/06/19
+    # 1. the recipe maintainers section
+    # 2. the CODEOWNERS file
+    # 3. the README
+    #
+    # The location in the README is subject to change and so we won't adjust it.
+    # However, the recipe and the CODEOWNERS file are structured and so we can
+    # adjust those easily enough.
+    # Those happen to also be the only locations where adding a user really matters.
+
+    recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
+    co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
+    if os.path.exist(recipe_path) and os.path.exists(co_path):
+        # get the current maintainers - if user is in them, return False
+        with open(recipe_path, "r") as fp:
+            lines = fp.readlines()
+            keep_lines = []
+            skip = 0
+            for line in lines:
+                if line.strip().startswith("extra:"):
+                    skip += 1
+                if skip > 0:
+                    keep_lines.append(line)
+            assert skip == 1, "team update failed due to > 1 'extra:' sections"
+        data = yaml.safe_load("\n".join(lines))
+        curr_users = data["extra"]["recipe-maintainers"]
+        if user in curr_users:
+            return False
+        else:
+            # do code owners first
+            with open(co_path, "r") as fp:
+                lines = [ln.strip() for ln in fp.readlines()]
+            lines.append("* @%s" % user)
+            with open(co_path, "w") as fp:
+                fp.write("\n".join(lines))
+
+            # now the recipe
+            # we cannot use yaml because sometimes reading a recipe via the yaml
+            # is impossible or lossy
+            # so we have to parse it directly :/
+            with open(recipe_path, "r") as fp:
+                lines = fp.readlines()
+            new_lines = []
+            found_extra = False
+            found_rm = False
+            added_user = False
+            for line in lines:
+                if line.strip().startswith("extra:"):
+                    found_extra = True
+                    new_lines.append(line.strip())
+                elif line.strip().startswith("recipe-maintainers:"):
+                    found_rm = True
+                    new_lines.append(line.strip())
+                elif found_extra and found_rm and not added_user:
+                    added_user = True
+                    dashind = line.find("-")
+                    if dashind == -1:
+                        return None
+                    head = line[:dashind]
+                    new_lines.append(head + "- " + user)
+                    new_lines.append(line.strip())
+                else:
+                    new_lines.append(line.strip())
+
+            if not added_user:
+                return None
+
+            with open(recipe_path, "w") as fp:
+                fp.write("\n".join(new_lines))
+
+            # and commit
+            repo.index.add([co_path, recipe_path])
+            author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+            # do not @-mention users in commit messages - it causes lots of
+            # extra notifications
+            repo.index.commit("[ci skip] added user %s" % user, author=author)
+
+            return True
+    else:
+        return None
 
 
 def add_py(repo, pyver):
