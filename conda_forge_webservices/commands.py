@@ -585,7 +585,7 @@ def add_user(repo, user):
             # is impossible or lossy
             # so we have to parse it directly :/
             with open(recipe_path, "r") as fp:
-                lines = fp.readlines()
+                lines = fp.read().splitlines()
             new_lines = []
             found_extra = False
             found_rm = False
@@ -593,10 +593,10 @@ def add_user(repo, user):
             for line in lines:
                 if line.strip().startswith("extra:"):
                     found_extra = True
-                    new_lines.append(line.strip())
+                    new_lines.append(line)
                 elif line.strip().startswith("recipe-maintainers:"):
                     found_rm = True
-                    new_lines.append(line.strip())
+                    new_lines.append(line)
                 elif found_extra and found_rm and not added_user:
                     added_user = True
                     dashind = line.find("-")
@@ -604,9 +604,9 @@ def add_user(repo, user):
                         return None
                     head = line[:dashind]
                     new_lines.append(head + "- " + user)
-                    new_lines.append(line.strip())
+                    new_lines.append(line)
                 else:
-                    new_lines.append(line.strip())
+                    new_lines.append(line)
 
             if not added_user:
                 return None
