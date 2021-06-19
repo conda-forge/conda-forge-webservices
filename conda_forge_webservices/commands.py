@@ -399,8 +399,14 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     changed_anything |= add_py(git_repo, pyver)
                     changed_anything |= make_rerender_dummy_commit(git_repo)
             elif ADD_USER.search(text):
-                m = ADD_USER.search(text)
-                user = m.group('user')
+                if ADD_USER.search(title):
+                    m = ADD_USER.search(title)
+                    user = m.group('user')
+                elif ADD_USER.search(comment):
+                    m = ADD_USER.search(comment)
+                    user = m.group('user')
+                else:
+                    user = None
                 comment_msg = "added user @%s" % user
 
                 if user is None:
