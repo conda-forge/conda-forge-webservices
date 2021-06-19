@@ -149,6 +149,7 @@ class TestCommands(unittest.TestCase):
                 pr_detailed_comment(msg)
                 command.assert_not_called()
 
+    @mock.patch('conda_forge_webservices.commands.add_user')
     @mock.patch('conda_forge_webservices.commands.add_py')
     @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
     @mock.patch('conda_forge_webservices.commands.add_bot_automerge')
@@ -163,9 +164,10 @@ class TestCommands(unittest.TestCase):
     def test_issue_command_triggers(
             self, git_repo, gh, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender, add_bot_automerge,
-            rerender_dummy_commit, add_py):
+            rerender_dummy_commit, add_py, add_user):
         update_cb3.return_value = (True, "hi")
         add_py.return_value = True
+        add_user.return_value = True
 
         commands = [
             (add_bot_automerge, [
@@ -265,6 +267,17 @@ class TestCommands(unittest.TestCase):
                 'please add python 2.7, @conda-forge-admin',
                 'add py27, @conda-forge-admin',
              ]),
+            (add_user, [
+                '@conda-forge-admin, please add user @blah',
+                '@conda-forge-admin, add user @blah',
+                'something something. @conda-forge-admin: please add user @blah',
+             ], [
+                '@conda-forge admin is pretty cool. please add user @blah',
+                '@conda-forge admin is pretty cool. rerun add user @blah?',
+                '@conda-forge-admin, go ahead and rerun add user @blah?',
+                'please add user @blah, @conda-forge-admin',
+                'add user @blah, @conda-forge-admin',
+             ]),
         ]
 
         for command, should, should_not in commands:
@@ -291,6 +304,9 @@ class TestCommands(unittest.TestCase):
                     else:
                         command.assert_called_with(
                             git_repo.clone_from.return_value, "3.6")
+                if command is add_user:
+                    command.assert_called_with(
+                        git_repo.clone_from.return_value, "blah")
 
                 rerender_dummy_commit.reset_mock()
                 rerender_dummy_commit.return_value = True
@@ -300,7 +316,8 @@ class TestCommands(unittest.TestCase):
                 command.assert_called()
                 if (
                     command in (
-                        rerender, make_noarch, update_cb3, add_bot_automerge, add_py
+                        rerender, make_noarch, update_cb3, add_bot_automerge, add_py,
+                        add_user
                     )
                 ):
                     assert "Fixes #" in repo.create_pull.call_args[0][1]
@@ -317,6 +334,9 @@ class TestCommands(unittest.TestCase):
                     else:
                         command.assert_called_with(
                             git_repo.clone_from.return_value, "3.6")
+                if command is add_user:
+                    command.assert_called_with(
+                        git_repo.clone_from.return_value, "blah")
 
                 rerender_dummy_commit.reset_mock()
                 rerender_dummy_commit.return_value = True
