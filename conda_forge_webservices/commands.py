@@ -556,7 +556,7 @@ def add_user(repo, user):
 
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
-    if os.path.exist(recipe_path) and os.path.exists(co_path):
+    if os.path.exists(recipe_path) and os.path.exists(co_path):
         # get the current maintainers - if user is in them, return False
         with open(recipe_path, "r") as fp:
             lines = fp.readlines()
