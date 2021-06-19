@@ -436,7 +436,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                             pr_title = "[ci skip] adding user @%s" % user
                             to_close = ADD_USER.search(title)
                             extra_msg = (
-                                "\nMerge this PR to add the user. Please do not rerender "  # noqa
+                                "\n\nMerge this PR to add the user. Please do not rerender "  # noqa
                                 "this PR or change it in any way. It has `[ci skip]` in "  # noqa
                                 "the commit message to avoid pushing a new build and so "  # noqa
                                 "the build configuration in the feedstock should not be "  # noqa
