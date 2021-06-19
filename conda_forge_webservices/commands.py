@@ -568,7 +568,7 @@ def add_user(repo, user):
                 if skip > 0:
                     keep_lines.append(line)
             assert skip == 1, "team update failed due to > 1 'extra:' sections"
-        data = yaml.safe_load("\n".join(lines))
+        data = yaml.safe_load("\n".join(keep_lines))
         curr_users = data["extra"]["recipe-maintainers"]
         if user in curr_users:
             return False
