@@ -40,7 +40,7 @@ ADD_PY = re.compile(
     + r"(please )?add (python (?P<verfloat>[0-9]{1}\.[0-9]{1})|py(?P<verint>[0-9]{2}))",
     re.I,
 )
-ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)", re.I)
+ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
