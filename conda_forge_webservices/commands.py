@@ -150,7 +150,7 @@ def pr_detailed_comment(
         tmp_dir = tempfile.mkdtemp('_recipe')
 
         feedstock_dir = os.path.join(tmp_dir, repo_name)
-        repo_url = "https://{}@github.com/{}/{}.git".format(
+        repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
             os.environ['GH_TOKEN'], pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch, depth=1)
 
@@ -297,9 +297,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             tmp_dir = tempfile.mkdtemp("_recipe")
 
             feedstock_dir = os.path.join(tmp_dir, repo_name)
-            repo_url = "https://{}@github.com/{}/{}.git".format(
+            repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 os.environ['GH_TOKEN'], forked_user, repo_name)
-            upstream_repo_url = "https://{}@github.com/{}/{}.git".format(
+            upstream_repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 os.environ['GH_TOKEN'], org_name, repo_name)
             git_repo = Repo.clone_from(repo_url, feedstock_dir, depth=1)
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
