@@ -213,7 +213,7 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
     my_last_comment = None
     try:
         my_login = gh.get_user().login
-    except:
+    except Exception:
         my_login = "conda-forge-curator[bot]"
     if my_login in comment_owners:
         my_comments = [
