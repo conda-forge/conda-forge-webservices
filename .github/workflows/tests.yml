@@ -58,7 +58,7 @@ jobs:
         run: |
           pytest -vv conda_forge_webservices
         env:
-          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
