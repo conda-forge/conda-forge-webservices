@@ -26,7 +26,7 @@ def update_feedstock(org_name, repo_name):
 
         t0 = time.time()
         feedstocks_url = (
-            "https://{}@github.com/conda-forge/feedstocks.git"
+            "https://x-access-token:{}@github.com/conda-forge/feedstocks.git"
             "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
         )
         feedstocks_repo = git.Repo.clone_from(
