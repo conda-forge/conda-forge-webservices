@@ -328,7 +328,7 @@ def cache_status_data():
 
             subprocess.run(
                 "cd %s && git remote set-url --push origin "
-                "https://${GH_TOKEN}@github.com/conda-forge/conda-forge-status-monitor.git" % pth,  # noqa
+                "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/conda-forge-status-monitor.git" % pth,  # noqa
                 shell=True,
                 check=True,
                 capture_output=True,

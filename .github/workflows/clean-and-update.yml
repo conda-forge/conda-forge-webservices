@@ -19,6 +19,13 @@ jobs:
           channel-priority: strict
           show-channel-urls: true
 
+      - name: generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+
       - name: configure conda
         shell: bash -l {0}
         run: |
@@ -30,14 +37,14 @@ jobs:
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           pip install --no-deps -e .
         env:
-          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: clean cf-staging
         shell: bash -l {0}
         run: |
           python scripts/clean_cf_staging.py
         env:
-          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
 
       - name: cache status data
@@ -45,11 +52,11 @@ jobs:
         run: |
           cache-status-data
         env:
-          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: update and redeploy if needed
         shell: bash -l {0}
         run: |
           update-webservices
         env:
-          GH_TOKEN: ${{ secrets.CF_LINTER_GH_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}

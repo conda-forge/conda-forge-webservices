@@ -73,7 +73,7 @@ def main():
 
             repo_name = "conda-forge-webservices"
             clone_dir = os.path.join(tmpdir, repo_name)
-            url = "https://{}@github.com/conda-forge/{}.git".format(
+            url = "https://x-access-token:{}@github.com/conda-forge/{}.git".format(
                 os.environ['GH_TOKEN'], repo_name)
 
             repo = Repo.clone_from(url, clone_dir, depth=1)
