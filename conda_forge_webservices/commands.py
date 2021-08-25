@@ -556,7 +556,7 @@ def add_user(repo, user):
 
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
-    if os.path.exists(recipe_path) and os.path.exists(co_path):
+    if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
         with open(recipe_path, "r") as fp:
             lines = fp.readlines()
@@ -573,12 +573,13 @@ def add_user(repo, user):
         if user in curr_users:
             return False
         else:
-            # do code owners first
-            with open(co_path, "r") as fp:
-                lines = [ln.strip() for ln in fp.readlines()]
-            lines.append("* @%s" % user)
-            with open(co_path, "w") as fp:
-                fp.write("\n".join(lines))
+            if os.path.exists(co_path):
+                # do code owners first
+                with open(co_path, "r") as fp:
+                    lines = [ln.strip() for ln in fp.readlines()]
+                lines.append("* @%s" % user)
+                with open(co_path, "w") as fp:
+                    fp.write("\n".join(lines))
 
             # now the recipe
             # we cannot use yaml because sometimes reading a recipe via the yaml
@@ -615,7 +616,9 @@ def add_user(repo, user):
                 fp.write("\n".join(new_lines))
 
             # and commit
-            repo.index.add([co_path, recipe_path])
+            repo.index.add([recipe_path])
+            if os.path.exists(co_path):
+                repo.index.add([co_path])
             author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
             # do not @-mention users in commit messages - it causes lots of
             # extra notifications
