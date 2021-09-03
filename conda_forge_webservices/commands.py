@@ -241,7 +241,6 @@ def pr_detailed_comment(
 def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not repo_name.endswith("-feedstock"):
         return
-    
     if comment is None:
         comment = ""
     if title is None:
