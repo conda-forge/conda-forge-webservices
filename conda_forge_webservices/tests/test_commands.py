@@ -312,7 +312,7 @@ class TestCommands(unittest.TestCase):
                 rerender_dummy_commit.return_value = True
                 command.reset_mock()
                 issue.reset_mock()
-                issue_comment(title=msg, comment="As in title")
+                issue_comment(title=msg, comment=None)
                 command.assert_called()
                 if (
                     command in (
