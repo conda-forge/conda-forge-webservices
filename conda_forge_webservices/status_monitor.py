@@ -72,7 +72,7 @@ def _reload_cache():
         data = requests.get(
             ("https://raw.githubusercontent.com/conda-forge/"
              "conda-forge-status-monitor/"
-             "master/data/latest.json")).json()
+             "main/data/latest.json")).json()
     except Exception as e:
         print(e, flush=True)
         data = None
