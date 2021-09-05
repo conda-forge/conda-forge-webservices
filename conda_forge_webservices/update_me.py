@@ -86,7 +86,7 @@ def main():
 
             msg_vers = ", ".join(["{}={}".format(k, v) for k, v in to_install.items()])
             repo.index.commit("redeploy for '%s'" % msg_vers)
-            repo.git.push("origin", "master")
+            repo.git.push("origin", "main")
 
         finally:
             if tmpdir is not None:
