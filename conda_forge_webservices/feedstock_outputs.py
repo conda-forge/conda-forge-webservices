@@ -268,7 +268,6 @@ def _is_valid_feedstock_output(
                                 "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added "
                                 "output %s for conda-forge/%s" % (un, feedstock)),
                             "content": edata,
-                            "branch": "master",
                         }
                     )
                     if r.status_code != 201:
