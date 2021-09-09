@@ -258,9 +258,18 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not any(command.search(text) for command in issue_commands):
         return
 
-    gh = github.Github(os.environ['GH_TOKEN'])
-    repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-    issue = repo.get_issue(int(issue_num))
+    # sometimes the webhook outpaces other bits of the API so we try a bit
+    for i in range(5):
+        try:
+            gh = github.Github(os.environ['GH_TOKEN'])
+            repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            issue = repo.get_issue(int(issue_num))
+        except Exception as e:
+            if i < 4:
+                time.sleep(0.050 * 2**i)
+                continue
+            else:
+                raise e
 
     if UPDATE_TEAM_MSG.search(text):
         update_team(org_name, repo_name)
