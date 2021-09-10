@@ -116,64 +116,65 @@ class TestBucketHandler(TestHandlerBase):
 
             for slug in test_slugs:
                 owner, name = slug.split("/")
-                body = {
-                    'repository': {
-                        'name': name,
-                        'full_name': '%s/%s' % (owner, name),
-                        'clone_url': 'repo_clone_url',
-                        'owner': {'login': owner},
-                    },
-                    'pull_request': {
-                        'number': 16,
-                        'state': 'open',
-                        'labels': [{'name': 'stale'}],
-                        'head': {
-                            'repo': {
-                                'name': "pr_repo_name",
-                                'owner': {'login': 'pr_repo_owner'},
-                            },
-                            'ref': 'ref',
+                for __branch in ["main", "master"]:
+                    body = {
+                        'repository': {
+                            'name': name,
+                            'full_name': '%s/%s' % (owner, name),
+                            'clone_url': 'repo_clone_url',
+                            'owner': {'login': owner},
                         },
-                        'body': 'body',
-                    },
-                    'issue': {
-                        'number': 16,
-                        'body': 'body',
-                        'title': 'title',
-                    },
-                    'action': 'opened',
-                    'ref': 'refs/heads/master',
+                        'pull_request': {
+                            'number': 16,
+                            'state': 'open',
+                            'labels': [{'name': 'stale'}],
+                            'head': {
+                                'repo': {
+                                    'name': "pr_repo_name",
+                                    'owner': {'login': 'pr_repo_owner'},
+                                },
+                                'ref': 'ref',
+                            },
+                            'body': 'body',
+                        },
+                        'issue': {
+                            'number': 16,
+                            'body': 'body',
+                            'title': 'title',
+                        },
+                        'action': 'opened',
+                        'ref': 'refs/heads/' + __branch,
 
-                }
+                    }
 
-                hash = hmac.new(
-                    os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
-                    json.dumps(body).encode('utf-8'),
-                    hashlib.sha1
-                ).hexdigest()
+                    hash = hmac.new(
+                        os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+                        json.dumps(body).encode('utf-8'),
+                        hashlib.sha1
+                    ).hexdigest()
 
-                for event in ["pull_request", "issues", "push"]:
+                    for event in ["pull_request", "issues", "push"]:
 
-                    response = self.fetch(
-                        hook, method='POST',
-                        body=json.dumps(body),
-                        headers={
-                            'X-GitHub-Event': event,
-                            'X-Hub-Signature': 'sha1=%s' % hash}
-                    )
+                        response = self.fetch(
+                            hook, method='POST',
+                            body=json.dumps(body),
+                            headers={
+                                'X-GitHub-Event': event,
+                                'X-Hub-Signature': 'sha1=%s' % hash}
+                        )
 
-                    if (
-                        owner == "conda-forge" and
-                        name in accepted_repos and
-                        event in accepted_events
-                    ):
-                        self.assertEqual(
-                            response.code, 200,
-                            msg=f"event: {event}, slug: {slug}, hook: {hook}")
-                    else:
-                        self.assertNotEqual(
-                            response.code, 200,
-                            msg=f"event: {event}, slug: {slug}, hook: {hook}")
+                        if (
+                            owner == "conda-forge" and
+                            name in accepted_repos and
+                            event in accepted_events
+                        ):
+                            self.assertEqual(
+                                response.code, 200,
+                                msg=f"event: {event}, slug: {slug}, hook: {hook}")
+                        else:
+                            self.assertNotEqual(
+                                response.code, 200,
+                                msg=f"event: {event}, slug: {slug}, hook: {hook}")
 
     @mock.patch(
         'conda_forge_webservices.feedstocks_service.update_feedstock',
@@ -214,72 +215,73 @@ class TestBucketHandler(TestHandlerBase):
 
                 for slug in test_slugs:
                     owner, name = slug.split("/")
-                    body = {
-                        'repository': {
-                            'name': name,
-                            'full_name': '%s/%s' % (owner, name),
-                            'clone_url': 'repo_clone_url',
-                            'owner': {'login': owner},
-                        },
-                        'pull_request': {
-                            'number': 16,
-                            'state': 'open',
-                            'labels': [{'name': 'stale'}],
-                            'head': {
-                                'repo': {
-                                    'name': "pr_repo_name",
-                                    'owner': {'login': 'pr_repo_owner'},
+                    for __branch in ["main", "master"]:
+                        body = {
+                            'repository': {
+                                'name': name,
+                                'full_name': '%s/%s' % (owner, name),
+                                'clone_url': 'repo_clone_url',
+                                'owner': {'login': owner},
+                            },
+                            'pull_request': {
+                                'number': 16,
+                                'state': 'open',
+                                'labels': [{'name': 'stale'}],
+                                'head': {
+                                    'repo': {
+                                        'name': "pr_repo_name",
+                                        'owner': {'login': 'pr_repo_owner'},
+                                    },
+                                    'ref': 'ref',
                                 },
-                                'ref': 'ref',
+                                'body': 'body',
                             },
-                            'body': 'body',
-                        },
-                        'issue': {
-                            'number': 16,
-                            'body': 'body',
-                            'title': 'title',
-                        },
-                        'action': 'opened',
-                        'ref': 'refs/heads/master',
-                        'head_commit': {'id': 'xyz'},
-                    }
-
-                    hash = hmac.new(
-                        os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
-                        json.dumps(body).encode('utf-8'),
-                        hashlib.sha1
-                    ).hexdigest()
-
-                    for event in ["push"]:
-
-                        response = self.fetch(
-                            hook,
-                            method='POST',
-                            body=json.dumps(body),
-                            headers={
-                                'X-GitHub-Event': event,
-                                'X-Hub-Signature': 'sha1=%s' % hash,
+                            'issue': {
+                                'number': 16,
+                                'body': 'body',
+                                'title': 'title',
                             },
-                        )
+                            'action': 'opened',
+                            'ref': 'refs/heads/' + __branch,
+                            'head_commit': {'id': 'xyz'},
+                        }
 
-                        if (
-                            owner == "conda-forge" and
-                            name in accepted_repos and
-                            event in accepted_events and
-                            all(s not in commit_msg for s in skip_slugs)
-                        ):
-                            assert commit_msg == "blah"
-                            self.assertEqual(
-                                response.code,
-                                200,
-                                msg=f"event: {event}, slug: {slug}, hook: {hook}",
+                        hash = hmac.new(
+                            os.environ['CF_WEBSERVICES_TOKEN'].encode('utf-8'),
+                            json.dumps(body).encode('utf-8'),
+                            hashlib.sha1
+                        ).hexdigest()
+
+                        for event in ["push"]:
+
+                            response = self.fetch(
+                                hook,
+                                method='POST',
+                                body=json.dumps(body),
+                                headers={
+                                    'X-GitHub-Event': event,
+                                    'X-Hub-Signature': 'sha1=%s' % hash,
+                                },
                             )
-                        else:
-                            self.assertNotEqual(
-                                response.code,
-                                200,
-                                msg=f"event: {event}, slug: {slug}, hook: {hook}",
-                            )
+
+                            if (
+                                owner == "conda-forge" and
+                                name in accepted_repos and
+                                event in accepted_events and
+                                all(s not in commit_msg for s in skip_slugs)
+                            ):
+                                assert commit_msg == "blah"
+                                self.assertEqual(
+                                    response.code,
+                                    200,
+                                    msg=f"event: {event}, slug: {slug}, hook: {hook}",
+                                )
+                            else:
+                                self.assertNotEqual(
+                                    response.code,
+                                    200,
+                                    msg=f"event: {event}, slug: {slug}, hook: {hook}",
+                                )
 
     @mock.patch('conda_forge_webservices.linting.compute_lint_message',
                 return_value={'message': mock.sentinel.message})

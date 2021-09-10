@@ -263,6 +263,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         try:
             gh = github.Github(os.environ['GH_TOKEN'])
             repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            default_branch = repo.default_branch
             issue = repo.get_issue(int(issue_num))
             break
         except Exception as e:
@@ -279,8 +280,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
-                I just wanted to let you know that I updated the team with maintainers from master.
-                """)  # noqa
+                I just wanted to let you know that I updated the team with maintainers from %s.
+                """ % default_branch)  # noqa
         issue.create_comment(message)
 
     if UPDATE_CIRCLECI_KEY_MSG.search(text):
@@ -319,7 +320,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
             upstream = git_repo.create_remote('upstream', upstream_repo_url)
             upstream.fetch()
-            new_branch = git_repo.create_head(forked_repo_branch, upstream.refs.master)
+            new_branch = git_repo.create_head(
+                forked_repo_branch,
+                getattr(upstream.refs, default_branch)
+            )
             new_branch.checkout()
 
             err_msg = None
@@ -477,7 +481,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 pr = repo.create_pull(
                     pr_title, pr_message,
-                    "master", "{}:{}".format(forked_user, forked_repo_branch))
+                    default_branch, "{}:{}".format(forked_user, forked_repo_branch))
 
                 message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
