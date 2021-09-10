@@ -72,7 +72,7 @@ def _clone_and_remove(repo, file_to_remove):
 
 def test_feedstock_outputs_copy_bad_token():
     repo = GH.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
-    sha = repo.get_branch("master").commit.commit.sha
+    sha = repo.get_branch(repo.default_branch).commit.commit.sha
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
         headers=bad_headers,
@@ -89,7 +89,7 @@ def test_feedstock_outputs_copy_bad_token():
 
 def test_feedstock_outputs_copy_missing_token():
     repo = GH.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
-    sha = repo.get_branch("master").commit.commit.sha
+    sha = repo.get_branch(repo.default_branch).commit.commit.sha
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
         json={

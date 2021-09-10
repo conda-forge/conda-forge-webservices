@@ -4,6 +4,7 @@ import time
 import tempfile
 import shutil
 import logging
+import github
 
 # from .utils import tmp_directory
 
@@ -38,11 +39,28 @@ def update_feedstock(org_name, repo_name):
 
         t0 = time.time()
         # Get the submodule
+        # sometimes the webhook outpaces other bits of the API so we try a bit
+        for i in range(5):
+            try:
+                gh = github.Github(os.environ["FEEDSTOCKS_GH_TOKEN"])
+                default_branch = (
+                    gh
+                    .get_repo("{}/{}".format(org_name, repo_name))
+                    .default_branch
+                )
+                break
+            except Exception as e:
+                if i < 4:
+                    time.sleep(0.050 * 2**i)
+                    continue
+                else:
+                    raise e
+
         feedstock_submodule = feedstocks_repo.create_submodule(
             name=name,
             path=os.path.join("feedstocks", name),
             url="https://github.com/{0}/{1}.git".format(org_name, repo_name),
-            branch="master"
+            branch=default_branch,
         )
 
         # Update the feedstocks submodule

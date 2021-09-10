@@ -248,10 +248,10 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 commit_msg = ""
 
             # Only do anything if we are working with conda-forge, and a
-            # push to master.
+            # push to main.
             if (
                 owner == 'conda-forge' and
-                ref == "refs/heads/master" and
+                (ref == "refs/heads/master" or ref == "refs/heads/main") and
                 "[cf admin skip feedstocks]" not in commit_msg and
                 "[cf admin skip]" not in commit_msg
             ):
@@ -306,11 +306,11 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 commit_msg = ""
 
             # Only do anything if we are working with conda-forge,
-            # and a push to master.
+            # and a push to main.
             if (
                 owner == 'conda-forge' and
                 repo_name.endswith("-feedstock") and
-                ref == "refs/heads/master" and
+                (ref == "refs/heads/master" or ref == "refs/heads/main") and
                 "[cf admin skip teams]" not in commit_msg and
                 "[cf admin skip]" not in commit_msg
             ):
