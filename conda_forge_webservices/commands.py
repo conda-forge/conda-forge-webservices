@@ -264,6 +264,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             gh = github.Github(os.environ['GH_TOKEN'])
             repo = gh.get_repo("{}/{}".format(org_name, repo_name))
             issue = repo.get_issue(int(issue_num))
+            break
         except Exception as e:
             if i < 4:
                 time.sleep(0.050 * 2**i)
