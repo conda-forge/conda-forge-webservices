@@ -301,15 +301,34 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
         # make the fork if it does not exist
         try:
-            gh.get_repo("{}/{}.git".format(forked_user, repo_name))
+            forked_user_repo = gh.get_repo("{}/{}".format(forked_user, repo_name))
         except github.UnknownObjectException:
             forked_user_gh.create_fork(gh.get_repo('{}/{}'.format(
                 org_name,
                 repo_name)))
+            # we have to wait since the call above is async
+            for i in range(5):
+                try:
+                    forked_user_repo = gh.get_repo("{}/{}".format(
+                        forked_user, repo_name)
+                    )
+                    break
+                except Exception as e:
+                    if i < 4:
+                        time.sleep(0.050 * 2**i)
+                        continue
+                    else:
+                        raise e
 
         tmp_dir = None
         try:
             tmp_dir = tempfile.mkdtemp("_recipe")
+
+            if forked_user_repo.default_branch != default_branch:
+                _sync_default_branch(
+                    repo_name, forked_user, forked_user_repo.default_branch,
+                    default_branch, gh
+                )
 
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
@@ -534,6 +553,45 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         finally:
             if tmp_dir is not None:
                 shutil.rmtree(tmp_dir)
+
+
+def _sync_default_branch(
+    repo_name, forked_user, forked_default_branch, default_branch, gh
+):
+    r = requests.post(
+        f"https://api.github.com/repos/{forked_user}/"
+        f"{repo_name}/branches/{forked_default_branch}/rename",
+        json={"new_name": default_branch},
+        headers={
+            "Authorization": f"token {os.environ['GH_TOKEN']}",
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.github.v3+json",
+        }
+    )
+    # ignore no such branch errors?
+    if r.status_code != 404:
+        r.raise_for_status()
+
+    # poll until ready since this call is async
+    for i in range(5):
+        try:
+            new_forked_default_branch = gh.get_repo("{}/{}".format(
+                forked_user, repo_name)
+            ).default_branch
+            if new_forked_default_branch == default_branch:
+                break
+            else:
+                raise RuntimeError(
+                    "Forked repo branch %s could not be renamed to %s for repo %s" % (
+                        forked_default_branch, default_branch, repo_name,
+                    )
+                )
+        except Exception as e:
+            if i < 4:
+                time.sleep(0.050 * 2**i)
+                continue
+            else:
+                raise e
 
 
 def restart_pull_request_ci(repo, pr_num):
