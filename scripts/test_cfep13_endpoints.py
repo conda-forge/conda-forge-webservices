@@ -21,7 +21,10 @@ import pytest
 
 from conda_forge_webservices.utils import pushd
 
-OUTPUTS_REPO = "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
+OUTPUTS_REPO = (
+    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge"
+    "/feedstock-outputs.git"
+)
 
 token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
 with open(os.path.expandvars(token_path), "r") as fp:
