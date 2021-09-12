@@ -303,9 +303,22 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         try:
             forked_user_repo = gh.get_repo("{}/{}.git".format(forked_user, repo_name))
         except github.UnknownObjectException:
-            forked_user_repo = forked_user_gh.create_fork(gh.get_repo('{}/{}'.format(
+            forked_user_gh.create_fork(gh.get_repo('{}/{}'.format(
                 org_name,
                 repo_name)))
+            # we have to wait since the call above is async
+            for i in range(5):
+                try:
+                    forked_user_repo = gh.get_repo("{}/{}.git".format(
+                        forked_user, repo_name)
+                    )
+                    break
+                except Exception as e:
+                    if i < 4:
+                        time.sleep(0.050 * 2**i)
+                        continue
+                    else:
+                        raise e
 
         tmp_dir = None
         try:
@@ -543,7 +556,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
 
 def _sync_default_branch(
-    repo_name, forked_user, forked_default_branch, default_branch
+    repo_name, forked_user, forked_default_branch, default_branch, gh
 ):
     r = requests.post(
         f"https://api.github.com/repos/{forked_user}/"
@@ -557,6 +570,27 @@ def _sync_default_branch(
     )
     if r.status_code != 404:
         r.raise_for_status()
+
+    # poll until ready since this call is asyn
+    for i in range(5):
+        try:
+            new_forked_default_branch = gh.get_repo("{}/{}.git".format(
+                forked_user, repo_name)
+            ).default_branch
+            if new_forked_default_branch == default_branch:
+                break
+            else:
+                raise RuntimeError(
+                    "Forked repo branch %s could not be renamed to %s" % (
+                        forked_default_branch, default_branch
+                    )
+                )
+        except Exception as e:
+            if i < 4:
+                time.sleep(0.050 * 2**i)
+                continue
+            else:
+                raise e
 
 
 def restart_pull_request_ci(repo, pr_num):
