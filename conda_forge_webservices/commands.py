@@ -327,7 +327,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             if forked_user_repo.default_branch != default_branch:
                 _sync_default_branch(
                     repo_name, forked_user, forked_user_repo.default_branch,
-                    default_branch
+                    default_branch, gh
                 )
 
             feedstock_dir = os.path.join(tmp_dir, repo_name)
@@ -572,7 +572,7 @@ def _sync_default_branch(
     if r.status_code != 404:
         r.raise_for_status()
 
-    # poll until ready since this call is asyn
+    # poll until ready since this call is async
     for i in range(5):
         try:
             new_forked_default_branch = gh.get_repo("{}/{}.git".format(
