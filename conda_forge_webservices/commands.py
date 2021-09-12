@@ -568,6 +568,7 @@ def _sync_default_branch(
             "Accept": "application/vnd.github.v3+json",
         }
     )
+    # ignore no such branch errors?
     if r.status_code != 404:
         r.raise_for_status()
 
