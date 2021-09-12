@@ -5,16 +5,9 @@ on:
 
 jobs:
   tests:
-    name: tests
+    name: deploy
     runs-on: "ubuntu-latest"
     steps:
-      - name: Prevent multiple jobs running in parallel
-        uses: beckermr/turnstyle-python@v1
-        with:
-          abort-after-seconds: 3
-          poll-interval-seconds: 2
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/checkout@v2
 
       - uses: conda-incubator/setup-miniconda@v2
