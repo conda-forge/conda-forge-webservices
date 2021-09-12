@@ -301,7 +301,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
         # make the fork if it does not exist
         try:
-            forked_user_repo = gh.get_repo("{}/{}.git".format(forked_user, repo_name))
+            forked_user_repo = gh.get_repo("{}/{}".format(forked_user, repo_name))
         except github.UnknownObjectException:
             forked_user_gh.create_fork(gh.get_repo('{}/{}'.format(
                 org_name,
@@ -309,7 +309,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             # we have to wait since the call above is async
             for i in range(5):
                 try:
-                    forked_user_repo = gh.get_repo("{}/{}.git".format(
+                    forked_user_repo = gh.get_repo("{}/{}".format(
                         forked_user, repo_name)
                     )
                     break
@@ -575,7 +575,7 @@ def _sync_default_branch(
     # poll until ready since this call is async
     for i in range(5):
         try:
-            new_forked_default_branch = gh.get_repo("{}/{}.git".format(
+            new_forked_default_branch = gh.get_repo("{}/{}".format(
                 forked_user, repo_name)
             ).default_branch
             if new_forked_default_branch == default_branch:
