@@ -582,8 +582,8 @@ def _sync_default_branch(
                 break
             else:
                 raise RuntimeError(
-                    "Forked repo branch %s could not be renamed to %s" % (
-                        forked_default_branch, default_branch
+                    "Forked repo branch %s could not be renamed to %s for repo %s" % (
+                        forked_default_branch, default_branch, repo_name,
                     )
                 )
         except Exception as e:
