@@ -312,7 +312,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             tmp_dir = tempfile.mkdtemp("_recipe")
 
             default_branch = _sync_default_branch(
-                repo_name, forked_user, org_name, gh
+                repo_name, forked_user, org_name, gh, default_branch,
             )
 
             feedstock_dir = os.path.join(tmp_dir, repo_name)
@@ -540,8 +540,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 shutil.rmtree(tmp_dir)
 
 
-def _sync_default_branch(repo_name, forked_user, org_name, gh):
-    default_branch = gh.get_repo("{}/{}".format(org_name, repo_name)).default_branch
+def _sync_default_branch(repo_name, forked_user, org_name, gh, default_branch):
     forked_default_branch = (
         gh.get_repo("{}/{}".format(forked_user, repo_name)).default_branch
     )
