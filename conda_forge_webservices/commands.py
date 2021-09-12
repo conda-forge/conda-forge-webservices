@@ -311,6 +311,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         try:
             tmp_dir = tempfile.mkdtemp("_recipe")
 
+            default_branch = _sync_default_branch(
+                repo_name, forked_user, org_name, gh
+            )
+
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 os.environ['GH_TOKEN'], forked_user, repo_name)
@@ -534,6 +538,28 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         finally:
             if tmp_dir is not None:
                 shutil.rmtree(tmp_dir)
+
+
+def _sync_default_branch(repo_name, forked_user, org_name, gh):
+    default_branch = gh.get_repo("{}/{}".format(org_name, repo_name)).default_branch
+    forked_default_branch = (
+        gh.get_repo("{}/{}".format(forked_user, repo_name)).default_branch
+    )
+    if default_branch != forked_default_branch:
+        r = requests.post(
+            f"https://api.github.com/repos/{forked_user}/"
+            f"{repo_name}/branches/{forked_default_branch}/rename",
+            json={"new_name": default_branch},
+            headers={
+                "Authorization": f"token {os.environ['GH_TOKEN']}",
+                "Content-Type": "application/json",
+                "Accept": "application/vnd.github.v3+json",
+            }
+        )
+        if r.status_code != 404:
+            r.raise_for_status()
+
+    return default_branch
 
 
 def restart_pull_request_ci(repo, pr_num):
