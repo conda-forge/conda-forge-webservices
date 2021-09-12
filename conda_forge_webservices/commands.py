@@ -311,7 +311,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         try:
             tmp_dir = tempfile.mkdtemp("_recipe")
 
-            default_branch = _sync_default_branch(
+            _sync_default_branch(
                 repo_name, forked_user, org_name, gh, default_branch,
             )
 
@@ -557,8 +557,6 @@ def _sync_default_branch(repo_name, forked_user, org_name, gh, default_branch):
         )
         if r.status_code != 404:
             r.raise_for_status()
-
-    return default_branch
 
 
 def restart_pull_request_ci(repo, pr_num):
