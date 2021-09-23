@@ -103,12 +103,15 @@ def update_team(org_name, repo_name, commit=None):
         if addm or newm:
             message += textwrap.dedent("""
                 You should get push access to this feedstock and CI services.
+                
+                Your package won't be available for installation locally until it is built
+                and synced to the anaconda.org CDN (takes 1-2 hours after the build).
 
                 Feel free to join the community [chat room](https://gitter.im/conda-forge/conda-forge.github.io).
 
                 NOTE: Please make sure to not push to the repository directly.
                       Use branches in your fork for any changes and send a PR.
-                      More details [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests)
+                      More details on this are [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests).
             """)  # noqa
 
             c = gh_repo.get_commit(commit)
