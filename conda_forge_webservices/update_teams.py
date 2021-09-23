@@ -105,7 +105,7 @@ def update_team(org_name, repo_name, commit=None):
                 You should get push access to this feedstock and CI services.
                 
                 Your package won't be available for installation locally until it is built
-                and synced to the anaconda.org CDN (takes 1-2 hours after the build).
+                and synced to the anaconda.org CDN (takes 1-2 hours after the build finishes).
 
                 Feel free to join the community [chat room](https://gitter.im/conda-forge/conda-forge.github.io).
 
