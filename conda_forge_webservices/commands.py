@@ -477,7 +477,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                                 "this PR or change it in any way. It has `[ci skip]` in "  # noqa
                                 "the commit message to avoid pushing a new build and so "  # noqa
                                 "the build configuration in the feedstock should not be "  # noqa
-                                "changed."
+                                "changed.\n\nPlease contact [conda-forge/core](https://"  # noqa
+                                "conda-forge.org/docs/maintainer/maintainer_faq.html"  # noqa
+                                "#mfaq-contact-core) to have this PR merged, if the "  # noqa
+                                "maintainer is unresponsive."  # noqa
                             )
                             changed_anything |= _changed_anything
 
