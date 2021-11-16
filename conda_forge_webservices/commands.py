@@ -479,8 +479,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                                 "the build configuration in the feedstock should not be "  # noqa
                                 "changed.\n\nPlease contact [conda-forge/core](https://"  # noqa
                                 "conda-forge.org/docs/maintainer/maintainer_faq.html"  # noqa
-                                "#mfaq-contact-core) to have this PR merged, in case the "  # noqa
-                                "maintainer is not around anymore."  # noqa
+                                "#mfaq-contact-core) to have this PR merged, if the "  # noqa
+                                "maintainer is unresponsive."  # noqa
                             )
                             changed_anything |= _changed_anything
 
