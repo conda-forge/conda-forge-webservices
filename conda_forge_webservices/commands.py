@@ -692,7 +692,7 @@ def add_user(repo, user):
                 return None
 
             with open(recipe_path, "w") as fp:
-                fp.write("\n".join(new_lines))
+                fp.write("\n".join(new_lines) + "\n")
 
             # and commit
             repo.index.add([recipe_path])
