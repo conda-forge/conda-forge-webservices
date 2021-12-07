@@ -17,6 +17,7 @@ import yaml
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from .circle_ci import update_circle
+from .utils import ALLOWED_CMD_NON_FEEDSTOCKS
 import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
@@ -69,11 +70,12 @@ def pr_detailed_comment(
     pr_num,
     comment,
 ):
-    is_staged_recipes = (repo_name == "staged-recipes")
-    if not (repo_name.endswith("-feedstock") or is_staged_recipes):
+
+    is_allowed_cmd = (repo_name in ALLOWED_CMD_NON_FEEDSTOCKS)
+    if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
 
-    if not is_staged_recipes:
+    if not is_allowed_cmd:
         gh = github.Github(os.environ['GH_TOKEN'])
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         pull = repo.get_pull(int(pr_num))
@@ -89,7 +91,7 @@ def pr_detailed_comment(
                     """)  # noqa
             pull.create_issue_comment(message)
 
-    if not is_staged_recipes and UPDATE_CIRCLECI_KEY_MSG.search(comment):
+    if not is_allowed_cmd and UPDATE_CIRCLECI_KEY_MSG.search(comment):
         update_circle(org_name, repo_name)
 
         gh = github.Github(os.environ['GH_TOKEN'])
@@ -133,10 +135,16 @@ def pr_detailed_comment(
             """ % team)
         pull.create_issue_comment(message)
 
-    if not is_staged_recipes and RERUN_BOT.search(comment):
+    if not is_allowed_cmd and RERUN_BOT.search(comment):
         gh = github.Github(os.environ['GH_TOKEN'])
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         add_bot_rerun_label(repo, pr_num)
+
+    #################################################
+    # below here we only allow staged recipes + feedstocks
+    is_staged_recipes = (repo_name == "staged-recipes")
+    if not (repo_name.endswith("-feedstock") or is_staged_recipes):
+        return
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:

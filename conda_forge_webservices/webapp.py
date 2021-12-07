@@ -28,6 +28,7 @@ from conda_forge_webservices.feedstock_outputs import (
     is_valid_feedstock_token,
     comment_on_outputs_copy,
 )
+from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
 from conda_forge_webservices import status_monitor
 
 STATUS_DATA_LOCK = tornado.locks.Lock()
@@ -363,7 +364,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
             if (
                 owner != 'conda-forge' or
                 not (
-                    repo_name == "staged-recipes" or
+                    repo_name in ALLOWED_CMD_NON_FEEDSTOCKS or
                     repo_name.endswith("-feedstock")
                 )
             ):
@@ -421,7 +422,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
             if (
                 owner != 'conda-forge' or
                 not (
-                    repo_name == "staged-recipes" or
+                    repo_name in ALLOWED_CMD_NON_FEEDSTOCKS or
                     repo_name.endswith("-feedstock")
                 )
             ):

@@ -3,6 +3,8 @@ import shutil
 import tempfile
 from contextlib import contextmanager
 
+ALLOWED_CMD_NON_FEEDSTOCKS = ["staged-recipes", "admin-requests"]
+
 
 @contextmanager
 def tmp_directory():
