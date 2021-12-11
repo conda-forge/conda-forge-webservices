@@ -18,6 +18,7 @@ from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from .circle_ci import update_circle
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS
+from .tokens import generate_app_token
 import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
@@ -807,6 +808,18 @@ def make_rerender_dummy_commit(repo):
 
 
 def rerender(full_name, pr_num):
+    # this is for testing - will turn it on for all repos later
+    if full_name.endswith("/cf-autotick-bot-test-package-feedstock"):
+        org_name, repo_name = full_name.split("/")
+        token = generate_app_token(
+            os.environ["CF_WEBSERVICES_APP_ID"],
+            os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
+            repo_name,
+        )
+        gh = github.Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo("conda-forge/" + repo_name)
+        repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
+
     # dispatch events do not seem to be in the pygithub API
     # so we are rolling the API request by hand
     headers = {
