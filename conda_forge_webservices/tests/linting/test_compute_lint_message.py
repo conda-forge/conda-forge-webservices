@@ -42,7 +42,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
-        self.assert_(lint)
+        self.assertTrue(lint)
         self.assertTrue(
             "found it was in an excellent condition." in lint['message'])
 
@@ -101,7 +101,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 56)
-        self.assert_(lint)
+        self.assertTrue(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_conflict_2_ok_recipe(self):
@@ -115,7 +115,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 57)
-        self.assert_(lint)
+        self.assertTrue(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_bad_recipe(self):
@@ -141,7 +141,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 17)
-        self.assert_(lint)
+        self.assertTrue(lint)
         self.assertTrue("found some lint" in lint['message'])
         self.assertTrue(
             "The home item is expected in the about section." in lint['message'])
@@ -164,7 +164,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 217)
-        self.assert_(lint)
+        self.assertTrue(lint)
         self.assertTrue(
             "I do have some suggestions for making it better though" in lint['message'])
 
@@ -177,7 +177,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 18)
-        self.assert_(lint)
+        self.assertTrue(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_closed_pr(self):
