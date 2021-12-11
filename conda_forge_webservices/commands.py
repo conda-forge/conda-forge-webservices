@@ -4,7 +4,6 @@ import os
 import re
 import subprocess
 import time
-import json
 import shutil
 import tempfile
 from ruamel.yaml import YAML
@@ -808,6 +807,9 @@ def make_rerender_dummy_commit(repo):
 
 
 def rerender(full_name, pr_num):
+    gh = github.Github(os.environ['GH_TOKEN'])
+    repo = gh.get_repo(full_name)
+
     # this is for testing - will turn it on for all repos later
     if full_name.endswith("/cf-autotick-bot-test-package-feedstock"):
         org_name, repo_name = full_name.split("/")
@@ -816,22 +818,12 @@ def rerender(full_name, pr_num):
             os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
             repo_name,
         )
-        gh = github.Github(os.environ['GH_TOKEN'])
-        repo = gh.get_repo("conda-forge/" + repo_name)
         repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
 
-    # dispatch events do not seem to be in the pygithub API
-    # so we are rolling the API request by hand
-    headers = {
-        "authorization": "Bearer %s" % os.environ['GH_TOKEN'],
-        'content-type': 'application/json',
-    }
-    r = requests.post(
-        "https://api.github.com/repos/%s/dispatches" % full_name,
-        data=json.dumps({"event_type": "rerender", "client_payload": {"pr": pr_num}}),
-        headers=headers,
+    return not repo.create_repository_dispatch(
+        "rerender",
+        client_payload={"pr": pr_num},
     )
-    return r.status_code != 204
 
 
 def make_noarch(repo):
