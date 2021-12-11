@@ -47,11 +47,6 @@ jobs:
           # maybe later...
           # black --check conda_forge_webservices
           flake8 conda_forge_webservices
-        env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
-          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
-          STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
-          CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
 
       - name: run test suite
         shell: bash -l {0}
@@ -62,6 +57,8 @@ jobs:
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
 
       - name: run package upload tests
         shell: bash -l {0}
@@ -72,3 +69,5 @@ jobs:
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
