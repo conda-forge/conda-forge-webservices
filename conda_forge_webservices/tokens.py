@@ -14,7 +14,6 @@ from cryptography.hazmat.backends import default_backend
 LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
 TOKEN_RESET_TIMES = {}
-TEN_MINS = 10*60
 
 
 def inject_app_token(full_name, repo=None):
@@ -44,7 +43,7 @@ def inject_app_token(full_name, repo=None):
     global TOKEN_RESET_TIMES
 
     now = time.time()
-    if TOKEN_RESET_TIMES.get(repo_name, now) <= now + TEN_MINS:
+    if TOKEN_RESET_TIMES.get(repo_name, now) <= now:
         token = generate_app_token(
             os.environ["CF_WEBSERVICES_APP_ID"],
             os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
@@ -60,9 +59,9 @@ def inject_app_token(full_name, repo=None):
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info(
-                    "injected app token for repo %s - timeout %ss",
+                    "injected app token for repo %s - timeout %sm",
                     repo_name,
-                    now - TOKEN_RESET_TIMES[repo_name],
+                    (TOKEN_RESET_TIMES[repo_name] - now)/60,
                 )
                 LOGGER.info("===================================================")
                 worked = True
