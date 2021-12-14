@@ -41,36 +41,35 @@ def inject_app_token(full_name, repo=None):
     if not repo_name.endswith("-feedstock"):
         return False
 
-    if repo is None:
-        gh = Github(os.environ['GH_TOKEN'])
-        repo = gh.get_repo(full_name)
-
     global TOKEN_RESET_TIMES
 
     now = time.time()
-    if TOKEN_RESET_TIMES.get(repo.name, now) <= now + TEN_MINS:
+    if TOKEN_RESET_TIMES.get(repo_name, now) <= now + TEN_MINS:
         token = generate_app_token(
             os.environ["CF_WEBSERVICES_APP_ID"],
             os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
-            repo.name,
+            repo_name,
         )
         if token is not None:
+            if repo is None:
+                gh = Github(os.environ['GH_TOKEN'])
+                repo = gh.get_repo(full_name)
             worked = repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
             if worked:
-                TOKEN_RESET_TIMES[repo.name] = Github(token).rate_limiting_resettime
+                TOKEN_RESET_TIMES[repo_name] = Github(token).rate_limiting_resettime
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info(
                     "injected app token for repo %s - timeout %ss",
-                    repo.name,
-                    now - TOKEN_RESET_TIMES[repo.name],
+                    repo_name,
+                    now - TOKEN_RESET_TIMES[repo_name],
                 )
                 LOGGER.info("===================================================")
             else:
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info(
-                    "app token could not be pushed to secrets for %s", repo.name)
+                    "app token could not be pushed to secrets for %s", repo_name)
                 LOGGER.info("===================================================")
 
             return worked
@@ -78,7 +77,7 @@ def inject_app_token(full_name, repo=None):
             LOGGER.info("")
             LOGGER.info("===================================================")
             LOGGER.info(
-                "app token could not be made for %s", repo.name)
+                "app token could not be made for %s", repo_name)
             LOGGER.info("===================================================")
             return False
     else:
@@ -86,8 +85,8 @@ def inject_app_token(full_name, repo=None):
         LOGGER.info("===================================================")
         LOGGER.info(
             "app token exists for repo %s - timeout %ss",
-            repo.name,
-            now - TOKEN_RESET_TIMES[repo.name],
+            repo_name,
+            now - TOKEN_RESET_TIMES[repo_name],
         )
         LOGGER.info("===================================================")
         return True
