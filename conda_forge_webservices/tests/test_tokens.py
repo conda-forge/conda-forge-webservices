@@ -58,7 +58,7 @@ def test_github_app_tokens(token_repo):
     "cf-autotick-bot-test-package-feedstock"
 ])
 def test_inject_app_token(token_repo):
-    res = inject_app_token(token_repo)
+    res = inject_app_token("conda-forge/" + token_repo)
     if token_repo == "cf-autotick-bot-test-package-feedstock":
         assert res
     else:
