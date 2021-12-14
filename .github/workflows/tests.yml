@@ -53,7 +53,7 @@ jobs:
       - name: run test suite
         shell: bash -l {0}
         run: |
-          pytest -vv conda_forge_webservices
+          pytest -vvs conda_forge_webservices/tests/test_tokens.py
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
@@ -62,14 +62,14 @@ jobs:
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
 
-      - name: run package upload tests
-        shell: bash -l {0}
-        run: |
-          ./scripts/run_cfep13_tests.sh
-        env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
-          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
-          STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
-          CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
-          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
-          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
+      # - name: run package upload tests
+      #   shell: bash -l {0}
+      #   run: |
+      #     ./scripts/run_cfep13_tests.sh
+      #   env:
+      #     GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+      #     PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
+      #     STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
+      #     CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
+      #     CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
+      #     CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}

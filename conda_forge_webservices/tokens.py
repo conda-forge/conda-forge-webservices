@@ -66,11 +66,30 @@ def inject_app_token(full_name, repo=None):
                     now - TOKEN_RESET_TIMES[repo.name],
                 )
                 LOGGER.info("===================================================")
+            else:
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info(
+                    "app token could not be pushed to secrets for %s", repo.name)
+                LOGGER.info("===================================================")
+
             return worked
         else:
-            print("secret creation failed!", flush=True)
+            LOGGER.info("")
+            LOGGER.info("===================================================")
+            LOGGER.info(
+                "app token could not be made for %s", repo.name)
+            LOGGER.info("===================================================")
             return False
     else:
+        LOGGER.info("")
+        LOGGER.info("===================================================")
+        LOGGER.info(
+            "app token exists for repo %s - timeout %ss",
+            repo.name,
+            now - TOKEN_RESET_TIMES[repo.name],
+        )
+        LOGGER.info("===================================================")
         return True
 
 
