@@ -68,6 +68,7 @@ def inject_app_token(full_name, repo=None):
                 LOGGER.info("===================================================")
             return worked
         else:
+            print("secret creation failed!", flush=True)
             return False
     else:
         return True
