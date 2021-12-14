@@ -3,12 +3,15 @@ import base64
 import os
 import io
 import sys
+import logging
 from contextlib import redirect_stdout, redirect_stderr
 
 from github import Github
 import jwt
 import requests
 from cryptography.hazmat.backends import default_backend
+
+LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
 TOKEN_RESET_TIMES = {}
 TEN_MINS = 10*60
@@ -29,34 +32,65 @@ def inject_app_token(full_name, repo=None):
     injected : bool
         True if the token was injected, False otherwise.
     """
-    if repo is None:
-        gh = Github(os.environ['GH_TOKEN'])
-        repo = gh.get_repo(full_name)
+    repo_name = full_name.split("/")[1]
 
     # this is for testing - will turn it on for all repos later
-    if repo.name != "cf-autotick-bot-test-package-feedstock":
+    if repo_name != "cf-autotick-bot-test-package-feedstock":
         return False
 
-    if not repo.name.endswith("-feedstock"):
+    if not repo_name.endswith("-feedstock"):
         return False
 
     global TOKEN_RESET_TIMES
 
     now = time.time()
-    if TOKEN_RESET_TIMES.get(repo.name, now) <= now + TEN_MINS:
+    if TOKEN_RESET_TIMES.get(repo_name, now) <= now + TEN_MINS:
         token = generate_app_token(
             os.environ["CF_WEBSERVICES_APP_ID"],
             os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
-            repo.name,
+            repo_name,
         )
         if token is not None:
-            worked = repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
-            if worked:
-                TOKEN_RESET_TIMES[repo.name] = Github(token).rate_limiting_resettime
+            if repo is None:
+                gh = Github(os.environ['GH_TOKEN'])
+                repo = gh.get_repo(full_name)
+            try:
+                repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
+                TOKEN_RESET_TIMES[repo_name] = Github(token).rate_limiting_resettime
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info(
+                    "injected app token for repo %s - timeout %ss",
+                    repo_name,
+                    now - TOKEN_RESET_TIMES[repo_name],
+                )
+                LOGGER.info("===================================================")
+                worked = True
+            except Exception:
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info(
+                    "app token could not be pushed to secrets for %s", repo_name)
+                LOGGER.info("===================================================")
+                worked = False
+
             return worked
         else:
+            LOGGER.info("")
+            LOGGER.info("===================================================")
+            LOGGER.info(
+                "app token could not be made for %s", repo_name)
+            LOGGER.info("===================================================")
             return False
     else:
+        LOGGER.info("")
+        LOGGER.info("===================================================")
+        LOGGER.info(
+            "app token exists for repo %s - timeout %ss",
+            repo_name,
+            now - TOKEN_RESET_TIMES[repo_name],
+        )
+        LOGGER.info("===================================================")
         return True
 
 

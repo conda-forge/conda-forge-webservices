@@ -53,7 +53,7 @@ jobs:
       - name: run test suite
         shell: bash -l {0}
         run: |
-          pytest -vv conda_forge_webservices
+          pytest -vvs conda_forge_webservices
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
