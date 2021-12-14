@@ -54,8 +54,8 @@ def inject_app_token(full_name, repo=None):
             if repo is None:
                 gh = Github(os.environ['GH_TOKEN'])
                 repo = gh.get_repo(full_name)
-            worked = repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
-            if worked:
+            try:
+                repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
                 TOKEN_RESET_TIMES[repo_name] = Github(token).rate_limiting_resettime
                 LOGGER.info("")
                 LOGGER.info("===================================================")
@@ -65,12 +65,14 @@ def inject_app_token(full_name, repo=None):
                     now - TOKEN_RESET_TIMES[repo_name],
                 )
                 LOGGER.info("===================================================")
-            else:
+                worked = True
+            except Exception:
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info(
                     "app token could not be pushed to secrets for %s", repo_name)
                 LOGGER.info("===================================================")
+                worked = False
 
             return worked
         else:
