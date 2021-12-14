@@ -3,12 +3,15 @@ import base64
 import os
 import io
 import sys
+import logging
 from contextlib import redirect_stdout, redirect_stderr
 
 from github import Github
 import jwt
 import requests
 from cryptography.hazmat.backends import default_backend
+
+LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
 TOKEN_RESET_TIMES = {}
 TEN_MINS = 10*60
@@ -29,16 +32,18 @@ def inject_app_token(full_name, repo=None):
     injected : bool
         True if the token was injected, False otherwise.
     """
+    repo_name = full_name.split("/")[1]
+
+    # this is for testing - will turn it on for all repos later
+    if repo_name != "cf-autotick-bot-test-package-feedstock":
+        return False
+
+    if not repo_name.endswith("-feedstock"):
+        return False
+
     if repo is None:
         gh = Github(os.environ['GH_TOKEN'])
         repo = gh.get_repo(full_name)
-
-    # this is for testing - will turn it on for all repos later
-    if repo.name != "cf-autotick-bot-test-package-feedstock":
-        return False
-
-    if not repo.name.endswith("-feedstock"):
-        return False
 
     global TOKEN_RESET_TIMES
 
@@ -53,6 +58,14 @@ def inject_app_token(full_name, repo=None):
             worked = repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
             if worked:
                 TOKEN_RESET_TIMES[repo.name] = Github(token).rate_limiting_resettime
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info(
+                    "injected app token for repo %s - timeout %ss",
+                    repo.name,
+                    now - TOKEN_RESET_TIMES[repo.name],
+                )
+                LOGGER.info("===================================================")
             return worked
         else:
             return False
