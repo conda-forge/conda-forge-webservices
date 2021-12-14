@@ -5,9 +5,59 @@ import io
 import sys
 from contextlib import redirect_stdout, redirect_stderr
 
+from github import Github
 import jwt
 import requests
 from cryptography.hazmat.backends import default_backend
+
+TOKEN_RESET_TIMES = {}
+TEN_MINS = 10*60
+
+
+def inject_app_token(full_name, repo=None):
+    """Inject the webservices app token into the repo secrets.
+
+    Parameters
+    ----------
+    full_name : str
+        The full name of the repo (e.g., "conda-forge/blah").
+    repo : pygithub Repository
+        Optional repo object to use. If not passed, a new one will be made.
+
+    Returns
+    -------
+    injected : bool
+        True if the token was injected, False otherwise.
+    """
+    if repo is None:
+        gh = Github(os.environ['GH_TOKEN'])
+        repo = gh.get_repo(full_name)
+
+    # this is for testing - will turn it on for all repos later
+    if repo.name != "cf-autotick-bot-test-package-feedstock":
+        return False
+
+    if not repo.name.endswith("-feedstock"):
+        return False
+
+    global TOKEN_RESET_TIMES
+
+    now = time.time()
+    if TOKEN_RESET_TIMES.get(repo.name, now) <= now + TEN_MINS:
+        token = generate_app_token(
+            os.environ["CF_WEBSERVICES_APP_ID"],
+            os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
+            repo.name,
+        )
+        if token is not None:
+            worked = repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
+            if worked:
+                TOKEN_RESET_TIMES[repo.name] = Github(token).rate_limiting_resettime
+            return worked
+        else:
+            return False
+    else:
+        return True
 
 
 def generate_app_token(app_id, raw_pem, repo):
@@ -88,7 +138,8 @@ def generate_app_token(app_id, raw_pem, repo):
             print("::add-mask::%s" % gh_token, flush=True)
 
         assert r.json()["permissions"] == {
-            "contents": "write", "metadata": "read", "workflows": "write"
+            "contents": "write", "metadata": "read", "workflows": "write",
+            "checks": "read", "pulls": "write", "statuses": "read",
         }
         assert set(r["name"] for r in r.json()["repositories"]) == {repo}
 
