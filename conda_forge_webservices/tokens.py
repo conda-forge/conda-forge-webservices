@@ -86,9 +86,9 @@ def inject_app_token(full_name, repo=None):
         LOGGER.info("")
         LOGGER.info("===================================================")
         LOGGER.info(
-            "app token exists for repo %s - timeout %ss",
+            "app token exists for repo %s - timeout %sm",
             repo_name,
-            now - TOKEN_RESET_TIMES[repo_name],
+            (TOKEN_RESET_TIMES[repo_name] - now)/60,
         )
         LOGGER.info("===================================================")
         return True
