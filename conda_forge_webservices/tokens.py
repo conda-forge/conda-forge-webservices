@@ -137,12 +137,9 @@ def generate_app_token(app_id, raw_pem, repo):
             print("masking GITHUB token for github actions", flush=True)
             print("::add-mask::%s" % gh_token, flush=True)
 
-        print("permissions:", r.json()["permissions"], flush=True)
-        print("repos:", set(r["name"] for r in r.json()["repositories"]), flush=True)
-
         assert r.json()["permissions"] == {
             "contents": "write", "metadata": "read", "workflows": "write",
-            "checks": "read", "pulls": "write", "statuses": "read",
+            "checks": "read", "pull_requests": "write", "statuses": "read",
         }
         assert set(r["name"] for r in r.json()["repositories"]) == {repo}
 
