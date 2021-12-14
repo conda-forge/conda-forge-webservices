@@ -4,7 +4,7 @@ import subprocess
 
 import pytest
 
-from ..tokens import generate_app_token
+from ..tokens import generate_app_token, inject_app_token
 
 
 @pytest.mark.parametrize("token_repo", [
@@ -51,3 +51,15 @@ def test_github_app_tokens(token_repo):
         assert out.returncode == 0
     else:
         assert out.returncode != 0
+
+
+@pytest.mark.parametrize("token_repo", [
+    "staged-recipes",
+    "cf-autotick-bot-test-package-feedstock"
+])
+def test_inject_app_token(token_repo):
+    res = inject_app_token(token_repo)
+    if token_repo == "cf-autotick-bot-test-package-feedstock":
+        assert res
+    else:
+        assert not res
