@@ -33,10 +33,6 @@ def inject_app_token(full_name, repo=None):
     """
     repo_name = full_name.split("/")[1]
 
-    # this is for testing - will turn it on for all repos later
-    if repo_name != "cf-autotick-bot-test-package-feedstock":
-        return False
-
     if not repo_name.endswith("-feedstock"):
         return False
 
