@@ -121,7 +121,8 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
             except Exception as err:
                 import traceback
-                LOGGER.warning('LINTING ERROR: %s', traceback.format_exc(err))
+                LOGGER.warning('LINTING ERROR: %s', repr(err))
+                LOGGER.warning('LINTING ERROR TRACEBACK: %s', traceback.format_exc())
                 lints = [
                     "Failed to even lint the recipe, probably because "
                     "of a conda-smithy bug :cry:. "
