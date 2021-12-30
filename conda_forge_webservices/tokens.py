@@ -156,7 +156,17 @@ def generate_app_token(app_id, raw_pem, repo):
                     'Authorization': 'Bearer %s' % token,
                     'Accept': 'application/vnd.github.machine-man-preview+json',
                 },
-                json={"repositories": [repo]},
+                json={
+                    "repositories": [repo],
+                    "permissions": {
+                        "contents": "write",
+                        "metadata": "read",
+                        "workflows": "write",
+                        "checks": "read",
+                        "pull_requests": "write",
+                        "statuses": "read",
+                    }
+                },
             )
             r.raise_for_status()
 
