@@ -664,9 +664,23 @@ def add_user(repo, user):
                 # do code owners first
                 with open(co_path, "r") as fp:
                     lines = [ln.strip() for ln in fp.readlines()]
-                lines.append("* @%s" % user)
+
+                # get any current lines with "* " at the front
+                co_lines = []
+                other_lines = []
+                for i in range(len(lines)):
+                    if lines[i].startswith("* "):
+                        co_lines.append(i)
+                    else:
+                        other_lines.append(lines[i])
+                all_users = [user]
+                for co_line in co_lines:
+                    parts = co_line.split("*", 1)
+                    if len(parts) > 1:
+                        all_users.extend(parts[1].split(" "))
+                other_lines = ["* " + " ".join(all_users)] + other_lines
                 with open(co_path, "w") as fp:
-                    fp.write("\n".join(lines))
+                    fp.write("\n".join(other_lines))
 
             # now the recipe
             # we cannot use yaml because sometimes reading a recipe via the yaml
