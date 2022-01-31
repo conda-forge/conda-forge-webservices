@@ -677,7 +677,7 @@ def add_user(repo, user):
                 for co_line in co_lines:
                     parts = co_line.split("*", 1)
                     if len(parts) > 1:
-                        all_users.extend(parts[1].split(" "))
+                        all_users.extend(parts[1].strip().split(" "))
                 other_lines = ["* " + " ".join(all_users)] + other_lines
                 with open(co_path, "w") as fp:
                     fp.write("\n".join(other_lines))
