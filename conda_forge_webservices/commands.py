@@ -673,7 +673,7 @@ def add_user(repo, user):
                         co_lines.append(lines[i])
                     else:
                         other_lines.append(lines[i])
-                all_users = [user]
+                all_users = ["@" + user]
                 for co_line in co_lines:
                     parts = co_line.split("*", 1)
                     if len(parts) > 1:
