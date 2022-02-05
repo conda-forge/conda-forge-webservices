@@ -670,7 +670,7 @@ def add_user(repo, user):
                 other_lines = []
                 for i in range(len(lines)):
                     if lines[i].startswith("* "):
-                        co_lines.append(i)
+                        co_lines.append(lines[i])
                     else:
                         other_lines.append(lines[i])
                 all_users = [user]
