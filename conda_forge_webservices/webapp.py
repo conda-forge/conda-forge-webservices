@@ -290,15 +290,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             repo_name = body['repository']['name']
             owner = body['repository']['owner']['login']
             ref = body['ref']
-            commit = (body.get('head_commit', None) or {}).get('id', None)
-
-            if commit:
-                commit_msg = get_commit_message(
-                    body['repository']['full_name'],
-                    commit,
-                )
-            else:
-                commit_msg = ""
+            commit_msg = (body.get('head_commit', None) or {}).get('message', '')
 
             # Only do anything if we are working with conda-forge,
             # and a push to main.
