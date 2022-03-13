@@ -188,8 +188,7 @@ class TestBucketHandler(TestHandlerBase):
         'conda_forge_webservices.webapp.print_rate_limiting_info',
         return_value=None,
     )
-    @mock.patch('conda_forge_webservices.webapp.get_commit_message')
-    def test_skip_commits(self, commit_mock, *args):
+    def test_skip_commits(self, *args):
         for hook, accepted_repos, accepted_events, skip_slugs in [
             ("/conda-forge-feedstocks/org-hook",
              ["repo-feedstock"],
@@ -203,7 +202,6 @@ class TestBucketHandler(TestHandlerBase):
              ),
         ]:
             for commit_msg in (["blah"] + skip_slugs):
-                commit_mock.return_value = commit_msg
 
                 test_slugs = [
                     "conda-forge/repo-feedstock",
@@ -243,7 +241,7 @@ class TestBucketHandler(TestHandlerBase):
                             },
                             'action': 'opened',
                             'ref': 'refs/heads/' + __branch,
-                            'head_commit': {'id': 'xyz'},
+                            'head_commit': {'id': 'xyz', 'message': commit_msg},
                         }
 
                         hash = hmac.new(
