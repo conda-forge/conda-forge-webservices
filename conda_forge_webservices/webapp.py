@@ -244,6 +244,8 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge, and a
             # push to main.
             if (
+                # this weird thing happens with master to main branch changes maybe?
+                body['after'] != '0000000000000000000000000000000000000000' and
                 owner == 'conda-forge' and
                 (ref == "refs/heads/master" or ref == "refs/heads/main") and
                 "[cf admin skip feedstocks]" not in commit_msg and
@@ -296,6 +298,8 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
             # Only do anything if we are working with conda-forge,
             # and a push to main.
             if (
+                # this weird thing happens with master to main branch changes maybe?
+                body['after'] != '0000000000000000000000000000000000000000' and
                 owner == 'conda-forge' and
                 repo_name.endswith("-feedstock") and
                 (ref == "refs/heads/master" or ref == "refs/heads/main") and

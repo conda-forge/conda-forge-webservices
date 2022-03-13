@@ -118,6 +118,7 @@ class TestBucketHandler(TestHandlerBase):
                 owner, name = slug.split("/")
                 for __branch in ["main", "master"]:
                     body = {
+                        'after': '324234fdf',
                         'repository': {
                             'name': name,
                             'full_name': '%s/%s' % (owner, name),
@@ -215,6 +216,7 @@ class TestBucketHandler(TestHandlerBase):
                     owner, name = slug.split("/")
                     for __branch in ["main", "master"]:
                         body = {
+                            'after': '324234fdf',
                             'repository': {
                                 'name': name,
                                 'full_name': '%s/%s' % (owner, name),
