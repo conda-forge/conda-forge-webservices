@@ -255,7 +255,8 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 owner == 'conda-forge' and
                 (ref == "refs/heads/master" or ref == "refs/heads/main") and
                 "[cf admin skip feedstocks]" not in commit_msg and
-                "[cf admin skip]" not in commit_msg
+                "[cf admin skip]" not in commit_msg and
+                repo_name.endswith("-feedstock")
             ):
                 LOGGER.info("")
                 LOGGER.info("===================================================")
