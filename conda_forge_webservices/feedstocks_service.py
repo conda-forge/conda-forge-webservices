@@ -64,12 +64,12 @@ def update_feedstock(org_name, repo_name):
         )
 
         # Update the feedstocks submodule
-        cfg = feedstock_submodule.config_writer()
-        cfg.config.set_value(
-            'submodule "%s"' % name,
-            "branch",
-            "refs/heads/%s" % default_branch,
-        )
+        with feedstock_submodule.config_writer() as cfg:
+            cfg.config.set_value(
+                'submodule "%s"' % name,
+                "branch",
+                "refs/heads/%s" % default_branch,
+            )
         feedstock_submodule.update(
             init=True,
             recursive=False,
