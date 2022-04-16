@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-# export DEBUG_FEEDSTOCK_TOKENS=1
 echo "blah-not-a-token" > ~/.conda-smithy/anaconda.token
 
 python scripts/delete_staged_recipes_token.py
-echo "waiting for github to remove the token.."
+echo "waiting for github to remove the token..."
 sleep 10
 mkdir staged-recipes
+rm -f ~/.conda-smithy/conda-forge_staged-recipes.token
 conda smithy generate-feedstock-token --feedstock_directory staged-recipes
 conda smithy register-feedstock-token \
   --without-circle \
@@ -14,7 +14,7 @@ conda smithy register-feedstock-token \
   --without-azure \
   --without-travis \
   --without-github-actions \
-  --token_repo='https://x-access-token:${GH_TOKEN}@github.com/%s/feedstock-tokens' \
+  --token_repo='https://x-access-token:${GH_TOKEN}@github.com/conda-forge/feedstock-tokens' \
   --feedstock_directory staged-recipes
 
 python -u -m conda_forge_webservices.webapp --local &
@@ -30,6 +30,7 @@ retvalc=$?
 kill $(jobs -p)
 popd
 
+rm -f ~/.conda-smithy/conda-forge_staged-recipes.token
 python scripts/delete_staged_recipes_token.py
 
 if [[ "${retvale}" == "0" && "${retvalc}" == "0" ]]; then
