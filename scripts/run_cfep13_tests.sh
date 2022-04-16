@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+export DEBUG_FEEDSTOCK_TOKENS=1
 echo "blah-not-a-token" > ~/.conda-smithy/anaconda.token
 
 python scripts/delete_staged_recipes_token.py
