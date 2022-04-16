@@ -3,6 +3,8 @@
 echo "blah-not-a-token" > ~/.conda-smithy/anaconda.token
 
 python scripts/delete_staged_recipes_token.py
+echo "waiting for github to remove the token.."
+sleep 10
 mkdir staged-recipes
 conda smithy generate-feedstock-token --feedstock_directory staged-recipes
 conda smithy register-feedstock-token \
