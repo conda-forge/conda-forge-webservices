@@ -8,6 +8,10 @@ sleep 10
 mkdir staged-recipes
 rm -f ~/.conda-smithy/conda-forge_staged-recipes.token
 conda smithy generate-feedstock-token --feedstock_directory staged-recipes
+
+secret=`cat ~/.conda-smithy/conda-forge_staged-recipes.token`
+echo "::add-mask::$secret"
+
 conda smithy register-feedstock-token \
   --without-circle \
   --without-drone \
