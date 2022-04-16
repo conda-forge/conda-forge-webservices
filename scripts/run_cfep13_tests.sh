@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-python delete_staged_recipes_token.py
+python scripts/delete_staged_recipes_token.py
 mkdir staged-recipes
 conda smithy generate-feedstock-token --feedstock_directory staged-recipes
 conda smithy register-feedstock-token \
@@ -24,7 +24,7 @@ retvalc=$?
 kill $(jobs -p)
 popd
 
-python delete_staged_recipes_token.py
+python scripts/delete_staged_recipes_token.py
 
 if [[ "${retvale}" == "0" && "${retvalc}" == "0" ]]; then
   exit 0
