@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "blah-not-a-token" > ~/.conda-smithy/anaconda.token
+
 python scripts/delete_staged_recipes_token.py
 mkdir staged-recipes
 conda smithy generate-feedstock-token --feedstock_directory staged-recipes

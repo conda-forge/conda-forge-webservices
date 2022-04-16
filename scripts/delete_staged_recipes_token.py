@@ -9,7 +9,7 @@ def feedstock_token_exists(organization, name):
     r = requests.get(
         "https://api.github.com/repos/%s/"
         "feedstock-tokens/contents/tokens/%s.json" % (organization, name),
-        headers={"Authorization": "token %s" % os.environ["GITHUB_TOKEN"]},
+        headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
     )
     if r.status_code != 200:
         return False
