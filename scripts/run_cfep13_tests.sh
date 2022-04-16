@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export DEBUG_FEEDSTOCK_TOKENS=1
+# export DEBUG_FEEDSTOCK_TOKENS=1
 echo "blah-not-a-token" > ~/.conda-smithy/anaconda.token
 
 python scripts/delete_staged_recipes_token.py
@@ -14,6 +14,7 @@ conda smithy register-feedstock-token \
   --without-azure \
   --without-travis \
   --without-github-actions \
+  --token_repo='https://x-access-token:${GH_TOKEN}@github.com/%s/feedstock-tokens' \
   --feedstock_directory staged-recipes
 
 python -u -m conda_forge_webservices.webapp --local &
