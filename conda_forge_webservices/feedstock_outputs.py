@@ -400,10 +400,12 @@ If you have any issues or questions, you can find us on gitter in the
 community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or you can bump us right here.
 """ % team_name  # noqa
 
+    is_all_valid = True
     if len(valid) > 0:
         valid_msg = "output validation (is this output allowed for your feedstock?):\n"
         for o, v in valid.items():
             valid_msg += " - **%s**: %s\n" % (o, v)
+            is_all_valid &= v
 
         message += "\n\n"
         message += valid_msg
@@ -419,10 +421,20 @@ community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or yo
     if len(errors) > 0:
         error_msg = "error messages:\n"
         for err in errors:
+            is_all_valid &= "not allowed for" not in err
             error_msg += " - %s" % err
 
         message += "\n\n"
         message += error_msg
+
+    if not is_all_valid:
+        message += (
+            "\n\n"
+            "To fix invalid outputs, you may need to manually add this feedstock to the"
+            " feedstock-outputs map (did another feedstock already make this package?):"
+            "\n"
+            " - https://github.com/conda-forge/feedstock-outputs"
+        )
 
     repo = gh.get_repo("conda-forge/%s" % feedstock)
     issue = None
