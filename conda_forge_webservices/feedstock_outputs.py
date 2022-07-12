@@ -265,7 +265,7 @@ def _is_valid_feedstock_output(
                         headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
                         json={
                             "message": (
-                                "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** added "
+                                "[cf admin skip] ***NO_CI*** added "
                                 "output %s for conda-forge/%s" % (un, feedstock)),
                             "content": edata,
                         }
