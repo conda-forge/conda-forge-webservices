@@ -35,7 +35,9 @@ UPDATE_CB3_MSG = re.compile(
     pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
 PING_TEAM = re.compile(pre + r"(please )?ping (?P<team>\S+)", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
-ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?add bot automerge", re.I)
+ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?(add|enable) bot auto-?merge", re.I)
+REMOVE_BOT_AUTOMERGE = re.compile(
+    pre + "(please )?(remove|delete|stop|disable) bot auto-?merge", re.I)
 ADD_PY = re.compile(
     pre
     + r"(please )?add (python (?P<verfloat>[0-9]{1}\.[0-9]{1})|py(?P<verint>[0-9]{2}))",
@@ -258,10 +260,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
                       RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY,
-                      ADD_USER]
+                      ADD_USER, REMOVE_BOT_AUTOMERGE]
     send_pr_commands = [
         ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY,
-        ADD_USER]
+        ADD_USER, REMOVE_BOT_AUTOMERGE]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -393,13 +395,21 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 changed_anything |= make_rerender_dummy_commit(git_repo)
 
             elif ADD_BOT_AUTOMERGE.search(text):
-                pr_title = "[ci skip] [cf admin skip] ***NO_CI*** adding bot automerge"
+                pr_title = "[ci skip] adding bot automerge"
                 comment_msg = "added bot automerge"
                 to_close = ADD_BOT_AUTOMERGE.search(title)
                 check_bump_build = False
                 extra_msg = "\n\nMerge this PR to enable bot automerging.\n"
 
                 changed_anything |= add_bot_automerge(git_repo)
+            elif REMOVE_BOT_AUTOMERGE.search(text):
+                pr_title = "[ci skip] removing bot automerge"
+                comment_msg = "removing bot automerge"
+                to_close = REMOVE_BOT_AUTOMERGE.search(title)
+                check_bump_build = False
+                extra_msg = "\n\nMerge this PR to disable bot automerging.\n"
+
+                changed_anything |= remove_bot_automerge(git_repo)
             elif ADD_PY.search(text):
                 m = ADD_PY.search(text)
                 if m.group('verfloat'):
@@ -781,7 +791,8 @@ def add_bot_automerge(repo):
     else:
         cfg = {}
 
-    if cfg.get('bot', {}).get('automerge', False):
+    current_automerge_value = cfg.get('bot', {}).get('automerge', False)
+    if current_automerge_value:
         # already have it
         return False
 
@@ -799,6 +810,36 @@ def add_bot_automerge(repo):
     author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
     repo.index.commit(
         "[ci skip] ***NO_CI*** added bot automerge", author=author)
+    return True
+
+
+def remove_bot_automerge(repo):
+    yaml = YAML()
+
+    cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
+    if os.path.exists(cf_yml):
+        with open(cf_yml, 'r') as fp:
+            cfg = yaml.load(fp)
+    else:
+        cfg = {}
+
+    current_automerge_value = cfg.get('bot', {}).get('automerge', False)
+    if not current_automerge_value:
+        # already disabled
+        return False
+
+    # remove it from conda-forge.yml
+    del cfg['bot']['automerge']
+    if len(cfg['bot']) == 0:
+        del cfg['bot']
+    with open(cf_yml, 'w') as fp:
+        yaml.dump(cfg, fp)
+
+    # now commit
+    repo.index.add([cf_yml])
+    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    repo.index.commit(
+        "[ci skip] ***NO_CI*** removed bot automerge", author=author)
     return True
 
 
