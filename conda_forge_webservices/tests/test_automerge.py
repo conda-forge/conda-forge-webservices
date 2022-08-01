@@ -85,8 +85,8 @@ class TestRemoveAutomerge(unittest.TestCase):
                 assert not remove_bot_automerge(repo)
 
     @parameterized.expand([
-        ("on-and-other-bot-key", dict(travis="blah", bot=dict(automerge=False, x=5))),
-        ("on-and-only-bot-key", dict(travis="blah", bot=dict(automerge=False)))])
+        ("on-and-other-bot-key", dict(travis="blah", bot=dict(automerge=True, x=5))),
+        ("on-and-only-bot-key", dict(travis="blah", bot=dict(automerge=True)))])
     def test_automerge_remove(self, _, cfg):
         yaml = YAML()
 
