@@ -58,8 +58,10 @@ class TestAddAutomerge(unittest.TestCase):
 
                     # make sure the commit is correct
                     cmt_msg = repo.head.ref.commit.message
-                    assert '[ci skip] ***NO_CI*** added bot automerge' in cmt_msg
-
+                    assert (
+                        "[ci skip] [cf admin skip] ***NO_CI*** added bot automerge"
+                        in cmt_msg
+                    )
                     # make sure both the conda-forge.yml and the main.yml are
                     # tracked
                     assert not repo.is_dirty()
@@ -115,7 +117,10 @@ class TestRemoveAutomerge(unittest.TestCase):
 
                     # make sure the commit is correct
                     cmt_msg = repo.head.ref.commit.message
-                    assert '[ci skip] ***NO_CI*** removed bot automerge' in cmt_msg
+                    assert (
+                        '[ci skip] [cf admin skip] ***NO_CI*** removed bot automerge'
+                        in cmt_msg
+                    )
 
                     # make sure both the conda-forge.yml and the main.yml are
                     # tracked
