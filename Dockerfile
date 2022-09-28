@@ -32,7 +32,7 @@ LABEL maintainer="conda-forge core (@conda-forge/core)"
 ENV LANG en_US.UTF-8
 
 ARG CONDA_VERSION="4.12.0"
-ARG CONDA_SHA256=""
+ARG CONDA_SHA256="78f39f9bae971ec1ae7969f0516017f2413f17796670f7040725dd83fcff5689"
 ARG CONDA_DIR="/opt/conda"
 
 ENV PATH="$CONDA_DIR/bin:$PATH"
