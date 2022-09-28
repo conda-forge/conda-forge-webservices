@@ -60,7 +60,6 @@ RUN echo "**** install dev packages ****" && \
     conda config --add channels conda-forge  && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
-    conda update --all && \
     conda install --quiet --file conda-requirements.txt && \
     echo "**** cleanup ****" && \
     rm -rf /var/cache/apk/* && \
