@@ -31,8 +31,7 @@ LABEL maintainer="conda-forge core (@conda-forge/core)"
 
 ENV LANG en_US.UTF-8
 
-ARG CONDA_VERSION="4.7.12.1"
-ARG CONDA_MD5="81c773ff87af5cfac79ab862942ab6b3"
+ARG CONDA_MD5="678c0078e3a37596cd671f690e852fff"
 ARG CONDA_DIR="/opt/conda"
 
 ENV PATH="$CONDA_DIR/bin:$PATH"
@@ -48,7 +47,7 @@ RUN echo "**** install dev packages ****" && \
     \
     echo "**** get Miniconda ****" && \
     mkdir -p "$CONDA_DIR" && \
-    wget "http://repo.continuum.io/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh" -O miniconda.sh && \
+    wget "https://github.com/conda-forge/miniforge/releases/download/4.11.0-0/Mambaforge-4.11.0-0-Linux-x86_64.sh" -O miniconda.sh && \
     echo "$CONDA_MD5  miniconda.sh" | md5sum -c && \
     \
     echo "**** install Miniconda ****" && \
@@ -61,8 +60,7 @@ RUN echo "**** install dev packages ****" && \
     conda config --add channels conda-forge  && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
-    conda update --all && \
-    conda install --quiet --file conda-requirements.txt && \
+    mamba install --quiet --file conda-requirements.txt && \
     echo "**** cleanup ****" && \
     rm -rf /var/cache/apk/* && \
     rm -f miniconda.sh && \
