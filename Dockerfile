@@ -48,7 +48,7 @@ RUN echo "**** install dev packages ****" && \
     \
     echo "**** get Miniconda ****" && \
     mkdir -p "$CONDA_DIR" && \
-    wget "http://repo.continuum.io/miniconda/Miniconda3-py39-${CONDA_VERSION}-Linux-x86_64.sh" -O miniconda.sh && \
+    wget "http://repo.continuum.io/miniconda/Miniconda3-py39_${CONDA_VERSION}-Linux-x86_64.sh" -O miniconda.sh && \
     echo "$CONDA_SHA256  miniconda.sh" | sha256sum -c && \
     \
     echo "**** install Miniconda ****" && \
