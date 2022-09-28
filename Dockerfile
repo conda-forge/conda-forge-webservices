@@ -48,7 +48,7 @@ RUN echo "**** install dev packages ****" && \
     echo "**** get Miniconda ****" && \
     mkdir -p "$CONDA_DIR" && \
     wget "https://github.com/conda-forge/miniforge/releases/download/4.11.0-0/Mambaforge-4.11.0-0-Linux-x86_64.sh" -O miniconda.sh && \
-    echo "$CONDA_MD5 miniconda.sh" | md5sum -c && \
+    echo "$CONDA_MD5  miniconda.sh" | md5sum -c && \
     \
     echo "**** install Miniconda ****" && \
     bash miniconda.sh -f -b -p "$CONDA_DIR" && \
