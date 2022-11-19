@@ -157,7 +157,7 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
     return copied
 
 
-def _is_valid_output_hash(outputs):
+def _is_valid_output_hash(outputs, hash_type):
     """Test if a set of outputs have valid hashes on the staging channel.
 
     Parameters
@@ -166,6 +166,8 @@ def _is_valid_output_hash(outputs):
         A dictionary mapping each output to its md5 hash. The keys should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
+    hash_type : str
+        The hash key to look for. One of sha256 or md5.
 
     Returns
     -------
@@ -177,7 +179,7 @@ def _is_valid_output_hash(outputs):
 
     valid = {o: False for o in outputs}
 
-    for dist, md5hash in outputs.items():
+    for dist, hashsum in outputs.items():
         try:
             _, name, version, _ = parse_conda_pkg(dist)
         except RuntimeError:
@@ -190,7 +192,7 @@ def _is_valid_output_hash(outputs):
                 version,
                 basename=urllib.parse.quote(dist, safe=""),
             )
-            valid[dist] = hmac.compare_digest(data["md5"], md5hash)
+            valid[dist] = hmac.compare_digest(data[hash_type], hashsum)
             LOGGER.info("    did hash comp: %s", dist)
         except BinstarError:
             LOGGER.info("    did not do hash comp: %s", dist)
@@ -298,6 +300,7 @@ def _is_valid_feedstock_output(
 def validate_feedstock_outputs(
     project,
     outputs,
+    hash_type,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -309,6 +312,8 @@ def validate_feedstock_outputs(
         A dictionary mapping each output to its md5 hash. The keys should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
+    hash_type : str
+        The hash key to look for. One of sha256 or md5.
 
     Returns
     -------
@@ -342,7 +347,7 @@ def validate_feedstock_outputs(
         outputs_to_test,
     )
 
-    valid_hashes = _is_valid_output_hash(outputs_to_test)
+    valid_hashes = _is_valid_output_hash(outputs_to_test, hash_type)
 
     for o in outputs_to_test:
         _errors = []

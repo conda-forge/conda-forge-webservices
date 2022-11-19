@@ -495,10 +495,11 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
-def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error):
+def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error, hash_type):
     valid, errors = validate_feedstock_outputs(
         feedstock,
         outputs,
+        hash_type,
     )
 
     outputs_to_copy = {}
@@ -574,6 +575,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         outputs = data.get("outputs", None)
         channel = data.get("channel", None)
         git_sha = data.get("git_sha", None)
+        hash_type = data.get("hash_type", "md5")
         # the old default was to comment only if the git sha was not None
         # so we keep that here
         comment_on_error = data.get("comment_on_error", git_sha is not None)
@@ -604,12 +606,14 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or outputs is None
             or channel is None
             or (not valid_token)
+            or hash_type not in ["md5", "sha256"]
         ):
             LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
             LOGGER.warning('    feedstock exists: %s' % feedstock_exists)
             LOGGER.warning('    outputs: %s' % outputs)
             LOGGER.warning('    channel: %s' % channel)
             LOGGER.warning('    valid token: %s' % valid_token)
+            LOGGER.warning('    hash type: %s' % hash_type)
 
             err_msgs = []
             if outputs is None:
@@ -618,6 +622,8 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 err_msgs.append("no channel sent for copy")
             if not valid_token:
                 err_msgs.append("invalid feedstock token")
+            if hash_type not in ["md5", "sha256"]:
+                err_msgs.append("invalid hash type")
 
             if feedstock_exists and comment_on_error:
                 comment_on_outputs_copy(
@@ -641,6 +647,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 channel,
                 git_sha,
                 comment_on_error,
+                hash_type,
             )
 
             if not all(v for v in copied.values()):

@@ -139,6 +139,7 @@ def test_validate_feedstock_outputs_badoutputhash(
             "noarch/c-0.1-py_0.tar.bz2": "sadSA",
             "noarch/d-0.1-py_0.tar.bz2": "SAdsa",
         },
+        "md5",
     )
 
     assert valid == {
@@ -178,7 +179,7 @@ def test_is_valid_output_hash():
         ),
     }
 
-    valid = _is_valid_output_hash(outputs)
+    valid = _is_valid_output_hash(outputs, "md5")
     assert valid == {
         "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar.bz2": True,
         # bad hash
