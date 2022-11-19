@@ -122,6 +122,27 @@ def test_feedstock_outputs_copy_missing_data(key):
     assert r.status_code == 403, r.status_code
 
 
+def test_feedstock_outputs_copy_bad_hash():
+    name = "blah_h" + uuid.uuid4().hex
+    try:
+        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
+
+        json_data = {
+            "feedstock": "staged-recipes",
+            "outputs": {"blah": "jkdfhslk"},
+            "channel": "main",
+            "hash_type": "afdfas",
+        }
+        r = requests.post(
+            "http://127.0.0.1:5000/feedstock-outputs/copy",
+            headers=headers,
+            json=json_data,
+        )
+        assert r.status_code == 403, r.status_code
+    finally:
+        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
+
+
 def test_feedstock_outputs_copy_bad_data():
     name = "blah_h" + uuid.uuid4().hex
     try:

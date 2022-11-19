@@ -46,7 +46,7 @@ jobs:
           # maybe later...
           # black --check conda_forge_webservices
           flake8 conda_forge_webservices
-      
+
       - name: run test suite
         shell: bash -l {0}
         run: |
@@ -62,6 +62,7 @@ jobs:
       - name: run package upload tests
         shell: bash -l {0}
         run: |
+          export CF_WEBSERVICES_TEST=1
           ./scripts/run_cfep13_tests.sh
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
