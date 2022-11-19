@@ -801,15 +801,16 @@ def create_webapp():
 
 
 async def _cache_data():
-    LOGGER.info("")
-    LOGGER.info("===================================================")
-    LOGGER.info("caching status data")
-    LOGGER.info("===================================================")
-    async with STATUS_DATA_LOCK:
-        await tornado.ioloop.IOLoop.current().run_in_executor(
-            _thread_pool(),
-            status_monitor.cache_status_data,
-        )
+    if "CF_WEBSERVICES_TEST" not in os.environ:
+        LOGGER.info("")
+        LOGGER.info("===================================================")
+        LOGGER.info("caching status data")
+        LOGGER.info("===================================================")
+        async with STATUS_DATA_LOCK:
+            await tornado.ioloop.IOLoop.current().run_in_executor(
+                _thread_pool(),
+                status_monitor.cache_status_data,
+            )
 
 
 def main():

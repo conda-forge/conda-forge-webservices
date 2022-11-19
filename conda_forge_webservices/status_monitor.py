@@ -306,6 +306,8 @@ def update_data_check_run(event_data):
 
 
 def cache_status_data():
+    if "CF_WEBSERVICES_TEST" in os.environ:
+        return
     try:
         # first pull down the data
         latest_data = requests.get(
