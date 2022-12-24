@@ -131,6 +131,7 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
                     to_owner=PROD,
                     from_label=channel,
                     to_label=channel,
+                    replace=True,
                 )
                 copied[dist] = True
                 LOGGER.info("    copied: %s", dist)
