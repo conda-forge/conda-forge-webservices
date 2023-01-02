@@ -50,7 +50,9 @@ jobs:
       - name: run test suite
         shell: bash -l {0}
         run: |
-          pytest -vvs conda_forge_webservices
+          export CF_WEBSERVICES_TEST=1
+          export GITHUB_ACTIONS=true
+          pytest -vvsx conda_forge_webservices/tests/test_tokens.py
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}

@@ -112,6 +112,10 @@ def generate_app_token(app_id, raw_pem, repo):
     gh_token : str
         The github token. May return None if there is an error.
     """
+    if "GITHUB_ACTIONS" in os.environ:
+        sys.stdout.flush()
+        print("masking github app token:", os.environ["GITHUB_ACTIONS"], flush=True)
+
     try:
         if raw_pem[0:1] != b'-':
             raw_pem = base64.b64decode(raw_pem)
@@ -130,6 +134,10 @@ def generate_app_token(app_id, raw_pem, repo):
                 private_key,
                 algorithm='RS256',
             )
+
+        if "GITHUB_ACTIONS" in os.environ:
+            sys.stdout.flush()
+            print("masking github app token", flush=True)
 
         if (
             "GITHUB_ACTIONS" in os.environ
