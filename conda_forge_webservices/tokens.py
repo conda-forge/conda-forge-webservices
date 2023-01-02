@@ -132,7 +132,7 @@ def generate_app_token(app_id, raw_pem, repo):
             and os.environ["GITHUB_ACTIONS"] == "true"
         ):
             sys.stdout.flush()
-            print("base64 decoded PEM", flush=True)
+            print("base64 decoded PEM", type(raw_pem), raw_pem[0:1], flush=True)
 
         f = io.StringIO()
         with redirect_stdout(f), redirect_stderr(f):
