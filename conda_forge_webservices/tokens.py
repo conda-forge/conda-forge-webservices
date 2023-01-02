@@ -118,9 +118,8 @@ def generate_app_token(app_id, raw_pem, repo):
     ):
         sys.stdout.flush()
         print(
-            "making github app token:",
-            os.environ["GITHUB_ACTIONS"] == "true",
-            flush=True
+            "running in github actions",
+            flush=True,
         )
 
     try:
@@ -136,7 +135,11 @@ def generate_app_token(app_id, raw_pem, repo):
 
         f = io.StringIO()
         with redirect_stdout(f), redirect_stderr(f):
-            private_key = default_backend().load_pem_private_key(raw_pem, None)
+            private_key = default_backend().load_pem_private_key(
+                raw_pem,
+                password=None,
+                unsafe_skip_rsa_key_validation=True,
+            )
 
         if (
             "GITHUB_ACTIONS" in os.environ
@@ -213,14 +216,7 @@ def generate_app_token(app_id, raw_pem, repo):
         }
         assert set(r["name"] for r in r.json()["repositories"]) == {repo}
 
-    except Exception as e:
-        if (
-            "Could not deserialize key" in str(e)
-            and "GITHUB_ACTIONS" in os.environ
-            and os.environ["GITHUB_ACTIONS"] == "true"
-        ):
-            print("bad PEM format", flush=True)
-
+    except Exception:
         gh_token = None
 
     return gh_token
