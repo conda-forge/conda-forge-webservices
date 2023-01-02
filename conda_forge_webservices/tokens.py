@@ -124,6 +124,13 @@ def generate_app_token(app_id, raw_pem, repo):
         )
 
     try:
+        if (
+            "GITHUB_ACTIONS" in os.environ
+            and os.environ["GITHUB_ACTIONS"] == "true"
+        ):
+            sys.stdout.flush()
+            print("PEM", type(raw_pem), raw_pem[0:1], flush=True)
+
         if raw_pem[0:1] != b'-':
             raw_pem = base64.b64decode(raw_pem)
 
