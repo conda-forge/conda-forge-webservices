@@ -114,7 +114,11 @@ def generate_app_token(app_id, raw_pem, repo):
     """
     if "GITHUB_ACTIONS" in os.environ:
         sys.stdout.flush()
-        print("masking github app token:", os.environ["GITHUB_ACTIONS"], flush=True)
+        print(
+            "making github app token:",
+            os.environ["GITHUB_ACTIONS"] == "true",
+            flush=True
+        )
 
     try:
         if raw_pem[0:1] != b'-':
@@ -134,10 +138,6 @@ def generate_app_token(app_id, raw_pem, repo):
                 private_key,
                 algorithm='RS256',
             )
-
-        if "GITHUB_ACTIONS" in os.environ:
-            sys.stdout.flush()
-            print("masking github app token", flush=True)
 
         if (
             "GITHUB_ACTIONS" in os.environ
