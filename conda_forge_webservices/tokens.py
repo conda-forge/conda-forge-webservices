@@ -124,13 +124,6 @@ def generate_app_token(app_id, raw_pem, repo):
         )
 
     try:
-        if (
-            "GITHUB_ACTIONS" in os.environ
-            and os.environ["GITHUB_ACTIONS"] == "true"
-        ):
-            sys.stdout.flush()
-            print("PEM", type(raw_pem), raw_pem[0:1], flush=True)
-
         if raw_pem[0:1] != b'-':
             raw_pem = base64.b64decode(raw_pem)
 
@@ -139,7 +132,7 @@ def generate_app_token(app_id, raw_pem, repo):
             and os.environ["GITHUB_ACTIONS"] == "true"
         ):
             sys.stdout.flush()
-            print("base64 decoded PEM", type(raw_pem), raw_pem[0:1], flush=True)
+            print("base64 decoded PEM", flush=True)
 
         f = io.StringIO()
         with redirect_stdout(f), redirect_stderr(f):
@@ -170,7 +163,7 @@ def generate_app_token(app_id, raw_pem, repo):
             and os.environ["GITHUB_ACTIONS"] == "true"
         ):
             sys.stdout.flush()
-            print("masking JWT token for github actions", flush=True)
+            print("made JWT and masking it for github actions", flush=True)
             print("::add-mask::%s" % token, flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
@@ -211,7 +204,7 @@ def generate_app_token(app_id, raw_pem, repo):
             and os.environ["GITHUB_ACTIONS"] == "true"
         ):
             sys.stdout.flush()
-            print("masking GITHUB token for github actions", flush=True)
+            print("made GITHUB token and masking it for github actions", flush=True)
             print("::add-mask::%s" % gh_token, flush=True)
 
         assert r.json()["permissions"] == {
