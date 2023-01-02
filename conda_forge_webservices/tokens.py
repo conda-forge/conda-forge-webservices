@@ -45,8 +45,8 @@ def inject_app_token(full_name, repo=None):
     now = time.time()
     if TOKEN_RESET_TIMES.get(repo_name, now) <= now:
         token = generate_app_token(
-            os.environ["CF_WEBSERVICES_APP_ID"],
-            os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
+            os.environ["CF_WEBSERVICES_TOKENS_APP_ID"],
+            os.environ["CF_WEBSERVICES_TOKENS_PRIVATE_KEY"].encode(),
             repo_name,
         )
         if token is not None:

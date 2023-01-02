@@ -12,8 +12,8 @@ from ..tokens import generate_app_token, inject_app_token
     "cf-autotick-bot-test-package-feedstock"
 ])
 def test_github_app_tokens(token_repo):
-    app_id = os.environ["CF_WEBSERVICES_APP_ID"]
-    raw_pem = os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode()
+    app_id = os.environ["CF_WEBSERVICES_TOKENS_APP_ID"]
+    raw_pem = os.environ["CF_WEBSERVICES_TOKENS_PRIVATE_KEY"].encode()
     token = generate_app_token(
         app_id, raw_pem,
         token_repo,
