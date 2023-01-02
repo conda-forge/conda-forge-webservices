@@ -112,7 +112,10 @@ def generate_app_token(app_id, raw_pem, repo):
     gh_token : str
         The github token. May return None if there is an error.
     """
-    if "GITHUB_ACTIONS" in os.environ:
+    if (
+        "GITHUB_ACTIONS" in os.environ
+        and os.environ["GITHUB_ACTIONS"] == "true"
+    ):
         sys.stdout.flush()
         print(
             "making github app token:",
@@ -124,10 +127,26 @@ def generate_app_token(app_id, raw_pem, repo):
         if raw_pem[0:1] != b'-':
             raw_pem = base64.b64decode(raw_pem)
 
+        if (
+            "GITHUB_ACTIONS" in os.environ
+            and os.environ["GITHUB_ACTIONS"] == "true"
+        ):
+            sys.stdout.flush()
+            print("base64 decoded PEM", flush=True)
+
         f = io.StringIO()
         with redirect_stdout(f), redirect_stderr(f):
             private_key = default_backend().load_pem_private_key(raw_pem, None)
 
+        if (
+            "GITHUB_ACTIONS" in os.environ
+            and os.environ["GITHUB_ACTIONS"] == "true"
+        ):
+            sys.stdout.flush()
+            print("loaded PEM", flush=True)
+
+        f = io.StringIO()
+        with redirect_stdout(f), redirect_stderr(f):
             ti = int(time.time())
             token = jwt.encode(
                 {

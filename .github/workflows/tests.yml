@@ -51,7 +51,6 @@ jobs:
         shell: bash -l {0}
         run: |
           export CF_WEBSERVICES_TEST=1
-          export GITHUB_ACTIONS=true
           pytest -vvsx conda_forge_webservices/tests/test_tokens.py
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
