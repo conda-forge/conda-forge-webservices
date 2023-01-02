@@ -213,7 +213,14 @@ def generate_app_token(app_id, raw_pem, repo):
         }
         assert set(r["name"] for r in r.json()["repositories"]) == {repo}
 
-    except Exception:
+    except Exception as e:
+        if (
+            "Could not deserialize key" in str(e)
+            and "GITHUB_ACTIONS" in os.environ
+            and os.environ["GITHUB_ACTIONS"] == "true"
+        ):
+            print("bad PEM format", flush=True)
+
         gh_token = None
 
     return gh_token
