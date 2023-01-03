@@ -22,7 +22,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        uses: tibdex/github-app-token@v1
+        uses: conda-forge/github-app-token@da40f50387c080df631aba01ea5c6df3857145b7
         with:
           app_id: ${{ secrets.CF_CURATOR_APP_ID }}
           private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -82,7 +82,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        uses: tibdex/github-app-token@v1
+        uses: conda-forge/github-app-token@da40f50387c080df631aba01ea5c6df3857145b7
         with:
           app_id: ${{ secrets.CF_CURATOR_APP_ID }}
           private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
