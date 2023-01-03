@@ -17,7 +17,7 @@ from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from .circle_ci import update_circle
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS
-from .tokens import inject_app_token
+from .tokens import inject_app_token_into_feedstock
 import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
@@ -867,7 +867,7 @@ def rerender(full_name, pr_num):
     gh = github.Github(os.environ['GH_TOKEN'])
     repo = gh.get_repo(full_name)
 
-    inject_app_token(full_name, repo=repo)
+    inject_app_token_into_feedstock(full_name, repo=repo)
 
     return not repo.create_repository_dispatch(
         "rerender",

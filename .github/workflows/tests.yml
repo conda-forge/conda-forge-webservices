@@ -22,7 +22,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        uses: tibdex/github-app-token@v1
+        uses: conda-forge/github-app-token@e3ab451d57e120b956292a1fa1d21fe4ba171c36
         with:
           app_id: ${{ secrets.CF_CURATOR_APP_ID }}
           private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -50,14 +50,55 @@ jobs:
       - name: run test suite
         shell: bash -l {0}
         run: |
-          pytest -vvs conda_forge_webservices
+          export CF_WEBSERVICES_TEST=1
+          pytest -vv conda_forge_webservices
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
+          CF_WEBSERVICES_TOKENS_APP_ID: ${{ secrets.CF_WEBSERVICES_TOKENS_APP_ID }}
+          CF_WEBSERVICES_TOKENS_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_TOKENS_PRIVATE_KEY }}
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
+
+  live-tests:
+    name: live-tests
+    runs-on: "ubuntu-latest"
+    needs: tests
+    concurrency:
+      group: live-tests
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.8
+          channels: conda-forge,defaults
+          channel-priority: strict
+          show-channel-urls: true
+          miniforge-version: latest
+          miniforge-variant: Mambaforge
+
+      - name: generate token
+        id: generate_token
+        uses: conda-forge/github-app-token@e3ab451d57e120b956292a1fa1d21fe4ba171c36
+        with:
+          app_id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+
+      - name: configure conda
+        shell: bash -l {0}
+        run: |
+          conda config --set show_channel_urls True
+          conda config --add channels conda-forge
+          mamba install --yes --quiet --file conda-requirements.txt
+          git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
+          git config --global user.name "conda-forge-curator[bot]"
+          mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
+          pip install --no-deps -e .
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run package upload tests
         shell: bash -l {0}
@@ -69,5 +110,7 @@ jobs:
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
+          CF_WEBSERVICES_TOKENS_APP_ID: ${{ secrets.CF_WEBSERVICES_TOKENS_APP_ID }}
+          CF_WEBSERVICES_TOKENS_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_TOKENS_PRIVATE_KEY }}
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
