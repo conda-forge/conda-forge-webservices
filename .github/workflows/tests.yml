@@ -73,6 +73,7 @@ jobs:
           CF_WEBSERVICES_TOKENS_APP_ID: ${{ secrets.CF_WEBSERVICES_TOKENS_APP_ID }}
           CF_WEBSERVICES_TOKENS_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_TOKENS_PRIVATE_KEY }}
 
+  live-tests:
     name: live-tests
     runs-on: "ubuntu-latest"
     needs: tests
