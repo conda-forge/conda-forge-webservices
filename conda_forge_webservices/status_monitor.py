@@ -13,6 +13,8 @@ import logging
 import lxml.html
 import cachetools
 
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+
 LOGGER = logging.getLogger("conda_forge_webservices.status_monitor")
 
 APP_DATA = {
@@ -309,6 +311,8 @@ def cache_status_data():
     if "CF_WEBSERVICES_TEST" in os.environ:
         return
     try:
+        gh_token = get_app_token_for_webservices_only()
+
         # first pull down the data
         latest_data = requests.get(
             "https://services.conda-forge.org/status-monitor/db"
@@ -330,7 +334,10 @@ def cache_status_data():
 
             subprocess.run(
                 "cd %s && git remote set-url --push origin "
-                "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/conda-forge-status-monitor.git" % pth,  # noqa
+                "https://x-access-token:%s@github.com/"
+                "conda-forge/conda-forge-status-monitor.git" % (
+                    pth, gh_token
+                ),
                 shell=True,
                 check=True,
                 capture_output=True,
