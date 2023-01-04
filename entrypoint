@@ -20,8 +20,8 @@ echo ${AZURE_TOKEN} > ${HOME}/.conda-smithy/azure.token
 echo ${DRONE_TOKEN} > ${HOME}/.conda-smithy/drone.token
 echo ${STAGING_BINSTAR_TOKEN} > ${HOME}/.conda-smithy/anaconda.token
 
-git config --global user.name "conda-forge-admin"
-git config --global user.email "pelson.pub+conda-forge@gmail.com"
+git config --global user.name "conda-forge-webservices[bot]"
+git config --global user.email "121827174+conda-forge-webservices[bot]@users.noreply.github.com"
 
 echo " "
 echo "==================================================================================================="
