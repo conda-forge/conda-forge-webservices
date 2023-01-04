@@ -224,7 +224,7 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
     return gh_token
 
 
-def get_app_token_for_webservices_only(full_name=None):
+def get_app_token_for_webservices_only(full_name=None, other_token="GH_TOKEN"):
     """Get's an app token that should only be used in the webservices bot.
 
     This function caches the token and only returns a new one when the current
@@ -248,7 +248,7 @@ def get_app_token_for_webservices_only(full_name=None):
     if full_name is not None:
         repo_name = full_name.split("/")[1]
         if repo_name != "cf-autotick-bot-test-package-feedstock":
-            return os.environ["GH_TOKEN"]
+            return os.environ[other_token]
 
     # add a minute to make sure token doesn't expire
     # while we are using it
