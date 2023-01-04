@@ -256,8 +256,9 @@ def get_app_token_for_webservices_only(full_name=None, fallback_env_token=None):
 
     # add a minute to make sure token doesn't expire
     # while we are using it
-    now = time.time() + 60
-    if APP_TOKEN_RESET_TIME is None or APP_TOKEN_RESET_TIME <= now:
+    now = time.time()
+    now_plus_1min = now + 60
+    if APP_TOKEN_RESET_TIME is None or APP_TOKEN_RESET_TIME <= now_plus_1min:
         token = generate_app_token_for_webservices_only(
             os.environ["CF_WEBSERVICES_APP_ID"],
             os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
