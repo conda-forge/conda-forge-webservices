@@ -44,7 +44,6 @@ jobs:
         run: |
           python scripts/clean_cf_staging.py
         env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
 
       - name: cache status data
@@ -52,11 +51,13 @@ jobs:
         run: |
           cache-status-data
         env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
 
       - name: update and redeploy if needed
         shell: bash -l {0}
         run: |
           update-webservices
         env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}

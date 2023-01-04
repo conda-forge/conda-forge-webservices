@@ -8,6 +8,8 @@ import logging
 from git import Repo
 import requests
 
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+
 # from .utils import tmp_directory
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_me")
@@ -34,7 +36,7 @@ def get_current_versions():
 def main():
     """Get current versions from the heroku app and update if they are old.
 
-    Note this script runs on CircleCI, not on the heroku app.
+    Note this script runs on GHA, not on the heroku app.
     """
     # keep these imports here to protect the webservice from memory errors
     # due to conda
@@ -69,12 +71,14 @@ def main():
     if to_install:
         tmpdir = None
         try:
+            gh_token = get_app_token_for_webservices_only()
             tmpdir = tempfile.mkdtemp('_recipe')
 
             repo_name = "conda-forge-webservices"
             clone_dir = os.path.join(tmpdir, repo_name)
             url = "https://x-access-token:{}@github.com/conda-forge/{}.git".format(
-                os.environ['GH_TOKEN'], repo_name)
+                gh_token, repo_name
+            )
 
             repo = Repo.clone_from(url, clone_dir, depth=1)
 
