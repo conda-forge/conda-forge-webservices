@@ -329,12 +329,12 @@ def test_feedstock_outputs_copy_works():
             print("    response:", pprint.pformat(r.json()))
 
             print("\n=========================================================")
-            print("sleeping for 30 seconds for copy")
+            print("sleeping for 10 seconds for copy")
             print(
                 "=========================================================",
                 flush=True,
             )
-            for _ in tqdm.trange(30):
+            for _ in tqdm.trange(10):
                 time.sleep(1)
 
             print("\n=========================================================")
