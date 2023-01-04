@@ -106,7 +106,8 @@ def test_github_app_tokens_for_webservices_feedstock():
     token = get_app_token_for_webservices_only()
     assert token is not None
     token_again = get_app_token_for_webservices_only(
-        full_name="conda-forge/cf-autotick-bot-test-package-feedstock"
+        full_name="conda-forge/cf-autotick-bot-test-package-feedstock",
+        fallback_env_token="GH_TOKEN",
     )
     assert token_again == token
 

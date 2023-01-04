@@ -224,7 +224,7 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
     return gh_token
 
 
-def get_app_token_for_webservices_only(full_name=None):
+def get_app_token_for_webservices_only(full_name=None, fallback_env_token=None):
     """Get's an app token that should only be used in the webservices bot.
 
     This function caches the token and only returns a new one when the current
@@ -235,6 +235,9 @@ def get_app_token_for_webservices_only(full_name=None):
     full_name : str, optional
         The full name of the repo (e.g., "conda-forge/blah"). If given,
         app tokens are only made for the test feedstock.
+    fallback_env_token : str, optional
+        If not None, then this token from the environment variables
+        is used for every feedstock except for the testing feedstock.
 
     Returns
     -------
@@ -245,10 +248,10 @@ def get_app_token_for_webservices_only(full_name=None):
     global APP_TOKEN
 
     # this is for testing - will turn it on for all repos later
-    if full_name is not None:
+    if full_name is not None and fallback_env_token is not None:
         repo_name = full_name.split("/")[1]
         if repo_name != "cf-autotick-bot-test-package-feedstock":
-            return os.environ["GH_TOKEN"]
+            return os.environ[fallback_env_token]
 
     # add a minute to make sure token doesn't expire
     # while we are using it

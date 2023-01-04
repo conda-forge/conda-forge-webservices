@@ -263,7 +263,6 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                     repo_name,
                 )
                 if handled:
-                    print_rate_limiting_info()
                     return
         else:
             LOGGER.info('Unhandled event "{}".'.format(event))

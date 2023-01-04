@@ -6,7 +6,7 @@ import shutil
 import logging
 import github
 
-# from .utils import tmp_directory
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.feedstocks_service")
 
@@ -19,6 +19,10 @@ def handle_feedstock_event(org_name, repo_name):
 
 
 def update_feedstock(org_name, repo_name):
+    gh_token = get_app_token_for_webservices_only(
+        full_name=repo_name,
+        fallback_env_token="FEEDSTOCKS_GH_TOKEN",
+    )
     name = repo_name[:-len("-feedstock")]
 
     tmp_dir = None
@@ -28,7 +32,7 @@ def update_feedstock(org_name, repo_name):
         t0 = time.time()
         feedstocks_url = (
             "https://x-access-token:{}@github.com/conda-forge/feedstocks.git"
-            "".format(os.environ["FEEDSTOCKS_GH_TOKEN"])
+            "".format(gh_token)
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
@@ -42,7 +46,7 @@ def update_feedstock(org_name, repo_name):
         # sometimes the webhook outpaces other bits of the API so we try a bit
         for i in range(5):
             try:
-                gh = github.Github(os.environ["FEEDSTOCKS_GH_TOKEN"])
+                gh = github.Github(gh_token)
                 default_branch = (
                     gh
                     .get_repo("{}/{}".format(org_name, repo_name))
@@ -83,7 +87,8 @@ def update_feedstock(org_name, repo_name):
         # Submit changes
         if feedstocks_repo.is_dirty(working_tree=False, untracked_files=True):
             author = git.Actor(
-                "conda-forge-coordinator", "conda.forge.coordinator@gmail.com"
+                "conda-forge-webservices[bot]",
+                "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
             )
             feedstocks_repo.index.commit(
                 "Updated the {0} feedstock.".format(name),
