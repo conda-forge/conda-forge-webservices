@@ -20,7 +20,7 @@ def handle_feedstock_event(org_name, repo_name):
 
 def update_feedstock(org_name, repo_name):
     gh_token = get_app_token_for_webservices_only(
-        full_name=repo_name,
+        full_name=os.path.join(org_name, repo_name),
         fallback_env_token="FEEDSTOCKS_GH_TOKEN",
     )
     name = repo_name[:-len("-feedstock")]
