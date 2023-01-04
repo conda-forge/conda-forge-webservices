@@ -87,7 +87,7 @@ def update_feedstock(org_name, repo_name):
         # Submit changes
         if feedstocks_repo.is_dirty(working_tree=False, untracked_files=True):
             author = git.Actor(
-                "conda-forge-webservices",
+                "conda-forge-webservices[bot]",
                 "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
             )
             feedstocks_repo.index.commit(
