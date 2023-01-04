@@ -43,8 +43,9 @@ def inject_app_token_into_feedstock(full_name, repo=None):
 
     global FEEDSTOCK_TOKEN_RESET_TIMES
 
-    now = time.time() + 30*60
-    if FEEDSTOCK_TOKEN_RESET_TIMES.get(repo_name, now) <= now:
+    now = time.time()
+    now_plus_30min = now + 30*60
+    if FEEDSTOCK_TOKEN_RESET_TIMES.get(repo_name, now_plus_30min) <= now_plus_30min:
         token = generate_app_token_for_feedstock(
             os.environ["CF_WEBSERVICES_TOKENS_APP_ID"],
             os.environ["CF_WEBSERVICES_TOKENS_PRIVATE_KEY"].encode(),
