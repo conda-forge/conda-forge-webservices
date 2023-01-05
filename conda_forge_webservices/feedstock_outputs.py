@@ -17,6 +17,7 @@ from binstar_client import BinstarError
 import binstar_client.errors
 
 from .utils import parse_conda_pkg
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
@@ -33,10 +34,11 @@ def _get_sharded_path(output):
 
 
 def is_valid_feedstock_token(user, project, feedstock_token):
+    gh_token = get_app_token_for_webservices_only()
     r = requests.get(
         "https://api.github.com/repos/%s/"
         "feedstock-tokens/contents/tokens/%s.json" % (user, project),
-        headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
+        headers={"Authorization": "Bearer %s" % gh_token},
     )
     if r.status_code != 200:
         return False
@@ -225,6 +227,8 @@ def _is_valid_feedstock_output(
         A dict keyed on output name with True if it is valid and False
         otherwise.
     """
+    gh_token = get_app_token_for_webservices_only()
+
     if project.endswith("-feedstock"):
         feedstock = project[:-len("-feedstock")]
     else:
@@ -246,7 +250,7 @@ def _is_valid_feedstock_output(
         r = requests.get(
             "https://api.github.com/repos/conda-forge/"
             "feedstock-outputs/contents/%s" % un_sharded_path,
-            headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]}
+            headers={"Authorization": "Bearer %s" % gh_token}
         )
         if r.status_code != 200:
             # it failed, but we need to know if it failed due to the API or
@@ -264,7 +268,7 @@ def _is_valid_feedstock_output(
                     r = requests.put(
                         "https://api.github.com/repos/conda-forge/"
                         "feedstock-outputs/contents/%s" % un_sharded_path,
-                        headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
+                        headers={"Authorization": "Bearer %s" % gh_token},
                         json={
                             "message": (
                                 "[cf admin skip] ***NO_CI*** added "
@@ -386,7 +390,7 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
     if not feedstock.endswith("-feedstock"):
         return None
 
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(get_app_token_for_webservices_only())
 
     team_name = feedstock[:-len("-feedstock")]
 
