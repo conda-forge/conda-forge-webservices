@@ -17,6 +17,7 @@ from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from .circle_ci import update_circle
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
@@ -71,13 +72,17 @@ def pr_detailed_comment(
     pr_num,
     comment,
 ):
-
     is_allowed_cmd = (repo_name in ALLOWED_CMD_NON_FEEDSTOCKS)
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
 
+    GH_TOKEN = get_app_token_for_webservices_only(
+        full_name=os.path.join(org_name, repo_name),
+        fallback_env_token="GH_TOKEN",
+    )
+
     if not is_allowed_cmd:
-        gh = github.Github(os.environ['GH_TOKEN'])
+        gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         pull = repo.get_pull(int(pr_num))
         if pull.head.repo.full_name.split("/")[0] == "conda-forge":
@@ -95,7 +100,7 @@ def pr_detailed_comment(
     if not is_allowed_cmd and UPDATE_CIRCLECI_KEY_MSG.search(comment):
         update_circle(org_name, repo_name)
 
-        gh = github.Github(os.environ['GH_TOKEN'])
+        gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         pull = repo.get_pull(int(pr_num))
         message = textwrap.dedent("""
@@ -107,7 +112,7 @@ def pr_detailed_comment(
         pull.create_issue_comment(message)
 
     if RESTART_CI.search(comment):
-        gh = github.Github(os.environ['GH_TOKEN'])
+        gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         restart_pull_request_ci(repo, int(pr_num))
 
@@ -126,7 +131,7 @@ def pr_detailed_comment(
         else:
             team = repo_name.replace('-feedstock', '')
 
-        gh = github.Github(os.environ['GH_TOKEN'])
+        gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         pull = repo.get_pull(int(pr_num))
         message = textwrap.dedent("""
@@ -137,7 +142,7 @@ def pr_detailed_comment(
         pull.create_issue_comment(message)
 
     if not is_allowed_cmd and RERUN_BOT.search(comment):
-        gh = github.Github(os.environ['GH_TOKEN'])
+        gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
         add_bot_rerun_label(repo, pr_num)
 
@@ -160,7 +165,7 @@ def pr_detailed_comment(
 
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-            os.environ['GH_TOKEN'], pr_owner, pr_repo)
+            GH_TOKEN, pr_owner, pr_repo)
         repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch, depth=1)
 
         if LINT_MSG.search(comment):
@@ -237,7 +242,7 @@ def pr_detailed_comment(
                 """).format(doc_url)  # noqa
 
         if message is not None:
-            gh = github.Github(os.environ['GH_TOKEN'])
+            gh = github.Github(GH_TOKEN)
             gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
             pull = gh_repo.get_pull(int(pr_num))
             pull.create_issue_comment(message)
@@ -267,13 +272,20 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not any(command.search(text) for command in issue_commands):
         return
 
+    APP_GH_TOKEN = get_app_token_for_webservices_only(
+        full_name=os.path.join(org_name, repo_name),
+        fallback_env_token="GH_TOKEN",
+    )
+
     # sometimes the webhook outpaces other bits of the API so we try a bit
     for i in range(5):
         try:
-            gh = github.Github(os.environ['GH_TOKEN'])
+            # this token has to be that of an actual bot since we use this
+            # to make a fork
+            # the bot used does not need admin permissions
+            gh = github.Github(os.environ["GH_TOKEN"])
             repo = gh.get_repo("{}/{}".format(org_name, repo_name))
             default_branch = repo.default_branch
-            issue = repo.get_issue(int(issue_num))
             break
         except Exception as e:
             if i < 4:
@@ -282,27 +294,35 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             else:
                 raise e
 
+    # these are used when the app takes actions
+    app_repo = (
+        github
+        .Github(APP_GH_TOKEN)
+        .get_repo("{}/{}".format(org_name, repo_name))
+    )
+    app_issue = app_repo.get_issue(int(issue_num))
+
     if UPDATE_TEAM_MSG.search(text):
         update_team(org_name, repo_name)
-        if UPDATE_TEAM_MSG.search(title):
-            issue.edit(state="closed")
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
                 I just wanted to let you know that I updated the team with maintainers from %s.
                 """ % default_branch)  # noqa
-        issue.create_comment(message)
+        app_issue.create_comment(message)
+        if UPDATE_TEAM_MSG.search(title):
+            app_issue.edit(state="closed")
 
     if UPDATE_CIRCLECI_KEY_MSG.search(text):
         update_circle(org_name, repo_name)
-        if UPDATE_CIRCLECI_KEY_MSG.search(title):
-            issue.edit(state="closed")
         message = textwrap.dedent("""
                 Hi! This is the friendly automated conda-forge-webservice.
 
                 I just wanted to let you know that I updated the circle-ci deploy key and followed the project.
                 """)  # noqa
-        issue.create_comment(message)
+        app_issue.create_comment(message)
+        if UPDATE_CIRCLECI_KEY_MSG.search(title):
+            app_issue.edit(state="closed")
 
     if any(command.search(text) for command in send_pr_commands):
         forked_user_gh = gh.get_user()
@@ -343,7 +363,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 os.environ['GH_TOKEN'], forked_user, repo_name)
             upstream_repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-                os.environ['GH_TOKEN'], org_name, repo_name)
+                APP_GH_TOKEN, org_name, repo_name)
             git_repo = Repo.clone_from(repo_url, feedstock_dir, depth=1)
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
             upstream = git_repo.create_remote('upstream', upstream_repo_url)
@@ -520,7 +540,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 if to_close:
                     pr_message += "\nFixes #{}".format(issue_num)
 
-                pr = repo.create_pull(
+                pr = app_repo.create_pull(
                     pr_title, pr_message,
                     default_branch, "{}:{}".format(forked_user, forked_repo_branch))
 
@@ -529,7 +549,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                         I just wanted to let you know that I {} in {}/{}#{}.
                         """).format(comment_msg, org_name, repo_name, pr.number)
-                issue.create_comment(message)
+                app_issue.create_comment(message)
 
                 if do_rerender:
                     rerender_error = False
@@ -568,9 +588,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                             I've {} as requested, but nothing actually changed.
                             """).format(comment_msg)
-                issue.create_comment(message)
+                app_issue.create_comment(message)
                 if to_close:
-                    issue.edit(state="closed")
+                    app_issue.edit(state="closed")
 
         finally:
             if tmp_dir is not None:
@@ -731,7 +751,10 @@ def add_user(repo, user):
             repo.index.add([recipe_path])
             if os.path.exists(co_path):
                 repo.index.add([co_path])
-            author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+            author = Actor(
+                "conda-forge-webservices[bot]",
+                "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+            )
             # do not @-mention users in commit messages - it causes lots of
             # extra notifications
             repo.index.commit("[ci skip] added user %s" % user, author=author)
@@ -776,7 +799,10 @@ def add_py(repo, pyver):
 
     # commit
     repo.index.add([cbc_pth])
-    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    author = Actor(
+        "conda-forge-webservices[bot]",
+        "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+    )
     repo.index.commit("added python %s" % pyver, author=author)
 
     return True
@@ -808,7 +834,10 @@ def add_bot_automerge(repo):
 
     # now commit
     repo.index.add([cf_yml])
-    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    author = Actor(
+        "conda-forge-webservices[bot]",
+        "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+    )
     repo.index.commit(
         "[ci skip] [cf admin skip] ***NO_CI*** added bot automerge", author=author)
     return True
@@ -838,7 +867,10 @@ def remove_bot_automerge(repo):
 
     # now commit
     repo.index.add([cf_yml])
-    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    author = Actor(
+        "conda-forge-webservices[bot]",
+        "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+    )
     repo.index.commit(
         "[ci skip] [cf admin skip] ***NO_CI*** removed bot automerge", author=author)
     return True
@@ -854,7 +886,10 @@ def make_rerender_dummy_commit(repo):
 
 """)
     repo.index.add([readme_file])
-    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    author = Actor(
+        "conda-forge-webservices[bot]",
+        "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+    )
     repo.index.commit(
         "dummy commit for rerendering",
         author=author,
@@ -863,7 +898,12 @@ def make_rerender_dummy_commit(repo):
 
 
 def rerender(full_name, pr_num):
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(
+        get_app_token_for_webservices_only(
+            full_name=full_name,
+            fallback_env_token="GH_TOKEN",
+        )
+    )
     repo = gh.get_repo(full_name)
 
     return not repo.create_repository_dispatch(
@@ -887,7 +927,10 @@ def make_noarch(repo):
                 build_line = True
             fh.write(line)
     repo.index.add([meta_yaml])
-    author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+    author = Actor(
+        "conda-forge-webservices[bot]",
+        "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+    )
     repo.index.commit("Add noarch:python option", author=author)
     return True
 
@@ -900,7 +943,10 @@ def update_cb3(repo):
     output = output.decode('utf-8')
     repo.git.add(A=True)
     if repo.is_dirty():
-        author = Actor("conda-forge-admin", "pelson.pub+conda-forge@gmail.com")
+        author = Actor(
+            "conda-forge-webservices[bot]",
+            "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+        )
         repo.index.commit("Update for conda-build 3", author=author)
         return True, output
     else:
