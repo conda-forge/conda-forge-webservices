@@ -10,7 +10,7 @@ from git import GitCommandError, Repo
 import github
 import conda_smithy.lint_recipe
 
-# from .utils import tmp_directory
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.linting")
 
@@ -21,7 +21,12 @@ def find_recipes(a_dir):
 
 
 def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(
+        get_app_token_for_webservices_only(
+            full_name=os.path.join(repo_owner, repo_name),
+            fallback_env_token="GH_TOKEN",
+        )
+    )
 
     owner = gh.get_user(repo_owner)
     remote_repo = owner.get_repo(repo_name)
@@ -200,7 +205,12 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
 
 def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(
+        get_app_token_for_webservices_only(
+            full_name=os.path.join(owner, repo_name),
+            fallback_env_token="GH_TOKEN",
+        )
+    )
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
@@ -216,7 +226,10 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
     try:
         my_login = gh.get_user().login
     except Exception:
-        my_login = "conda-forge-curator[bot]"
+        if "CF_WEBSERVICES_TEST" in os.environ:
+            my_login = "conda-forge-curator[bot]"
+        else:
+            my_login = "conda-forge-webservices[bot]"
     if my_login in comment_owners:
         my_comments = [
             comment for comment in comments
@@ -235,7 +248,12 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
 
 
 def set_pr_status(owner, repo_name, lint_info, target_url=None):
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(
+        get_app_token_for_webservices_only(
+            full_name=os.path.join(owner, repo_name),
+            fallback_env_token="GH_TOKEN",
+        )
+    )
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
