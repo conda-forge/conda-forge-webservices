@@ -4,6 +4,9 @@ on:
   push: null
   workflow_dispatch: null
 
+env:
+  PY_COLOR: 1
+
 jobs:
   tests:
     name: tests
