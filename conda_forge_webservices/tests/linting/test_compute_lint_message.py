@@ -176,7 +176,7 @@ class Test_compute_lint_message(unittest.TestCase):
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 18)
+        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 523)
         self.assertTrue(lint)
         self.assertMultiLineEqual(expected_message, lint['message'])
 
