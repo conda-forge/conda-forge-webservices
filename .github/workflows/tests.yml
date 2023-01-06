@@ -5,7 +5,7 @@ on:
   workflow_dispatch: null
 
 env:
-  PY_COLOR: 1
+  PY_COLORS: 1
 
 jobs:
   tests:
