@@ -7,6 +7,7 @@ import textwrap
 from functools import lru_cache
 
 from ruamel.yaml import YAML
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
@@ -53,7 +54,12 @@ def update_team(org_name, repo_name, commit=None):
     ):
         return
 
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(
+        get_app_token_for_webservices_only(
+            full_name=os.path.join(org_name, repo_name),
+            fallback_env_token="GH_TOKEN",
+        )
+    )
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
@@ -103,7 +109,7 @@ def update_team(org_name, repo_name, commit=None):
         if addm or newm:
             message += textwrap.dedent("""
                 You should get push access to this feedstock and CI services.
-                
+
                 Your package won't be available for installation locally until it is built
                 and synced to the anaconda.org CDN (takes 1-2 hours after the build finishes).
 
