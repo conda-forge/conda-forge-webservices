@@ -11,7 +11,7 @@ from conda_forge_webservices.linting import comment_on_pr
 
 class Test_comment_on_pr(unittest.TestCase):
     def test_comment_same_as_before(self):
-        PR_number = 18
+        PR_number = 523
         message_to_post = ("Testing that a message isn't re-posted if it \n"
                            "was the same as before. ```{}```"
                            "".format(random.randint(100000, 200000)))
