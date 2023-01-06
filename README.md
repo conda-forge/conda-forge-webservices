@@ -9,7 +9,7 @@ commands and lints conda-forge's recipes. The linting itself comes from conda-sm
 ## Configuration
 This app generates GitHub App tokens for the conda-forge-webservices[bot] in order to function. It also 
 uses a single machine user with no special permissions in order to make forks for rerendering. Ask a member of 
-<code>@</code>`conda-forge/core` for details if you need them.
+`@conda-forge/core` for details if you need them.
 
 ## Testing
 
