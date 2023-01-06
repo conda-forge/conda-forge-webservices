@@ -54,12 +54,7 @@ def update_team(org_name, repo_name, commit=None):
     ):
         return
 
-    gh = github.Github(
-        get_app_token_for_webservices_only(
-            full_name=os.path.join(org_name, repo_name),
-            fallback_env_token="GH_TOKEN",
-        )
-    )
+    gh = github.Github(get_app_token_for_webservices_only())
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
