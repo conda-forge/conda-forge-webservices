@@ -30,7 +30,6 @@ from conda_forge_webservices.feedstock_outputs import (
 )
 from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
 from conda_forge_webservices import status_monitor
-from conda_forge_webservices.tokens import inject_app_token_into_feedstock
 
 STATUS_DATA_LOCK = tornado.locks.Lock()
 
@@ -725,13 +724,11 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
             LOGGER.info("===================================================")
             LOGGER.info("check run: %s", body['repository']['full_name'])
             LOGGER.info("===================================================")
-            inject_app_token_into_feedstock(body['repository']['full_name'])
             async with STATUS_DATA_LOCK:
                 status_monitor.update_data_check_run(body)
 
             return
         elif event == 'check_suite':
-            inject_app_token_into_feedstock(body['repository']['full_name'])
             self.write(event)
             return
         elif event == 'status':
@@ -739,7 +736,6 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
             LOGGER.info("===================================================")
             LOGGER.info("status: %s", body['repository']['full_name'])
             LOGGER.info("===================================================")
-            inject_app_token_into_feedstock(body['repository']['full_name'])
             async with STATUS_DATA_LOCK:
                 status_monitor.update_data_status(body)
 
