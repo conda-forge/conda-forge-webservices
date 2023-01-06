@@ -9,7 +9,6 @@ from ..tokens import (
 
 
 @pytest.mark.parametrize("token_repo", [
-    "staged-recipes",
     "cf-autotick-bot-test-package-feedstock"
 ])
 def test_github_app_tokens_for_webservices(token_repo):
