@@ -226,7 +226,7 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
     try:
         my_login = gh.get_user().login
     except Exception:
-        my_login = "conda-forge-curator[bot]"
+        my_login = "conda-forge-webservices[bot]"
     if my_login in comment_owners:
         my_comments = [
             comment for comment in comments
