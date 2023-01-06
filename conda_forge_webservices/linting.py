@@ -21,12 +21,7 @@ def find_recipes(a_dir):
 
 
 def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
-    gh = github.Github(
-        get_app_token_for_webservices_only(
-            full_name=os.path.join(repo_owner, repo_name),
-            fallback_env_token="GH_TOKEN",
-        )
-    )
+    gh = github.Github(get_app_token_for_webservices_only())
 
     owner = gh.get_user(repo_owner)
     remote_repo = owner.get_repo(repo_name)
@@ -205,12 +200,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
 
 def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
-    gh = github.Github(
-        get_app_token_for_webservices_only(
-            full_name=os.path.join(owner, repo_name),
-            fallback_env_token="GH_TOKEN",
-        )
-    )
+    gh = github.Github(get_app_token_for_webservices_only())
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
@@ -248,12 +238,7 @@ def comment_on_pr(owner, repo_name, pr_id, message, force=False, search=None):
 
 
 def set_pr_status(owner, repo_name, lint_info, target_url=None):
-    gh = github.Github(
-        get_app_token_for_webservices_only(
-            full_name=os.path.join(owner, repo_name),
-            fallback_env_token="GH_TOKEN",
-        )
-    )
+    gh = github.Github(get_app_token_for_webservices_only())
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
