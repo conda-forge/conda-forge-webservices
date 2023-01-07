@@ -49,7 +49,7 @@ ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
 def pr_comment(org_name, repo_name, issue_num, comment):
     if not COMMAND_PREFIX.search(comment):
         return
-    gh = github.Github(os.environ['GH_TOKEN'])
+    gh = github.Github(get_app_token_for_webservices_only())
     repo = gh.get_repo("{}/{}".format(org_name, repo_name))
     pr = repo.get_pull(int(issue_num))
     pr_detailed_comment(
@@ -76,10 +76,7 @@ def pr_detailed_comment(
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
 
-    GH_TOKEN = get_app_token_for_webservices_only(
-        full_name=os.path.join(org_name, repo_name),
-        fallback_env_token="GH_TOKEN",
-    )
+    GH_TOKEN = get_app_token_for_webservices_only()
 
     if not is_allowed_cmd:
         gh = github.Github(GH_TOKEN)
@@ -272,10 +269,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     if not any(command.search(text) for command in issue_commands):
         return
 
-    APP_GH_TOKEN = get_app_token_for_webservices_only(
-        full_name=os.path.join(org_name, repo_name),
-        fallback_env_token="GH_TOKEN",
-    )
+    APP_GH_TOKEN = get_app_token_for_webservices_only()
 
     # sometimes the webhook outpaces other bits of the API so we try a bit
     for i in range(5):
@@ -361,7 +355,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-                os.environ['GH_TOKEN'], forked_user, repo_name)
+                os.environ["GH_TOKEN"], forked_user, repo_name)
             upstream_repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 APP_GH_TOKEN, org_name, repo_name)
             git_repo = Repo.clone_from(repo_url, feedstock_dir, depth=1)
@@ -898,12 +892,7 @@ def make_rerender_dummy_commit(repo):
 
 
 def rerender(full_name, pr_num):
-    gh = github.Github(
-        get_app_token_for_webservices_only(
-            full_name=full_name,
-            fallback_env_token="GH_TOKEN",
-        )
-    )
+    gh = github.Github(get_app_token_for_webservices_only())
     repo = gh.get_repo(full_name)
 
     return not repo.create_repository_dispatch(
