@@ -540,7 +540,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 if to_close:
                     pr_message += "\nFixes #{}".format(issue_num)
 
-                pr = app_repo.create_pull(
+                pr = repo.create_pull(
                     pr_title, pr_message,
                     default_branch, "{}:{}".format(forked_user, forked_repo_branch))
 
