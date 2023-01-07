@@ -22,6 +22,7 @@ jobs:
           show-channel-urls: true
           miniforge-version: latest
           miniforge-variant: Mambaforge
+          use-mamba: true
 
       - name: generate token
         id: generate_token
@@ -80,6 +81,7 @@ jobs:
           show-channel-urls: true
           miniforge-version: latest
           miniforge-variant: Mambaforge
+          use-mamba: true
 
       - name: generate token
         id: generate_token
