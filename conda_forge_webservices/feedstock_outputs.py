@@ -8,6 +8,7 @@ import urllib.parse
 import logging
 import requests
 import base64
+import time
 
 import scrypt
 import github
@@ -33,28 +34,41 @@ def _get_sharded_path(output):
     return os.path.join("outputs", chars[0], chars[1], chars[2], output + ".json")
 
 
-def is_valid_feedstock_token(user, project, feedstock_token):
+def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
     gh_token = get_app_token_for_webservices_only()
     r = requests.get(
         "https://api.github.com/repos/%s/"
         "feedstock-tokens/contents/tokens/%s.json" % (user, project),
         headers={"Authorization": "Bearer %s" % gh_token},
     )
-    if r.status_code != 200:
-        return False
-    else:
+    if r.status_code == 200:
         data = r.json()
         assert data["encoding"] == "base64"
         token_data = json.loads(
             base64.standard_b64decode(data["content"]).decode('utf-8'))
-        salted_token = scrypt.hash(
-            feedstock_token,
-            bytes.fromhex(token_data["salt"]),
-            buflen=256,
-        )
-        return hmac.compare_digest(
-            salted_token, bytes.fromhex(token_data["hashed_token"]),
-        )
+        if "tokens" not in token_data:
+            token_data = {"tokens": [token_data]}
+
+        now = time.time()
+        for td in token_data["tokens"]:
+            _provider = td.get("provider", None)
+            _expires_at = td.get("expires_at", None)
+            if ((_provider is None) or (_provider == provider)) and (
+                (_expires_at is None) or (_expires_at > now)
+            ):
+                salted_token = scrypt.hash(
+                    feedstock_token,
+                    bytes.fromhex(td["salt"]),
+                    buflen=256,
+                )
+
+                if hmac.compare_digest(
+                    salted_token,
+                    bytes.fromhex(td["hashed_token"]),
+                ):
+                    return True
+
+    return False
 
 
 def _get_ac_api_prod():

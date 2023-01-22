@@ -30,6 +30,7 @@ from conda_forge_webservices.feedstock_outputs import (
 )
 from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
 from conda_forge_webservices import status_monitor
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 STATUS_DATA_LOCK = tornado.locks.Lock()
 
@@ -86,7 +87,7 @@ def get_commit_message(full_name, commit):
         .message)
 
 
-def print_rate_limiting_info_for_token(token, user):
+def print_rate_limiting_info_for_token(token):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
     # get this info. So, we should be doing this regularly
@@ -98,6 +99,11 @@ def print_rate_limiting_info_for_token(token, user):
     gh = github.Github(token)
     gh_api_remaining = gh.get_rate_limit().core.remaining
     gh_api_total = gh.get_rate_limit().core.limit
+
+    try:
+        user = gh.get_user().login
+    except Exception:
+        user = "conda-forge-webservices[bot]"
 
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().core.reset
@@ -115,12 +121,12 @@ def print_rate_limiting_info_for_token(token, user):
 
 def print_rate_limiting_info():
 
-    d = [(os.environ['GH_TOKEN'], "conda-forge-linter")]
+    d = [os.environ['GH_TOKEN'], get_app_token_for_webservices_only()]
 
     LOGGER.info("")
     LOGGER.info("GitHub API Rate Limit Info:")
-    for k, v in d:
-        print_rate_limiting_info_for_token(k, v)
+    for k in d:
+        print_rate_limiting_info_for_token(k)
     LOGGER.info("")
 
 
@@ -574,6 +580,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         channel = data.get("channel", None)
         git_sha = data.get("git_sha", None)
         hash_type = data.get("hash_type", "md5")
+        provider = data.get("provider", None)
         # the old default was to comment only if the git sha was not None
         # so we keep that here
         comment_on_error = data.get("comment_on_error", git_sha is not None)
@@ -594,7 +601,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             and feedstock_token is not None
             and len(feedstock_token) > 0
             and is_valid_feedstock_token(
-                    "conda-forge", feedstock, feedstock_token
+                    "conda-forge", feedstock, feedstock_token, provider=provider,
             )
         ):
             valid_token = True
@@ -612,6 +619,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             LOGGER.warning('    channel: %s' % channel)
             LOGGER.warning('    valid token: %s' % valid_token)
             LOGGER.warning('    hash type: %s' % hash_type)
+            LOGGER.warning('    provider: %s' % provider)
 
             err_msgs = []
             if outputs is None:
@@ -657,6 +665,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             LOGGER.info("    errors: %s", errors)
             LOGGER.info("    valid: %s", valid)
             LOGGER.info("    copied: %s", copied)
+            LOGGER.info('    provider: %s' % provider)
 
         print_rate_limiting_info()
 
