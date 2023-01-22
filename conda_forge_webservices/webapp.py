@@ -103,9 +103,7 @@ def print_rate_limiting_info_for_token(token):
     try:
         user = gh.get_user().login
     except Exception:
-        app = gh.get_app()
-        print(app.slug, app.id, app.name)
-        user = app.slug
+        user = "conda-forge-webservices[bot]"
 
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().core.reset
