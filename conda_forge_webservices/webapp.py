@@ -100,12 +100,17 @@ def print_rate_limiting_info_for_token(token):
     gh_api_remaining = gh.get_rate_limit().core.remaining
     gh_api_total = gh.get_rate_limit().core.limit
 
+    try:
+        user = gh.get_user().login
+    except Exception:
+        user = gh.get_app().slug
+
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().core.reset
     gh_api_reset_time -= datetime.utcnow()
     msg = "{user} - remaining {remaining} out of {total}.".format(
         remaining=gh_api_remaining,
-        total=gh_api_total, user=gh.get_user().login,
+        total=gh_api_total, user=user,
     )
     LOGGER.info(
         "github api requests: %s - %s",
