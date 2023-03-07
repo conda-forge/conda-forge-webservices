@@ -1,5 +1,0 @@
-{
-    "yaml.schemas": {
-        "https://json.schemastore.org/github-workflow.json": "file:///Users/beckermr/Desktop/conda-forge/conda-forge-webservices/.github/workflows/deploy.yml"
-    }
-}
