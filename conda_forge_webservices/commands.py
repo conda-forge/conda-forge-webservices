@@ -21,6 +21,7 @@ from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
+NUM_GIT_CLONE_TRIES = 3
 
 pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
 COMMAND_PREFIX = re.compile(pre, re.I)
@@ -163,7 +164,19 @@ def pr_detailed_comment(
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
             GH_TOKEN, pr_owner, pr_repo)
-        repo = Repo.clone_from(repo_url, feedstock_dir, branch=pr_branch, depth=1)
+
+        for _git_try_num in range(NUM_GIT_CLONE_TRIES):
+            try:
+                repo = Repo.clone_from(
+                    repo_url, feedstock_dir, branch=pr_branch, depth=1
+                )
+            except Exception as _git_try_err:
+                if _git_try_num == NUM_GIT_CLONE_TRIES - 1:
+                    raise _git_try_err
+                else:
+                    pass
+            else:
+                break
 
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
@@ -358,7 +371,18 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 os.environ["GH_TOKEN"], forked_user, repo_name)
             upstream_repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 APP_GH_TOKEN, org_name, repo_name)
-            git_repo = Repo.clone_from(repo_url, feedstock_dir, depth=1)
+
+            for _git_try_num in range(NUM_GIT_CLONE_TRIES):
+                try:
+                    git_repo = Repo.clone_from(repo_url, feedstock_dir, depth=1)
+                except Exception as _git_try_err:
+                    if _git_try_num == NUM_GIT_CLONE_TRIES - 1:
+                        raise _git_try_err
+                    else:
+                        pass
+                else:
+                    break
+
             forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
             upstream = git_repo.create_remote('upstream', upstream_repo_url)
             upstream.fetch()
