@@ -379,6 +379,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     if _git_try_num == NUM_GIT_CLONE_TRIES - 1:
                         raise _git_try_err
                     else:
+                        time.sleep(0.050 * 2**_git_try_num)
                         pass
                 else:
                     break
