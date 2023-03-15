@@ -150,8 +150,8 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
                 )
                 copied[dist] = True
                 LOGGER.info("    copied: %s", dist)
-            except BinstarError:
-                LOGGER.info("    did not copy: %s", dist)
+            except BinstarError as e:
+                LOGGER.info("    did not copy: %s (%s)", dist, repr(e))
                 pass
 
         if (
