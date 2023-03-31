@@ -23,6 +23,7 @@ pyyaml
 requests
 ruamel.yaml>=0.16
 ruamel.yaml.jinja2
+shellcheck
 tini
 tornado
 tqdm
