@@ -405,6 +405,8 @@ class TestCommands(unittest.TestCase):
             in pull_create_issue.call_args[0][0]
         )
 
+    @mock.patch('conda_forge_webservices.commands._sync_default_branch')
+    @mock.patch('conda_forge_webservices.commands.get_app_token_for_webservices_only')
     @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
     @mock.patch('conda_forge_webservices.commands.update_version')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
@@ -416,13 +418,16 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_update_version_failure(
             self, repo, gh, update_cb3, update_circle,
-            update_team, relint, make_noarch, update_version, rrdc):
+            update_team, relint, make_noarch, update_version,
+            rrdc, gatfwo, sdb
+    ):
         update_version.side_effect = RequestException
 
-        repos = [mock.MagicMock(), mock.MagicMock()]
+        repos = [mock.MagicMock(), mock.MagicMock(), mock.MagicMock()]
+        for repo in repos:
+            repo.default_branch = "main"
         gh.return_value.get_repo.side_effect = repos
-        pull_create_issue = repos[0].get_pull.return_value.create_issue_comment
-        gh.return_value.get_repo.return_value.default_branch = "main"
+        pull_create_issue = repos[0].create_pull.return_value.create_issue_comment
 
         msg = '@conda-forge-admin, please update version'
 
