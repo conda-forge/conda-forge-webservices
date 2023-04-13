@@ -419,8 +419,9 @@ class TestCommands(unittest.TestCase):
             update_team, relint, make_noarch, update_version, rrdc):
         update_version.side_effect = RequestException
 
-        repo = gh.return_value.get_repo.return_value
-        pull_create_issue = repo.get_pull.return_value.create_issue_comment
+        repos = [mock.MagicMock(), mock.MagicMock()]
+        gh.return_value.get_repo.side_effect = repos
+        pull_create_issue = repos[0].get_pull.return_value.create_issue_comment
         gh.return_value.get_repo.return_value.default_branch = "main"
 
         msg = '@conda-forge-admin, please update version'
