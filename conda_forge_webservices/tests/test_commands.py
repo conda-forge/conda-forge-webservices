@@ -207,7 +207,7 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-admin, please update version',
                 '@conda-forge-admin, update version',
                 '@conda-forge-admin: PLEASE UPDATE VERSION',
-                '@conda-forge-admin: UPDATE_VERSION',
+                '@conda-forge-admin: UPDATE VERSION',
                 'something something. @conda-forge-admin: please update version',
                 'something something. @conda-forge-admin: update version',
              ], [
@@ -421,7 +421,7 @@ class TestCommands(unittest.TestCase):
         repo = gh.return_value.get_repo.return_value
         pull_create_issue = repo.get_pull.return_value.create_issue_comment
 
-        msg = '@conda-forge-admin, please update_version'
+        msg = '@conda-forge-admin, please update version'
 
         pr_detailed_comment(msg)
 
