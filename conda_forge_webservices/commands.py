@@ -439,7 +439,6 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 comment_msg = "updated the version"
                 to_close = UPDATE_VERSION.search(title)
 
-                do_rerender = False
                 do_version_update = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
             elif ADD_BOT_AUTOMERGE.search(text):
