@@ -149,6 +149,7 @@ class TestCommands(unittest.TestCase):
                 pr_detailed_comment(msg)
                 command.assert_not_called()
 
+    @mock.patch('conda_forge_webservices.commands.update_version')
     @mock.patch('conda_forge_webservices.commands.add_user')
     @mock.patch('conda_forge_webservices.commands.add_py')
     @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
@@ -164,7 +165,7 @@ class TestCommands(unittest.TestCase):
     def test_issue_command_triggers(
             self, git_repo, gh, update_cb3, update_circle,
             update_team, relint, make_noarch, rerender, add_bot_automerge,
-            rerender_dummy_commit, add_py, add_user):
+            rerender_dummy_commit, add_py, add_user, update_version):
         update_cb3.return_value = (True, "hi")
         add_py.return_value = True
         add_user.return_value = True
@@ -199,6 +200,22 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-admin, go ahead and rerender for me',
                 'please re-render, @conda-forge-admin',
                 're-render, @conda-forge-admin',
+                '@conda-forge-linter, please lint',
+                '@conda-forge-linter, lint',
+             ]),
+            (update_version, [
+                '@conda-forge-admin, please update version',
+                '@conda-forge-admin, update version',
+                '@conda-forge-admin: PLEASE UPDATE VERSION',
+                '@conda-forge-admin: UPDATE_VERSION',
+                'something something. @conda-forge-admin: please update version',
+                'something something. @conda-forge-admin: update version',
+             ], [
+                '@conda-forge admin is pretty cool. please update version for me?',
+                '@conda-forge admin is pretty cool. update version for me?',
+                '@conda-forge-admin, go ahead and update version for me',
+                'please update version, @conda-forge-admin',
+                'update version, @conda-forge-admin',
                 '@conda-forge-linter, please lint',
                 '@conda-forge-linter, lint',
              ]),
@@ -294,7 +311,9 @@ class TestCommands(unittest.TestCase):
                 issue_comment(title="hi", comment=msg)
                 command.assert_called()
                 issue.edit.assert_not_called()
-                if command in (rerender, make_noarch, update_cb3, add_py):
+                if command in (
+                    rerender, make_noarch, update_cb3, add_py, update_version
+                ):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
@@ -318,13 +337,15 @@ class TestCommands(unittest.TestCase):
                 if (
                     command in (
                         rerender, make_noarch, update_cb3, add_bot_automerge, add_py,
-                        add_user
+                        add_user, update_version,
                     )
                 ):
                     assert "Fixes #" in repo.create_pull.call_args[0][1]
                 else:
                     issue.edit.assert_called_with(state="closed")
-                if command in (rerender, make_noarch, update_cb3, add_py):
+                if command in (
+                    rerender, make_noarch, update_cb3, add_py, update_version
+                ):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
@@ -377,6 +398,34 @@ class TestCommands(unittest.TestCase):
         pr_detailed_comment(msg)
 
         rerender.assert_called()
+
+        assert 'ran into an issue with' in pull_create_issue.call_args[0][0]
+        assert (
+            'conda-forge/core for further assistance'
+            in pull_create_issue.call_args[0][0]
+        )
+
+    @mock.patch('conda_forge_webservices.commands.update_version')
+    @mock.patch('conda_forge_webservices.commands.make_noarch')
+    @mock.patch('conda_forge_webservices.commands.relint')
+    @mock.patch('conda_forge_webservices.commands.update_team')
+    @mock.patch('conda_forge_webservices.commands.update_circle')
+    @mock.patch('conda_forge_webservices.commands.update_cb3')
+    @mock.patch('github.Github')
+    @mock.patch('conda_forge_webservices.commands.Repo')
+    def test_update_version_failure(
+            self, repo, gh, update_cb3, update_circle,
+            update_team, relint, make_noarch, update_version):
+        update_version.side_effect = RequestException
+
+        repo = gh.return_value.get_repo.return_value
+        pull_create_issue = repo.get_pull.return_value.create_issue_comment
+
+        msg = '@conda-forge-admin, please update_version'
+
+        pr_detailed_comment(msg)
+
+        update_version.assert_called()
 
         assert 'ran into an issue with' in pull_create_issue.call_args[0][0]
         assert (

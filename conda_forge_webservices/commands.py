@@ -21,7 +21,8 @@ from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
-NUM_GIT_CLONE_TRIES = 3
+NUM_GIT_CLONE_TRIES = 10
+NUM_GH_API_TRIES = 10
 
 pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
 COMMAND_PREFIX = re.compile(pre, re.I)
@@ -45,6 +46,7 @@ ADD_PY = re.compile(
     re.I,
 )
 ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
+UPDATE_VERSION = re.compile(pre + "(please )?update (the )?version", re.I)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -274,10 +276,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
     issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG, UPDATE_CIRCLECI_KEY_MSG,
                       RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY,
-                      ADD_USER, REMOVE_BOT_AUTOMERGE]
+                      ADD_USER, REMOVE_BOT_AUTOMERGE, UPDATE_VERSION]
     send_pr_commands = [
         ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE, ADD_PY,
-        ADD_USER, REMOVE_BOT_AUTOMERGE]
+        ADD_USER, REMOVE_BOT_AUTOMERGE, UPDATE_VERSION]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -285,7 +287,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
     APP_GH_TOKEN = get_app_token_for_webservices_only()
 
     # sometimes the webhook outpaces other bits of the API so we try a bit
-    for i in range(5):
+    for i in range(NUM_GH_API_TRIES):
         try:
             # this token has to be that of an actual bot since we use this
             # to make a fork
@@ -343,7 +345,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 org_name,
                 repo_name)))
             # we have to wait since the call above is async
-            for i in range(5):
+            for i in range(NUM_GH_API_TRIES):
                 try:
                     forked_user_repo = gh.get_repo("{}/{}".format(
                         forked_user, repo_name)
@@ -397,6 +399,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             changed_anything = False
             check_bump_build = True
             do_rerender = False
+            do_version_update = False
             extra_msg = ""
             if UPDATE_CB3_MSG.search(text):
                 pr_title = "MNT: Update for conda-build 3"
@@ -431,7 +434,14 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                 do_rerender = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
+            elif UPDATE_VERSION.search(text):
+                pr_title = "ENH: update package version"
+                comment_msg = "updated the version"
+                to_close = UPDATE_VERSION.search(title)
 
+                do_rerender = False
+                do_version_update = True
+                changed_anything |= make_rerender_dummy_commit(git_repo)
             elif ADD_BOT_AUTOMERGE.search(text):
                 pr_title = "[ci skip] [cf admin skip] ***NO_CI*** adding bot automerge"
                 comment_msg = "added bot automerge"
@@ -593,7 +603,25 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                             """).format(doc_url)  # noqa
 
                         pr.create_issue_comment(message)
+                if do_version_update:
+                    version_update_error = False
+                    try:
+                        version_update_error = update_version(
+                            org_name + '/' + repo_name,
+                            pr.number,
+                        )
+                    except RequestException:
+                        version_update_error = True
 
+                    if version_update_error:
+                        message = textwrap.dedent("""
+                            Hi! This is the friendly automated conda-forge-webservice.
+
+                            I tried to update the version for you but ran into an issue with kicking GitHub Actions to do
+                            the update. Please ping conda-forge/core for further assistance.
+                            """)  # noqa
+
+                        pr.create_issue_comment(message)
             else:
                 if err_msg:
                     message = textwrap.dedent("""
@@ -922,6 +950,16 @@ def rerender(full_name, pr_num):
 
     return not repo.create_repository_dispatch(
         "rerender",
+        client_payload={"pr": pr_num},
+    )
+
+
+def update_version(full_name, pr_num):
+    gh = github.Github(get_app_token_for_webservices_only())
+    repo = gh.get_repo(full_name)
+
+    return not repo.create_repository_dispatch(
+        "version_update",
         client_payload={"pr": pr_num},
     )
 
