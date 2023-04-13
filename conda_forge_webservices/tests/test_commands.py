@@ -423,7 +423,7 @@ class TestCommands(unittest.TestCase):
 
         msg = '@conda-forge-admin, please update version'
 
-        pr_detailed_comment(msg)
+        issue_comment(title=msg, comment=None)
 
         update_version.assert_called()
 
