@@ -405,6 +405,7 @@ class TestCommands(unittest.TestCase):
             in pull_create_issue.call_args[0][0]
         )
 
+    @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
     @mock.patch('conda_forge_webservices.commands.update_version')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
@@ -415,7 +416,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_update_version_failure(
             self, repo, gh, update_cb3, update_circle,
-            update_team, relint, make_noarch, update_version):
+            update_team, relint, make_noarch, update_version, rrdc):
         update_version.side_effect = RequestException
 
         repo = gh.return_value.get_repo.return_value
