@@ -3,6 +3,7 @@ black
 cachetools
 conda
 conda-build
+conda-forge-metadata
 conda-forge-pinning
 conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
 cryptography>=39
