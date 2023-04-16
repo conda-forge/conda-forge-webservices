@@ -38,7 +38,10 @@ ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?(add|enable) bot auto-?merge", r
 REMOVE_BOT_AUTOMERGE = re.compile(
     pre + "(please )?(remove|delete|stop|disable) bot auto-?merge", re.I)
 ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
-UPDATE_VERSION = re.compile(pre + "(please )?update (the )?version", re.I)
+UPDATE_VERSION = re.compile(
+    pre + r"(please )?update (the )?version( to (?P<ver>\S+))?$",
+    re.I,
+)
 
 
 def pr_comment(org_name, repo_name, issue_num, comment):
@@ -368,6 +371,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             do_rerender = False
             do_version_update = False
             extra_msg = ""
+            input_ver = None
             if UPDATE_CB3_MSG.search(text):
                 pr_title = "MNT: Update for conda-build 3"
                 comment_msg = "updated the recipe for conda-build 3"
@@ -402,6 +406,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 do_rerender = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
             elif UPDATE_VERSION.search(text):
+                if UPDATE_VERSION.search(title):
+                    m = UPDATE_VERSION.search(title)
+                    input_ver = m.group('ver')
+                elif UPDATE_VERSION.search(comment):
+                    m = UPDATE_VERSION.search(comment)
+                    input_ver = m.group('ver')
+
                 pr_title = "ENH: update package version"
                 comment_msg = "updated the version"
                 to_close = UPDATE_VERSION.search(title)
@@ -526,12 +537,14 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                             """).format(doc_url)  # noqa
 
                         pr.create_issue_comment(message)
+
                 if do_version_update:
                     version_update_error = False
                     try:
                         version_update_error = update_version(
                             org_name + '/' + repo_name,
                             pr.number,
+                            input_ver,
                         )
                     except RequestException:
                         version_update_error = True
@@ -833,13 +846,13 @@ def rerender(full_name, pr_num):
     )
 
 
-def update_version(full_name, pr_num):
+def update_version(full_name, pr_num, input_ver):
     gh = github.Github(get_app_token_for_webservices_only())
     repo = gh.get_repo(full_name)
 
     return not repo.create_repository_dispatch(
         "version_update",
-        client_payload={"pr": pr_num},
+        client_payload={"pr": pr_num, "input_version": input_ver or 'null'},
     )
 
 
