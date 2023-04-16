@@ -39,7 +39,7 @@ REMOVE_BOT_AUTOMERGE = re.compile(
     pre + "(please )?(remove|delete|stop|disable) bot auto-?merge", re.I)
 ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
 UPDATE_VERSION = re.compile(
-    pre + r"(please )?update (the )?version( to (?P<ver>\S+))?$",
+    pre + r"(please )?update (the )?version( to (?P<ver>\S+))?",
     re.I,
 )
 
