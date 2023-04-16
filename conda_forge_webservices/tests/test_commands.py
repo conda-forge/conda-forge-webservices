@@ -44,12 +44,11 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_circle')
     @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_pr_command_triggers(
-            self, repo, gh, update_cb3, update_circle,
+            self, repo, gh, update_cb3,
             update_team, relint, make_noarch, rerender, add_bot_rerun_label):
         update_cb3.return_value = (True, "hi")
 
@@ -151,23 +150,20 @@ class TestCommands(unittest.TestCase):
 
     @mock.patch('conda_forge_webservices.commands.update_version')
     @mock.patch('conda_forge_webservices.commands.add_user')
-    @mock.patch('conda_forge_webservices.commands.add_py')
     @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
     @mock.patch('conda_forge_webservices.commands.add_bot_automerge')
     @mock.patch('conda_forge_webservices.commands.rerender')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_circle')
     @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_issue_command_triggers(
-            self, git_repo, gh, update_cb3, update_circle,
+            self, git_repo, gh, update_cb3,
             update_team, relint, make_noarch, rerender, add_bot_automerge,
-            rerender_dummy_commit, add_py, add_user, update_version):
+            rerender_dummy_commit, add_user, update_version):
         update_cb3.return_value = (True, "hi")
-        add_py.return_value = True
         add_user.return_value = True
 
         commands = [
@@ -256,34 +252,6 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-linter, please lint. and can someone refresh the team?',
                 '@conda-forge-linter, lint. and can someone refresh the team?',
              ]),
-            (update_circle, [
-                '@conda-forge-admin, please update circle',
-                '@conda-forge-admin, update circle',
-                'hey @conda-forge-admin, PLEASE update circle',
-                'hey @conda-forge-admin, update circle',
-                '@conda-forge-admin: please refresh the circle key',
-                '@conda-forge-admin: refresh the circle key',
-             ], [
-                '@conda-forge-admin, please lint',
-                '@conda-forge-admin, lint',
-             ]),
-            (add_py, [
-                '@conda-forge-admin, please add python 2.7',
-                '@conda-forge-admin, add python 2.7',
-                '@conda-forge-admin, please add py27',
-                '@conda-forge-admin, add py27',
-                '@conda-forge-admin: add PY27',
-                'something something. @conda-forge-admin: please add py27',
-                '@conda-forge-admin, please add python 3.6',
-                '@conda-forge-admin, add python 3.6',
-                '@conda-forge-admin, please add py36',
-             ], [
-                '@conda-forge admin is pretty cool. please add py27?',
-                '@conda-forge admin is pretty cool. rerun add py27?',
-                '@conda-forge-admin, go ahead and rerun add python 2.7',
-                'please add python 2.7, @conda-forge-admin',
-                'add py27, @conda-forge-admin',
-             ]),
             (add_user, [
                 '@conda-forge-admin, please add user @blah',
                 '@conda-forge-admin, add user @blah',
@@ -312,18 +280,11 @@ class TestCommands(unittest.TestCase):
                 command.assert_called()
                 issue.edit.assert_not_called()
                 if command in (
-                    rerender, make_noarch, update_cb3, add_py, update_version
+                    rerender, make_noarch, update_cb3, update_version
                 ):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
-                if command is add_py:
-                    if "2.7" in msg or "27" in msg:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "2.7")
-                    else:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "3.6")
                 if command is add_user:
                     command.assert_called_with(
                         git_repo.clone_from.return_value, "blah")
@@ -336,7 +297,7 @@ class TestCommands(unittest.TestCase):
                 command.assert_called()
                 if (
                     command in (
-                        rerender, make_noarch, update_cb3, add_bot_automerge, add_py,
+                        rerender, make_noarch, update_cb3, add_bot_automerge,
                         add_user, update_version,
                     )
                 ):
@@ -344,18 +305,11 @@ class TestCommands(unittest.TestCase):
                 else:
                     issue.edit.assert_called_with(state="closed")
                 if command in (
-                    rerender, make_noarch, update_cb3, add_py, update_version
+                    rerender, make_noarch, update_cb3, update_version
                 ):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
-                if command is add_py:
-                    if "2.7" in msg or "27" in msg:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "2.7")
-                    else:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "3.6")
                 if command is add_user:
                     command.assert_called_with(
                         git_repo.clone_from.return_value, "blah")
@@ -381,12 +335,11 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_circle')
     @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_rerender_failure(
-            self, repo, gh, update_cb3, update_circle,
+            self, repo, gh, update_cb3,
             update_team, relint, make_noarch, rerender):
         rerender.side_effect = RequestException
 
@@ -412,12 +365,11 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_circle')
     @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_update_version_failure(
-            self, repo, gh, update_cb3, update_circle,
+            self, repo, gh, update_cb3,
             update_team, relint, make_noarch, update_version,
             rrdc, gatfwo, sdb
     ):
