@@ -400,8 +400,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 changed_anything |= make_rerender_dummy_commit(git_repo)
             elif RERENDER_MSG.search(text):
                 pr_title = "MNT: rerender"
-                comment_msg = "rerendered the recipe"
+                comment_msg = "started rerendering the recipe"
                 to_close = RERENDER_MSG.search(title)
+                extra_msg = (
+                    "\n\nIf I find any needed changes to the recipe, "
+                    "I'll push them to this PR shortly. Thank you for "
+                    "waiting!\n"
+                )
 
                 do_rerender = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
@@ -414,8 +419,14 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     input_ver = m.group('ver')
 
                 pr_title = "ENH: update package version"
-                comment_msg = "updated the version"
+                comment_msg = "started a version update"
                 to_close = UPDATE_VERSION.search(title)
+                check_bump_build = False
+                extra_msg = (
+                    "\n\nI'm currently searching for "
+                    "new versions and will update this PR shortly "
+                    "if I find one! Thank you for waiting!\n"
+                )
 
                 do_version_update = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
