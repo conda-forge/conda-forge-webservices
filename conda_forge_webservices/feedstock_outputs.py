@@ -15,6 +15,7 @@ import github
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
+from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
 import binstar_client.errors
 
 from .utils import parse_conda_pkg
@@ -24,14 +25,6 @@ LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
-
-
-def _get_sharded_path(output):
-    chars = [c for c in output if c.isalnum()]
-    while len(chars) < 3:
-        chars.append("z")
-
-    return os.path.join("outputs", chars[0], chars[1], chars[2], output + ".json")
 
 
 def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
