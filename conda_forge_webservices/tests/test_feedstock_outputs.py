@@ -96,6 +96,7 @@ def test_copy_feedstock_outputs_does_no_exist(
         to_owner="conda-forge",
         from_label="blah",
         to_label="blah",
+        update=True,
     )
 
     if not error:

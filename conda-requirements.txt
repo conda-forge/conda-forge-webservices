@@ -1,4 +1,4 @@
-anaconda-client
+anaconda-client>=1.8.0
 black
 cachetools
 conda
