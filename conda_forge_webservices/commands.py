@@ -508,7 +508,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     pr_message += textwrap.dedent("""
 
                         Here's a checklist to do before merging.
-                        - [ ] Bump the build number if needed.
+                        - [ ] Bump the build number if a package’s version is not
+                        changed, but other metadata or parts of the recipe are changed
                         """)
 
                 if to_close:
