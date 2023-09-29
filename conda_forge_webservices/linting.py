@@ -105,7 +105,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
         recipes = find_recipes(tmp_dir)
         all_pass = True
         messages = []
-        hints = []
+        hints_found = True
 
         # Exclude some things from our list of recipes.
         # Sort the recipes for consistent linting order (which glob doesn't give us).
@@ -136,6 +136,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                     rel_path,
                     '\n'.join(' * {}'.format(lint) for lint in lints)))
             if hints:
+                hints_found = True
                 messages.append("\nFor **{}**:\n\n{}".format(
                     rel_path,
                     '\n'.join(' * {}'.format(hint) for hint in hints)))
@@ -178,7 +179,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
             Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
             """)  # noqa
         status = 'no recipes'
-    elif all_pass and len(hints):
+    elif all_pass and hints_found:
         message = mixed
         status = 'mixed'
     elif all_pass:
