@@ -44,13 +44,11 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_pr_command_triggers(
-            self, repo, gh, update_cb3,
+            self, repo, gh,
             update_team, relint, make_noarch, rerender, add_bot_rerun_label):
-        update_cb3.return_value = (True, "hi")
 
         commands = [
             (rerender, False, [
@@ -92,15 +90,6 @@ class TestCommands(unittest.TestCase):
                 'sure wish @conda-forge-admin would please add noarch python',
                 'sure wish @conda-forge-admin would add noarch python',
              ]),
-            (update_cb3, False, [
-                '@conda-forge-admin, please update for CB3',
-                '@conda-forge-admin, please update for conda-build 3',
-                '@conda-forge-admin, update for CB3',
-                '@conda-forge-admin, update for conda-build 3',
-            ], [
-                '@conda-forge-admin, please lint'
-                '@conda-forge-admin, lint'
-            ]),
             (relint, True, [
                 '@conda-forge-admin, please lint',
                 '@conda-forge-admin, lint',
@@ -156,14 +145,12 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_issue_command_triggers(
-            self, git_repo, gh, update_cb3,
+            self, git_repo, gh,
             update_team, relint, make_noarch, rerender, add_bot_automerge,
             rerender_dummy_commit, add_user, update_version):
-        update_cb3.return_value = (True, "hi")
         add_user.return_value = True
 
         commands = [
@@ -230,15 +217,6 @@ class TestCommands(unittest.TestCase):
                 'sure wish @conda-forge-admin would please add noarch python',
                 'sure wish @conda-forge-admin would add noarch python',
              ]),
-            (update_cb3, [
-                '@conda-forge-admin, please update for cb-3',
-                '@conda-forge-admin, update for cb-3',
-                'yo @conda-forge-admin: please update for conda build 3',
-                'yo @conda-forge-admin:  update for conda build 3',
-            ], [
-                '@conda-forge-admin, please lint'
-                '@conda-forge-admin, lint'
-            ]),
             (update_team, [
                 '@conda-forge-admin: please update team',
                 '@conda-forge-admin: update team',
@@ -280,7 +258,7 @@ class TestCommands(unittest.TestCase):
                 command.assert_called()
                 issue.edit.assert_not_called()
                 if command in (
-                    rerender, make_noarch, update_cb3, update_version
+                    rerender, make_noarch, update_version
                 ):
                     rerender_dummy_commit.assert_called()
                 else:
@@ -297,7 +275,7 @@ class TestCommands(unittest.TestCase):
                 command.assert_called()
                 if (
                     command in (
-                        rerender, make_noarch, update_cb3, add_bot_automerge,
+                        rerender, make_noarch, add_bot_automerge,
                         add_user, update_version,
                     )
                 ):
@@ -305,7 +283,7 @@ class TestCommands(unittest.TestCase):
                 else:
                     issue.edit.assert_called_with(state="closed")
                 if command in (
-                    rerender, make_noarch, update_cb3, update_version
+                    rerender, make_noarch, update_version
                 ):
                     rerender_dummy_commit.assert_called()
                 else:
@@ -335,11 +313,10 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_rerender_failure(
-            self, repo, gh, update_cb3,
+            self, repo, gh,
             update_team, relint, make_noarch, rerender):
         rerender.side_effect = RequestException
 
@@ -365,11 +342,10 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_update_version_failure(
-            self, repo, gh, update_cb3,
+            self, repo, gh,
             update_team, relint, make_noarch, update_version,
             rrdc, gatfwo, sdb
     ):
