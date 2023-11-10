@@ -201,8 +201,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
         lint_info = {}
 
     # Remove the environment variable if it was set in this function
-    if pr_id is not None and "STAGED_RECIPES_PR_NUMBER" in os.environ:
-        del os.environ["STAGED_RECIPES_PR_NUMBER"]
+    os.environ.pop("STAGED_RECIPES_PR_NUMBER", None)
 
     return lint_info
 
