@@ -23,6 +23,10 @@ def find_recipes(a_dir):
 def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     gh = github.Github(get_app_token_for_webservices_only())
 
+    # Check if pr_id is provided and set the environment variable accordingly
+    if pr_id is not None:
+        os.environ["STAGED_RECIPES_PR_NUMBER"] = str(pr_id)
+
     owner = gh.get_user(repo_owner)
     remote_repo = owner.get_repo(repo_name)
 
@@ -195,6 +199,10 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                      'sha': sha}
     else:
         lint_info = {}
+
+    # Remove the environment variable if it was set in this function
+    if pr_id is not None and "STAGED_RECIPES_PR_NUMBER" in os.environ:
+        del os.environ["STAGED_RECIPES_PR_NUMBER"]
 
     return lint_info
 
