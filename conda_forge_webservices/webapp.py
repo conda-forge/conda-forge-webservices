@@ -15,7 +15,7 @@ import logging
 
 import requests
 import github
-from datetime import datetime
+from datetime import datetime, timezone
 
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
@@ -107,7 +107,7 @@ def print_rate_limiting_info_for_token(token):
 
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().core.reset
-    gh_api_reset_time -= datetime.utcnow()
+    gh_api_reset_time -= datetime.now(timezone.utc)
     msg = "{user} - remaining {remaining} out of {total}.".format(
         remaining=gh_api_remaining,
         total=gh_api_total, user=user,
