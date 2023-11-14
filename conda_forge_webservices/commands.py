@@ -439,7 +439,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     to_close = False
                 else:
                     _changed_anything = add_user(git_repo, user)
-                    if _changed_anything is None:
+                    if _changed_anything `is None:
                         err_msg = (
                             "the recipe meta.yaml and/or CODEOWNERS file could "
                             "not be found or parsed properly when adding "
@@ -487,8 +487,11 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     pr_message += "\nFixes #{}".format(issue_num)
 
                 pr = repo.create_pull(
-                    pr_title, pr_message,
-                    default_branch, "{}:{}".format(forked_user, forked_repo_branch))
+                    title=pr_title,
+                    body=pr_message,
+                    base=default_branch,
+                    head="{}:{}".format(forked_user, forked_repo_branch),
+                )
 
                 message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
