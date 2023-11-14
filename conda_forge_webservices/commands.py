@@ -439,7 +439,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     to_close = False
                 else:
                     _changed_anything = add_user(git_repo, user)
-                    if _changed_anything `is None:
+                    if _changed_anything is None:
                         err_msg = (
                             "the recipe meta.yaml and/or CODEOWNERS file could "
                             "not be found or parsed properly when adding "
