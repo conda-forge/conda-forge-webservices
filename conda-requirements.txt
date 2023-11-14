@@ -14,11 +14,11 @@ lxml
 mock
 nose
 parameterized
-pygithub>=1.55  # for GHA repo disptach
+pygithub>=3  # for GHA repo disptach
 pyjwt
 pynacl
 pytest
-python=3.8.*
+python=3.10.*
 pytz
 pyyaml
 requests
