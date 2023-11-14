@@ -279,7 +279,7 @@ class TestCommands(unittest.TestCase):
                         add_user, update_version,
                     )
                 ):
-                    assert "Fixes #" in repo.create_pull.call_args[0][1]
+                    assert "Fixes #" in repo.create_pull.call_args.kwargs["body"]
                 else:
                     issue.edit.assert_called_with(state="closed")
                 if command in (
