@@ -148,7 +148,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     finally:
         # Remove the environment variable if it was set in this function
         os.environ.pop("STAGED_RECIPES_PR_NUMBER", None)
-        
+
         if tmp_dir is not None:
             shutil.rmtree(tmp_dir)
 
