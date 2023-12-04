@@ -38,7 +38,7 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
     try:
 
         # Check if pr_id is provided and set the environment variable accordingly
-        if pr_id is not None:
+        if pr_id is not None and repo_name == "staged-recipes":
             os.environ["STAGED_RECIPES_PR_NUMBER"] = str(pr_id)
 
         tmp_dir = tempfile.mkdtemp('_recipe')
