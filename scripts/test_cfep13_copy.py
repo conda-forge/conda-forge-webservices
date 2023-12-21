@@ -166,7 +166,7 @@ uuid:
     subprocess.run(
         "mkdir -p built_dists "
         "&& rm -rf built_dists/* "
-        "&& export CONDA_BLD_PATH=built_dists "
+        "&& export CONDA_BLD_PATH=\"$(pwd)/built_dists\" "
         "&& conda-build recipe",
         check=True,
         shell=True,
