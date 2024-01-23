@@ -16,4 +16,3 @@ uses a single machine user with no special permissions in order to make forks fo
 The tests for this repo require a GitHub API key which is not available on forks. Thus the tests only pass
 for PRs made from a branch in this repo. If your PR is in a fork, please ask a member of `@conda-forge/core`
 to push your PR branch to the main repo to enable the tests.
-
