@@ -6,7 +6,7 @@ conda-build
 conda-forge-metadata>=0.4.1
 conda-forge-pinning
 conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
-cryptography>=39
+cryptography>=39,<42
 python-dateutil
 flake8
 git
