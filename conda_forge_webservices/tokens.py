@@ -163,7 +163,8 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
                 "https://api.github.com/app/installations",
                 headers={
                     'Authorization': 'Bearer %s' % token,
-                    'Accept': 'application/vnd.github.machine-man-preview+json',
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
                 },
             )
             r.raise_for_status()
@@ -173,7 +174,8 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
                 "%s/access_tokens" % r.json()[0]["id"],
                 headers={
                     'Authorization': 'Bearer %s' % token,
-                    'Accept': 'application/vnd.github.machine-man-preview+json',
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
                 },
             )
             r.raise_for_status()
