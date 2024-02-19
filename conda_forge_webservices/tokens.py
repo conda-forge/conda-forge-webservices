@@ -107,6 +107,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             "running in github actions",
             flush=True,
         )
+        print("::add-mask::%s" % raw_pem, flush=True)
 
     try:
         f = io.StringIO()
@@ -119,16 +120,18 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             ):
                 sys.stdout.flush()
                 print("base64 decoded PEM", flush=True)
+                print("::add-mask::%s" % raw_pem, flush=True)
 
         if isinstance(raw_pem, bytes):
             with redirect_stdout(f), redirect_stderr(f):
-                raw_pem = raw_pem.decode("utf-8")
+                raw_pem = raw_pem.decode()
             if (
                 "GITHUB_ACTIONS" in os.environ
                 and os.environ["GITHUB_ACTIONS"] == "true"
             ):
                 sys.stdout.flush()
                 print("utf-8 decoded PEM", flush=True)
+                print("::add-mask::%s" % raw_pem, flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
             gh_auth = Auth.AppAuth(app_id=app_id, private_key=raw_pem)
@@ -158,7 +161,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             print("found Github installation", flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
-            gh_token = installation.get_access_token(installation.id).token
+            gh_token = integration.get_access_token(installation.id).token
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
