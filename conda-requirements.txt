@@ -6,7 +6,7 @@ conda-build
 conda-forge-metadata>=0.4.1
 conda-forge-pinning
 conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
-cryptography>=39,<42
+cryptography>=39
 python-dateutil
 flake8
 git
@@ -14,7 +14,7 @@ lxml
 mock
 nose
 parameterized
-pygithub>=2  # for GHA repo disptach
+pygithub>=2.2.0  # for GH App endpoints
 pyjwt
 pynacl
 pytest

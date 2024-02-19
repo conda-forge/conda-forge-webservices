@@ -6,10 +6,7 @@ import sys
 import logging
 from contextlib import redirect_stdout, redirect_stderr
 
-from github import Github
-import jwt
-import requests
-from cryptography.hazmat.backends import default_backend
+from github import Auth, Github, GithubIntegration
 
 LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
@@ -110,78 +107,61 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             "running in github actions",
             flush=True,
         )
+        print("::add-mask::%s" % raw_pem, flush=True)
 
     try:
+        f = io.StringIO()
         if raw_pem[0:1] != b'-':
-            raw_pem = base64.b64decode(raw_pem)
-
+            with redirect_stdout(f), redirect_stderr(f):
+                raw_pem = base64.b64decode(raw_pem)
             if (
                 "GITHUB_ACTIONS" in os.environ
                 and os.environ["GITHUB_ACTIONS"] == "true"
             ):
                 sys.stdout.flush()
                 print("base64 decoded PEM", flush=True)
+                print("::add-mask::%s" % raw_pem, flush=True)
 
-        f = io.StringIO()
+        if isinstance(raw_pem, bytes):
+            with redirect_stdout(f), redirect_stderr(f):
+                raw_pem = raw_pem.decode()
+            if (
+                "GITHUB_ACTIONS" in os.environ
+                and os.environ["GITHUB_ACTIONS"] == "true"
+            ):
+                sys.stdout.flush()
+                print("utf-8 decoded PEM", flush=True)
+                print("::add-mask::%s" % raw_pem, flush=True)
+
         with redirect_stdout(f), redirect_stderr(f):
-            private_key = default_backend().load_pem_private_key(
-                raw_pem,
-                password=None,
-                unsafe_skip_rsa_key_validation=True,
-            )
-
+            gh_auth = Auth.AppAuth(app_id=app_id, private_key=raw_pem)
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
         ):
             sys.stdout.flush()
-            print("loaded PEM", flush=True)
+            print("loaded Github Auth", flush=True)
 
-        f = io.StringIO()
         with redirect_stdout(f), redirect_stderr(f):
-            ti = int(time.time())
-            token = jwt.encode(
-                {
-                    'iat': ti,
-                    'exp': ti + 60*10,
-                    'iss': app_id,
-                },
-                private_key,
-                algorithm='RS256',
-            )
-
+            integration = GithubIntegration(auth=gh_auth)
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
         ):
             sys.stdout.flush()
-            print("made JWT and masking it for github actions", flush=True)
-            print("::add-mask::%s" % token, flush=True)
+            print("loaded Github Integration", flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
-            r = requests.get(
-                "https://api.github.com/app/installations",
-                headers={
-                    'Authorization': 'Bearer %s' % token,
-                    'Accept': 'application/vnd.github+json',
-                    'X-GitHub-Api-Version': '2022-11-28',
-                },
-            )
-            r.raise_for_status()
+            installation = integration.get_org_installation("conda-forge")
+        if (
+            "GITHUB_ACTIONS" in os.environ
+            and os.environ["GITHUB_ACTIONS"] == "true"
+        ):
+            sys.stdout.flush()
+            print("found Github installation", flush=True)
 
-            r = requests.post(
-                "https://api.github.com/app/installations/"
-                "%s/access_tokens" % r.json()[0]["id"],
-                headers={
-                    'Authorization': 'Bearer %s' % token,
-                    'Accept': 'application/vnd.github+json',
-                    'X-GitHub-Api-Version': '2022-11-28',
-                },
-            )
-            r.raise_for_status()
-
-            gh_token = r.json()["token"]
-
+        with redirect_stdout(f), redirect_stderr(f):
+            gh_token = integration.get_access_token(installation.id).token
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
