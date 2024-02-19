@@ -109,9 +109,10 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
         )
 
     try:
+        f = io.StringIO()
         if raw_pem[0:1] != b'-':
-            raw_pem = base64.b64decode(raw_pem)
-
+            with redirect_stdout(f), redirect_stderr(f):
+                raw_pem = base64.b64decode(raw_pem)
             if (
                 "GITHUB_ACTIONS" in os.environ
                 and os.environ["GITHUB_ACTIONS"] == "true"
@@ -120,7 +121,8 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
                 print("base64 decoded PEM", flush=True)
 
         if isinstance(raw_pem, bytes):
-            raw_pem = raw_pem.decode("utf-8")
+            with redirect_stdout(f), redirect_stderr(f):
+                raw_pem = raw_pem.decode("utf-8")
             if (
                 "GITHUB_ACTIONS" in os.environ
                 and os.environ["GITHUB_ACTIONS"] == "true"
@@ -128,10 +130,8 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
                 sys.stdout.flush()
                 print("utf-8 decoded PEM", flush=True)
 
-        f = io.StringIO()
         with redirect_stdout(f), redirect_stderr(f):
             gh_auth = Auth.AppAuth(app_id=app_id, private_key=raw_pem)
-
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
@@ -139,7 +139,8 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             sys.stdout.flush()
             print("loaded Github Auth", flush=True)
 
-        integration = GithubIntegration(auth=gh_auth)
+        with redirect_stdout(f), redirect_stderr(f):
+            integration = GithubIntegration(auth=gh_auth)
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
@@ -147,7 +148,8 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             sys.stdout.flush()
             print("loaded Github Integration", flush=True)
 
-        installation = integration.get_org_installation("conda-forge")
+        with redirect_stdout(f), redirect_stderr(f):
+            installation = integration.get_org_installation("conda-forge")
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
@@ -155,7 +157,8 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             sys.stdout.flush()
             print("found Github installation", flush=True)
 
-        gh_token = installation.get_access_token(installation.id)
+        with redirect_stdout(f), redirect_stderr(f):
+            gh_token = installation.get_access_token(installation.id).token
         if (
             "GITHUB_ACTIONS" in os.environ
             and os.environ["GITHUB_ACTIONS"] == "true"
