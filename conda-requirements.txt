@@ -14,7 +14,7 @@ lxml
 mock
 nose
 parameterized
-pygithub>=2.2.0  # for GHA repo disptach
+pygithub>=2.2.0  # for GH App endpoints
 pyjwt
 pynacl
 pytest
