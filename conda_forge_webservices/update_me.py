@@ -40,8 +40,10 @@ def main():
     """
     # keep these imports here to protect the webservice from memory errors
     # due to conda
-    from conda_build.conda_interface import (
-        VersionOrder, MatchSpec, get_index, Resolve)
+    from conda.core.index import get_index
+    from conda.models.match_spec import MatchSpec
+    from conda.models.version import VersionOrder
+    from conda.resolve import Resolve
 
     r = requests.get(
         "https://conda-forge.herokuapp.com/conda-webservice-update/versions")
