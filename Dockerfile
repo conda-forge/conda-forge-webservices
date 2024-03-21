@@ -62,7 +62,7 @@ RUN echo "**** install dev packages ****" && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
     conda config --set solver libmamba && \
-    mamba install --quiet --file conda-requirements.txt && \
+    conda install --quiet --file conda-requirements.txt && \
     echo "**** cleanup ****" && \
     rm -rf /var/cache/apk/* && \
     rm -f miniforge3.sh && \
