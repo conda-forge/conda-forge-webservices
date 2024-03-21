@@ -14,7 +14,7 @@ from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_me")
 
-PKGS = ["conda-smithy"]
+PKGS = ["conda-smithy", "conda", "conda-build"]
 
 
 def _run_git_command(args):
