@@ -31,6 +31,7 @@ LABEL maintainer="conda-forge core (@conda-forge/core)"
 
 ENV LANG en_US.UTF-8
 
+ARG CONDA_INSTALLER_VERSION="4.11.0-0"
 ARG CONDA_INSTALLER_SHA256="49268ee30d4418be4de852dda3aa4387f8c95b55a76f43fb1af68dcbf8b205c3"
 ARG CONDA_DIR="/opt/conda"
 
@@ -47,7 +48,7 @@ RUN echo "**** install dev packages ****" && \
     \
     echo "**** get Mambaforge ****" && \
     mkdir -p "$CONDA_DIR" && \
-    wget "https://github.com/conda-forge/miniforge/releases/download/4.11.0-0/Mambaforge-4.11.0-0-Linux-x86_64.sh" -O mambaforge.sh && \
+    wget "https://github.com/conda-forge/miniforge/releases/download/$CONDA_INSTALLER_VERSION/Mambaforge-$CONDA_INSTALLER_VERSION-Linux-x86_64.sh" -O mambaforge.sh && \
     echo "$CONDA_INSTALLER_SHA256  mambaforge.sh" | sha256sum -c && \
     \
     echo "**** install Mambaforge ****" && \
