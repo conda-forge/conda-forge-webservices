@@ -45,13 +45,13 @@ COPY conda-requirements.txt /
 RUN echo "**** install dev packages ****" && \
     apk add --no-cache bash ca-certificates wget && \
     \
-    echo "**** get Miniconda ****" && \
+    echo "**** get Mambaforge ****" && \
     mkdir -p "$CONDA_DIR" && \
-    wget "https://github.com/conda-forge/miniforge/releases/download/4.11.0-0/Mambaforge-4.11.0-0-Linux-x86_64.sh" -O miniconda.sh && \
-    echo "$CONDA_SHA256  miniconda.sh" | sha256sum -c && \
+    wget "https://github.com/conda-forge/miniforge/releases/download/4.11.0-0/Mambaforge-4.11.0-0-Linux-x86_64.sh" -O mambaforge.sh && \
+    echo "$CONDA_SHA256  mambaforge.sh" | sha256sum -c && \
     \
-    echo "**** install Miniconda ****" && \
-    bash miniconda.sh -f -b -p "$CONDA_DIR" && \
+    echo "**** install Mambaforge ****" && \
+    bash mambaforge.sh -f -b -p "$CONDA_DIR" && \
     \
     echo "**** install base env ****" && \
     source /opt/conda/etc/profile.d/conda.sh && \
@@ -63,7 +63,7 @@ RUN echo "**** install dev packages ****" && \
     mamba install --quiet --file conda-requirements.txt && \
     echo "**** cleanup ****" && \
     rm -rf /var/cache/apk/* && \
-    rm -f miniconda.sh && \
+    rm -f mambaforge.sh && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
     \
