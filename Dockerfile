@@ -31,7 +31,8 @@ LABEL maintainer="conda-forge core (@conda-forge/core)"
 
 ENV LANG en_US.UTF-8
 
-ARG CONDA_MD5="678c0078e3a37596cd671f690e852fff"
+ARG CONDA_INSTALLER_VERSION="23.11.0-0"
+ARG CONDA_INSTALLER_SHA256="73576b96409ed38a7ca596bece058e8c77c6ef3eab42af7cfdf2ae975e8f3928"
 ARG CONDA_DIR="/opt/conda"
 
 ENV PATH="$CONDA_DIR/bin:$PATH"
@@ -45,13 +46,13 @@ COPY conda-requirements.txt /
 RUN echo "**** install dev packages ****" && \
     apk add --no-cache bash ca-certificates wget && \
     \
-    echo "**** get Miniconda ****" && \
+    echo "**** get Miniforge3 ****" && \
     mkdir -p "$CONDA_DIR" && \
-    wget "https://github.com/conda-forge/miniforge/releases/download/4.11.0-0/Mambaforge-4.11.0-0-Linux-x86_64.sh" -O miniconda.sh && \
-    echo "$CONDA_MD5  miniconda.sh" | md5sum -c && \
+    wget "https://github.com/conda-forge/miniforge/releases/download/$CONDA_INSTALLER_VERSION/Miniforge3-$CONDA_INSTALLER_VERSION-Linux-x86_64.sh" -O miniforge3.sh && \
+    echo "$CONDA_INSTALLER_SHA256  miniforge3.sh" | sha256sum -c && \
     \
-    echo "**** install Miniconda ****" && \
-    bash miniconda.sh -f -b -p "$CONDA_DIR" && \
+    echo "**** install Miniforge3 ****" && \
+    bash miniforge3.sh -f -b -p "$CONDA_DIR" && \
     \
     echo "**** install base env ****" && \
     source /opt/conda/etc/profile.d/conda.sh && \
@@ -60,10 +61,11 @@ RUN echo "**** install dev packages ****" && \
     conda config --add channels conda-forge  && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
-    mamba install --quiet --file conda-requirements.txt && \
+    conda config --set solver libmamba && \
+    conda install --quiet --file conda-requirements.txt && \
     echo "**** cleanup ****" && \
     rm -rf /var/cache/apk/* && \
-    rm -f miniconda.sh && \
+    rm -f miniforge3.sh && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
     \
