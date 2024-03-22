@@ -5,6 +5,7 @@ import tempfile
 import shutil
 import logging
 import github
+import json
 
 from git import Repo
 import requests
@@ -23,14 +24,12 @@ def _run_git_command(args):
 
 
 def get_current_versions():
-    r = subprocess.run(["conda", "list"], capture_output=True)
-    out = r.stdout.decode("utf-8")
+    r = subprocess.run(["conda", "list", "--json"], capture_output=True)
+    out = json.loads(r.stdout.decode("utf-8"))
     vers = {}
-    for line in out.split("\n"):
-        for pkg in PKGS:
-            if pkg in line:
-                items = line.split()
-                vers[pkg] = items[1]
+    for item in out:
+        if item["name"] in PKGS:
+            vers[item["name"]] = item["version"]
     return vers
 
 
