@@ -23,7 +23,7 @@ def _run_git_command(args):
 
 
 def get_current_versions():
-    r = subprocess.run(["conda", "list", "--json"], capture_output=True)
+    r = subprocess.run(["conda", "list", "--json"], capture_output=True, check=True)
     out = json.loads(r.stdout.decode("utf-8"))
     vers = {}
     for item in out:
