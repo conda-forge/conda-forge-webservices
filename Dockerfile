@@ -45,6 +45,7 @@ ADD https://loripsum.net/api /opt/docker/etc/gibberish
 COPY conda-requirements.txt /
 RUN echo "**** install dev packages ****" && \
     apk add --no-cache bash ca-certificates wget && \
+    rm -rf /var/cache/apk/* && \
     \
     echo "**** get Miniforge3 ****" && \
     mkdir -p "$CONDA_DIR" && \
@@ -53,6 +54,7 @@ RUN echo "**** install dev packages ****" && \
     \
     echo "**** install Miniforge3 ****" && \
     bash miniforge3.sh -f -b -p "$CONDA_DIR" && \
+    rm -f miniforge3.sh && \
     \
     echo "**** install base env ****" && \
     source /opt/conda/etc/profile.d/conda.sh && \
@@ -62,10 +64,7 @@ RUN echo "**** install dev packages ****" && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
     conda config --set solver libmamba && \
-    conda install --quiet --file conda-requirements.txt && \
-    echo "**** cleanup ****" && \
-    rm -rf /var/cache/apk/* && \
-    rm -f miniforge3.sh && \
+    mamba install --quiet --file conda-requirements.txt && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
     \
