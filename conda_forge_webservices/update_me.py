@@ -4,6 +4,7 @@ import json
 import tempfile
 import shutil
 import logging
+import github
 
 from git import Repo
 import requests
@@ -14,7 +15,7 @@ from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_me")
 
-PKGS = ["conda-smithy"]
+PKGS = ["conda-smithy", "conda", "conda-build", "conda-libmamba-solver", "mamba"]
 
 
 def _run_git_command(args):
@@ -97,3 +98,11 @@ def main():
         finally:
             if tmpdir is not None:
                 shutil.rmtree(tmpdir)
+
+        try:
+            gh = github.Github(get_app_token_for_webservices_only())
+            repo = gh.get_repo("conda-forge/webservices-dispatch-action")
+            workflow = repo.get_workflow("tests.yml")
+            workflow.create_dispatch("main")
+        except Exception as e:
+            print(f"workflow_dispatch for webservices-dispatch-action failed: {e}")
