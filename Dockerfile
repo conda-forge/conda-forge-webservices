@@ -64,7 +64,7 @@ RUN echo "**** install dev packages ****" && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
     conda config --set solver libmamba && \
-    mamba update --all --quiet \
+    mamba update --all --quiet && \
     mamba install --quiet --file conda-requirements.txt && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
