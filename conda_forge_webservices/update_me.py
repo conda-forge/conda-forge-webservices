@@ -23,8 +23,8 @@ def _run_git_command(args):
 
 
 def get_current_versions():
-    r = subprocess.run(["conda", "list", "--json"], capture_output=True, check=True)
-    out = json.loads(r.stdout.decode("utf-8"))
+    r = subprocess.run(["conda", "list", "--json"], capture_output=True, check=True, encoding="utf-8")
+    out = json.loads(r.stdout)
     vers = {}
     for item in out:
         if item["name"] in PKGS:
