@@ -5,7 +5,6 @@ import tempfile
 import shutil
 import logging
 import github
-import json
 
 from git import Repo
 import requests
