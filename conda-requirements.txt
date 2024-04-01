@@ -12,7 +12,6 @@ flake8
 git
 lxml
 mock
-nose
 parameterized
 pygithub>=2.2.0  # for GH App endpoints
 pyjwt
