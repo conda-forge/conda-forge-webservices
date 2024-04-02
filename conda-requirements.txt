@@ -12,9 +12,6 @@ lxml
 mock
 parameterized
 pygithub>=2.2.0  # for GH App endpoints
-pyjwt
-pynacl
-pytest
 python=3.10.*
 pytz
 requests
