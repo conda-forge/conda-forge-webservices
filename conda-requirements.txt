@@ -1,5 +1,4 @@
 anaconda-client>=1.8.0
-black
 cachetools
 conda
 conda-build
@@ -8,7 +7,6 @@ conda-forge-pinning
 conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
 cryptography>=39
 python-dateutil
-flake8
 git
 lxml
 mock

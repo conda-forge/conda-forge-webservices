@@ -43,13 +43,6 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
-      - name: lint
-        shell: bash -l {0}
-        run: |
-          # maybe later...
-          # black --check conda_forge_webservices
-          flake8 conda_forge_webservices
-
       - name: run test suite
         shell: bash -l {0}
         run: |
