@@ -15,7 +15,7 @@ import logging
 
 import requests
 import github
-from datetime import datetime
+from datetime import datetime, timezone
 
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
@@ -107,7 +107,7 @@ def print_rate_limiting_info_for_token(token):
 
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().core.reset
-    gh_api_reset_time -= datetime.utcnow()
+    gh_api_reset_time -= datetime.now(timezone.utc)
     msg = "{user} - remaining {remaining} out of {total}.".format(
         remaining=gh_api_remaining,
         total=gh_api_total, user=user,
@@ -762,6 +762,12 @@ class StatusMonitorAzureHandler(tornado.web.RequestHandler):
         self.write(status_monitor.get_azure_status())
 
 
+class StatusMonitorOpenGPUServerHandler(tornado.web.RequestHandler):
+    async def get(self):
+        self.add_header("Access-Control-Allow-Origin", "*")
+        self.write(status_monitor.get_open_gpu_server_status())
+
+
 class StatusMonitorDBHandler(tornado.web.RequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
@@ -796,6 +802,7 @@ def create_webapp():
         (r"/feedstock-outputs/copy", OutputsCopyHandler),
         (r"/status-monitor/payload", StatusMonitorPayloadHookHandler),
         (r"/status-monitor/azure", StatusMonitorAzureHandler),
+        (r"/status-monitor/open-gpu-server", StatusMonitorOpenGPUServerHandler),
         (r"/status-monitor/db", StatusMonitorDBHandler),
         (r"/status-monitor/report/(.*)", StatusMonitorReportHandler),
         (r"/status-monitor", StatusMonitorHandler),

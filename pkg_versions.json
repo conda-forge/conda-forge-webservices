@@ -1,1 +1,1 @@
-{"conda-smithy": "3.26.3"}
+{"conda-smithy": "3.34.0", "conda": "24.3.0", "conda-build": "24.3.0", "conda-libmamba-solver": "24.1.0", "mamba": "1.5.8"}

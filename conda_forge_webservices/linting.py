@@ -36,6 +36,11 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
 
     tmp_dir = None
     try:
+
+        # Check if pr_id is provided and set the environment variable accordingly
+        if pr_id is not None and repo_name == "staged-recipes":
+            os.environ["STAGED_RECIPES_PR_NUMBER"] = str(pr_id)
+
         tmp_dir = tempfile.mkdtemp('_recipe')
 
         repo = Repo.clone_from(remote_repo.clone_url, tmp_dir, depth=1)
@@ -142,6 +147,9 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                     '\n'.join(' * {}'.format(hint) for hint in hints)))
 
     finally:
+        # Remove the environment variable if it was set in this function
+        os.environ.pop("STAGED_RECIPES_PR_NUMBER", None)
+
         if tmp_dir is not None:
             shutil.rmtree(tmp_dir)
 

@@ -234,6 +234,28 @@ def get_azure_status():
     return json.dumps(status_data)
 
 
+def get_open_gpu_server_status():
+    status_data = {}
+    try:
+        r = requests.get(
+            "https://api.openstatus.dev/public/status/open-gpu-server",
+            timeout=2,
+        )
+        if r.status_code != 200:
+            status_data["status"] = NOSTATUS
+        else:
+            status_data["status"] = r.json()["status"]
+    except requests.exceptions.RequestException:
+        status_data['status'] = NOSTATUS
+
+    fmt = '%Y-%m-%d %H:%M:%S %Z%z'
+    status_data['updated_at'] = (
+        datetime.datetime.now().astimezone(pytz.UTC).strftime(fmt)
+    )
+
+    return json.dumps(status_data)
+
+
 def update_data_status(event_data):
     global APP_DATA
 

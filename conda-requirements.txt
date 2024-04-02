@@ -1,5 +1,4 @@
 anaconda-client>=1.8.0
-black
 cachetools
 conda
 conda-build
@@ -8,19 +7,13 @@ conda-forge-pinning
 conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
 cryptography>=39
 python-dateutil
-flake8
 git
 lxml
 mock
-nose
 parameterized
-pygithub>=1.55  # for GHA repo disptach
-pyjwt
-pynacl
-pytest
-python=3.8.*
+pygithub>=2.2.0  # for GH App endpoints
+python=3.10.*
 pytz
-pyyaml
 requests
 ruamel.yaml>=0.16
 ruamel.yaml.jinja2

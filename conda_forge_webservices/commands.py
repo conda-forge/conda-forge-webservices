@@ -1,8 +1,8 @@
 from git import GitCommandError, Repo, Actor
 import github
+import io
 import os
 import re
-import subprocess
 import time
 import shutil
 import tempfile
@@ -10,7 +10,6 @@ from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
 import logging
-import yaml
 
 # from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
@@ -166,25 +165,16 @@ def pr_detailed_comment(
 
         changed_anything = False
         expected_changes = []
-        extra_msg = ''
         if not is_staged_recipes:
-            do_noarch = do_cb3 = do_rerender = False
+            do_noarch = do_rerender = False
             if ADD_NOARCH_MSG.search(comment):
                 do_noarch = do_rerender = True
                 expected_changes.append('add noarch')
-            if UPDATE_CB3_MSG.search(comment):
-                do_cb3 = do_rerender = True
-                expected_changes.append('update for conda-build 3')
             if RERENDER_MSG.search(comment):
                 do_rerender = True
 
             if do_noarch:
                 changed_anything |= make_noarch(repo)
-
-            if do_cb3:
-                c, cb3_changes = update_cb3(repo)
-                changed_anything |= c
-                extra_msg += '\n\n' + cb3_changes
 
         message = None
         if expected_changes:
@@ -372,25 +362,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             do_version_update = False
             extra_msg = ""
             input_ver = None
-            if UPDATE_CB3_MSG.search(text):
-                pr_title = "MNT: Update for conda-build 3"
-                comment_msg = "updated the recipe for conda-build 3"
-                to_close = UPDATE_CB3_MSG.search(title)
-
-                if ADD_NOARCH_MSG.search(text):
-                    changed_anything |= make_noarch(git_repo)
-                    pr_title += ' and add noarch: python'
-                    comment_msg += ' and added `noarch: python`'
-
-                c, cb3_changes = update_cb3(git_repo)
-                changed_anything |= c
-                if not c:
-                    cb3_changes = "There weren't any changes to make for conda-build 3."
-                extra_msg = '\n\n' + cb3_changes
-
-                do_rerender = True
-                changed_anything |= make_rerender_dummy_commit(git_repo)
-            elif ADD_NOARCH_MSG.search(text):
+            if ADD_NOARCH_MSG.search(text):
                 pr_title = "MNT: Add noarch: python"
                 comment_msg = "made the recipe `noarch: python`"
                 to_close = ADD_NOARCH_MSG.search(title)
@@ -515,8 +487,11 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     pr_message += "\nFixes #{}".format(issue_num)
 
                 pr = repo.create_pull(
-                    pr_title, pr_message,
-                    default_branch, "{}:{}".format(forked_user, forked_repo_branch))
+                    title=pr_title,
+                    body=pr_message,
+                    base=default_branch,
+                    head="{}:{}".format(forked_user, forked_repo_branch),
+                )
 
                 message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
@@ -668,19 +643,23 @@ def add_user(repo, user):
 
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
+    yaml = YAML(typ="safe")
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
-        with open(recipe_path, "r") as fp:
-            lines = fp.readlines()
-            keep_lines = []
-            skip = 0
-            for line in lines:
-                if line.strip().startswith("extra:"):
-                    skip += 1
-                if skip > 0:
-                    keep_lines.append(line)
-            assert skip == 1, "team update failed due to > 1 'extra:' sections"
-        data = yaml.safe_load("\n".join(keep_lines))
+        with io.StringIO() as fp_out:
+            with open(recipe_path, "r") as fp_in:
+                extra_section = False
+                for line in fp_in:
+                    if line.strip().startswith("extra:"):
+                        if extra_section:
+                            raise ValueError(
+                                "team update failed due to > 1 'extra:' sections"
+                            )
+                        extra_section = True
+                    if extra_section:
+                        fp_out.writelines([line])
+            fp_out.seek(0)
+            data = yaml.load(fp_out)
         curr_users = data["extra"]["recipe-maintainers"]
         if user in curr_users:
             return False
@@ -888,24 +867,6 @@ def make_noarch(repo):
     )
     repo.index.commit("Add noarch:python option", author=author)
     return True
-
-
-def update_cb3(repo):
-    output = subprocess.check_output(
-        ["conda", "smithy", "update-cb3"],
-        cwd=repo.working_dir,
-    )
-    output = output.decode('utf-8')
-    repo.git.add(A=True)
-    if repo.is_dirty():
-        author = Actor(
-            "conda-forge-webservices[bot]",
-            "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
-        )
-        repo.index.commit("Update for conda-build 3", author=author)
-        return True, output
-    else:
-        return False, output
 
 
 def relint(owner, repo_name, pr_num):

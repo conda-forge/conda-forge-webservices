@@ -12,44 +12,36 @@ jobs:
     name: tests
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: 3.8
+          python-version: '3.10'
           channels: conda-forge,defaults
           channel-priority: strict
           show-channel-urls: true
           miniforge-version: latest
-          miniforge-variant: Mambaforge
-          use-mamba: true
 
       - name: generate token
         id: generate_token
-        uses: conda-forge/github-app-token@e3ab451d57e120b956292a1fa1d21fe4ba171c36
+        uses: actions/create-github-app-token@v1
         with:
-          app_id: ${{ secrets.CF_CURATOR_APP_ID }}
-          private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
 
       - name: configure conda
         shell: bash -l {0}
         run: |
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
-          mamba install --yes --quiet --file conda-requirements.txt
+          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           pip install --no-deps -e .
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
-
-      - name: lint
-        shell: bash -l {0}
-        run: |
-          # maybe later...
-          # black --check conda_forge_webservices
-          flake8 conda_forge_webservices
 
       - name: run test suite
         shell: bash -l {0}
@@ -71,17 +63,15 @@ jobs:
     concurrency:
       group: live-tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: 3.8
+          python-version: '3.10'
           channels: conda-forge,defaults
           channel-priority: strict
           show-channel-urls: true
           miniforge-version: latest
-          miniforge-variant: Mambaforge
-          use-mamba: true
 
       - name: generate token
         id: generate_token
@@ -95,7 +85,7 @@ jobs:
         run: |
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
-          mamba install --yes --quiet --file conda-requirements.txt
+          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
           git config --global pull.rebase false

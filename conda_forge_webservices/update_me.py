@@ -4,6 +4,7 @@ import json
 import tempfile
 import shutil
 import logging
+import github
 
 from git import Repo
 import requests
@@ -14,7 +15,7 @@ from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_me")
 
-PKGS = ["conda-smithy"]
+PKGS = ["conda-smithy", "conda", "conda-build", "conda-libmamba-solver", "mamba"]
 
 
 def _run_git_command(args):
@@ -22,14 +23,17 @@ def _run_git_command(args):
 
 
 def get_current_versions():
-    r = subprocess.run(["conda", "list"], capture_output=True)
-    out = r.stdout.decode("utf-8")
+    r = subprocess.run(
+        ["conda", "list", "--json"],
+        capture_output=True,
+        check=True,
+        encoding="utf-8",
+    )
+    out = json.loads(r.stdout)
     vers = {}
-    for line in out.split("\n"):
-        for pkg in PKGS:
-            if pkg in line:
-                items = line.split()
-                vers[pkg] = items[1]
+    for item in out:
+        if item["name"] in PKGS:
+            vers[item["name"]] = item["version"]
     return vers
 
 
@@ -40,8 +44,10 @@ def main():
     """
     # keep these imports here to protect the webservice from memory errors
     # due to conda
-    from conda_build.conda_interface import (
-        VersionOrder, MatchSpec, get_index, Resolve)
+    from conda.core.index import get_index
+    from conda.models.match_spec import MatchSpec
+    from conda.models.version import VersionOrder
+    from conda.resolve import Resolve
 
     r = requests.get(
         "https://conda-forge.herokuapp.com/conda-webservice-update/versions")
@@ -95,3 +101,11 @@ def main():
         finally:
             if tmpdir is not None:
                 shutil.rmtree(tmpdir)
+
+        try:
+            gh = github.Github(get_app_token_for_webservices_only())
+            repo = gh.get_repo("conda-forge/webservices-dispatch-action")
+            workflow = repo.get_workflow("tests.yml")
+            workflow.create_dispatch("main")
+        except Exception as e:
+            print(f"workflow_dispatch for webservices-dispatch-action failed: {e}")
