@@ -643,7 +643,7 @@ def add_user(repo, user):
 
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
-    yaml = YAML()
+    yaml = YAML(typ="safe")
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
         with io.StringIO() as fp_out:
