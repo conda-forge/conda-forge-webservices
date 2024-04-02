@@ -36,7 +36,7 @@ def get_handles(members):
 
 class DummyMeta(object):
     def __init__(self, meta_yaml):
-        _yml = YAML(typ='jinja2')
+        _yml = YAML(typ='safe')
         _yml.indent(mapping=2, sequence=4, offset=2)
         _yml.width = 160
         _yml.allow_duplicate_keys = True
