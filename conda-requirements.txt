@@ -14,7 +14,6 @@ parameterized
 pygithub>=2.2.0  # for GH App endpoints
 python=3.10.*
 pytz
-pyyaml
 requests
 ruamel.yaml>=0.16
 ruamel.yaml.jinja2

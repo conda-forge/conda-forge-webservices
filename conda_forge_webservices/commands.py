@@ -1,5 +1,6 @@
 from git import GitCommandError, Repo, Actor
 import github
+import io
 import os
 import re
 import time
@@ -9,7 +10,6 @@ from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
 import logging
-import yaml
 
 # from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
@@ -643,19 +643,23 @@ def add_user(repo, user):
 
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
+    yaml = YAML(typ="safe")
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
-        with open(recipe_path, "r") as fp:
-            lines = fp.readlines()
-            keep_lines = []
-            skip = 0
-            for line in lines:
-                if line.strip().startswith("extra:"):
-                    skip += 1
-                if skip > 0:
-                    keep_lines.append(line)
-            assert skip == 1, "team update failed due to > 1 'extra:' sections"
-        data = yaml.safe_load("\n".join(keep_lines))
+        with io.StringIO() as fp_out:
+            with open(recipe_path, "r") as fp_in:
+                extra_section = False
+                for line in fp_in:
+                    if line.strip().startswith("extra:"):
+                        if extra_section:
+                            raise ValueError(
+                                "team update failed due to > 1 'extra:' sections"
+                            )
+                        extra_section = True
+                    if extra_section:
+                        fp_out.writelines([line])
+            fp_out.seek(0)
+            data = yaml.load(fp_out)
         curr_users = data["extra"]["recipe-maintainers"]
         if user in curr_users:
             return False
