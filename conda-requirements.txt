@@ -17,7 +17,6 @@ pynacl
 pytest
 python=3.10.*
 pytz
-pyyaml
 requests
 ruamel.yaml>=0.16
 ruamel.yaml.jinja2
