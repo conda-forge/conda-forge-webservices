@@ -773,7 +773,7 @@ def add_bot_automerge(repo):
 
 
 def remove_bot_automerge(repo):
-    yaml = YAML(type="safe")
+    yaml = YAML(typ="safe")
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
