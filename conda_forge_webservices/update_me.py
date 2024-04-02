@@ -98,10 +98,15 @@ def main():
             # keep a record around
             pth = os.path.join(clone_dir, "pkg_versions.json")
             with open(pth, "w") as fp:
-                json.dump(final_install, fp)
+                json.dump(final_install, fp, indent=2)
+                fp.write("\n")
             repo.index.add(pth)
 
-            msg_vers = ", ".join(["{}={}".format(k, v) for k, v in to_install.items()])
+            msg_vers = (
+                "Redeploy for package updates:\n\n" +
+                "\n".join(["* `{}={}`".format(k, v) for k, v in to_install.items()])
+            )
+
             repo.index.commit("redeploy for '%s'" % msg_vers)
             repo.git.push("origin", "main")
 
