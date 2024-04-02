@@ -32,7 +32,7 @@ jobs:
         run: |
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
-          conda install --yes --quiet --file conda-requirements.txt
+          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
