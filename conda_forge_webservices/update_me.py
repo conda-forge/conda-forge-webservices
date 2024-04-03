@@ -114,7 +114,7 @@ def update(repo_name, pkgs):
                 )
             else:
                 (k, v), = to_install.items()
-                msg = f"Redeploy for package update: {k}={v}"
+                msg = f"Redeploy for package update: `{k}={v}`"
 
             repo.index.commit(msg)
             repo.git.push("origin", "main")
