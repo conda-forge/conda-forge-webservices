@@ -46,7 +46,7 @@ if __name__ == "__main__":
             )
 
             msg = with_action_url(
-                "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** "
+                "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** "
                 f"removing token for {feedstock_name}"
             )
             subprocess.check_call(
