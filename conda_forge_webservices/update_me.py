@@ -107,11 +107,16 @@ def update(repo_name, pkgs):
                 fp.write("\n")
             repo.index.add(pth)
 
-            msg_vers = (
-                "\n".join(["* `{}={}`".format(k, v) for k, v in to_install.items()])
-            )
+            if len(to_install) > 1:
+                msg = (
+                    "Redeploy for package updates\n\n" +
+                    "\n".join(["* `{}={}`".format(k, v) for k, v in to_install.items()])
+                )
+            else:
+                (k, v), = to_install.items()
+                msg = f"Redeploy for package update: {k}={v}"
 
-            repo.index.commit("Redeploy for '%s'" % msg_vers)
+            repo.index.commit(msg)
             repo.git.push("origin", "main")
 
         finally:
