@@ -67,7 +67,7 @@ def _clone_and_remove(repo, file_to_remove):
                     _run_git_command(
                         "commit",
                         "-m",
-                        with_action_url(f"'removed {file_to_remove} for testing'"),
+                        "'%s'" % with_action_url(f"removed {file_to_remove} for testing"),
                     )
                     _run_git_command("pull", "--rebase", "--commit")
                     _run_git_command("push")
