@@ -55,7 +55,7 @@ jobs:
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}"
+          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
 
 
   live-tests:
@@ -109,4 +109,4 @@ jobs:
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }}"
+          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
