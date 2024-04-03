@@ -4,7 +4,7 @@ conda
 conda-build
 conda-forge-metadata>=0.4.1
 conda-forge-pinning
-conda-smithy>=3.34.1  # this pin is for jinja2 sandboxing
+conda-smithy>=3.34.1  # this pin is for jinja2 sandboxes
 cryptography>=39
 python-dateutil
 git
