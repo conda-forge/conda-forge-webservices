@@ -4,7 +4,6 @@ import json
 import tempfile
 import shutil
 import logging
-import github
 
 from git import Repo
 import requests
@@ -15,7 +14,11 @@ from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_me")
 
-PKGS = [
+WEBSERVICE_PKGS = [
+    "conda-smithy",
+]
+
+DOCKER_IMAGE_PKGS = [
     "anaconda-client",
     "conda-smithy",
     "conda",
@@ -39,16 +42,12 @@ def get_current_versions():
     out = json.loads(r.stdout)
     vers = {}
     for item in out:
-        if item["name"] in PKGS:
+        if item["name"] in WEBSERVICE_PKGS:
             vers[item["name"]] = item["version"]
     return vers
 
 
-def main():
-    """Get current versions from the heroku app and update if they are old.
-
-    Note this script runs on GHA, not on the heroku app.
-    """
+def update(repo_name, pkgs):
     # keep these imports here to protect the webservice from memory errors
     # due to conda
     from conda.core.index import get_index
@@ -56,8 +55,15 @@ def main():
     from conda.models.version import VersionOrder
     from conda.resolve import Resolve
 
-    r = requests.get(
-        "https://conda-forge.herokuapp.com/conda-webservice-update/versions")
+    if repo_name == "conda-forge-webservices":
+        url = "https://conda-forge.herokuapp.com/conda-webservice-update/versions"
+    else:
+        # We don't have a way to know which versions were actually built into the
+        # docker image. Assume that the latest ones were installed.
+        url = (f"https://raw.githubusercontent.com/conda-forge/{repo_name}"
+               "/main/pkg_versions.json")
+
+    r = requests.get(url)
     r.raise_for_status()
     installed_vers = r.json()
 
@@ -67,7 +73,7 @@ def main():
     to_install = {}
     final_install = {}
 
-    for pkg in PKGS:
+    for pkg in pkgs:
         available_versions = [
             p.version for p in r.get_pkgs(MatchSpec(pkg))
             if "conda-forge" in str(p.channel)
@@ -85,9 +91,8 @@ def main():
         tmpdir = None
         try:
             gh_token = get_app_token_for_webservices_only()
-            tmpdir = tempfile.mkdtemp('_recipe')
+            tmpdir = tempfile.mkdtemp('_cf_repo')
 
-            repo_name = "conda-forge-webservices"
             clone_dir = os.path.join(tmpdir, repo_name)
             url = "https://x-access-token:{}@github.com/conda-forge/{}.git".format(
                 gh_token, repo_name
@@ -103,21 +108,21 @@ def main():
             repo.index.add(pth)
 
             msg_vers = (
-                "Redeploy for package updates:\n\n" +
                 "\n".join(["* `{}={}`".format(k, v) for k, v in to_install.items()])
             )
 
-            repo.index.commit("redeploy for '%s'" % msg_vers)
+            repo.index.commit("Redeploy for '%s'" % msg_vers)
             repo.git.push("origin", "main")
 
         finally:
             if tmpdir is not None:
                 shutil.rmtree(tmpdir)
 
-        try:
-            gh = github.Github(get_app_token_for_webservices_only())
-            repo = gh.get_repo("conda-forge/webservices-dispatch-action")
-            workflow = repo.get_workflow("tests.yml")
-            workflow.create_dispatch("main")
-        except Exception as e:
-            print(f"workflow_dispatch for webservices-dispatch-action failed: {e}")
+
+def main():
+    """Get current versions from the heroku app and update if they are old.
+
+    Note this script runs on GHA, not on the heroku app.
+    """
+    update("conda-forge-webservices", WEBSERVICE_PKGS)
+    update("webservices-dispatch-action", DOCKER_IMAGE_PKGS)
