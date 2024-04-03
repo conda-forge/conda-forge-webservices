@@ -4,6 +4,8 @@ import os
 
 import requests
 
+from conda_forge_webservices.utils import with_action_url
+
 
 def feedstock_token_exists(organization, name):
     r = requests.get(
@@ -43,10 +45,12 @@ if __name__ == "__main__":
                 shell=True,
             )
 
+            msg = with_action_url(
+                "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** "
+                f"removing token for {feedstock_name}"
+            )
             subprocess.check_call(
-                "git commit --allow-empty -am "
-                "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** removing "
-                "token for %s'" % feedstock_name,
+                f"git commit --allow-empty -am '{msg}'",
                 cwd=os.path.join(tmpdir, "feedstock-tokens"),
                 shell=True,
             )

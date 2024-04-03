@@ -14,7 +14,7 @@ import logging
 # from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
-from .utils import ALLOWED_CMD_NON_FEEDSTOCKS
+from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
 from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 import textwrap
 
@@ -730,7 +730,10 @@ def add_user(repo, user):
             )
             # do not @-mention users in commit messages - it causes lots of
             # extra notifications
-            repo.index.commit("[ci skip] added user %s" % user, author=author)
+            repo.index.commit(
+                with_action_url(f"[ci skip] added user {user}"),
+                author=author,
+            )
 
             return True
     else:
@@ -768,7 +771,9 @@ def add_bot_automerge(repo):
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
     repo.index.commit(
-        "[ci skip] [cf admin skip] ***NO_CI*** added bot automerge", author=author)
+        with_action_url("[ci skip] [cf admin skip] ***NO_CI*** added bot automerge"),
+        author=author,
+    )
     return True
 
 
@@ -801,7 +806,9 @@ def remove_bot_automerge(repo):
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
     repo.index.commit(
-        "[ci skip] [cf admin skip] ***NO_CI*** removed bot automerge", author=author)
+        with_action_url("[ci skip] [cf admin skip] ***NO_CI*** removed bot automerge"),
+        author=author,
+    )
     return True
 
 
@@ -820,7 +827,7 @@ def make_rerender_dummy_commit(repo):
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
     repo.index.commit(
-        "dummy commit for rerendering",
+        with_action_url("dummy commit for rerendering"),
         author=author,
     )
     return True
@@ -865,7 +872,7 @@ def make_noarch(repo):
         "conda-forge-webservices[bot]",
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
-    repo.index.commit("Add noarch:python option", author=author)
+    repo.index.commit(with_action_url("Add noarch:python option"), author=author)
     return True
 
 

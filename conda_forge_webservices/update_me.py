@@ -9,6 +9,7 @@ from git import Repo
 import requests
 
 from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+from conda_forge_webservices.utils import with_action_url
 
 # from .utils import tmp_directory
 
@@ -101,7 +102,7 @@ def update(repo_name, pkgs):
                 (k, v), = to_install.items()
                 msg = f"Redeploy for package update: `{k}={v}`"
 
-            repo.index.commit(msg)
+            repo.index.commit(with_action_url(msg))
             repo.git.push("origin", "main")
 
         finally:
