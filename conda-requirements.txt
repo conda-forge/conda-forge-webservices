@@ -4,7 +4,7 @@ conda
 conda-build
 conda-forge-metadata>=0.4.1
 conda-forge-pinning
-conda-smithy>=3.7.6  # this pin is for bot automerge and maint. team bug fixes
+conda-smithy>=3.34.1  # this pin is for jinja2 sandboxing
 cryptography>=39
 python-dateutil
 git
