@@ -35,7 +35,7 @@ def test_github_app_tokens_for_webservices(token_repo):
         msg = with_action_url("[ci skip] test webservices app token can commit")
         subprocess.run(
             f"cd {tmpdir}/{repo} && "
-            f"git commit -m '{msg}'"
+            f"git commit -m '{msg}' "
             "--allow-empty",
             shell=True,
             check=True,
