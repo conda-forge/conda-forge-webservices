@@ -32,21 +32,6 @@ def _run_git_command(args):
     subprocess.run(['git'] + args, check=True)
 
 
-def get_current_versions():
-    r = subprocess.run(
-        ["conda", "list", "--json"],
-        capture_output=True,
-        check=True,
-        encoding="utf-8",
-    )
-    out = json.loads(r.stdout)
-    vers = {}
-    for item in out:
-        if item["name"] in WEBSERVICE_PKGS:
-            vers[item["name"]] = item["version"]
-    return vers
-
-
 def update(repo_name, pkgs):
     # keep these imports here to protect the webservice from memory errors
     # due to conda

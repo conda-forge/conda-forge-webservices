@@ -1,4 +1,5 @@
 import os
+import subprocess
 import asyncio
 import tornado.escape
 import tornado.httpserver
@@ -21,7 +22,7 @@ import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
-from conda_forge_webservices.update_me import get_current_versions
+from conda_forge_webservices.update_me import WEBSERVICE_PKGS
 from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
     copy_feedstock_outputs,
@@ -479,9 +480,24 @@ class CommandHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
+def _get_current_versions():
+    r = subprocess.run(
+        ["conda", "list", "--json"],
+        capture_output=True,
+        check=True,
+        encoding="utf-8",
+    )
+    out = json.loads(r.stdout)
+    vers = {}
+    for item in out:
+        if item["name"] in WEBSERVICE_PKGS:
+            vers[item["name"]] = item["version"]
+    return vers
+
+
 class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
     async def get(self):
-        self.write(json.dumps(get_current_versions()))
+        self.write(json.dumps(_get_current_versions()))
 
 
 def _repo_exists(feedstock):
