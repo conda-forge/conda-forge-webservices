@@ -14,6 +14,7 @@ import lxml.html
 import cachetools
 
 from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+from conda_forge_webservices.utils import with_action_url
 
 LOGGER = logging.getLogger("conda_forge_webservices.status_monitor")
 
@@ -388,12 +389,13 @@ def cache_status_data():
 
             if "nothing to commit" not in status:
                 LOGGER.info("    making status data commit")
-                subprocess.run(
-                    "cd %s && git commit -m '[ci skip] "
+                msg = with_action_url(
+                    "[ci skip] "
                     "[skip ci] [cf admin skip] ***NO_CI*** "
-                    "status data update %s'" % (
-                        pth, datetime.datetime.utcnow().isoformat()
-                    ),
+                    f"status data update {datetime.datetime.utcnow().isoformat()} "
+                )
+                subprocess.run(
+                    f"cd {pth} && git commit -m '{msg}'",
                     shell=True,
                     check=True,
                     capture_output=True,

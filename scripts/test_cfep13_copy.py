@@ -31,7 +31,7 @@ import requests
 from binstar_client import BinstarError
 import binstar_client.errors
 
-from conda_forge_webservices.utils import pushd
+from conda_forge_webservices.utils import pushd, with_action_url
 from conda_forge_webservices.feedstock_outputs import (
     _get_ac_api_prod,
     _get_ac_api_staging
@@ -75,10 +75,11 @@ def _clone_and_remove(repo, file_to_remove):
                 if os.path.exists(file_to_remove):
                     print("    repo %s: removed file %s" % (repo, file_to_remove))
                     _run_git_command("rm", file_to_remove)
+                    msg = with_action_url(f"removed {file_to_remove} for testing")
                     _run_git_command(
                         "commit",
                         "-m",
-                        "'removed %s for testing'" % file_to_remove,
+                        f"'{msg}'",
                     )
                     _run_git_command("pull", "--rebase", "--commit")
                     _run_git_command("push")
