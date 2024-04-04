@@ -75,10 +75,11 @@ def _clone_and_remove(repo, file_to_remove):
                 if os.path.exists(file_to_remove):
                     print("    repo %s: removed file %s" % (repo, file_to_remove))
                     _run_git_command("rm", file_to_remove)
+                    msg = with_action_url(f"removed {file_to_remove} for testing")
                     _run_git_command(
                         "commit",
                         "-m",
-                        "'%s'" % with_action_url(f"removed {file_to_remove} for testing"),
+                        f"'{msg}'",
                     )
                     _run_git_command("pull", "--rebase", "--commit")
                     _run_git_command("push")
