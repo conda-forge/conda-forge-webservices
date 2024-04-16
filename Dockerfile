@@ -31,8 +31,8 @@ LABEL maintainer="conda-forge core (@conda-forge/core)"
 
 ENV LANG en_US.UTF-8
 
-ARG CONDA_INSTALLER_VERSION="23.11.0-0"
-ARG CONDA_INSTALLER_SHA256="73576b96409ed38a7ca596bece058e8c77c6ef3eab42af7cfdf2ae975e8f3928"
+ARG CONDA_INSTALLER_VERSION="24.3.0-0"
+ARG CONDA_INSTALLER_SHA256="23367676b610de826f50f7ddc91139a816d4b59bd4c69cc9b6082d9b2e7fe8a3"
 ARG CONDA_DIR="/opt/conda"
 
 ENV PATH="$CONDA_DIR/bin:$PATH"
@@ -64,8 +64,8 @@ RUN echo "**** install dev packages ****" && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
     conda config --set solver libmamba && \
-    mamba update --all --quiet && \
-    mamba install --quiet --file conda-requirements.txt && \
+    conda update --all --quiet && \
+    conda install --quiet --file conda-requirements.txt && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
     \
