@@ -862,7 +862,7 @@ def make_noarch(repo):
         for line in lines:
             if build_line:
                 spaces = len(line) - len(line.lstrip())
-                line = "{}noarch: python\n{}".format(" "*spaces, line)
+                line = "{}noarch: python\n{}".format(" " * spaces, line)
             build_line = False
             if line.rstrip() == 'build:':
                 build_line = True

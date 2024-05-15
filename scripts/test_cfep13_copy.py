@@ -198,8 +198,6 @@ def _compute_local_info(dist, croot, hash_type):
 
     md5 = h.hexdigest()
 
-    _, name, version, _ = _split_pkg(dist)
-
     return {dist: md5}
 
 

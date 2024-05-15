@@ -53,7 +53,7 @@ WEBS_STATUS_DATA = {
     'updated_at': None,
 }
 START_TIME = datetime.datetime.fromisoformat("2020-01-01T00:00:00+00:00")
-TIME_INTERVAL = 60*5  # five minutes
+TIME_INTERVAL = 60 * 5  # five minutes
 
 
 def _make_time_key(uptime):
@@ -141,7 +141,7 @@ def _make_report_data(iso=False):
     report = {}
     for key in APP_DATA:
         rates = {}
-        for k in range(know, know-96, -1):
+        for k in range(know, know - 96, -1):
             tstr = _make_est_from_time_key(k, iso=iso)
             rates[tstr] = APP_DATA[key]['rates'].get(k, 0)
 
