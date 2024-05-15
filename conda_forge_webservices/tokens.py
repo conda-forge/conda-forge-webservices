@@ -72,7 +72,7 @@ def get_app_token_for_webservices_only(full_name=None, fallback_env_token=None):
         LOGGER.info("===================================================")
         LOGGER.info(
             "app token exists - timeout %sm",
-            (APP_TOKEN_RESET_TIME - now)/60,
+            (APP_TOKEN_RESET_TIME - now) / 60,
         )
         LOGGER.info("===================================================")
 
