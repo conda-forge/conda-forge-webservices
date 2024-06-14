@@ -44,7 +44,9 @@ class Test_compute_lint_message(unittest.TestCase):
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
         self.assertTrue(lint)
         self.assertTrue(
-            "found it was in an excellent condition." in lint['message'])
+            "found it was in an excellent condition." in lint['message'],
+            lint["message"],
+        )
 
     def test_ok_recipe_above_good_recipe(self):
         expected_message = textwrap.dedent("""
