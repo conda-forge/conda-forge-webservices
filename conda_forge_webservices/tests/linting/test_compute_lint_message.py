@@ -187,8 +187,8 @@ class Test_compute_lint_message(unittest.TestCase):
 
     def test_closed_pr(self):
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 52)
-        self.assertFalse(lint, lint["message"])
-        self.assertEqual(lint, {}, lint["message"])
+        self.assertFalse(lint, lint)
+        self.assertEqual(lint, {}, lint)
 
 
 if __name__ == '__main__':
