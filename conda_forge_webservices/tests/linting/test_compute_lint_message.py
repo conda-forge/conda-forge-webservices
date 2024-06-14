@@ -16,6 +16,8 @@ def tmp_directory():
 
 
 class Test_compute_lint_message(unittest.TestCase):
+    maxDiff = None
+
     def test_skip_ci_recipe(self):
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 58)
         self.assertFalse(lint)
