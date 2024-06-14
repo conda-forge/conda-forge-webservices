@@ -16,6 +16,8 @@ def tmp_directory():
 
 
 class Test_compute_lint_message(unittest.TestCase):
+    maxDiff = None
+
     def test_skip_ci_recipe(self):
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 58)
         self.assertFalse(lint)
@@ -42,9 +44,11 @@ class Test_compute_lint_message(unittest.TestCase):
         """  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
-        self.assertTrue(lint)
+        self.assertTrue(lint, lint["message"])
         self.assertTrue(
-            "found it was in an excellent condition." in lint['message'])
+            "found it was in an excellent condition." in lint['message'],
+            lint["message"],
+        )
 
     def test_ok_recipe_above_good_recipe(self):
         expected_message = textwrap.dedent("""
@@ -101,7 +105,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 56)
-        self.assertTrue(lint)
+        self.assertTrue(lint, lint["message"])
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_conflict_2_ok_recipe(self):
@@ -115,7 +119,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 57)
-        self.assertTrue(lint)
+        self.assertTrue(lint, lint["message"])
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_bad_recipe(self):
@@ -141,11 +145,13 @@ class Test_compute_lint_message(unittest.TestCase):
         """  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 17)
-        self.assertTrue(lint)
-        self.assertTrue("found some lint" in lint['message'])
+        self.assertTrue(lint, lint["message"])
+        self.assertTrue("found some lint" in lint['message'], lint["message"])
         self.assertTrue(
-            "The home item is expected in the about section." in lint['message'])
-        self.assertTrue("For **recipes/bad_recipe**:" in lint["message"])
+            "The home item is expected in the about section." in lint['message'],
+            lint["message"])
+        self.assertTrue(
+            "For **recipes/bad_recipe**:" in lint["message"], lint["message"])
 
     def test_mixed_recipe(self):
         # a message similar to this comes out
@@ -164,9 +170,10 @@ class Test_compute_lint_message(unittest.TestCase):
         """  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 217)
-        self.assertTrue(lint)
+        self.assertTrue(lint, lint["message"])
         self.assertTrue(
-            "I do have some suggestions for making it better though" in lint['message'])
+            "I do have some suggestions for making it better though" in lint['message']
+            , lint["message"])
 
     def test_no_recipe(self):
         expected_message = textwrap.dedent("""
@@ -177,13 +184,13 @@ class Test_compute_lint_message(unittest.TestCase):
         """)  # noqa
 
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 523)
-        self.assertTrue(lint)
+        self.assertTrue(lint, lint["message"])
         self.assertMultiLineEqual(expected_message, lint['message'])
 
     def test_closed_pr(self):
         lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 52)
-        self.assertFalse(lint)
-        self.assertEqual(lint, {})
+        self.assertFalse(lint, lint)
+        self.assertEqual(lint, {}, lint)
 
 
 if __name__ == '__main__':
