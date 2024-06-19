@@ -6,11 +6,14 @@ try:
 except ImportError:
     import mock
 
+import github
 from requests.exceptions import RequestException
 
 from conda_forge_webservices.commands import (
     pr_detailed_comment as _pr_detailed_comment,
-    issue_comment as _issue_comment)
+    issue_comment as _issue_comment,
+    _find_reactable_comment,
+)
 
 
 def pr_detailed_comment(comment, org_name='conda-forge',
@@ -368,6 +371,44 @@ class TestCommands(unittest.TestCase):
             'conda-forge/core for further assistance'
             in pull_create_issue.call_args[0][0]
         )
+
+    def test_find_reactable_comment(self):
+        """
+        In this PR there are several comments that we could have reacted to:
+        https://github.com/conda-forge/conda-pypi-feedstock/pull/5
+
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#issue-2362214690
+          This is the PR description.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#issuecomment-2178557279
+          A 'normal' comment in the PR discussion.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#pullrequestreview-2128210901
+          The summary of a submitted review (e.g. "Approved").
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646160070
+          A comment that is part of a submitted review.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646163741
+          A single-comment review (comment on a diff line).
+
+        In this issue we have:
+        https://github.com/conda-forge/conda-pypi-feedstock/issues/4
+
+        - https://github.com/conda-forge/conda-pypi-feedstock/issues/4#issue-2362214456
+          The issue description
+        - https://github.com/conda-forge/conda-pypi-feedstock/issues/4#issuecomment-2178549014
+          A comment in the discussion
+        """
+        gh = github.Github()
+        repo = gh.get_repo("conda-forge/conda-pypi-feedstock")
+        for (number, comment_id, review_id) in (
+            (5, -1, None),  # PR description
+            (5, 2178557279, None),  # Normal PR comment
+            (5, None, 2128210901),  # Submitted review
+            (5, None, 1646160070),  # Comment in a submitted review
+            (5, None, 1646163741),  # Single comment review
+            (4, -1, None),  # Issue description
+            (4, 2178549014, None),  # Issue comment
+        ):
+            comment = _find_reactable_comment(repo, number, comment_id, review_id)
+            assert hasattr(comment, "create_reaction")
 
 
 if __name__ == '__main__':
