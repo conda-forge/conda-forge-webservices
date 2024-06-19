@@ -44,7 +44,7 @@ UPDATE_VERSION = re.compile(
 
 
 def add_reaction(
-    comment_id, reaction, gh_repo=None, org_name=None, repo_name=None, errors_ok=False
+    comment_id, reaction, gh_repo=None, org_name=None, repo_name=None, errors_ok=True
 ):
     if comment_id is None:
         return
