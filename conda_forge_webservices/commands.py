@@ -70,7 +70,7 @@ def _find_reactable_comment(
                 if hasattr(comment, "create_reaction"):
                     return comment
             except Exception as inner_exc:
-                LOGGER.debug(
+                LOGGER.info(
                     "Cannot find PR/issue comment with %s. Trying again...",
                     comment_type,
                     exc_info=inner_exc,
