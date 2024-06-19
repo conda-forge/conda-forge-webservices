@@ -94,10 +94,9 @@ class TestBucketHandler(TestHandlerBase):
                 return_value=None)
     @mock.patch('conda_forge_webservices.commands.pr_comment', return_value=None)
     @mock.patch('conda_forge_webservices.commands.issue_comment', return_value=None)
+    @mock.patch('conda_forge_webservices.commands.add_reaction', return_value=None)
     @mock.patch('conda_forge_webservices.update_teams.update_team', return_value=None)
     @mock.patch('conda_forge_webservices.webapp.print_rate_limiting_info',
-                return_value=None)
-    @mock.patch('conda_forge_webservices.webapp.add_reaction',
                 return_value=None)
     def test_accept_repos(self, *methods):
         for hook, accepted_repos, accepted_events in [
@@ -139,11 +138,13 @@ class TestBucketHandler(TestHandlerBase):
                                 'ref': 'ref',
                             },
                             'body': 'body',
+                            'id': 56767,
                         },
                         'issue': {
                             'number': 16,
                             'body': 'body',
                             'title': 'title',
+                            'id': 56767,
                         },
                         'action': 'opened',
                         'ref': 'refs/heads/' + __branch,
