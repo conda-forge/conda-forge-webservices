@@ -43,7 +43,39 @@ UPDATE_VERSION = re.compile(
 )
 
 
-def pr_comment(org_name, repo_name, issue_num, comment):
+def add_reaction(
+    comment_id, reaction, gh_repo=None, org_name=None, repo_name=None, errors_ok=True
+):
+    if comment_id is None:
+        return
+    assert reaction in (
+        "+1",
+        "-1",
+        "confused",
+        "eyes",
+        "heart",
+        "hooray",
+        "laugh",
+        "rocket",
+    )
+    if gh_repo is None and org_name is None and repo_name is None:
+        raise ValueError("Must provide either gh_repo, or org_name and repo_name")
+    try:
+        if gh_repo:
+            repo = gh_repo
+        else:
+            gh = github.Github(get_app_token_for_webservices_only())
+            repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        comment = repo.get_comment(comment_id)
+        comment.create_reaction(reaction)
+    except Exception as exc:
+        if errors_ok:
+            LOGGER.info("add_reaction failed", exc_info=exc)
+        else:
+            raise exc
+
+
+def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
     if not COMMAND_PREFIX.search(comment):
         return
     gh = github.Github(get_app_token_for_webservices_only())
@@ -57,6 +89,7 @@ def pr_comment(org_name, repo_name, issue_num, comment):
         pr.head.ref,
         issue_num,
         comment,
+        comment_id,
     )
 
 
@@ -68,6 +101,7 @@ def pr_detailed_comment(
     pr_branch,
     pr_num,
     comment,
+    comment_id=None,
 ):
     is_allowed_cmd = (repo_name in ALLOWED_CMD_NON_FEEDSTOCKS)
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
@@ -94,6 +128,8 @@ def pr_detailed_comment(
     if RESTART_CI.search(comment):
         gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        if comment_id is not None:
+            add_reaction(comment_id, "rocket", gh_repo=repo)
         restart_pull_request_ci(repo, int(pr_num))
 
     if PING_TEAM.search(comment):
@@ -113,6 +149,8 @@ def pr_detailed_comment(
 
         gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        if comment_id is not None:
+            add_reaction(comment_id, "rocket", gh_repo=repo)
         pull = repo.get_pull(int(pr_num))
         message = textwrap.dedent("""
             Hi! This is the friendly automated conda-forge-webservice.
@@ -124,6 +162,8 @@ def pr_detailed_comment(
     if not is_allowed_cmd and RERUN_BOT.search(comment):
         gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        if comment_id is not None:
+            add_reaction(comment_id, "rocket", gh_repo=repo)
         add_bot_rerun_label(repo, pr_num)
 
     #################################################
@@ -138,6 +178,9 @@ def pr_detailed_comment(
 
     if not any(command.search(comment) for command in pr_commands):
         return
+
+    if comment_id is not None:
+        add_reaction(comment_id, "rocket", org_name=org_name, repo_name=repo_name)
 
     tmp_dir = None
     try:
@@ -235,7 +278,7 @@ def pr_detailed_comment(
             shutil.rmtree(tmp_dir)
 
 
-def issue_comment(org_name, repo_name, issue_num, title, comment):
+def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=None):
     if not repo_name.endswith("-feedstock"):
         return
     if comment is None:
@@ -281,6 +324,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
         .get_repo("{}/{}".format(org_name, repo_name))
     )
     app_issue = app_repo.get_issue(int(issue_num))
+
+    if comment_id is not None:
+        add_reaction(comment_id, "rocket", gh_repo=app_repo)
 
     if UPDATE_TEAM_MSG.search(text):
         update_team(org_name, repo_name)

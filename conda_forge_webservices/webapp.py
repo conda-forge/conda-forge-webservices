@@ -333,6 +333,10 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
 
 class CommandHookHandler(tornado.web.RequestHandler):
     async def post(self):
+        """
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads
+        for the event payloads.
+        """
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
 
@@ -374,18 +378,22 @@ class CommandHookHandler(tornado.web.RequestHandler):
             pr_branch = body['pull_request']['head']['ref']
             pr_num = body['pull_request']['number']
             comment = None
+            comment_id = None
             if event == 'pull_request_review' and action != 'dismissed':
                 comment = body['review']['body']
+                comment_id = body['review']['id']
             elif (
                 event == 'pull_request' and
                 action in ['opened', 'edited', 'reopened']
             ):
                 comment = body['pull_request']['body']
+                comment_id = body['pull_request']['id']
             elif (
                 event == 'pull_request_review_comment' and
                 action != 'deleted'
             ):
                 comment = body['comment']['body']
+                comment_id = body['comment']['id']
 
             if comment:
                 LOGGER.info("")
@@ -403,6 +411,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     pr_branch,
                     pr_num,
                     comment,
+                    comment_id,
                 )
                 print_rate_limiting_info()
                 return
@@ -430,6 +439,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 pull_request = True
             if pull_request and action != 'deleted':
                 comment = body['comment']['body']
+                comment_id = body['comment']['id']
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info("PR command: %s", body['repository']['full_name'])
@@ -442,6 +452,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     repo_name,
                     issue_num,
                     comment,
+                    comment_id,
                 )
                 print_rate_limiting_info()
                 return
@@ -453,8 +464,10 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 title = body['issue']['title'] if event == "issues" else ""
                 if 'comment' in body:
                     comment = body['comment']['body']
+                    comment_id = body['comment']['id']
                 else:
                     comment = body['issue']['body']
+                    comment_id = body['issue']['id']
 
                 LOGGER.info("")
                 LOGGER.info("===================================================")
@@ -469,6 +482,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     issue_num,
                     title,
                     comment,
+                    comment_id,
                 )
                 print_rate_limiting_info()
                 return
