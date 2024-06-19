@@ -379,21 +379,22 @@ class CommandHookHandler(tornado.web.RequestHandler):
             pr_num = body['pull_request']['number']
             comment = None
             comment_id = None
+            review_id = None
             if event == 'pull_request_review' and action != 'dismissed':
                 comment = body['review']['body']
-                comment_id = body['review']['id']
+                review_id = body['review']['id']
             elif (
                 event == 'pull_request' and
                 action in ['opened', 'edited', 'reopened']
             ):
                 comment = body['pull_request']['body']
-                comment_id = body['pull_request']['id']
+                comment_id = -1  # will react on description for issue/PR #pr_num
             elif (
                 event == 'pull_request_review_comment' and
                 action != 'deleted'
             ):
                 comment = body['comment']['body']
-                comment_id = body['comment']['id']
+                review_id = body['comment']['id']
 
             if comment:
                 LOGGER.info("")
@@ -412,6 +413,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     pr_num,
                     comment,
                     comment_id,
+                    review_id
                 )
                 print_rate_limiting_info()
                 return
@@ -467,7 +469,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     comment_id = body['comment']['id']
                 else:
                     comment = body['issue']['body']
-                    comment_id = body['issue']['id']
+                    comment_id = -1  # will react to issue/PR description #issue_num
 
                 LOGGER.info("")
                 LOGGER.info("===================================================")
