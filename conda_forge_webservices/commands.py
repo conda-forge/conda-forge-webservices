@@ -70,7 +70,7 @@ def _find_reactable_comment(
                 if hasattr(comment, "create_reaction"):
                     return comment
             except Exception as inner_exc:
-                LOGGER.debug(
+                LOGGER.info(
                     "Cannot find PR/issue comment with %s. Trying again...",
                     comment_type,
                     exc_info=inner_exc,
@@ -105,7 +105,19 @@ def add_reaction(
     )
 
     try:
-        comment = _find_reactable_comment(repo, issue_number, comment_id, review_id)
+        for i in range(NUM_GH_API_TRIES):
+            try:
+                comment = _find_reactable_comment(
+                    repo, issue_number, comment_id, review_id
+                )
+                break
+            except RuntimeError as exc:
+                # There seems to be a race condition where we get the payload before the
+                # API can return the actual comment, so let's retry for a tiny bit
+                if i < 4:
+                    time.sleep(0.050 * 2**i)
+                    continue
+                raise exc
         comment.create_reaction(reaction)
     except Exception as exc:
         if errors_ok:
@@ -220,7 +232,7 @@ def pr_detailed_comment(
         return
 
     if comment_id is not None or review_id is not None:
-        repo = github.Github(GH_TOKEN).get_repo("{}/{}".format(org_name, repo_name)),
+        repo = github.Github(GH_TOKEN).get_repo("{}/{}".format(org_name, repo_name))
         add_reaction("rocket", repo, pr_num, comment_id, review_id)
 
     tmp_dir = None

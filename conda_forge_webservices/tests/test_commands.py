@@ -385,6 +385,8 @@ class TestCommands(unittest.TestCase):
           The summary of a submitted review (e.g. "Approved").
         - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646160070
           A comment that is part of a submitted review.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646411494
+          A reply to one of those comments.
         - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646163741
           A single-comment review (comment on a diff line).
 
@@ -403,6 +405,7 @@ class TestCommands(unittest.TestCase):
             (5, 2178557279, None),  # Normal PR comment
             (5, None, 2128210901),  # Submitted review
             (5, None, 1646160070),  # Comment in a submitted review
+            (5, None, 1646411494),  # Reply in a review comment
             (5, None, 1646163741),  # Single comment review
             (4, -1, None),  # Issue description
             (4, 2178549014, None),  # Issue comment
