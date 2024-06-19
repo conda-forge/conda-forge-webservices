@@ -44,10 +44,15 @@ UPDATE_VERSION = re.compile(
 
 
 def add_reaction(
-    comment_id, reaction, gh_repo=None, org_name=None, repo_name=None, errors_ok=True
+    reaction: str,
+    issue_number: int,
+    comment_id: int = None,
+    review_id: int = None,
+    gh_repo: github.Repository = None,
+    org_name: str = None,
+    repo_name: str = None,
+    errors_ok: bool = True,
 ):
-    if comment_id is None:
-        return
     assert reaction in (
         "+1",
         "-1",
@@ -60,14 +65,40 @@ def add_reaction(
     )
     if gh_repo is None and org_name is None and repo_name is None:
         raise ValueError("Must provide either gh_repo, or org_name and repo_name")
+    if len([arg for arg in (comment_id, review_id) if arg is not None]) != 1:
+        raise ValueError("Must provide either comment_id or review_id")
     try:
         if gh_repo:
             repo = gh_repo
         else:
             gh = github.Github(get_app_token_for_webservices_only())
             repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        comment = repo.get_comment(comment_id)
-        comment.create_reaction(reaction)
+        if comment_id == -1:  # we pass comment_id = -1 for issue/PR descriptions
+            repo.get_issue(issue_number).create_reaction(reaction)
+        elif comment_id >= 0:  # actual comment (not description of the issue/PR)
+            repo.get_issue(issue_number).get_comment(comment_id).create_reaction(reaction)
+        elif review_id >= 0:
+            for comment_type in (
+                "get_comment",  # same as issue comment, just in case
+                "get_review_comment",  # comments of a submitted review
+                "get_single_review_comments",  # summary/description of a review
+            ):
+                try:
+                    pull = repo.get_pull(issue_number)
+                    comment = getattr(pull, comment_type)(review_id)
+                    if isinstance(comment, github.PaginatedList):
+                        comment = next(iter(comment), None)
+                    comment.create_reaction(reaction)
+                    break
+                except Exception as inner_exc:
+                    LOGGER.debug(
+                        "add_reaction cannot find PR comment with %s. Trying again...",
+                        comment_type,
+                        exc_info=inner_exc,
+                    )
+                    continue
+            else:
+                raise RuntimeError("Couldn't find review_id %s", review_id)
     except Exception as exc:
         if errors_ok:
             LOGGER.info("add_reaction failed", exc_info=exc)
@@ -102,6 +133,7 @@ def pr_detailed_comment(
     pr_num,
     comment,
     comment_id=None,
+    review_id=None,
 ):
     is_allowed_cmd = (repo_name in ALLOWED_CMD_NON_FEEDSTOCKS)
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
@@ -128,8 +160,8 @@ def pr_detailed_comment(
     if RESTART_CI.search(comment):
         gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        if comment_id is not None:
-            add_reaction(comment_id, "rocket", gh_repo=repo)
+        if comment_id is not None or review_id is not None:
+            add_reaction("rocket", pr_num, comment_id, review_id, gh_repo=repo)
         restart_pull_request_ci(repo, int(pr_num))
 
     if PING_TEAM.search(comment):
@@ -149,8 +181,8 @@ def pr_detailed_comment(
 
         gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        if comment_id is not None:
-            add_reaction(comment_id, "rocket", gh_repo=repo)
+        if comment_id is not None or review_id is not None:
+            add_reaction("rocket", pr_num, comment_id, review_id, gh_repo=repo)
         pull = repo.get_pull(int(pr_num))
         message = textwrap.dedent("""
             Hi! This is the friendly automated conda-forge-webservice.
@@ -162,8 +194,8 @@ def pr_detailed_comment(
     if not is_allowed_cmd and RERUN_BOT.search(comment):
         gh = github.Github(GH_TOKEN)
         repo = gh.get_repo("{}/{}".format(org_name, repo_name))
-        if comment_id is not None:
-            add_reaction(comment_id, "rocket", gh_repo=repo)
+        if comment_id is not None or review_id is not None:
+            add_reaction("rocket", pr_num, comment_id, review_id, gh_repo=repo)
         add_bot_rerun_label(repo, pr_num)
 
     #################################################
@@ -179,8 +211,15 @@ def pr_detailed_comment(
     if not any(command.search(comment) for command in pr_commands):
         return
 
-    if comment_id is not None:
-        add_reaction(comment_id, "rocket", org_name=org_name, repo_name=repo_name)
+    if comment_id is not None or review_id is not None:
+        add_reaction(
+            "rocket",
+            pr_num,
+            comment_id,
+            review_id,
+            org_name=org_name,
+            repo_name=repo_name,
+        )
 
     tmp_dir = None
     try:
@@ -326,7 +365,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
     app_issue = app_repo.get_issue(int(issue_num))
 
     if comment_id is not None:
-        add_reaction(comment_id, "rocket", gh_repo=app_repo)
+        add_reaction("rocket", issue_num, comment_id, gh_repo=app_repo)
 
     if UPDATE_TEAM_MSG.search(text):
         update_team(org_name, repo_name)
