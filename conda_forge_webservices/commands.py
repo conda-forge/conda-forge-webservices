@@ -220,7 +220,7 @@ def pr_detailed_comment(
         return
 
     if comment_id is not None or review_id is not None:
-        repo = github.Github(GH_TOKEN).get_repo("{}/{}".format(org_name, repo_name)),
+        repo = github.Github(GH_TOKEN).get_repo("{}/{}".format(org_name, repo_name))
         add_reaction("rocket", repo, pr_num, comment_id, review_id)
 
     tmp_dir = None
