@@ -37,7 +37,7 @@ def parse_conda_pkg(pkg):
         pkg = pkg[:-len(".conda")]
     else:
         raise RuntimeError("Can only process packages that end in .tar.bz2 or .conda!")
-    plat, pkg_name = pkg.split(os.path.sep)
+    plat, pkg_name = pkg.split('/')
     name_ver, build = pkg_name.rsplit('-', 1)
     name, ver = name_ver.rsplit('-', 1)
     return plat, name, ver, build

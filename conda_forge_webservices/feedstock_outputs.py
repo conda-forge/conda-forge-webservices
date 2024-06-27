@@ -222,7 +222,7 @@ def _is_valid_feedstock_output(
     project : str
         The GitHub repo.
     outputs : list of str
-        A list of ouputs top validate. The list entries should be the
+        A list of outputs top validate. The list entries should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
     register : bool, optional
