@@ -58,16 +58,18 @@ def update_team(org_name, repo_name, commit=None):
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
-    resp = gh_repo.get_contents("recipe/meta.yaml")
-    keep_lines = []
-    skip = 0
-    for line in resp.decoded_content.decode("utf-8").splitlines():
-        if line.strip().startswith("extra:"):
-            skip += 1
-        if skip > 0:
-            keep_lines.append(line)
-    assert skip == 1, "team update failed due to > 1 'extra:' sections"
-    meta = DummyMeta("\n".join(keep_lines))
+    if resp := gh_repo.get_contents("recipe/meta.yaml"):
+        keep_lines = []
+        skip = 0
+        for line in resp.decoded_content.decode("utf-8").splitlines():
+            if line.strip().startswith("extra:"):
+                skip += 1
+            if skip > 0:
+                keep_lines.append(line)
+        assert skip == 1, "team update failed due to > 1 'extra:' sections"
+        meta = DummyMeta("\n".join(keep_lines))
+    elif resp := gh_repo.get_contents("recipe/recipe.yaml"):
+        meta = DummyMeta(resp.decoded_content.decode("utf-8"))
 
     (
         current_maintainers,
