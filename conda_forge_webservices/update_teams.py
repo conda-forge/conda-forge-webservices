@@ -43,6 +43,15 @@ class DummyMeta(object):
         self.meta = _yml.load(meta_yaml)
 
 
+def get_recipe_contents(gh_repo):
+    try:
+        resp = gh_repo.get_contents("recipe/meta.yaml")
+        return resp.decoded_content.decode("utf-8")
+    except github.UnknownObjectException:
+        resp = gh_repo.get_contents("recipe/recipe.yaml")
+        return resp.decoded_content.decode("utf-8")
+
+
 def update_team(org_name, repo_name, commit=None):
     if not repo_name.endswith("-feedstock"):
         return
@@ -58,18 +67,18 @@ def update_team(org_name, repo_name, commit=None):
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
-    if resp := gh_repo.get_contents("recipe/meta.yaml"):
+    recipe_content = get_recipe_contents(gh_repo)
+
+    if recipe_content:
         keep_lines = []
         skip = 0
-        for line in resp.decoded_content.decode("utf-8").splitlines():
+        for line in recipe_content.splitlines():
             if line.strip().startswith("extra:"):
                 skip += 1
             if skip > 0:
                 keep_lines.append(line)
         assert skip == 1, "team update failed due to > 1 'extra:' sections"
         meta = DummyMeta("\n".join(keep_lines))
-    elif resp := gh_repo.get_contents("recipe/recipe.yaml"):
-        meta = DummyMeta(resp.decoded_content.decode("utf-8"))
 
     (
         current_maintainers,
