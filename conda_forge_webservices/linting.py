@@ -208,7 +208,7 @@ def compute_lint_message(
         commit_msg = repo.commit(sha).message
         should_skip = any([msg in commit_msg for msg in skip_msgs])
         if should_skip:
-            return {}
+            return None
 
         # Raise an error if the PR is not mergeable.
         if not mergeable:
