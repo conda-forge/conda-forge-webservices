@@ -54,7 +54,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> (str, st
             if recipe.name == "recipe.yaml":
                 # this is a rattler-build recipe and not yet handled
                 hint = "\nFor **{}**:\n\n{}".format(
-                    recipe,
+                    rel_path,
                     "This is a rattler-build recipe and not yet lintable. "
                     "We are working on it!",
                 )
