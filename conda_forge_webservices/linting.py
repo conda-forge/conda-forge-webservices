@@ -1,10 +1,10 @@
-from glob import glob
 import os
 import textwrap
 import time
 import tempfile
 import shutil
 import logging
+from pathlib import Path
 
 from git import GitCommandError, Repo
 import github
@@ -16,8 +16,8 @@ LOGGER = logging.getLogger("conda_forge_webservices.linting")
 
 
 def find_recipes(a_dir):
-    return [os.path.dirname(y) for x in os.walk(a_dir)
-            for y in glob(os.path.join(x[0], 'meta.yaml'))]
+    path = Path(a_dir)
+    return [x for x in (path.rglob('meta.yaml') + path.rglob('recipe.yaml'))]
 
 
 def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
@@ -117,12 +117,22 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
         pr_recipes = sorted(set(recipes) - set(base_recipes))
 
         rel_pr_recipes = []
-        for recipe_dir in pr_recipes:
-            rel_path = os.path.relpath(recipe_dir, tmp_dir)
+        for recipe in pr_recipes:
+            if recipe.name == "recipe.yaml":
+                # this is a rattler-build recipe and not yet handled
+                messages.append("\nFor **{}**:\n\n{}".format(
+                    recipe,
+                    "This is a rattler-build recipe and not yet lintable. "
+                    "We are working on it!"))
+                continue
+
+            # rel_path = os.path.relpath(recipe_dir, tmp_dir)
+            recipe_dir = recipe.parent
+            rel_path = recipe.relative_to(tmp_dir)
             rel_pr_recipes.append(rel_path)
             try:
                 lints, hints = conda_smithy.lint_recipe.main(
-                    recipe_dir, conda_forge=True, return_hints=True)
+                    str(recipe_dir), conda_forge=True, return_hints=True)
 
             except Exception as err:
                 import traceback
