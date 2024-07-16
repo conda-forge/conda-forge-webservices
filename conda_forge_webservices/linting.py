@@ -2,7 +2,6 @@ import os
 import textwrap
 import time
 from tempfile import TemporaryDirectory
-import shutil
 import logging
 from pathlib import Path
 from typing import TypedDict, Optional
@@ -183,8 +182,7 @@ def compute_lint_message(
         # Remove the environment variable if it was set in this function
         os.environ.pop("STAGED_RECIPES_PR_NUMBER", None)
 
-        if tmp_dir is not None:
-            shutil.rmtree(tmp_dir)
+        tmp_dir.cleanup()
 
     # Put the recipes in the form "```recipe/a```, ```recipe/b```".
     recipe_code_blocks = ", ".join("```{}```".format(r) for r in rel_pr_recipes)
