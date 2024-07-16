@@ -39,7 +39,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe/meta.yaml```) and found it was in an excellent condition.
 
         """  # noqa
 
@@ -54,7 +54,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```, ```recipes/recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```, ```recipes/recipe/meta.yaml```) and found it was in an excellent condition.
 
         """)  # noqa
 
@@ -65,7 +65,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```, ```recipes/recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```, ```recipes/recipe/meta.yaml```) and found it was in an excellent condition.
 
         """)  # noqa
 
@@ -76,7 +76,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```) and found it was in an excellent condition.
 
         """)  # noqa
 
@@ -87,7 +87,7 @@ class Test_compute_lint_message(unittest.TestCase):
         expected_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```) and found it was in an excellent condition.
 
         """)  # noqa
 
@@ -127,7 +127,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I wanted to let you know that I linted all conda-recipes in your PR (```recipes/bad_recipe```) and found some lint.
+        I wanted to let you know that I linted all conda-recipes in your PR (```recipes/bad_recipe/meta.yaml```) and found some lint.
 
         Here's what I've got...
 
@@ -160,7 +160,7 @@ class Test_compute_lint_message(unittest.TestCase):
         """
         Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/hints_only```) and found it was in an excellent condition.
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/hints_only/meta.yaml```) and found it was in an excellent condition.
 
 
         I do have some suggestions for making it better though...
