@@ -122,6 +122,23 @@ class Test_compute_lint_message(unittest.TestCase):
         self.assertTrue(lint, lint["message"])
         self.assertMultiLineEqual(expected_message, lint["message"])
 
+    def test_rattler_build_recipe(self):
+        expected_message = textwrap.dedent("""
+        Hi! This is the friendly automated conda-forge-linting service.
+
+        I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/recipe.yaml```) and found it was in an excellent condition.
+
+        I do have some suggestions for making it better though...
+
+        For **recipe/recipe.yaml**:
+        
+        This is a rattler-build recipe and not yet lintable. We are working on it!
+        """)  # noqa
+
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 632)
+        self.assertTrue(lint, lint["message"])
+        self.assertMultiLineEqual(expected_message, lint["message"])
+
     def test_bad_recipe(self):
         # a message similar to this comes out
         """
