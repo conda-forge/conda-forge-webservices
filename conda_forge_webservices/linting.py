@@ -96,7 +96,6 @@ def lint_all_recipes(recipe_dir: Path, base_recipes: List[Path]) -> (str, str):
                 )
     except Exception as e:
         LOGGER.error("Error while linting recipes: %s", repr(e))
-        LOGGER.error("Error while linting recipes: %s", repr(e))
         all_pass = False
         messages.append(
             "An error occurred while linting the recipes. "
@@ -243,7 +242,7 @@ def compute_lint_message(
         # Get the list of recipes and prep for linting.
         ref_merge.checkout(force=True)
 
-        message = lint_all_recipes(Path(tmp_dir.name), base_recipes)
+        message, status = lint_all_recipes(Path(tmp_dir.name), base_recipes)
     finally:
         # Remove the environment variable if it was set in this function
         os.environ.pop("STAGED_RECIPES_PR_NUMBER", None)
