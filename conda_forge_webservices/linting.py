@@ -22,9 +22,14 @@ class LintInfo(TypedDict):
     sha: str
 
 
-def find_recipes(a_dir: Path) -> [Path]:
-    path = Path(a_dir)
-    return [x for x in (path.rglob("meta.yaml") + path.rglob("recipe.yaml"))]
+def find_recipes(path: Path) -> [Path]:
+    """
+    Returns all `meta.yaml` and `recipe.yaml` files in the given path.
+    """
+    meta_yamls = path.rglob("meta.yaml")
+    recipe_yamls = path.rglob("recipe.yaml")
+
+    return [x for x in (list(meta_yamls) + list(recipe_yamls))]
 
 
 def compute_lint_message(
