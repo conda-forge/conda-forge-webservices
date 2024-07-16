@@ -126,7 +126,6 @@ def compute_lint_message(repo_owner, repo_name, pr_id, ignore_base=False):
                     "We are working on it!"))
                 continue
 
-            # rel_path = os.path.relpath(recipe_dir, tmp_dir)
             recipe_dir = recipe.parent
             rel_path = recipe.relative_to(tmp_dir)
             rel_pr_recipes.append(rel_path)
