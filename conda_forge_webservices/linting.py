@@ -130,6 +130,10 @@ def compute_lint_message(
 
         rel_pr_recipes = []
         for recipe in pr_recipes:
+            recipe_dir = recipe.parent
+            rel_path = recipe.relative_to(tmp_dir.name)
+            rel_pr_recipes.append(rel_path)
+
             if recipe.name == "recipe.yaml":
                 # this is a rattler-build recipe and not yet handled
                 messages.append(
@@ -141,9 +145,6 @@ def compute_lint_message(
                 )
                 continue
 
-            recipe_dir = recipe.parent
-            rel_path = recipe.relative_to(tmp_dir.name)
-            rel_pr_recipes.append(rel_path)
             try:
                 lints, hints = conda_smithy.lint_recipe.main(
                     str(recipe_dir), conda_forge=True, return_hints=True
