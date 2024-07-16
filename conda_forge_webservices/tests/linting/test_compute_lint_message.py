@@ -43,7 +43,7 @@ def test_good_recipe():
     assert "found it was in an excellent condition." in lint["message"], lint["message"]
 
 
-def test_ok_recipe_above_good_recipe(self):
+def test_ok_recipe_above_good_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -55,7 +55,7 @@ def test_ok_recipe_above_good_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_ok_recipe_beside_good_recipe(self):
+def test_ok_recipe_beside_good_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -67,7 +67,7 @@ def test_ok_recipe_beside_good_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_ok_recipe_above_ignored_good_recipe(self):
+def test_ok_recipe_above_ignored_good_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -79,7 +79,7 @@ def test_ok_recipe_above_ignored_good_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_ok_recipe_beside_ignored_good_recipe(self):
+def test_ok_recipe_beside_ignored_good_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -91,7 +91,7 @@ def test_ok_recipe_beside_ignored_good_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_conflict_ok_recipe(self):
+def test_conflict_ok_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -106,7 +106,7 @@ def test_conflict_ok_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_conflict_2_ok_recipe(self):
+def test_conflict_2_ok_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -121,7 +121,7 @@ def test_conflict_2_ok_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_rattler_build_recipe(self):
+def test_rattler_build_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -139,7 +139,7 @@ def test_rattler_build_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_bad_recipe(self):
+def test_bad_recipe():
     # a message similar to this comes out
     """
     Hi! This is the friendly automated conda-forge-linting service.
@@ -170,7 +170,7 @@ def test_bad_recipe(self):
     assert "For **recipes/bad_recipe/meta.yaml**:" in lint["message"], lint["message"]
 
 
-def test_mixed_recipe(self):
+def test_mixed_recipe():
     # a message similar to this comes out
     """
     Hi! This is the friendly automated conda-forge-linting service.
@@ -193,7 +193,7 @@ def test_mixed_recipe(self):
     ), lint["message"]  # noqa
 
 
-def test_no_recipe(self):
+def test_no_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -206,7 +206,7 @@ def test_no_recipe(self):
     assert expected_message == lint["message"]
 
 
-def test_closed_pr(self):
+def test_closed_pr():
     lint = compute_lint_message("conda-forge", "conda-forge-webservices", 52)
     assert lint is None
 
