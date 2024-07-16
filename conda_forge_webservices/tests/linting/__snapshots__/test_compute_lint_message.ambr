@@ -5,12 +5,12 @@
       
       Hi! This is the friendly automated conda-forge-linting service.
       
-      I wanted to let you know that I linted all conda-recipes in your PR (```meta.yaml```) and found some lint.
+      I wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```) and found some lint.
       
       Here's what I've got...
       
       
-      For **meta.yaml**:
+      For **recipe/meta.yaml**:
       
        * Failed to even lint the recipe, probably because of a conda-smithy bug :cry:. This likely indicates a problem in your `meta.yaml`, though. To get a traceback to help figure out what's going on, install conda-smithy and run `conda smithy recipe-lint .` from the recipe directory. 
   
