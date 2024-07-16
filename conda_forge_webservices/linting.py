@@ -31,12 +31,12 @@ def find_recipes(path: Path) -> List[Path]:
     return [x for x in (list(meta_yamls) + list(recipe_yamls))]
 
 
-def lint_all_recipes(recipe_dir: Path, base_recipes: List[Path]) -> (str, str):
+def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> (str, str):
     """
     Lint all recipes in the given directory.
     """
     try:
-        recipes = find_recipes(recipe_dir)
+        recipes = find_recipes(all_recipe_dir)
         all_pass = True
         messages = []
         hints = []
@@ -48,7 +48,7 @@ def lint_all_recipes(recipe_dir: Path, base_recipes: List[Path]) -> (str, str):
         rel_pr_recipes = []
         for recipe in pr_recipes:
             recipe_dir = recipe.parent
-            rel_path = recipe.relative_to(recipe_dir)
+            rel_path = recipe.relative_to(all_recipe_dir)
             rel_pr_recipes.append(rel_path)
 
             if recipe.name == "recipe.yaml":
