@@ -31,6 +31,129 @@ def find_recipes(path: Path) -> List[Path]:
     return [x for x in (list(meta_yamls) + list(recipe_yamls))]
 
 
+def lint_all_recipes(recipe_dir: Path, base_recipes: List[Path]) -> (str, str):
+    """
+    Lint all recipes in the given directory.
+    """
+    try:
+        recipes = find_recipes(recipe_dir)
+        all_pass = True
+        messages = []
+        hints = []
+
+        # Exclude some things from our list of recipes.
+        # Sort the recipes for consistent linting order (which glob doesn't give us).
+        pr_recipes = sorted(set(recipes) - set(base_recipes))
+
+        rel_pr_recipes = []
+        for recipe in pr_recipes:
+            recipe_dir = recipe.parent
+            rel_path = recipe.relative_to(recipe_dir)
+            rel_pr_recipes.append(rel_path)
+
+            if recipe.name == "recipe.yaml":
+                # this is a rattler-build recipe and not yet handled
+                hint = "\nFor **{}**:\n\n{}".format(
+                    recipe,
+                    "This is a rattler-build recipe and not yet lintable. "
+                    "We are working on it!",
+                )
+                messages.append(hint)
+                # also add it to hints so that the PR is marked as mixed
+                hints.append(hint)
+                continue
+
+            try:
+                lints, hints = conda_smithy.lint_recipe.main(
+                    str(recipe_dir), conda_forge=True, return_hints=True
+                )
+
+            except Exception as err:
+                import traceback
+
+                LOGGER.warning("LINTING ERROR: %s", repr(err))
+                LOGGER.warning("LINTING ERROR TRACEBACK: %s", traceback.format_exc())
+                lints = [
+                    "Failed to even lint the recipe, probably because "
+                    "of a conda-smithy bug :cry:. "
+                    "This likely indicates a problem in your `meta.yaml`, though. "
+                    "To get a traceback to help figure out what's going on, "
+                    "install conda-smithy "
+                    "and run `conda smithy recipe-lint .` from the recipe directory. "
+                ]
+            if lints:
+                all_pass = False
+                messages.append(
+                    "\nFor **{}**:\n\n{}".format(
+                        rel_path, "\n".join(" * {}".format(lint) for lint in lints)
+                    )
+                )
+            if hints:
+                messages.append(
+                    "\nFor **{}**:\n\n{}".format(
+                        rel_path, "\n".join(" * {}".format(hint) for hint in hints)
+                    )
+                )
+    except Exception as e:
+        LOGGER.error("Error while linting recipes: %s", repr(e))
+        LOGGER.error("Error while linting recipes: %s", repr(e))
+        all_pass = False
+        messages.append(
+            "An error occurred while linting the recipes. "
+            "Please check the logs for more information."
+        )
+
+    # Put the recipes in the form "```recipe/a```, ```recipe/b```".
+    recipe_code_blocks = ", ".join("```{}```".format(r) for r in rel_pr_recipes)
+
+    good = textwrap.dedent(
+        """
+    Hi! This is the friendly automated conda-forge-linting service.
+
+    I just wanted to let you know that I linted all conda-recipes in your PR ({}) and found it was in an excellent condition.
+
+    """.format(recipe_code_blocks)  # noqa: E501
+    )
+
+    mixed = good + textwrap.dedent("""
+    I do have some suggestions for making it better though...
+
+    {}
+    """).format("\n".join(messages))
+
+    bad = textwrap.dedent(
+        """
+    Hi! This is the friendly automated conda-forge-linting service.
+
+    I wanted to let you know that I linted all conda-recipes in your PR ({}) and found some lint.
+
+    Here's what I've got...
+
+    {{}}
+    """.format(recipe_code_blocks)  # noqa: E501
+    ).format("\n".join(messages))
+
+    if not pr_recipes:
+        message = textwrap.dedent("""
+            Hi! This is the friendly automated conda-forge-linting service.
+
+            I was trying to look for recipes to lint for you, but couldn't find any.
+            Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
+            """)  # noqa
+        status = "no recipes"
+    elif all_pass and len(hints):
+        message = mixed
+        status = "mixed"
+    elif all_pass:
+        message = good
+        status = "good"
+    else:
+        message = bad
+        status = "bad"
+
+    return message, status
+
+
 def compute_lint_message(
     repo_owner: str, repo_name: str, pr_id: int, ignore_base: bool = False
 ) -> Optional[LintInfo]:
@@ -119,117 +242,13 @@ def compute_lint_message(
 
         # Get the list of recipes and prep for linting.
         ref_merge.checkout(force=True)
-        recipes = find_recipes(Path(tmp_dir.name))
-        all_pass = True
-        messages = []
-        hints = []
 
-        # Exclude some things from our list of recipes.
-        # Sort the recipes for consistent linting order (which glob doesn't give us).
-        pr_recipes = sorted(set(recipes) - set(base_recipes))
-
-        rel_pr_recipes = []
-        for recipe in pr_recipes:
-            recipe_dir = recipe.parent
-            rel_path = recipe.relative_to(tmp_dir.name)
-            rel_pr_recipes.append(rel_path)
-
-            if recipe.name == "recipe.yaml":
-                # this is a rattler-build recipe and not yet handled
-                messages.append(
-                    "\nFor **{}**:\n\n{}".format(
-                        recipe,
-                        "This is a rattler-build recipe and not yet lintable. "
-                        "We are working on it!",
-                    )
-                )
-                continue
-
-            try:
-                lints, hints = conda_smithy.lint_recipe.main(
-                    str(recipe_dir), conda_forge=True, return_hints=True
-                )
-
-            except Exception as err:
-                import traceback
-
-                LOGGER.warning("LINTING ERROR: %s", repr(err))
-                LOGGER.warning("LINTING ERROR TRACEBACK: %s", traceback.format_exc())
-                lints = [
-                    "Failed to even lint the recipe, probably because "
-                    "of a conda-smithy bug :cry:. "
-                    "This likely indicates a problem in your `meta.yaml`, though. "
-                    "To get a traceback to help figure out what's going on, "
-                    "install conda-smithy "
-                    "and run `conda smithy recipe-lint .` from the recipe directory. "
-                ]
-            if lints:
-                all_pass = False
-                messages.append(
-                    "\nFor **{}**:\n\n{}".format(
-                        rel_path, "\n".join(" * {}".format(lint) for lint in lints)
-                    )
-                )
-            if hints:
-                messages.append(
-                    "\nFor **{}**:\n\n{}".format(
-                        rel_path, "\n".join(" * {}".format(hint) for hint in hints)
-                    )
-                )
-
+        message = lint_all_recipes(Path(tmp_dir.name), base_recipes)
     finally:
         # Remove the environment variable if it was set in this function
         os.environ.pop("STAGED_RECIPES_PR_NUMBER", None)
 
         tmp_dir.cleanup()
-
-    # Put the recipes in the form "```recipe/a```, ```recipe/b```".
-    recipe_code_blocks = ", ".join("```{}```".format(r) for r in rel_pr_recipes)
-
-    good = textwrap.dedent(
-        """
-    Hi! This is the friendly automated conda-forge-linting service.
-
-    I just wanted to let you know that I linted all conda-recipes in your PR ({}) and found it was in an excellent condition.
-
-    """.format(recipe_code_blocks)  # noqa: E501
-    )
-
-    mixed = good + textwrap.dedent("""
-    I do have some suggestions for making it better though...
-
-    {}
-    """).format("\n".join(messages))
-
-    bad = textwrap.dedent(
-        """
-    Hi! This is the friendly automated conda-forge-linting service.
-
-    I wanted to let you know that I linted all conda-recipes in your PR ({}) and found some lint.
-
-    Here's what I've got...
-
-    {{}}
-    """.format(recipe_code_blocks)  # noqa: E501
-    ).format("\n".join(messages))
-
-    if not pr_recipes:
-        message = textwrap.dedent("""
-            Hi! This is the friendly automated conda-forge-linting service.
-
-            I was trying to look for recipes to lint for you, but couldn't find any.
-            Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-            """)  # noqa
-        status = "no recipes"
-    elif all_pass and len(hints):
-        message = mixed
-        status = "mixed"
-    elif all_pass:
-        message = good
-        status = "good"
-    else:
-        message = bad
-        status = "bad"
 
     pull_request = remote_repo.get_pull(pr_id)
     if pull_request.state == "open":
