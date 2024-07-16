@@ -10,7 +10,7 @@ from conda_forge_webservices.linting import compute_lint_message
 
 @contextmanager
 def tmp_directory():
-    tmp_dir = tempfile.mkdtemp('recipe_')
+    tmp_dir = tempfile.mkdtemp("recipe_")
     yield tmp_dir
     shutil.rmtree(tmp_dir)
 
@@ -19,19 +19,19 @@ class Test_compute_lint_message(unittest.TestCase):
     maxDiff = None
 
     def test_skip_ci_recipe(self):
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 58)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 58)
         self.assertFalse(lint)
 
     def test_skip_lint_recipe(self):
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 59)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 59)
         self.assertFalse(lint)
 
     def test_ci_skip_recipe(self):
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 65)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 65)
         self.assertFalse(lint)
 
     def test_lint_skip_recipe(self):
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 66)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 66)
         self.assertFalse(lint)
 
     def test_good_recipe(self):
@@ -43,10 +43,10 @@ class Test_compute_lint_message(unittest.TestCase):
 
         """  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 16)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 16)
         self.assertTrue(lint, lint["message"])
         self.assertTrue(
-            "found it was in an excellent condition." in lint['message'],
+            "found it was in an excellent condition." in lint["message"],
             lint["message"],
         )
 
@@ -58,8 +58,8 @@ class Test_compute_lint_message(unittest.TestCase):
 
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 54)
-        self.assertMultiLineEqual(expected_message, lint['message'])
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 54)
+        self.assertMultiLineEqual(expected_message, lint["message"])
 
     def test_ok_recipe_beside_good_recipe(self):
         expected_message = textwrap.dedent("""
@@ -69,8 +69,8 @@ class Test_compute_lint_message(unittest.TestCase):
 
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 62)
-        self.assertMultiLineEqual(expected_message, lint['message'])
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 62)
+        self.assertMultiLineEqual(expected_message, lint["message"])
 
     def test_ok_recipe_above_ignored_good_recipe(self):
         expected_message = textwrap.dedent("""
@@ -80,8 +80,8 @@ class Test_compute_lint_message(unittest.TestCase):
 
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 54, True)
-        self.assertMultiLineEqual(expected_message, lint['message'])
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 54, True)
+        self.assertMultiLineEqual(expected_message, lint["message"])
 
     def test_ok_recipe_beside_ignored_good_recipe(self):
         expected_message = textwrap.dedent("""
@@ -91,8 +91,8 @@ class Test_compute_lint_message(unittest.TestCase):
 
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 62, True)
-        self.assertMultiLineEqual(expected_message, lint['message'])
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 62, True)
+        self.assertMultiLineEqual(expected_message, lint["message"])
 
     def test_conflict_ok_recipe(self):
         expected_message = textwrap.dedent("""
@@ -104,9 +104,9 @@ class Test_compute_lint_message(unittest.TestCase):
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 56)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 56)
         self.assertTrue(lint, lint["message"])
-        self.assertMultiLineEqual(expected_message, lint['message'])
+        self.assertMultiLineEqual(expected_message, lint["message"])
 
     def test_conflict_2_ok_recipe(self):
         expected_message = textwrap.dedent("""
@@ -118,9 +118,9 @@ class Test_compute_lint_message(unittest.TestCase):
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 57)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 57)
         self.assertTrue(lint, lint["message"])
-        self.assertMultiLineEqual(expected_message, lint['message'])
+        self.assertMultiLineEqual(expected_message, lint["message"])
 
     def test_bad_recipe(self):
         # a message similar to this comes out
@@ -132,7 +132,7 @@ class Test_compute_lint_message(unittest.TestCase):
         Here's what I've got...
 
 
-        For **recipes/bad_recipe**:
+        For **recipes/bad_recipe/meta.yaml**:
 
          * The home item is expected in the about section.
          * The license item is expected in the about section.
@@ -144,14 +144,16 @@ class Test_compute_lint_message(unittest.TestCase):
          * Recipe maintainer "support" does not exist
         """  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 17)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 17)
         self.assertTrue(lint, lint["message"])
-        self.assertTrue("found some lint" in lint['message'], lint["message"])
+        self.assertTrue("found some lint" in lint["message"], lint["message"])
         self.assertTrue(
-            "The home item is expected in the about section." in lint['message'],
-            lint["message"])
+            "The home item is expected in the about section." in lint["message"],
+            lint["message"],
+        )
         self.assertTrue(
-            "For **recipes/bad_recipe**:" in lint["message"], lint["message"])
+            "For **recipes/bad_recipe/meta.yaml**:" in lint["message"], lint["message"]
+        )
 
     def test_mixed_recipe(self):
         # a message similar to this comes out
@@ -164,16 +166,17 @@ class Test_compute_lint_message(unittest.TestCase):
         I do have some suggestions for making it better though...
 
 
-        For **recipes/hints_only**:
+        For **recipes/hints_only/meta.yaml**:
 
          * Whenever possible python packages should use pip. See https://conda-forge.org/docs/maintainer/adding_pkgs.html#use-pip
         """  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 217)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 217)
         self.assertTrue(lint, lint["message"])
         self.assertTrue(
-            "I do have some suggestions for making it better though" in lint['message']
-            , lint["message"])
+            "I do have some suggestions for making it better though" in lint["message"],
+            lint["message"],
+        )
 
     def test_no_recipe(self):
         expected_message = textwrap.dedent("""
@@ -183,15 +186,15 @@ class Test_compute_lint_message(unittest.TestCase):
         Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
         """)  # noqa
 
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 523)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 523)
         self.assertTrue(lint, lint["message"])
-        self.assertMultiLineEqual(expected_message, lint['message'])
+        self.assertMultiLineEqual(expected_message, lint["message"])
 
     def test_closed_pr(self):
-        lint = compute_lint_message('conda-forge', 'conda-forge-webservices', 52)
+        lint = compute_lint_message("conda-forge", "conda-forge-webservices", 52)
         self.assertFalse(lint, lint)
         self.assertEqual(lint, {}, lint)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
