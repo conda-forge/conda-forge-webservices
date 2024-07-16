@@ -144,7 +144,7 @@ def compute_lint_message(
                 continue
 
             recipe_dir = recipe.parent
-            rel_path = recipe.relative_to(tmp_dir)
+            rel_path = recipe.relative_to(tmp_dir.name)
             rel_pr_recipes.append(rel_path)
             try:
                 lints, hints = conda_smithy.lint_recipe.main(
