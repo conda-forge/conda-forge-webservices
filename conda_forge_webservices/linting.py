@@ -191,8 +191,8 @@ def compute_lint_message(
 
     I just wanted to let you know that I linted all conda-recipes in your PR ({}) and found it was in an excellent condition.
 
-    """.format(recipe_code_blocks)
-    )  # noqa
+    """.format(recipe_code_blocks)  # noqa: E501
+    )
 
     mixed = good + textwrap.dedent("""
     I do have some suggestions for making it better though...
@@ -209,8 +209,8 @@ def compute_lint_message(
     Here's what I've got...
 
     {{}}
-    """.format(recipe_code_blocks)
-    ).format("\n".join(messages))  # noqa
+    """.format(recipe_code_blocks)  # noqa: E501
+    ).format("\n".join(messages))
 
     if not pr_recipes:
         message = textwrap.dedent("""
