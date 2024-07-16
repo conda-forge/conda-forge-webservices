@@ -102,7 +102,7 @@ def test_conflict_ok_recipe():
     """)  # noqa
 
     lint = compute_lint_message("conda-forge", "conda-forge-webservices", 56)
-    assert lint is True, lint["message"]
+    assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
 
@@ -117,7 +117,7 @@ def test_conflict_2_ok_recipe():
     """)  # noqa
 
     lint = compute_lint_message("conda-forge", "conda-forge-webservices", 57)
-    assert lint is True, lint["message"]
+    assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
 
@@ -135,7 +135,7 @@ def test_rattler_build_recipe():
     """)  # noqa
 
     lint = compute_lint_message("conda-forge", "conda-forge-webservices", 632)
-    assert lint is True, lint["message"]
+    assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
 
@@ -162,7 +162,7 @@ def test_bad_recipe():
     """  # noqa
 
     lint = compute_lint_message("conda-forge", "conda-forge-webservices", 17)
-    assert lint is True, lint["message"]
+    assert lint is not None, lint["message"]
     assert "found some lint" in lint["message"], lint["message"]
     assert "The home item is expected in the about section." in lint["message"], lint[
         "message"
@@ -187,7 +187,7 @@ def test_mixed_recipe():
     """  # noqa
 
     lint = compute_lint_message("conda-forge", "conda-forge-webservices", 217)
-    assert lint is True, lint["message"]
+    assert lint is not None, lint["message"]
     assert (
         "I do have some suggestions for making it better though" in lint["message"]
     ), lint["message"]  # noqa
@@ -202,7 +202,7 @@ def test_no_recipe():
     """)  # noqa
 
     lint = compute_lint_message("conda-forge", "conda-forge-webservices", 523)
-    assert lint is True, lint["message"]
+    assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
 
