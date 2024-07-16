@@ -68,17 +68,15 @@ def update_team(org_name, repo_name, commit=None):
     gh_repo = org.get_repo(repo_name)
 
     recipe_content = get_recipe_contents(gh_repo)
-
-    if recipe_content:
-        keep_lines = []
-        skip = 0
-        for line in recipe_content.splitlines():
-            if line.strip().startswith("extra:"):
-                skip += 1
-            if skip > 0:
-                keep_lines.append(line)
-        assert skip == 1, "team update failed due to > 1 'extra:' sections"
-        meta = DummyMeta("\n".join(keep_lines))
+    keep_lines = []
+    skip = 0
+    for line in recipe_content.splitlines():
+        if line.strip().startswith("extra:"):
+            skip += 1
+        if skip > 0:
+            keep_lines.append(line)
+    assert skip == 1, "team update failed due to > 1 'extra:' sections"
+    meta = DummyMeta("\n".join(keep_lines))
 
     (
         current_maintainers,
