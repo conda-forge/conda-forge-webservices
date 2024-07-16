@@ -4,7 +4,7 @@ import time
 from tempfile import TemporaryDirectory
 import logging
 from pathlib import Path
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, List
 
 from git import GitCommandError, Repo
 import github
@@ -21,7 +21,7 @@ class LintInfo(TypedDict):
     sha: str
 
 
-def find_recipes(path: Path) -> [Path]:
+def find_recipes(path: Path) -> List[Path]:
     """
     Returns all `meta.yaml` and `recipe.yaml` files in the given path.
     """
@@ -44,7 +44,7 @@ def compute_lint_message(
         time.sleep(1.0)
         pull_request = remote_repo.get_pull(pr_id)
         if pull_request.state != "open":
-            return {}
+            return None
         mergeable = pull_request.mergeable
 
     tmp_dir = TemporaryDirectory(suffix="_recipe")
@@ -99,9 +99,7 @@ def compute_lint_message(
                 """)  # noqa
             status = "merge_conflict"
 
-            lint_info: LintInfo = {"message": message, "status": status, "sha": sha}
-
-            return lint_info
+            return {"message": message, "status": status, "sha": sha}
 
         # Collect recipes from base that should be ignored.
         base_recipes = []
@@ -234,11 +232,9 @@ def compute_lint_message(
 
     pull_request = remote_repo.get_pull(pr_id)
     if pull_request.state == "open":
-        lint_info: LintInfo = {"message": message, "status": status, "sha": sha}
+        return {"message": message, "status": status, "sha": sha}
     else:
-        lint_info = None
-
-    return lint_info
+        return None
 
 
 def comment_on_pr(
