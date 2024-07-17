@@ -214,7 +214,7 @@ def test_closed_pr():
 
 
 def test_new_recipe(tmp_path, snapshot):
-    recipe_file = tmp_path / "recipe" / "meta.yaml"
+    recipe_file = tmp_path / "recipe" / "recipe.yaml"
     recipe_file.parent.mkdir(parents=True)
     shutil.copy(data_folder() / "recipe.yaml", recipe_file)
 
