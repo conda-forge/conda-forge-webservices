@@ -35,72 +35,64 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> (str, st
     """
     Lint all recipes in the given directory.
     """
-    try:
-        recipes = find_recipes(all_recipe_dir)
-        all_pass = True
-        messages = []
-        hints = []
+    recipes = find_recipes(all_recipe_dir)
+    all_pass = True
+    messages = []
+    hints = []
 
-        # Exclude some things from our list of recipes.
-        # Sort the recipes for consistent linting order (which glob doesn't give us).
-        pr_recipes = sorted(set(recipes) - set(base_recipes))
+    # Exclude some things from our list of recipes.
+    # Sort the recipes for consistent linting order (which glob doesn't give us).
+    pr_recipes = sorted(set(recipes) - set(base_recipes))
 
-        rel_pr_recipes = []
-        for recipe in pr_recipes:
-            recipe_dir = recipe.parent
-            rel_path = recipe.relative_to(all_recipe_dir)
-            rel_pr_recipes.append(rel_path)
+    rel_pr_recipes = []
+    for recipe in pr_recipes:
+        recipe_dir = recipe.parent
+        rel_path = recipe.relative_to(all_recipe_dir)
+        rel_pr_recipes.append(rel_path)
 
-            if recipe.name == "recipe.yaml":
-                # this is a rattler-build recipe and not yet handled
-                hint = "\nFor **{}**:\n\n{}".format(
-                    rel_path,
-                    "This is a rattler-build recipe and not yet lintable. "
-                    "We are working on it!",
+        if recipe.name == "recipe.yaml":
+            # this is a rattler-build recipe and not yet handled
+            hint = "\nFor **{}**:\n\n{}".format(
+                rel_path,
+                "This is a rattler-build recipe and not yet lintable. "
+                "We are working on it!",
+            )
+            messages.append(hint)
+            # also add it to hints so that the PR is marked as mixed
+            hints.append(hint)
+            continue
+
+        try:
+            lints, hints = conda_smithy.lint_recipe.main(
+                str(recipe_dir), conda_forge=True, return_hints=True
+            )
+
+        except Exception as err:
+            import traceback
+
+            LOGGER.warning("LINTING ERROR: %s", repr(err))
+            LOGGER.warning("LINTING ERROR TRACEBACK: %s", traceback.format_exc())
+            lints = [
+                "Failed to even lint the recipe, probably because "
+                "of a conda-smithy bug :cry:. "
+                "This likely indicates a problem in your `meta.yaml`, though. "
+                "To get a traceback to help figure out what's going on, "
+                "install conda-smithy "
+                "and run `conda smithy recipe-lint .` from the recipe directory. "
+            ]
+        if lints:
+            all_pass = False
+            messages.append(
+                "\nFor **{}**:\n\n{}".format(
+                    rel_path, "\n".join(" * {}".format(lint) for lint in lints)
                 )
-                messages.append(hint)
-                # also add it to hints so that the PR is marked as mixed
-                hints.append(hint)
-                continue
-
-            try:
-                lints, hints = conda_smithy.lint_recipe.main(
-                    str(recipe_dir), conda_forge=True, return_hints=True
+            )
+        if hints:
+            messages.append(
+                "\nFor **{}**:\n\n{}".format(
+                    rel_path, "\n".join(" * {}".format(hint) for hint in hints)
                 )
-
-            except Exception as err:
-                import traceback
-
-                LOGGER.warning("LINTING ERROR: %s", repr(err))
-                LOGGER.warning("LINTING ERROR TRACEBACK: %s", traceback.format_exc())
-                lints = [
-                    "Failed to even lint the recipe, probably because "
-                    "of a conda-smithy bug :cry:. "
-                    "This likely indicates a problem in your `meta.yaml`, though. "
-                    "To get a traceback to help figure out what's going on, "
-                    "install conda-smithy "
-                    "and run `conda smithy recipe-lint .` from the recipe directory. "
-                ]
-            if lints:
-                all_pass = False
-                messages.append(
-                    "\nFor **{}**:\n\n{}".format(
-                        rel_path, "\n".join(" * {}".format(lint) for lint in lints)
-                    )
-                )
-            if hints:
-                messages.append(
-                    "\nFor **{}**:\n\n{}".format(
-                        rel_path, "\n".join(" * {}".format(hint) for hint in hints)
-                    )
-                )
-    except Exception as e:
-        LOGGER.error("Error while linting recipes: %s", repr(e))
-        all_pass = False
-        messages.append(
-            "An error occurred while linting the recipes. "
-            "Please check the logs for more information."
-        )
+            )
 
     # Put the recipes in the form "```recipe/a```, ```recipe/b```".
     recipe_code_blocks = ", ".join("```{}```".format(r) for r in rel_pr_recipes)
