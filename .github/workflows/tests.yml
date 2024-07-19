@@ -79,8 +79,10 @@ jobs:
       group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        if: ${{ !github.event.pull_request.head.repo.fork }}
 
       - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         with:
           python-version: '3.10'
           channels: conda-forge
@@ -99,6 +101,7 @@ jobs:
 
       - name: configure conda
         shell: bash -l {0}
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
