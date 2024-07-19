@@ -2,6 +2,8 @@ import shutil
 import textwrap
 from pathlib import Path
 
+from inline_snapshot import snapshot
+
 from conda_forge_webservices.linting import compute_lint_message, lint_all_recipes
 
 
@@ -213,10 +215,28 @@ def test_closed_pr():
     assert lint is None
 
 
-def test_new_recipe(tmp_path, snapshot):
+def test_new_recipe(tmp_path):
     recipe_file = tmp_path / "recipe" / "recipe.yaml"
     recipe_file.parent.mkdir(parents=True)
     shutil.copy(data_folder() / "recipe.yaml", recipe_file)
 
     message = lint_all_recipes(Path(tmp_path), [])
-    assert message == snapshot(name="rattler-build-good-lint")
+    assert message == snapshot(
+        (
+            """\
+
+Hi! This is the friendly automated conda-forge-linting service.
+
+I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/recipe.yaml```) and found it was in an excellent condition.
+
+
+I do have some suggestions for making it better though...
+
+
+For **recipe/recipe.yaml**:
+
+This is a rattler-build recipe and not yet lintable. We are working on it!
+""",
+            "mixed",
+        )
+    )  # noqa
