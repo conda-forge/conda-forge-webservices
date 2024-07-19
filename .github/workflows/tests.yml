@@ -30,6 +30,7 @@ jobs:
 
       - name: generate token
         id: generate_token
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
@@ -81,6 +82,7 @@ jobs:
           miniforge-version: latest
 
       - name: generate token
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         id: generate_token
         uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
         with:
