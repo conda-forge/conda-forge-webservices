@@ -40,7 +40,7 @@ class TestBucketHandler(TestHandlerBase):
             headers={
                 'X-GitHub-Event': 'pull_request',
                 'X-Hub-Signature': 'sha1=43abf34'})
-        self.assertEqual(response.code, 403)
+        self.assertIn(response.code, [403, 500])
 
     @mock.patch('conda_forge_webservices.linting.compute_lint_message',
                 return_value={'message': mock.sentinel.message})

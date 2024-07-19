@@ -26,19 +26,25 @@ OUTPUTS_REPO = (
     "/feedstock-outputs.git"
 )
 
-token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
-with open(os.path.expandvars(token_path), "r") as fp:
-    sr_token = fp.read().strip()
+try:
+    token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
+    with open(os.path.expandvars(token_path), "r") as fp:
+        sr_token = fp.read().strip()
 
-headers = {
-    "FEEDSTOCK_TOKEN": sr_token,
-}
+    headers = {
+        "FEEDSTOCK_TOKEN": sr_token,
+    }
+except Exception:
+    headers = None
 
 bad_headers = {
     "FEEDSTOCK_TOKEN": "not a valid token",
 }
 
-GH = github.Github(os.environ["GH_TOKEN"])
+try:
+    GH = github.Github(os.environ["GH_TOKEN"])
+except Exception:
+    GH = None
 
 
 def _run_git_command(*args):
@@ -74,6 +80,8 @@ def _clone_and_remove(repo, file_to_remove):
                     _run_git_command("push")
 
 
+@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
+@pytest.mark.skipif(GH is None, reason="No GitHub token for testing!")
 def test_feedstock_outputs_copy_bad_token():
     repo = GH.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
     sha = repo.get_branch(repo.default_branch).commit.commit.sha
@@ -91,6 +99,8 @@ def test_feedstock_outputs_copy_bad_token():
     assert r.status_code == 403, r.status_code
 
 
+@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
+@pytest.mark.skipif(GH is None, reason="No GitHub token for testing!")
 def test_feedstock_outputs_copy_missing_token():
     repo = GH.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
     sha = repo.get_branch(repo.default_branch).commit.commit.sha
@@ -107,6 +117,8 @@ def test_feedstock_outputs_copy_missing_token():
     assert r.status_code == 403, r.status_code
 
 
+@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
+@pytest.mark.skipif(GH is None, reason="No GitHub token for testing!")
 @pytest.mark.parametrize('key', ["outputs", "feedstock", "channel"])
 def test_feedstock_outputs_copy_missing_data(key):
     json_data = {
@@ -123,6 +135,8 @@ def test_feedstock_outputs_copy_missing_data(key):
     assert r.status_code == 403, r.status_code
 
 
+@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
+@pytest.mark.skipif(GH is None, reason="No GitHub token for testing!")
 def test_feedstock_outputs_copy_bad_hash():
     name = "blah_h" + uuid.uuid4().hex
     try:
@@ -144,6 +158,8 @@ def test_feedstock_outputs_copy_bad_hash():
         _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
 
 
+@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
+@pytest.mark.skipif(GH is None, reason="No GitHub token for testing!")
 def test_feedstock_outputs_copy_bad_data():
     name = "blah_h" + uuid.uuid4().hex
     try:

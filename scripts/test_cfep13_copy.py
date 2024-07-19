@@ -31,6 +31,8 @@ import requests
 from binstar_client import BinstarError
 import binstar_client.errors
 
+import pytest
+
 from conda_forge_webservices.utils import pushd, with_action_url
 from conda_forge_webservices.feedstock_outputs import (
     _get_ac_api_prod,
@@ -42,13 +44,16 @@ OUTPUTS_REPO = (
     "feedstock-outputs.git"
 )
 
-token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
-with open(os.path.expandvars(token_path), "r") as fp:
-    sr_token = fp.read().strip()
+try:
+    token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
+    with open(os.path.expandvars(token_path), "r") as fp:
+        sr_token = fp.read().strip()
 
-headers = {
-    "FEEDSTOCK_TOKEN": sr_token,
-}
+    headers = {
+        "FEEDSTOCK_TOKEN": sr_token,
+    }
+except Exception:
+    headers = None
 
 
 def _run_git_command(*args):
@@ -239,6 +244,7 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
+@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
 def test_feedstock_outputs_copy_works():
     uid = uuid.uuid4().hex[0:6]
 
