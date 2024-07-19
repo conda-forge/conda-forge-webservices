@@ -236,7 +236,7 @@ I do have some suggestions for making it better though...
 For **recipe/recipe.yaml**:
 
 This is a rattler-build recipe and not yet lintable. We are working on it!
-""",
+""",  # noqa
             "mixed",
         )
-    )  # noqa
+    )
