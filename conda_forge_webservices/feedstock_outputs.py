@@ -8,12 +8,14 @@ import urllib.parse
 import logging
 import requests
 import base64
+import time
 
 import scrypt
 import github
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
+from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
 import binstar_client.errors
 
 from .utils import parse_conda_pkg
@@ -25,36 +27,41 @@ STAGING = "cf-staging"
 PROD = "conda-forge"
 
 
-def _get_sharded_path(output):
-    chars = [c for c in output if c.isalnum()]
-    while len(chars) < 3:
-        chars.append("z")
-
-    return os.path.join("outputs", chars[0], chars[1], chars[2], output + ".json")
-
-
-def is_valid_feedstock_token(user, project, feedstock_token):
+def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
     gh_token = get_app_token_for_webservices_only()
     r = requests.get(
         "https://api.github.com/repos/%s/"
         "feedstock-tokens/contents/tokens/%s.json" % (user, project),
         headers={"Authorization": "Bearer %s" % gh_token},
     )
-    if r.status_code != 200:
-        return False
-    else:
+    if r.status_code == 200:
         data = r.json()
         assert data["encoding"] == "base64"
         token_data = json.loads(
             base64.standard_b64decode(data["content"]).decode('utf-8'))
-        salted_token = scrypt.hash(
-            feedstock_token,
-            bytes.fromhex(token_data["salt"]),
-            buflen=256,
-        )
-        return hmac.compare_digest(
-            salted_token, bytes.fromhex(token_data["hashed_token"]),
-        )
+        if "tokens" not in token_data:
+            token_data = {"tokens": [token_data]}
+
+        now = time.time()
+        for td in token_data["tokens"]:
+            _provider = td.get("provider", None)
+            _expires_at = td.get("expires_at", None)
+            if ((_provider is None) or (_provider == provider)) and (
+                (_expires_at is None) or (_expires_at > now)
+            ):
+                salted_token = scrypt.hash(
+                    feedstock_token,
+                    bytes.fromhex(td["salt"]),
+                    buflen=256,
+                )
+
+                if hmac.compare_digest(
+                    salted_token,
+                    bytes.fromhex(td["hashed_token"]),
+                ):
+                    return True
+
+    return False
 
 
 def _get_ac_api_prod():
@@ -133,11 +140,12 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
                     to_owner=PROD,
                     from_label=channel,
                     to_label=channel,
+                    update=True,
                 )
                 copied[dist] = True
                 LOGGER.info("    copied: %s", dist)
-            except BinstarError:
-                LOGGER.info("    did not copy: %s", dist)
+            except BinstarError as e:
+                LOGGER.info("    did not copy: %s (%s)", dist, repr(e))
                 pass
 
         if (
@@ -214,7 +222,7 @@ def _is_valid_feedstock_output(
     project : str
         The GitHub repo.
     outputs : list of str
-        A list of ouputs top validate. The list entries should be the
+        A list of outputs top validate. The list entries should be the
         full names with the platform directory, version/build info, and file extension
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
     register : bool, optional
@@ -405,8 +413,8 @@ token. Below we have put some information about the failure to help you debug it
 
 **Rerendering the feedstock will usually fix these problems.**
 
-If you have any issues or questions, you can find us on gitter in the
-community [chat room](https://gitter.im/conda-forge/conda-forge.github.io) or you can bump us right here.
+If you have any issues or questions, you can find us on Element in the
+community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or you can bump us right here.
 """ % team_name  # noqa
 
     is_all_valid = True

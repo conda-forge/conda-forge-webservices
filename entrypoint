@@ -14,10 +14,6 @@ conda info
 mkdir -p ${HOME}/.conda-smithy
 
 echo ${GH_TOKEN} > ${HOME}/.conda-smithy/github.token
-echo ${CIRCLE_TOKEN} > ${HOME}/.conda-smithy/circle.token
-echo ${TRAVIS_TOKEN} > ${HOME}/.conda-smithy/travis.token
-echo ${AZURE_TOKEN} > ${HOME}/.conda-smithy/azure.token
-echo ${DRONE_TOKEN} > ${HOME}/.conda-smithy/drone.token
 echo ${STAGING_BINSTAR_TOKEN} > ${HOME}/.conda-smithy/anaconda.token
 
 git config --global user.name "conda-forge-webservices[bot]"

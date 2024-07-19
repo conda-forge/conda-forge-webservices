@@ -12,30 +12,30 @@ jobs:
     name: tests
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
         with:
-          python-version: 3.8
-          channels: conda-forge,defaults
+          python-version: '3.10'
+          channels: conda-forge
           channel-priority: strict
           show-channel-urls: true
           miniforge-version: latest
-          miniforge-variant: Mambaforge
 
       - name: generate token
         id: generate_token
-        uses: conda-forge/github-app-token@e3ab451d57e120b956292a1fa1d21fe4ba171c36
+        uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
         with:
-          app_id: ${{ secrets.CF_CURATOR_APP_ID }}
-          private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
 
       - name: configure conda
         shell: bash -l {0}
         run: |
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
-          mamba install --yes --quiet --file conda-requirements.txt
+          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
@@ -43,25 +43,19 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
-      - name: lint
-        shell: bash -l {0}
-        run: |
-          # maybe later...
-          # black --check conda_forge_webservices
-          flake8 conda_forge_webservices
-
       - name: run test suite
         shell: bash -l {0}
         run: |
           export CF_WEBSERVICES_TEST=1
-          pytest -vv conda_forge_webservices
+          pytest -v conda_forge_webservices
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
-          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
-          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
 
   live-tests:
     name: live-tests
@@ -70,30 +64,30 @@ jobs:
     concurrency:
       group: live-tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
         with:
-          python-version: 3.8
-          channels: conda-forge,defaults
+          python-version: '3.10'
+          channels: conda-forge
           channel-priority: strict
           show-channel-urls: true
           miniforge-version: latest
-          miniforge-variant: Mambaforge
 
       - name: generate token
         id: generate_token
-        uses: conda-forge/github-app-token@e3ab451d57e120b956292a1fa1d21fe4ba171c36
+        uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
         with:
-          app_id: ${{ secrets.CF_CURATOR_APP_ID }}
-          private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
 
       - name: configure conda
         shell: bash -l {0}
         run: |
           conda config --set show_channel_urls True
           conda config --add channels conda-forge
-          mamba install --yes --quiet --file conda-requirements.txt
+          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
           git config --global pull.rebase false
@@ -112,5 +106,6 @@ jobs:
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
-          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_WEBSERVICES_APP_ID }}
-          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_WEBSERVICES_PRIVATE_KEY }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"

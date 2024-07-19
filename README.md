@@ -7,12 +7,9 @@ commands and lints conda-forge's recipes. The linting itself comes from conda-sm
 (https://github.com/conda-forge/conda-smithy).
 
 ## Configuration
-Rather than using OAuth, this app is using a pre-determined "personal access token" which has
-appropriate conda-forge permissions. It has been configured with:
-
-    heroku config:set GH_TOKEN=<token>
-
-The service deploys to the "conda-forge" heroku project: https://dashboard.heroku.com/apps/conda-forge/resources
+This app generates GitHub App tokens for the conda-forge-webservices[bot] in order to function. It also 
+uses a single machine user with no special permissions in order to make forks for rerendering. Ask a member of 
+`@conda-forge/core` for details if you need them.
 
 ## Testing
 

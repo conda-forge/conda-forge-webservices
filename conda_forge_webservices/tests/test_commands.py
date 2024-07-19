@@ -6,11 +6,14 @@ try:
 except ImportError:
     import mock
 
+import github
 from requests.exceptions import RequestException
 
 from conda_forge_webservices.commands import (
     pr_detailed_comment as _pr_detailed_comment,
-    issue_comment as _issue_comment)
+    issue_comment as _issue_comment,
+    _find_reactable_comment,
+)
 
 
 def pr_detailed_comment(comment, org_name='conda-forge',
@@ -44,14 +47,11 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_circle')
-    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_pr_command_triggers(
-            self, repo, gh, update_cb3, update_circle,
+            self, repo, gh,
             update_team, relint, make_noarch, rerender, add_bot_rerun_label):
-        update_cb3.return_value = (True, "hi")
 
         commands = [
             (rerender, False, [
@@ -93,15 +93,6 @@ class TestCommands(unittest.TestCase):
                 'sure wish @conda-forge-admin would please add noarch python',
                 'sure wish @conda-forge-admin would add noarch python',
              ]),
-            (update_cb3, False, [
-                '@conda-forge-admin, please update for CB3',
-                '@conda-forge-admin, please update for conda-build 3',
-                '@conda-forge-admin, update for CB3',
-                '@conda-forge-admin, update for conda-build 3',
-            ], [
-                '@conda-forge-admin, please lint'
-                '@conda-forge-admin, lint'
-            ]),
             (relint, True, [
                 '@conda-forge-admin, please lint',
                 '@conda-forge-admin, lint',
@@ -149,24 +140,20 @@ class TestCommands(unittest.TestCase):
                 pr_detailed_comment(msg)
                 command.assert_not_called()
 
+    @mock.patch('conda_forge_webservices.commands.update_version')
     @mock.patch('conda_forge_webservices.commands.add_user')
-    @mock.patch('conda_forge_webservices.commands.add_py')
     @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
     @mock.patch('conda_forge_webservices.commands.add_bot_automerge')
     @mock.patch('conda_forge_webservices.commands.rerender')
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_circle')
-    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_issue_command_triggers(
-            self, git_repo, gh, update_cb3, update_circle,
+            self, git_repo, gh,
             update_team, relint, make_noarch, rerender, add_bot_automerge,
-            rerender_dummy_commit, add_py, add_user):
-        update_cb3.return_value = (True, "hi")
-        add_py.return_value = True
+            rerender_dummy_commit, add_user, update_version):
         add_user.return_value = True
 
         commands = [
@@ -202,6 +189,22 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-linter, please lint',
                 '@conda-forge-linter, lint',
              ]),
+            (update_version, [
+                '@conda-forge-admin, please update version',
+                '@conda-forge-admin, update version',
+                '@conda-forge-admin: PLEASE UPDATE VERSION',
+                '@conda-forge-admin: UPDATE VERSION',
+                'something something. @conda-forge-admin: please update version',
+                'something something. @conda-forge-admin: update version',
+             ], [
+                '@conda-forge admin is pretty cool. please update version for me?',
+                '@conda-forge admin is pretty cool. update version for me?',
+                '@conda-forge-admin, go ahead and update version for me',
+                'please update version, @conda-forge-admin',
+                'update version, @conda-forge-admin',
+                '@conda-forge-linter, please lint',
+                '@conda-forge-linter, lint',
+             ]),
             (make_noarch, [
                 '@conda-forge-admin, please add noarch python',
                 '@conda-forge-admin, add noarch python',
@@ -217,15 +220,6 @@ class TestCommands(unittest.TestCase):
                 'sure wish @conda-forge-admin would please add noarch python',
                 'sure wish @conda-forge-admin would add noarch python',
              ]),
-            (update_cb3, [
-                '@conda-forge-admin, please update for cb-3',
-                '@conda-forge-admin, update for cb-3',
-                'yo @conda-forge-admin: please update for conda build 3',
-                'yo @conda-forge-admin:  update for conda build 3',
-            ], [
-                '@conda-forge-admin, please lint'
-                '@conda-forge-admin, lint'
-            ]),
             (update_team, [
                 '@conda-forge-admin: please update team',
                 '@conda-forge-admin: update team',
@@ -238,34 +232,6 @@ class TestCommands(unittest.TestCase):
                 '@conda-forge-admin make noarch: python',
                 '@conda-forge-linter, please lint. and can someone refresh the team?',
                 '@conda-forge-linter, lint. and can someone refresh the team?',
-             ]),
-            (update_circle, [
-                '@conda-forge-admin, please update circle',
-                '@conda-forge-admin, update circle',
-                'hey @conda-forge-admin, PLEASE update circle',
-                'hey @conda-forge-admin, update circle',
-                '@conda-forge-admin: please refresh the circle key',
-                '@conda-forge-admin: refresh the circle key',
-             ], [
-                '@conda-forge-admin, please lint',
-                '@conda-forge-admin, lint',
-             ]),
-            (add_py, [
-                '@conda-forge-admin, please add python 2.7',
-                '@conda-forge-admin, add python 2.7',
-                '@conda-forge-admin, please add py27',
-                '@conda-forge-admin, add py27',
-                '@conda-forge-admin: add PY27',
-                'something something. @conda-forge-admin: please add py27',
-                '@conda-forge-admin, please add python 3.6',
-                '@conda-forge-admin, add python 3.6',
-                '@conda-forge-admin, please add py36',
-             ], [
-                '@conda-forge admin is pretty cool. please add py27?',
-                '@conda-forge admin is pretty cool. rerun add py27?',
-                '@conda-forge-admin, go ahead and rerun add python 2.7',
-                'please add python 2.7, @conda-forge-admin',
-                'add py27, @conda-forge-admin',
              ]),
             (add_user, [
                 '@conda-forge-admin, please add user @blah',
@@ -294,17 +260,12 @@ class TestCommands(unittest.TestCase):
                 issue_comment(title="hi", comment=msg)
                 command.assert_called()
                 issue.edit.assert_not_called()
-                if command in (rerender, make_noarch, update_cb3, add_py):
+                if command in (
+                    rerender, make_noarch, update_version
+                ):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
-                if command is add_py:
-                    if "2.7" in msg or "27" in msg:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "2.7")
-                    else:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "3.6")
                 if command is add_user:
                     command.assert_called_with(
                         git_repo.clone_from.return_value, "blah")
@@ -317,24 +278,19 @@ class TestCommands(unittest.TestCase):
                 command.assert_called()
                 if (
                     command in (
-                        rerender, make_noarch, update_cb3, add_bot_automerge, add_py,
-                        add_user
+                        rerender, make_noarch, add_bot_automerge,
+                        add_user, update_version,
                     )
                 ):
-                    assert "Fixes #" in repo.create_pull.call_args[0][1]
+                    assert "Fixes #" in repo.create_pull.call_args.kwargs["body"]
                 else:
                     issue.edit.assert_called_with(state="closed")
-                if command in (rerender, make_noarch, update_cb3, add_py):
+                if command in (
+                    rerender, make_noarch, update_version
+                ):
                     rerender_dummy_commit.assert_called()
                 else:
                     rerender_dummy_commit.assert_not_called()
-                if command is add_py:
-                    if "2.7" in msg or "27" in msg:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "2.7")
-                    else:
-                        command.assert_called_with(
-                            git_repo.clone_from.return_value, "3.6")
                 if command is add_user:
                     command.assert_called_with(
                         git_repo.clone_from.return_value, "blah")
@@ -360,12 +316,10 @@ class TestCommands(unittest.TestCase):
     @mock.patch('conda_forge_webservices.commands.make_noarch')
     @mock.patch('conda_forge_webservices.commands.relint')
     @mock.patch('conda_forge_webservices.commands.update_team')
-    @mock.patch('conda_forge_webservices.commands.update_circle')
-    @mock.patch('conda_forge_webservices.commands.update_cb3')
     @mock.patch('github.Github')
     @mock.patch('conda_forge_webservices.commands.Repo')
     def test_rerender_failure(
-            self, repo, gh, update_cb3, update_circle,
+            self, repo, gh,
             update_team, relint, make_noarch, rerender):
         rerender.side_effect = RequestException
 
@@ -383,6 +337,81 @@ class TestCommands(unittest.TestCase):
             'conda-forge/core for further assistance'
             in pull_create_issue.call_args[0][0]
         )
+
+    @mock.patch('conda_forge_webservices.commands._sync_default_branch')
+    @mock.patch('conda_forge_webservices.commands.get_app_token_for_webservices_only')
+    @mock.patch('conda_forge_webservices.commands.make_rerender_dummy_commit')
+    @mock.patch('conda_forge_webservices.commands.update_version')
+    @mock.patch('conda_forge_webservices.commands.make_noarch')
+    @mock.patch('conda_forge_webservices.commands.relint')
+    @mock.patch('conda_forge_webservices.commands.update_team')
+    @mock.patch('github.Github')
+    @mock.patch('conda_forge_webservices.commands.Repo')
+    def test_update_version_failure(
+            self, repo, gh,
+            update_team, relint, make_noarch, update_version,
+            rrdc, gatfwo, sdb
+    ):
+        update_version.side_effect = RequestException
+
+        repos = [mock.MagicMock(), mock.MagicMock(), mock.MagicMock()]
+        for repo in repos:
+            repo.default_branch = "main"
+        gh.return_value.get_repo.side_effect = repos
+        pull_create_issue = repos[0].create_pull.return_value.create_issue_comment
+
+        msg = '@conda-forge-admin, please update version'
+
+        issue_comment(title=msg, comment=None)
+
+        update_version.assert_called()
+
+        assert 'ran into an issue with' in pull_create_issue.call_args[0][0]
+        assert (
+            'conda-forge/core for further assistance'
+            in pull_create_issue.call_args[0][0]
+        )
+
+    def test_find_reactable_comment(self):
+        """
+        In this PR there are several comments that we could have reacted to:
+        https://github.com/conda-forge/conda-pypi-feedstock/pull/5
+
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#issue-2362214690
+          This is the PR description.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#issuecomment-2178557279
+          A 'normal' comment in the PR discussion.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#pullrequestreview-2128210901
+          The summary of a submitted review (e.g. "Approved").
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646160070
+          A comment that is part of a submitted review.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646411494
+          A reply to one of those comments.
+        - https://github.com/conda-forge/conda-pypi-feedstock/pull/5#discussion_r1646163741
+          A single-comment review (comment on a diff line).
+
+        In this issue we have:
+        https://github.com/conda-forge/conda-pypi-feedstock/issues/4
+
+        - https://github.com/conda-forge/conda-pypi-feedstock/issues/4#issue-2362214456
+          The issue description
+        - https://github.com/conda-forge/conda-pypi-feedstock/issues/4#issuecomment-2178549014
+          A comment in the discussion
+        """
+        gh = github.Github()
+        repo = gh.get_repo("conda-forge/conda-pypi-feedstock")
+        for (number, comment_id, review_id) in (
+            (5, -1, None),  # PR description
+            (5, 2178557279, None),  # Normal PR comment
+            (5, None, 2128210901),  # Submitted review
+            (5, None, 1646160070),  # Comment in a submitted review
+            (5, None, 1646411494),  # Reply in a review comment
+            (5, None, 1646163741),  # Single comment review
+            (4, -1, None),  # Issue description
+            (4, 2178549014, None),  # Issue comment
+        ):
+            comment = _find_reactable_comment(repo, number, comment_id, review_id)
+            assert hasattr(comment, "create_reaction")
 
 
 if __name__ == '__main__':

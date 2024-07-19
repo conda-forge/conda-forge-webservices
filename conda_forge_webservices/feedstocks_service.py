@@ -7,6 +7,7 @@ import logging
 import github
 
 from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+from conda_forge_webservices.utils import with_action_url
 
 LOGGER = logging.getLogger("conda_forge_webservices.feedstocks_service")
 
@@ -88,7 +89,7 @@ def update_feedstock(org_name, repo_name):
                 "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
             )
             feedstocks_repo.index.commit(
-                "Updated the {0} feedstock.".format(name),
+                with_action_url(f"Updated the {name} feedstock."),
                 author=author,
                 committer=author
             )

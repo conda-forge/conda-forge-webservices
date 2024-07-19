@@ -5,26 +5,7 @@ from datetime import timezone, datetime, timedelta
 from dateutil.parser import parse
 import requests
 import urllib
-
-
-def parse_conda_pkg(pkg):
-    """Parse a conda package into its parts.
-
-    code due to Isuru F. and CJ Wright
-
-    Returns platform, name, version and build string
-    """
-    if pkg.endswith(".tar.bz2"):
-        pkg = pkg[:-len(".tar.bz2")]
-    elif pkg.endswith(".conda"):
-        pkg = pkg[:-len(".conda")]
-    else:
-        raise RuntimeError("Can only process packages that end in .tar.bz2 or .conda!")
-    plat, pkg_name = pkg.split(os.path.sep)
-    name_ver, build = pkg_name.rsplit('-', 1)
-    name, ver = name_ver.rsplit('-', 1)
-    return plat, name, ver, build
-
+from conda_forge_webservices.utils import parse_conda_pkg
 
 if __name__ == "__main__":
     header = {'Authorization': 'token {}'.format(os.environ["STAGING_BINSTAR_TOKEN"])}

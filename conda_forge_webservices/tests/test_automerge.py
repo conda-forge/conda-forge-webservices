@@ -21,7 +21,7 @@ class TestAddAutomerge(unittest.TestCase):
                 cfg = {'bot': {'automerge': True}}
                 cfg_pth = os.path.join(repo_pth, 'conda-forge.yml')
                 with open(cfg_pth, "w") as fp:
-                    yaml = YAML()
+                    yaml = YAML(typ="safe")
                     yaml.dump(cfg, fp)
 
                 assert not add_bot_automerge(repo)
@@ -30,7 +30,7 @@ class TestAddAutomerge(unittest.TestCase):
         ("empty", {},),
         ("off", {'travis': 'blah', 'bot': {'automerge': False}},)])
     def test_automerge_add(self, _, cfg):
-        yaml = YAML()
+        yaml = YAML(typ="safe")
 
         with tempfile.TemporaryDirectory() as tmpdir:
             with pushd(tmpdir):
@@ -79,7 +79,7 @@ class TestRemoveAutomerge(unittest.TestCase):
 
                 cfg_pth = os.path.join(repo_pth, 'conda-forge.yml')
                 with open(cfg_pth, "w") as fp:
-                    yaml = YAML()
+                    yaml = YAML(typ="safe")
                     yaml.dump(cfg, fp)
 
                 assert not remove_bot_automerge(repo)
@@ -88,7 +88,7 @@ class TestRemoveAutomerge(unittest.TestCase):
         ("on-and-other-bot-key", dict(travis="blah", bot=dict(automerge=True, x=5))),
         ("on-and-only-bot-key", dict(travis="blah", bot=dict(automerge=True)))])
     def test_automerge_remove(self, _, cfg):
-        yaml = YAML()
+        yaml = YAML(typ="safe")
 
         with tempfile.TemporaryDirectory() as tmpdir:
             with pushd(tmpdir):

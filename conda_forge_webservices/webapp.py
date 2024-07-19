@@ -1,4 +1,5 @@
 import os
+import subprocess
 import asyncio
 import tornado.escape
 import tornado.httpserver
@@ -15,13 +16,13 @@ import logging
 
 import requests
 import github
-from datetime import datetime
+from datetime import datetime, timezone
 
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
-from conda_forge_webservices.update_me import get_current_versions
+from conda_forge_webservices.update_me import WEBSERVICE_PKGS
 from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
     copy_feedstock_outputs,
@@ -30,6 +31,7 @@ from conda_forge_webservices.feedstock_outputs import (
 )
 from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
 from conda_forge_webservices import status_monitor
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 
 STATUS_DATA_LOCK = tornado.locks.Lock()
 
@@ -86,7 +88,7 @@ def get_commit_message(full_name, commit):
         .message)
 
 
-def print_rate_limiting_info_for_token(token, user):
+def print_rate_limiting_info_for_token(token):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
     # get this info. So, we should be doing this regularly
@@ -99,9 +101,14 @@ def print_rate_limiting_info_for_token(token, user):
     gh_api_remaining = gh.get_rate_limit().core.remaining
     gh_api_total = gh.get_rate_limit().core.limit
 
+    try:
+        user = gh.get_user().login
+    except Exception:
+        user = "conda-forge-webservices[bot]"
+
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().core.reset
-    gh_api_reset_time -= datetime.utcnow()
+    gh_api_reset_time -= datetime.now(timezone.utc)
     msg = "{user} - remaining {remaining} out of {total}.".format(
         remaining=gh_api_remaining,
         total=gh_api_total, user=user,
@@ -115,12 +122,12 @@ def print_rate_limiting_info_for_token(token, user):
 
 def print_rate_limiting_info():
 
-    d = [(os.environ['GH_TOKEN'], "conda-forge-linter")]
+    d = [os.environ['GH_TOKEN'], get_app_token_for_webservices_only()]
 
     LOGGER.info("")
     LOGGER.info("GitHub API Rate Limit Info:")
-    for k, v in d:
-        print_rate_limiting_info_for_token(k, v)
+    for k in d:
+        print_rate_limiting_info_for_token(k)
     LOGGER.info("")
 
 
@@ -326,6 +333,10 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
 
 class CommandHookHandler(tornado.web.RequestHandler):
     async def post(self):
+        """
+        See https://docs.github.com/en/webhooks/webhook-events-and-payloads
+        for the event payloads.
+        """
         headers = self.request.headers
         event = headers.get('X-GitHub-Event', None)
 
@@ -367,18 +378,23 @@ class CommandHookHandler(tornado.web.RequestHandler):
             pr_branch = body['pull_request']['head']['ref']
             pr_num = body['pull_request']['number']
             comment = None
+            comment_id = None
+            review_id = None
             if event == 'pull_request_review' and action != 'dismissed':
                 comment = body['review']['body']
+                review_id = body['review']['id']
             elif (
                 event == 'pull_request' and
                 action in ['opened', 'edited', 'reopened']
             ):
                 comment = body['pull_request']['body']
+                comment_id = -1  # will react on description for issue/PR #pr_num
             elif (
                 event == 'pull_request_review_comment' and
                 action != 'deleted'
             ):
                 comment = body['comment']['body']
+                review_id = body['comment']['id']
 
             if comment:
                 LOGGER.info("")
@@ -396,6 +412,8 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     pr_branch,
                     pr_num,
                     comment,
+                    comment_id,
+                    review_id
                 )
                 print_rate_limiting_info()
                 return
@@ -423,6 +441,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 pull_request = True
             if pull_request and action != 'deleted':
                 comment = body['comment']['body']
+                comment_id = body['comment']['id']
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info("PR command: %s", body['repository']['full_name'])
@@ -435,6 +454,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     repo_name,
                     issue_num,
                     comment,
+                    comment_id,
                 )
                 print_rate_limiting_info()
                 return
@@ -446,8 +466,10 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 title = body['issue']['title'] if event == "issues" else ""
                 if 'comment' in body:
                     comment = body['comment']['body']
+                    comment_id = body['comment']['id']
                 else:
                     comment = body['issue']['body']
+                    comment_id = -1  # will react to issue/PR description #issue_num
 
                 LOGGER.info("")
                 LOGGER.info("===================================================")
@@ -462,6 +484,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                     issue_num,
                     title,
                     comment,
+                    comment_id,
                 )
                 print_rate_limiting_info()
                 return
@@ -473,9 +496,24 @@ class CommandHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
+def _get_current_versions():
+    r = subprocess.run(
+        ["conda", "list", "--json"],
+        capture_output=True,
+        check=True,
+        encoding="utf-8",
+    )
+    out = json.loads(r.stdout)
+    vers = {}
+    for item in out:
+        if item["name"] in WEBSERVICE_PKGS:
+            vers[item["name"]] = item["version"]
+    return vers
+
+
 class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
     async def get(self):
-        self.write(json.dumps(get_current_versions()))
+        self.write(json.dumps(_get_current_versions()))
 
 
 def _repo_exists(feedstock):
@@ -574,6 +612,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         channel = data.get("channel", None)
         git_sha = data.get("git_sha", None)
         hash_type = data.get("hash_type", "md5")
+        provider = data.get("provider", None)
         # the old default was to comment only if the git sha was not None
         # so we keep that here
         comment_on_error = data.get("comment_on_error", git_sha is not None)
@@ -594,7 +633,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             and feedstock_token is not None
             and len(feedstock_token) > 0
             and is_valid_feedstock_token(
-                    "conda-forge", feedstock, feedstock_token
+                    "conda-forge", feedstock, feedstock_token, provider=provider,
             )
         ):
             valid_token = True
@@ -612,6 +651,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             LOGGER.warning('    channel: %s' % channel)
             LOGGER.warning('    valid token: %s' % valid_token)
             LOGGER.warning('    hash type: %s' % hash_type)
+            LOGGER.warning('    provider: %s' % provider)
 
             err_msgs = []
             if outputs is None:
@@ -657,6 +697,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             LOGGER.info("    errors: %s", errors)
             LOGGER.info("    valid: %s", valid)
             LOGGER.info("    copied: %s", copied)
+            LOGGER.info('    provider: %s' % provider)
 
         print_rate_limiting_info()
 
@@ -753,6 +794,12 @@ class StatusMonitorAzureHandler(tornado.web.RequestHandler):
         self.write(status_monitor.get_azure_status())
 
 
+class StatusMonitorOpenGPUServerHandler(tornado.web.RequestHandler):
+    async def get(self):
+        self.add_header("Access-Control-Allow-Origin", "*")
+        self.write(status_monitor.get_open_gpu_server_status())
+
+
 class StatusMonitorDBHandler(tornado.web.RequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
@@ -787,6 +834,7 @@ def create_webapp():
         (r"/feedstock-outputs/copy", OutputsCopyHandler),
         (r"/status-monitor/payload", StatusMonitorPayloadHookHandler),
         (r"/status-monitor/azure", StatusMonitorAzureHandler),
+        (r"/status-monitor/open-gpu-server", StatusMonitorOpenGPUServerHandler),
         (r"/status-monitor/db", StatusMonitorDBHandler),
         (r"/status-monitor/report/(.*)", StatusMonitorReportHandler),
         (r"/status-monitor", StatusMonitorHandler),
