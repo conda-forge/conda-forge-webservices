@@ -17,7 +17,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
         with:
           python-version: '3.10'
-          channels: conda-forge,defaults
+          channels: conda-forge
           channel-priority: strict
           show-channel-urls: true
           miniforge-version: latest
@@ -47,7 +47,7 @@ jobs:
         shell: bash -l {0}
         run: |
           export CF_WEBSERVICES_TEST=1
-          pytest -vvx conda_forge_webservices
+          pytest -v conda_forge_webservices
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
         with:
           python-version: '3.10'
-          channels: conda-forge,defaults
+          channels: conda-forge
           channel-priority: strict
           show-channel-urls: true
           miniforge-version: latest
