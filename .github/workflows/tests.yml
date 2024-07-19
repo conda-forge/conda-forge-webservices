@@ -22,7 +22,7 @@ jobs:
         shell: bash -l {0}
         run: |
           echo "owner: ${GITHUB_REPOSITORY_OWNER}"
-          ecoo 'fork: ${{ github.event.pull_request.head.repo.fork }}'
+          echo 'fork: ${{ github.event.pull_request.head.repo.fork }}'
           exit 1
 
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
