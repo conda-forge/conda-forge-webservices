@@ -54,6 +54,12 @@ jobs:
         shell: bash -l {0}
         run: |
           export CF_WEBSERVICES_TEST=1
+          if [[ ${GITHUB_REPOSITORY_OWNER} != "conda-forge" ]]; then
+            unset CF_WEBSERVICES_TOKEN
+            unset CF_WEBSERVICES_APP_ID
+            unset CF_WEBSERVICES_PRIVATE_KEY
+            unset GH_TOKEN
+          fi
           pytest -v conda_forge_webservices
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
@@ -108,6 +114,12 @@ jobs:
         shell: bash -l {0}
         run: |
           export CF_WEBSERVICES_TEST=1
+          if [[ ${GITHUB_REPOSITORY_OWNER} != "conda-forge" ]]; then
+            unset CF_WEBSERVICES_TOKEN
+            unset CF_WEBSERVICES_APP_ID
+            unset CF_WEBSERVICES_PRIVATE_KEY
+            unset GH_TOKEN
+          fi
           ./scripts/run_cfep13_tests.sh
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
