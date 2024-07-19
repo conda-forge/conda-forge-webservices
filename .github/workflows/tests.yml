@@ -3,6 +3,7 @@ name: tests
 on:
   push: null
   workflow_dispatch: null
+  merge_group: null
 
 env:
   PY_COLORS: 1
