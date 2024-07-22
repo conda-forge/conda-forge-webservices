@@ -21,16 +21,17 @@ def handle_feedstock_event(org_name, repo_name):
 
 def update_feedstock(org_name, repo_name):
     gh_token = get_app_token_for_webservices_only()
-    name = repo_name[:-len("-feedstock")]
+    name = repo_name[: -len("-feedstock")]
 
     tmp_dir = None
     try:
-        tmp_dir = tempfile.mkdtemp('_recipe')
+        tmp_dir = tempfile.mkdtemp("_recipe")
 
         t0 = time.time()
         feedstocks_url = (
-            "https://x-access-token:{}@github.com/conda-forge/feedstocks.git"
-            "".format(gh_token)
+            "https://x-access-token:{}@github.com/conda-forge/feedstocks.git" "".format(
+                gh_token
+            )
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
@@ -45,11 +46,9 @@ def update_feedstock(org_name, repo_name):
         for i in range(5):
             try:
                 gh = github.Github(gh_token)
-                default_branch = (
-                    gh
-                    .get_repo("{}/{}".format(org_name, repo_name))
-                    .default_branch
-                )
+                default_branch = gh.get_repo(
+                    "{}/{}".format(org_name, repo_name)
+                ).default_branch
                 break
             except Exception as e:
                 if i < 4:
@@ -73,10 +72,7 @@ def update_feedstock(org_name, repo_name):
                 "refs/heads/%s" % default_branch,
             )
         feedstock_submodule.update(
-            init=True,
-            recursive=False,
-            force=True,
-            to_latest_revision=True
+            init=True, recursive=False, force=True, to_latest_revision=True
         )
         feedstocks_repo.git.add([".gitmodules", feedstock_submodule.path])
         LOGGER.info("    update submodule: %s", time.time() - t0)
@@ -91,7 +87,7 @@ def update_feedstock(org_name, repo_name):
             feedstocks_repo.index.commit(
                 with_action_url(f"Updated the {name} feedstock."),
                 author=author,
-                committer=author
+                committer=author,
             )
             feedstocks_repo.remote().pull(rebase=True)
             feedstocks_repo.remote().push()
@@ -102,10 +98,11 @@ def update_feedstock(org_name, repo_name):
             shutil.rmtree(tmp_dir)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('org')
-    parser.add_argument('repo')
+    parser.add_argument("org")
+    parser.add_argument("repo")
     args = parser.parse_args()
     update_feedstock(args.org, args.repo)

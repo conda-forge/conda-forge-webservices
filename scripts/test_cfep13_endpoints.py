@@ -18,12 +18,12 @@ import uuid
 import github
 import requests
 import pytest
+from typing import Optional
 
 from conda_forge_webservices.utils import pushd, with_action_url
 
 OUTPUTS_REPO = (
-    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge"
-    "/feedstock-outputs.git"
+    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge" "/feedstock-outputs.git"
 )
 
 try:
@@ -31,7 +31,7 @@ try:
     with open(os.path.expandvars(token_path), "r") as fp:
         sr_token = fp.read().strip()
 
-    headers = {
+    headers: Optional[dict] = {
         "FEEDSTOCK_TOKEN": sr_token,
     }
 except Exception:
@@ -119,7 +119,7 @@ def test_feedstock_outputs_copy_missing_token():
 
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
 @pytest.mark.skipif(GH is None, reason="No GitHub token for testing!")
-@pytest.mark.parametrize('key', ["outputs", "feedstock", "channel"])
+@pytest.mark.parametrize("key", ["outputs", "feedstock", "channel"])
 def test_feedstock_outputs_copy_missing_data(key):
     json_data = {
         "feedstock": "staged-recipes",
