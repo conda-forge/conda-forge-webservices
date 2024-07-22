@@ -948,30 +948,72 @@ def update_version(full_name, pr_num, input_ver):
 
     return not repo.create_repository_dispatch(
         "version_update",
-        client_payload={"pr": pr_num, "input_version": input_ver or 'null'},
+        client_payload={"pr": pr_num, "input_version": input_ver or "null"},
     )
 
 
-def make_noarch(repo):
-    meta_yaml = os.path.join(repo.working_dir, "recipe", "meta.yaml")
-    with open(meta_yaml, 'r') as fh:
-        lines = [line for line in fh]
-    with open(meta_yaml, 'w') as fh:
-        build_line = False
-        for line in lines:
-            if build_line:
-                spaces = len(line) - len(line.lstrip())
-                line = "{}noarch: python\n{}".format(" " * spaces, line)
+def __make_noarch_conda_build(meta_location):
+    """Add noarch: python to the build section of a meta.yaml file."""
+    try:
+        with open(meta_location, "r") as fh:
+            lines = [line for line in fh]
+        with open(meta_location, "w") as fh:
             build_line = False
-            if line.rstrip() == 'build:':
-                build_line = True
-            fh.write(line)
-    repo.index.add([meta_yaml])
+            for line in lines:
+                if build_line:
+                    spaces = len(line) - len(line.lstrip())
+                    line = "{}noarch: python\n{}".format(" " * spaces, line)
+                build_line = False
+                if line.rstrip() == "build:":
+                    build_line = True
+                fh.write(line)
+        return meta_location
+    except Exception:
+        LOGGER.error("Error when trying to add noarch: python to meta.yaml")
+        return None
+
+
+def __make_noarch_rattler_build(recipe_location):
+    """Add noarch: python to the build section of a recipe.yaml file."""
+    # Just modify the yaml file
+    yaml = YAML(typ="safe")
+    try:
+        with open(recipe_location, "rw") as fh:
+            data = yaml.load(fh)
+            if "build" not in data:
+                data["build"] = {}
+            data["build"]["noarch"] = "python"
+            yaml.dump(data, fh)
+    except Exception:
+        LOGGER.error("Error when trying to add noarch: python to recipe.yaml")
+        return None
+
+
+def make_noarch(repo):
+    """Turn recipe into a noarch: python recipe."""
+    meta_yaml = os.path.join(repo.working_dir, "recipe", "meta.yaml")
+    rattler_build_recipe = os.path.join(repo.working_dir, "recipe", "recipe.yaml")
+    updated_recipe = None
+
+    # Update either meta.yaml or recipe.yaml
+    if os.path.exists(meta_yaml):
+        updated_recipe = __make_noarch_conda_build(meta_yaml)
+    elif os.path.exists(rattler_build_recipe):
+        updated_recipe = __make_noarch_rattler_build(rattler_build_recipe)
+
+    # No `meta.yaml` or `recipe.yaml` found
+    if updated_recipe is None:
+        return False
+
+    # Add the file to the index
+    repo.index.add([updated_recipe])
     author = Actor(
         "conda-forge-webservices[bot]",
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
+    # Commit changes
     repo.index.commit(with_action_url("Add noarch:python option"), author=author)
+    # Done
     return True
 
 
