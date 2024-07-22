@@ -2,12 +2,9 @@ import json
 import hmac
 import os
 import hashlib
-try:
-    from urllib.parse import urlencode
-    import unittest.mock as mock
-except ImportError:
-    from urllib import urlencode
-    import mock
+
+from urllib.parse import urlencode
+import unittest.mock as mock
 
 from tornado.testing import AsyncHTTPTestCase
 
