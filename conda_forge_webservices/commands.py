@@ -740,9 +740,14 @@ def add_user(repo, user):
     # adjust those easily enough.
     # Those happen to also be the only locations where adding a user really matters.
 
+    curr_users = None
+    # Initialize data for the different recipe types
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
-    co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
+    rattler_build_recipe_path = os.path.join(repo.working_dir, "recipe", "recipe.yaml")
+    rattler_build_data = None
+
     yaml = YAML(typ="safe")
+    # This is an conda-build recipe
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
         with io.StringIO() as fp_out:
@@ -760,83 +765,103 @@ def add_user(repo, user):
             fp_out.seek(0)
             data = yaml.load(fp_out)
         curr_users = data["extra"]["recipe-maintainers"]
-        if user in curr_users:
-            return False
-        else:
-            if os.path.exists(co_path):
-                # do code owners first
-                with open(co_path, "r") as fp:
-                    lines = [ln.strip() for ln in fp.readlines()]
+    # This is a rattler-build recipe
+    elif os.path.exists(rattler_build_recipe_path):
+        # Can load the file directly because its all valid yaml
+        with open(rattler_build_recipe_path, "r") as fp:
+            rattler_build_data = yaml.load(fp)
+        try:
+            curr_users = data["extra"]["recipe-maintainers"]
+        except KeyError:
+            curr_users = None
 
-                # get any current lines with "* " at the front
-                co_lines = []
-                other_lines = []
-                for i in range(len(lines)):
-                    if lines[i].startswith("* "):
-                        co_lines.append(lines[i])
-                    else:
-                        other_lines.append(lines[i])
-                all_users = ["@" + user]
-                for co_line in co_lines:
-                    parts = co_line.split("*", 1)
-                    if len(parts) > 1:
-                        all_users.extend(parts[1].strip().split(" "))
-                other_lines = ["* " + " ".join(all_users)] + other_lines
-                with open(co_path, "w") as fp:
-                    fp.write("\n".join(other_lines))
-
-            # now the recipe
-            # we cannot use yaml because sometimes reading a recipe via the yaml
-            # is impossible or lossy
-            # so we have to parse it directly :/
-            with open(recipe_path, "r") as fp:
-                lines = fp.read().splitlines()
-            new_lines = []
-            found_extra = False
-            found_rm = False
-            added_user = False
-            for line in lines:
-                if line.strip().startswith("extra:"):
-                    found_extra = True
-                    new_lines.append(line)
-                elif line.strip().startswith("recipe-maintainers:"):
-                    found_rm = True
-                    new_lines.append(line)
-                elif found_extra and found_rm and not added_user:
-                    added_user = True
-                    dashind = line.find("-")
-                    if dashind == -1:
-                        return None
-                    head = line[:dashind]
-                    new_lines.append(head + "- " + user)
-                    new_lines.append(line)
-                else:
-                    new_lines.append(line)
-
-            if not added_user:
-                return None
-
-            with open(recipe_path, "w") as fp:
-                fp.write("\n".join(new_lines) + "\n")
-
-            # and commit
-            repo.index.add([recipe_path])
-            if os.path.exists(co_path):
-                repo.index.add([co_path])
-            author = Actor(
-                "conda-forge-webservices[bot]",
-                "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
-            )
-            # do not @-mention users in commit messages - it causes lots of
-            # extra notifications
-            repo.index.commit(
-                with_action_url(f"[ci skip] added user {user}"),
-                author=author,
-            )
-
-            return True
-    else:
+    # If there are no users return None, which indicates a parsing error
+    if curr_users is None:
         return None
+    if user in curr_users:
+        return False
+
+    co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
+    if os.path.exists(co_path):
+        # do code owners first
+        with open(co_path, "r") as fp:
+            lines = [ln.strip() for ln in fp.readlines()]
+
+        # get any current lines with "* " at the front
+        co_lines = []
+        other_lines = []
+        for i in range(len(lines)):
+            if lines[i].startswith("* "):
+                co_lines.append(lines[i])
+            else:
+                other_lines.append(lines[i])
+        all_users = ["@" + user]
+        for co_line in co_lines:
+            parts = co_line.split("*", 1)
+            if len(parts) > 1:
+                all_users.extend(parts[1].strip().split(" "))
+        other_lines = ["* " + " ".join(all_users)] + other_lines
+        with open(co_path, "w") as fp:
+            fp.write("\n".join(other_lines))
+
+    # For the conda-build case
+    if not rattler_build_data:
+        # now the recipe
+        # we cannot use yaml because sometimes reading a recipe via the yaml
+        # is impossible or lossy
+        # so we have to parse it directly :/
+        with open(recipe_path, "r") as fp:
+            lines = fp.read().splitlines()
+        new_lines = []
+        found_extra = False
+        found_rm = False
+        added_user = False
+        for line in lines:
+            if line.strip().startswith("extra:"):
+                found_extra = True
+                new_lines.append(line)
+            elif line.strip().startswith("recipe-maintainers:"):
+                found_rm = True
+                new_lines.append(line)
+            elif found_extra and found_rm and not added_user:
+                added_user = True
+                dashind = line.find("-")
+                if dashind == -1:
+                    return None
+                head = line[:dashind]
+                new_lines.append(head + "- " + user)
+                new_lines.append(line)
+            else:
+                new_lines.append(line)
+
+        if not added_user:
+            return None
+
+        with open(recipe_path, "w") as fp:
+            fp.write("\n".join(new_lines) + "\n")
+    else:
+        # For the rattler-build case
+        # Just modify the recipe-maintainers list directly in yaml
+        rattler_build_data["extra"]["recipe-maintainers"].append(user)
+        with open(rattler_build_recipe_path, "w") as fp:
+            yaml.dump(rattler_build_data, fp)
+
+    # and commit
+    repo.index.add([recipe_path])
+    if os.path.exists(co_path):
+        repo.index.add([co_path])
+    author = Actor(
+        "conda-forge-webservices[bot]",
+        "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+    )
+    # do not @-mention users in commit messages - it causes lots of
+    # extra notifications
+    repo.index.commit(
+        with_action_url(f"[ci skip] added user {user}"),
+        author=author,
+    )
+
+    return True
 
 
 def add_bot_automerge(repo):
