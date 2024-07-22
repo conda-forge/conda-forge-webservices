@@ -1,10 +1,6 @@
 import os
 import unittest
-
-try:
-    import unittest.mock as mock
-except ImportError:
-    import mock
+import unittest.mock as mock
 
 import github
 from requests.exceptions import RequestException
