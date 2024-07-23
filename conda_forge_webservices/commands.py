@@ -728,6 +728,7 @@ def restart_pull_request_ci(repo, pr_num):
     time.sleep(1)  # wait a bit to be sure things are ok
     pull.edit(state='open')
 
+
 def _determine_recipe_path(repo):
     """Determine rattler-build or conda-build recipe path."""
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
@@ -737,6 +738,7 @@ def _determine_recipe_path(repo):
     if os.path.exists(rattler_build_recipe_path):
         return rattler_build_recipe_path
     return None
+
 
 def add_user(repo, user):
     # a feedstock has user names in three spots as of 2021/06/19
