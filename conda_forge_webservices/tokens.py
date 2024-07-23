@@ -107,7 +107,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             "running in github actions",
             flush=True,
         )
-        print("::add-mask::%s" % raw_pem, flush=True)
+        print(f"::add-mask::{raw_pem}", flush=True)
 
     try:
         f = io.StringIO()
@@ -120,7 +120,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             ):
                 sys.stdout.flush()
                 print("base64 decoded PEM", flush=True)
-                print("::add-mask::%s" % raw_pem, flush=True)
+                print(f"::add-mask::{raw_pem}", flush=True)
 
         if isinstance(raw_pem, bytes):
             with redirect_stdout(f), redirect_stderr(f):
@@ -131,7 +131,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             ):
                 sys.stdout.flush()
                 print("utf-8 decoded PEM", flush=True)
-                print("::add-mask::%s" % raw_pem, flush=True)
+                print(f"::add-mask::{raw_pem}", flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
             gh_auth = Auth.AppAuth(app_id=app_id, private_key=raw_pem)
@@ -168,7 +168,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
         ):
             sys.stdout.flush()
             print("made GITHUB token and masking it for github actions", flush=True)
-            print("::add-mask::%s" % gh_token, flush=True)
+            print(f"::add-mask::{gh_token}", flush=True)
 
     except Exception:
         gh_token = None

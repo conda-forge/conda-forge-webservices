@@ -46,7 +46,7 @@ OUTPUTS_REPO = (
 
 try:
     token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
-    with open(os.path.expandvars(token_path), "r") as fp:
+    with open(os.path.expandvars(token_path)) as fp:
         sr_token = fp.read().strip()
 
     headers : dict[str, str] | None = {
@@ -58,7 +58,7 @@ except Exception:
 
 def _run_git_command(*args):
     subprocess.run(
-        " ".join(["git"] + list(args)),
+        " ".join(["git", *list(args)]),
         check=True,
         shell=True,
     )
@@ -78,7 +78,7 @@ def _clone_and_remove(repo, file_to_remove):
                     repo,
                 )
                 if os.path.exists(file_to_remove):
-                    print("    repo %s: removed file %s" % (repo, file_to_remove))
+                    print(f"    repo {repo}: removed file {file_to_remove}")
                     _run_git_command("rm", file_to_remove)
                     msg = with_action_url(f"removed {file_to_remove} for testing")
                     _run_git_command(
@@ -165,10 +165,10 @@ POSSIBILITY OF SUCH DAMAGE.
 """)
 
     with open("recipe/conda_build_config.yaml", "w") as fp:
-        fp.write("""\
+        fp.write(f"""\
 uuid:
-  - %s
-""" % uid)
+  - {uid}
+""")
     subprocess.run(
         "mkdir -p built_dists "
         "&& rm -rf built_dists/* "
@@ -310,7 +310,7 @@ def test_feedstock_outputs_copy_works():
             )
             for dist in outputs:
                 assert _dist_exists(ac_staging, "cf-staging", dist)
-                print("    cf-staging: dist %s exists" % dist)
+                print(f"    cf-staging: dist {dist} exists")
 
             print("\n=========================================================")
             print("making copy call to admin server")
@@ -350,7 +350,7 @@ def test_feedstock_outputs_copy_works():
             )
             for dist in outputs:
                 assert _dist_exists(ac_prod, "conda-forge", dist)
-                print("    conda-forge: dist %s exists" % dist)
+                print(f"    conda-forge: dist {dist} exists")
 
             print("\n=========================================================")
             print("checking the new outputs")
@@ -358,14 +358,14 @@ def test_feedstock_outputs_copy_works():
                 "=========================================================",
                 flush=True,
             )
-            _fname = "outputs/b/l/a/blah-%s.json" % uid
+            _fname = f"outputs/b/l/a/blah-{uid}.json"
             with tempfile.TemporaryDirectory() as tmpdir:
                 with pushd(tmpdir):
                     _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
 
                     with pushd(os.path.split(OUTPUTS_REPO)[1].replace(".git", "")):
                         assert os.path.exists(_fname)
-                        with open(_fname, "r") as fp:
+                        with open(_fname) as fp:
                             data = json.load(fp)
                             assert data["feedstocks"] == ["staged-recipes"]
 
@@ -379,10 +379,10 @@ def test_feedstock_outputs_copy_works():
             for dist in outputs:
                 if _dist_exists(ac_staging, "cf-staging", dist):
                     if _remove_dist(ac_staging, "cf-staging", dist):
-                        print("cf-staging: removed %s" % dist)
+                        print(f"cf-staging: removed {dist}")
                 if _dist_exists(ac_prod, "conda-forge", dist):
                     if _remove_dist(ac_prod, "conda-forge", dist):
-                        print("cond-forge: removed %s" % dist)
+                        print(f"cond-forge: removed {dist}")
 
-            _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/blah-%s.json" % uid)
+            _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/blah-{uid}.json")
             print(" ")

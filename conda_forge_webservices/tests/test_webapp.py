@@ -26,7 +26,7 @@ class TestBucketHandler(TestHandlerBase):
 
         response = self.fetch('/conda-linting/org-hook', method='POST',
                               body=urlencode({'a': 1}),
-                              headers={'X-Hub-Signature': 'sha1=%s' % hash})
+                              headers={'X-Hub-Signature': f'sha1={hash}'})
         self.assertEqual(response.code, 404)
 
     def test_bad_hash(self):
@@ -65,7 +65,7 @@ class TestBucketHandler(TestHandlerBase):
                               body=json.dumps(body),
                               headers={
                                 'X-GitHub-Event': 'pull_request',
-                                'X-Hub-Signature': 'sha1=%s' % hash})
+                                'X-Hub-Signature': f'sha1={hash}'})
 
         self.assertEqual(response.code, 200)
 
@@ -119,7 +119,7 @@ class TestBucketHandler(TestHandlerBase):
                         'after': '324234fdf',
                         'repository': {
                             'name': name,
-                            'full_name': '%s/%s' % (owner, name),
+                            'full_name': f'{owner}/{name}',
                             'clone_url': 'repo_clone_url',
                             'owner': {'login': owner},
                         },
@@ -161,7 +161,7 @@ class TestBucketHandler(TestHandlerBase):
                             body=json.dumps(body),
                             headers={
                                 'X-GitHub-Event': event,
-                                'X-Hub-Signature': 'sha1=%s' % hash}
+                                'X-Hub-Signature': f'sha1={hash}'}
                         )
 
                         if (
@@ -202,7 +202,7 @@ class TestBucketHandler(TestHandlerBase):
              ["[cf admin skip]", "[cf admin skip teams]"],
              ),
         ]:
-            for commit_msg in (["blah"] + skip_slugs):
+            for commit_msg in (['blah', *skip_slugs]):
 
                 test_slugs = [
                     "conda-forge/repo-feedstock",
@@ -219,7 +219,7 @@ class TestBucketHandler(TestHandlerBase):
                             'after': '324234fdf',
                             'repository': {
                                 'name': name,
-                                'full_name': '%s/%s' % (owner, name),
+                                'full_name': f'{owner}/{name}',
                                 'clone_url': 'repo_clone_url',
                                 'owner': {'login': owner},
                             },
@@ -260,7 +260,7 @@ class TestBucketHandler(TestHandlerBase):
                                 body=json.dumps(body),
                                 headers={
                                     'X-GitHub-Event': event,
-                                    'X-Hub-Signature': 'sha1=%s' % hash,
+                                    'X-Hub-Signature': f'sha1={hash}',
                                 },
                             )
 
@@ -309,7 +309,7 @@ class TestBucketHandler(TestHandlerBase):
                               body=json.dumps(body),
                               headers={
                                 'X-GitHub-Event': 'pull_request',
-                                'X-Hub-Signature': 'sha1=%s' % hash})
+                                'X-Hub-Signature': f'sha1={hash}'})
 
         self.assertEqual(response.code, 200)
         compute_lint_message.assert_called_once_with('conda-forge', 'staged-recipes',
@@ -351,7 +351,7 @@ class TestBucketHandler(TestHandlerBase):
                               body=json.dumps(body),
                               headers={
                                 'X-GitHub-Event': 'pull_request',
-                                'X-Hub-Signature': 'sha1=%s' % hash})
+                                'X-Hub-Signature': f'sha1={hash}'})
 
         self.assertEqual(response.code, 200)
         compute_lint_message.assert_not_called()
