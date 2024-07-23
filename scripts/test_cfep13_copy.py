@@ -49,7 +49,7 @@ try:
     with open(os.path.expandvars(token_path), "r") as fp:
         sr_token = fp.read().strip()
 
-    headers = {
+    headers : dict[str, str] | None = {
         "FEEDSTOCK_TOKEN": sr_token,
     }
 except Exception:
