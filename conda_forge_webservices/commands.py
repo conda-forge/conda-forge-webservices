@@ -966,7 +966,7 @@ def update_version(full_name, pr_num, input_ver):
 def make_noarch(repo):
     meta_yaml = _determine_recipe_path(repo)
     if meta_yaml is None:
-        return None
+        return False
     with open(meta_yaml, 'r') as fh:
         lines = [line for line in fh]
     with open(meta_yaml, 'w') as fh:
