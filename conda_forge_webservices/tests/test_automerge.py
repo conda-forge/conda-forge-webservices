@@ -46,7 +46,7 @@ class TestAddAutomerge(unittest.TestCase):
                     # ensure it says to commit
                     assert add_bot_automerge(repo)
 
-                    with open(cfg_pth, 'r') as fp:
+                    with open(cfg_pth) as fp:
                         _cfg = yaml.load(fp)
 
                     # make sure automerge is on
@@ -104,7 +104,7 @@ class TestRemoveAutomerge(unittest.TestCase):
                     # ensure it says to commit
                     assert remove_bot_automerge(repo)
 
-                    with open(cfg_pth, 'r') as fp:
+                    with open(cfg_pth) as fp:
                         _cfg = yaml.load(fp)
 
                     # make sure automerge is off

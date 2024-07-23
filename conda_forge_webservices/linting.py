@@ -4,7 +4,7 @@ import time
 from tempfile import TemporaryDirectory
 import logging
 from pathlib import Path
-from typing import TypedDict, Optional, List, Tuple
+from typing import TypedDict
 
 from git import GitCommandError, Repo
 import github
@@ -21,7 +21,7 @@ class LintInfo(TypedDict):
     sha: str
 
 
-def find_recipes(path: Path) -> List[Path]:
+def find_recipes(path: Path) -> list[Path]:
     """
     Returns all `meta.yaml` and `recipe.yaml` files in the given path.
     """
@@ -31,7 +31,7 @@ def find_recipes(path: Path) -> List[Path]:
     return [x for x in (list(meta_yamls) + list(recipe_yamls))]
 
 
-def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> Tuple[str, str]:
+def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[str, str]:
     """
     Lint all recipes in the given directory.
     """
@@ -84,26 +84,26 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> Tuple[st
             all_pass = False
             messages.append(
                 "\nFor **{}**:\n\n{}".format(
-                    rel_path, "\n".join(" * {}".format(lint) for lint in lints)
+                    rel_path, "\n".join(f" * {lint}" for lint in lints)
                 )
             )
         if hints:
             messages.append(
                 "\nFor **{}**:\n\n{}".format(
-                    rel_path, "\n".join(" * {}".format(hint) for hint in hints)
+                    rel_path, "\n".join(f" * {hint}" for hint in hints)
                 )
             )
 
     # Put the recipes in the form "```recipe/a```, ```recipe/b```".
-    recipe_code_blocks = ", ".join("```{}```".format(r) for r in rel_pr_recipes)
+    recipe_code_blocks = ", ".join(f"```{r}```" for r in rel_pr_recipes)
 
     good = textwrap.dedent(
-        """
+        f"""
     Hi! This is the friendly automated conda-forge-linting service.
 
-    I just wanted to let you know that I linted all conda-recipes in your PR ({}) and found it was in an excellent condition.
+    I just wanted to let you know that I linted all conda-recipes in your PR ({recipe_code_blocks}) and found it was in an excellent condition.
 
-    """.format(recipe_code_blocks)  # noqa: E501
+    """  # noqa: E501
     )
 
     mixed = good + textwrap.dedent("""
@@ -113,15 +113,15 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> Tuple[st
     """).format("\n".join(messages))
 
     bad = textwrap.dedent(
-        """
+        f"""
     Hi! This is the friendly automated conda-forge-linting service.
 
-    I wanted to let you know that I linted all conda-recipes in your PR ({}) and found some lint.
+    I wanted to let you know that I linted all conda-recipes in your PR ({recipe_code_blocks}) and found some lint.
 
     Here's what I've got...
 
     {{}}
-    """.format(recipe_code_blocks)  # noqa: E501
+    """  # noqa: E501
     ).format("\n".join(messages))
 
     if not pr_recipes:
@@ -147,7 +147,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> Tuple[st
 
 def compute_lint_message(
     repo_owner: str, repo_name: str, pr_id: int, ignore_base: bool = False
-) -> Optional[LintInfo]:
+) -> LintInfo | None:
     gh = github.Github(get_app_token_for_webservices_only())
 
     owner = gh.get_user(repo_owner)
@@ -174,19 +174,19 @@ def compute_lint_message(
         try:
             repo.remotes.origin.fetch(
                 [
-                    "pull/{pr}/head:pull/{pr}/head".format(pr=pr_id),
-                    "pull/{pr}/merge:pull/{pr}/merge".format(pr=pr_id),
+                    f"pull/{pr_id}/head:pull/{pr_id}/head",
+                    f"pull/{pr_id}/merge:pull/{pr_id}/merge",
                 ]
             )
-            ref_head = repo.refs["pull/{pr}/head".format(pr=pr_id)]
-            ref_merge = repo.refs["pull/{pr}/merge".format(pr=pr_id)]
+            ref_head = repo.refs[f"pull/{pr_id}/head"]
+            ref_merge = repo.refs[f"pull/{pr_id}/merge"]
         except GitCommandError:
             # Either `merge` doesn't exist because the PR was opened
             # in conflict or it is closed and it can't be the latter.
             repo.remotes.origin.fetch(
-                ["pull/{pr}/head:pull/{pr}/head".format(pr=pr_id)]
+                [f"pull/{pr_id}/head:pull/{pr_id}/head"]
             )
-            ref_head = repo.refs["pull/{pr}/head".format(pr=pr_id)]
+            ref_head = repo.refs[f"pull/{pr_id}/head"]
         sha = str(ref_head.commit.hexsha)
 
         # Check if the linter is skipped via the commit message.
@@ -227,7 +227,7 @@ def compute_lint_message(
                 % num_parents
             )
             base_commit = (set(ref_merge.commit.parents) - {ref_head.commit}).pop()
-            ref_base = repo.create_head("pull/{pr}/base".format(pr=pr_id), base_commit)
+            ref_base = repo.create_head(f"pull/{pr_id}/base", base_commit)
             ref_base.checkout(force=True)
             base_recipes = find_recipes(Path(tmp_dir.name))
 
@@ -254,7 +254,7 @@ def comment_on_pr(
     pr_id: int,
     message: str,
     force: bool = False,
-    search: Optional[str] = None,
+    search: str | None = None,
 ):
     gh = github.Github(get_app_token_for_webservices_only())
 
@@ -293,7 +293,7 @@ def comment_on_pr(
 
 
 def set_pr_status(
-    owner: str, repo_name: str, lint_info: LintInfo, target_url: Optional[str] = None
+    owner: str, repo_name: str, lint_info: LintInfo, target_url: str | None = None
 ):
     gh = github.Github(get_app_token_for_webservices_only())
 

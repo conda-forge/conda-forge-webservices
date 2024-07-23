@@ -30,7 +30,7 @@ DOCKER_IMAGE_PKGS = [
 
 
 def _run_git_command(args):
-    subprocess.run(['git'] + args, check=True)
+    subprocess.run(["git", *args], check=True)
 
 
 def update(repo_name, pkgs):
@@ -66,7 +66,7 @@ def update(repo_name, pkgs):
         ]
         available_versions = sorted(available_versions, key=VersionOrder)
         latest_version = available_versions[-1]
-        LOGGER.info("%s|latest|installed:" % pkg, latest_version, installed_vers[pkg])
+        LOGGER.info(f"{pkg}|latest|installed:", latest_version, installed_vers[pkg])
         if VersionOrder(latest_version) != VersionOrder(installed_vers[pkg]):
             to_install[pkg] = latest_version
             final_install[pkg] = latest_version
@@ -80,9 +80,7 @@ def update(repo_name, pkgs):
             tmpdir = tempfile.mkdtemp('_cf_repo')
 
             clone_dir = os.path.join(tmpdir, repo_name)
-            url = "https://x-access-token:{}@github.com/conda-forge/{}.git".format(
-                gh_token, repo_name
-            )
+            url = f"https://x-access-token:{gh_token}@github.com/conda-forge/{repo_name}.git"
 
             repo = Repo.clone_from(url, clone_dir, depth=1)
 
@@ -96,7 +94,7 @@ def update(repo_name, pkgs):
             if len(to_install) > 1:
                 msg = (
                     "Redeploy for package updates\n\n" +
-                    "\n".join(["* `{}={}`".format(k, v) for k, v in to_install.items()])
+                    "\n".join([f"* `{k}={v}`" for k, v in to_install.items()])
                 )
             else:
                 (k, v), = to_install.items()

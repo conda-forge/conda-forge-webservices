@@ -20,7 +20,7 @@ if __name__ == "__main__":
     num_del = 0
     for channel in rc.json():
         r = requests.get(
-            "https://api.anaconda.org/channels/cf-staging/%s" % channel,
+            f"https://api.anaconda.org/channels/cf-staging/{channel}",
             headers=header,
         )
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
                 print("deleting:", f['basename'], dt)
                 _, name, version, _ = parse_conda_pkg(f["basename"])
                 r = requests.delete(
-                    "https://api.anaconda.org/dist/cf-staging/%s/%s/%s" % (
+                    "https://api.anaconda.org/dist/cf-staging/{}/{}/{}".format(
                         name,
                         version,
                         urllib.parse.quote(f["basename"], safe="")
