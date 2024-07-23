@@ -89,8 +89,8 @@ def add_reaction(
     reaction: str,
     repo: github.Repository.Repository,
     issue_number: int,
-    comment_id: int = None,
-    review_id: int = None,
+    comment_id: int | None = None,
+    review_id: int | None = None,
     errors_ok: bool = True,
 ):
     assert reaction in (

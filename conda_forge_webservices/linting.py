@@ -4,7 +4,7 @@ import time
 from tempfile import TemporaryDirectory
 import logging
 from pathlib import Path
-from typing import TypedDict, Optional, List
+from typing import TypedDict, Optional, List, Tuple
 
 from git import GitCommandError, Repo
 import github
@@ -31,7 +31,7 @@ def find_recipes(path: Path) -> List[Path]:
     return [x for x in (list(meta_yamls) + list(recipe_yamls))]
 
 
-def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> (str, str):
+def lint_all_recipes(all_recipe_dir: Path, base_recipes: List[Path]) -> Tuple[str, str]:
     """
     Lint all recipes in the given directory.
     """

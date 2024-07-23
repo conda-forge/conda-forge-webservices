@@ -18,7 +18,7 @@ from conda_forge_webservices.utils import with_action_url
 
 LOGGER = logging.getLogger("conda_forge_webservices.status_monitor")
 
-APP_DATA = {
+APP_DATA : dict = {
     'azure-pipelines': {
         'repos': cachetools.LRUCache(maxsize=128),
         'rates': cachetools.LRUCache(maxsize=96),
