@@ -4,7 +4,7 @@ import logging
 
 from conda_smithy.github import configure_github_team
 import textwrap
-from functools import lru_cache
+from functools import cache
 
 from ruamel.yaml import YAML
 from conda_forge_webservices.tokens import get_app_token_for_webservices_only
@@ -12,7 +12,7 @@ from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_filter_out_members():
     gh = github.Github(os.environ['GH_TOKEN'])
     org = gh.get_organization('conda-forge')
@@ -34,7 +34,7 @@ def get_handles(members):
     return ', '.join(mem)
 
 
-class DummyMeta(object):
+class DummyMeta:
     def __init__(self, meta_yaml):
         _yml = YAML(typ='safe')
         _yml.indent(mapping=2, sequence=4, offset=2)

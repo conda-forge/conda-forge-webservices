@@ -29,8 +29,7 @@ def update_feedstock(org_name, repo_name):
 
         t0 = time.time()
         feedstocks_url = (
-            "https://x-access-token:{}@github.com/conda-forge/feedstocks.git"
-            "".format(gh_token)
+            f"https://x-access-token:{gh_token}@github.com/conda-forge/feedstocks.git"
         )
         feedstocks_repo = git.Repo.clone_from(
             feedstocks_url,
@@ -47,7 +46,7 @@ def update_feedstock(org_name, repo_name):
                 gh = github.Github(gh_token)
                 default_branch = (
                     gh
-                    .get_repo("{}/{}".format(org_name, repo_name))
+                    .get_repo(f"{org_name}/{repo_name}")
                     .default_branch
                 )
                 break
@@ -61,16 +60,16 @@ def update_feedstock(org_name, repo_name):
         feedstock_submodule = feedstocks_repo.create_submodule(
             name=name,
             path=os.path.join("feedstocks", name),
-            url="https://github.com/{0}/{1}.git".format(org_name, repo_name),
+            url=f"https://github.com/{org_name}/{repo_name}.git",
             branch=default_branch,
         )
 
         # Update the feedstocks submodule
         with feedstock_submodule.config_writer() as cfg:
             cfg.config.set_value(
-                'submodule "%s"' % name,
+                f'submodule "{name}"',
                 "branch",
-                "refs/heads/%s" % default_branch,
+                f"refs/heads/{default_branch}",
             )
         feedstock_submodule.update(
             init=True,

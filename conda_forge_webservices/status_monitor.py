@@ -73,16 +73,16 @@ def _reload_cache():
 
     try:
         data = requests.get(
-            ("https://raw.githubusercontent.com/conda-forge/"
+            "https://raw.githubusercontent.com/conda-forge/"
              "conda-forge-status-monitor/"
-             "main/data/latest.json")).json()
+             "main/data/latest.json").json()
     except Exception as e:
         print(e, flush=True)
         data = None
 
     if data is not None:
         for slug in APP_DATA:
-            print('reloading data for %s' % slug, flush=True)
+            print(f'reloading data for {slug}', flush=True)
 
             if slug not in data:
                 continue
@@ -162,7 +162,7 @@ def _make_report_data(iso=False):
 
 def render_status_index():
     yaml = MyYAML()
-    shell = """\
+    shell = f"""\
 <!DOCTYPE html>
 <html>
     <head>
@@ -171,11 +171,11 @@ def render_status_index():
     <body>
         <h2>conda-forge status data</h2>
         <pre>
-%s
+{yaml.dump(_make_report_data(iso=False))}
         </pre>
   </body>
 </html>
-""" % yaml.dump(_make_report_data(iso=False))
+"""
     return shell
 
 
@@ -344,9 +344,8 @@ def cache_status_data():
         # now update the repo
         with tempfile.TemporaryDirectory() as tmpdir:
             subprocess.run(
-                ("cd %s && git clone --depth=1 "
-                 "https://github.com/conda-forge/conda-forge-status-monitor.git" %
-                 tmpdir
+                (f"cd {tmpdir} && git clone --depth=1 "
+                 "https://github.com/conda-forge/conda-forge-status-monitor.git"
                  ),
                 shell=True,
                 check=True,
@@ -356,11 +355,9 @@ def cache_status_data():
             pth = os.path.join(tmpdir, "conda-forge-status-monitor")
 
             subprocess.run(
-                "cd %s && git remote set-url --push origin "
-                "https://x-access-token:%s@github.com/"
-                "conda-forge/conda-forge-status-monitor.git" % (
-                    pth, gh_token
-                ),
+                f"cd {pth} && git remote set-url --push origin "
+                f"https://x-access-token:{gh_token}@github.com/"
+                "conda-forge/conda-forge-status-monitor.git",
                 shell=True,
                 check=True,
                 capture_output=True,
@@ -372,14 +369,14 @@ def cache_status_data():
                 json.dump(latest_data, fp, indent=2)
 
             subprocess.run(
-                "cd %s && git add data/latest.json" % pth,
+                f"cd {pth} && git add data/latest.json",
                 shell=True,
                 check=True,
                 capture_output=True,
             )
 
             stat = subprocess.run(
-                "cd %s && git status" % pth,
+                f"cd {pth} && git status",
                 shell=True,
                 check=True,
                 capture_output=True,
@@ -402,7 +399,7 @@ def cache_status_data():
                 )
 
                 subprocess.run(
-                    "cd %s && git push" % pth,
+                    f"cd {pth} && git push",
                     shell=True,
                     check=True,
                     capture_output=True,
@@ -410,4 +407,4 @@ def cache_status_data():
             else:
                 LOGGER.info("    no status data to commit")
     except Exception as e:
-        LOGGER.warning("    caching status data failed: %s" % repr(e))
+        LOGGER.warning(f"    caching status data failed: {e!r}")

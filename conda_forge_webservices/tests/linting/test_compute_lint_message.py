@@ -194,7 +194,7 @@ def test_mixed_recipe():
     assert lint is not None, lint["message"]
     assert (
         "I do have some suggestions for making it better though" in lint["message"]
-    ), lint["message"]  # noqa
+    ), lint["message"]
 
 
 def test_no_recipe():

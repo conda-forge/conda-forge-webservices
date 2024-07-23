@@ -130,7 +130,7 @@ def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
     if not COMMAND_PREFIX.search(comment):
         return
     gh = github.Github(get_app_token_for_webservices_only())
-    repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+    repo = gh.get_repo(f"{org_name}/{repo_name}")
     pr = repo.get_pull(int(issue_num))
     pr_detailed_comment(
         org_name,
@@ -163,7 +163,7 @@ def pr_detailed_comment(
 
     if not is_allowed_cmd:
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
         pull = repo.get_pull(int(pr_num))
         if pull.head.repo.full_name.split("/")[0] == "conda-forge":
             message = textwrap.dedent("""
@@ -179,7 +179,7 @@ def pr_detailed_comment(
 
     if RESTART_CI.search(comment):
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
             add_reaction("rocket", repo, pr_num, comment_id, review_id)
         restart_pull_request_ci(repo, int(pr_num))
@@ -200,20 +200,20 @@ def pr_detailed_comment(
             team = repo_name.replace('-feedstock', '')
 
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
             add_reaction("rocket", repo, pr_num, comment_id, review_id)
         pull = repo.get_pull(int(pr_num))
-        message = textwrap.dedent("""
+        message = textwrap.dedent(f"""
             Hi! This is the friendly automated conda-forge-webservice.
 
-            I was asked to ping @conda-forge/%s and so here I am doing that.
-            """ % team)
+            I was asked to ping @conda-forge/{team} and so here I am doing that.
+            """)
         pull.create_issue_comment(message)
 
     if not is_allowed_cmd and RERUN_BOT.search(comment):
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
             add_reaction("rocket", repo, pr_num, comment_id, review_id)
         add_bot_rerun_label(repo, pr_num)
@@ -232,7 +232,7 @@ def pr_detailed_comment(
         return
 
     if comment_id is not None or review_id is not None:
-        repo = github.Github(GH_TOKEN).get_repo("{}/{}".format(org_name, repo_name))
+        repo = github.Github(GH_TOKEN).get_repo(f"{org_name}/{repo_name}")
         add_reaction("rocket", repo, pr_num, comment_id, review_id)
 
     tmp_dir = None
@@ -240,8 +240,7 @@ def pr_detailed_comment(
         tmp_dir = tempfile.mkdtemp('_recipe')
 
         feedstock_dir = os.path.join(tmp_dir, repo_name)
-        repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-            GH_TOKEN, pr_owner, pr_repo)
+        repo_url = f"https://x-access-token:{GH_TOKEN}@github.com/{pr_owner}/{pr_repo}.git"
 
         for _git_try_num in range(NUM_GIT_CLONE_TRIES):
             try:
@@ -322,7 +321,7 @@ def pr_detailed_comment(
 
         if message is not None:
             gh = github.Github(GH_TOKEN)
-            gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            gh_repo = gh.get_repo(f"{org_name}/{repo_name}")
             pull = gh_repo.get_pull(int(pr_num))
             pull.create_issue_comment(message)
 
@@ -360,7 +359,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
             # to make a fork
             # the bot used does not need admin permissions
             gh = github.Github(os.environ["GH_TOKEN"])
-            repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            repo = gh.get_repo(f"{org_name}/{repo_name}")
             default_branch = repo.default_branch
             break
         except Exception as e:
@@ -374,7 +373,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
     app_repo = (
         github
         .Github(APP_GH_TOKEN)
-        .get_repo("{}/{}".format(org_name, repo_name))
+        .get_repo(f"{org_name}/{repo_name}")
     )
     app_issue = app_repo.get_issue(int(issue_num))
 
@@ -398,16 +397,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
 
         # make the fork if it does not exist
         try:
-            forked_user_repo = gh.get_repo("{}/{}".format(forked_user, repo_name))
+            forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
         except github.UnknownObjectException:
-            forked_user_gh.create_fork(gh.get_repo('{}/{}'.format(
-                org_name,
-                repo_name)))
+            forked_user_gh.create_fork(gh.get_repo(f'{org_name}/{repo_name}'))
             # we have to wait since the call above is async
             for i in range(NUM_GH_API_TRIES):
                 try:
-                    forked_user_repo = gh.get_repo("{}/{}".format(
-                        forked_user, repo_name)
+                    forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}"
                     )
                     break
                 except Exception as e:
@@ -430,8 +426,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 os.environ["GH_TOKEN"], forked_user, repo_name)
-            upstream_repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-                APP_GH_TOKEN, org_name, repo_name)
+            upstream_repo_url = f"https://x-access-token:{APP_GH_TOKEN}@github.com/{org_name}/{repo_name}.git"
 
             for _git_try_num in range(NUM_GIT_CLONE_TRIES):
                 try:
@@ -445,7 +440,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                 else:
                     break
 
-            forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
+            forked_repo_branch = f'conda_forge_admin_{issue_num}'
             upstream = git_repo.create_remote('upstream', upstream_repo_url)
             upstream.fetch()
             new_branch = git_repo.create_head(
@@ -528,7 +523,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                     user = m.group('user')
                 else:
                     user = None
-                comment_msg = "added user @%s" % user
+                comment_msg = f"added user @{user}"
 
                 if user is None:
                     err_msg = (
@@ -542,29 +537,29 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                         err_msg = (
                             "the recipe meta.yaml and/or CODEOWNERS file could "
                             "not be found or parsed properly when adding "
-                            "user @%s to the feedstock" % user
+                            f"user @{user} to the feedstock"
                         )
                         to_close = False
                     else:
                         if not _changed_anything:
                             err_msg = (
-                                "the recipe already has maintainer @%s" % user
+                                f"the recipe already has maintainer @{user}"
                             )
                             to_close = True
                         else:
                             do_rerender = False
                             check_bump_build = False
-                            pr_title = "[ci skip] adding user @%s" % user
+                            pr_title = f"[ci skip] adding user @{user}"
                             to_close = ADD_USER.search(title)
                             extra_msg = (
                                 "\n\nMerge this PR to add the user. Please do not rerender "  # noqa
                                 "this PR or change it in any way. It has `[ci skip]` in "  # noqa
                                 "the commit message to avoid pushing a new build and so "  # noqa
                                 "the build configuration in the feedstock should not be "  # noqa
-                                "changed.\n\nPlease contact [conda-forge/core](https://"  # noqa
-                                "conda-forge.org/docs/maintainer/maintainer_faq.html"  # noqa
-                                "#mfaq-contact-core) to have this PR merged, if the "  # noqa
-                                "maintainer is unresponsive."  # noqa
+                                "changed.\n\nPlease contact [conda-forge/core](https://"
+                                "conda-forge.org/docs/maintainer/maintainer_faq.html"
+                                "#mfaq-contact-core) to have this PR merged, if the "
+                                "maintainer is unresponsive."
                             )
                             changed_anything |= _changed_anything
 
@@ -583,13 +578,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                         """)
 
                 if to_close:
-                    pr_message += "\nFixes #{}".format(issue_num)
+                    pr_message += f"\nFixes #{issue_num}"
 
                 pr = repo.create_pull(
                     title=pr_title,
                     body=pr_message,
                     base=default_branch,
-                    head="{}:{}".format(forked_user, forked_repo_branch),
+                    head=f"{forked_user}:{forked_repo_branch}",
                 )
 
                 message = textwrap.dedent("""
@@ -685,16 +680,13 @@ def _sync_default_branch(
     # poll until ready since this call is async
     for i in range(5):
         try:
-            new_forked_default_branch = gh.get_repo("{}/{}".format(
-                forked_user, repo_name)
+            new_forked_default_branch = gh.get_repo(f"{forked_user}/{repo_name}"
             ).default_branch
             if new_forked_default_branch == default_branch:
                 break
             else:
                 raise RuntimeError(
-                    "Forked repo branch %s could not be renamed to %s for repo %s" % (
-                        forked_default_branch, default_branch, repo_name,
-                    )
+                    f"Forked repo branch {forked_default_branch} could not be renamed to {default_branch} for repo {repo_name}"  # noqa
                 )
         except Exception as e:
             if i < 4:
@@ -719,9 +711,7 @@ def restart_pull_request_ci(repo, pr_num):
         from conda_smithy.ci_register import drone_session
         session = drone_session()
         session.post(
-            "/api/repos/conda-forge/%s/builds/%s" % (
-                repo.name, drone_build
-            ),
+            f"/api/repos/conda-forge/{repo.name}/builds/{drone_build}",
         )
 
     pull.edit(state='closed')
@@ -759,7 +749,7 @@ def add_user(repo, user):
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
         with io.StringIO() as fp_out:
-            with open(recipe_path, "r") as fp_in:
+            with open(recipe_path) as fp_in:
                 extra_section = False
                 for line in fp_in:
                     if line.strip().startswith("extra:"):
@@ -778,7 +768,7 @@ def add_user(repo, user):
         else:
             if os.path.exists(co_path):
                 # do code owners first
-                with open(co_path, "r") as fp:
+                with open(co_path) as fp:
                     lines = [ln.strip() for ln in fp.readlines()]
 
                 # get any current lines with "* " at the front
@@ -794,7 +784,7 @@ def add_user(repo, user):
                     parts = co_line.split("*", 1)
                     if len(parts) > 1:
                         all_users.extend(parts[1].strip().split(" "))
-                other_lines = ["* " + " ".join(all_users)] + other_lines
+                other_lines = ["* " + " ".join(all_users), *other_lines]
                 with open(co_path, "w") as fp:
                     fp.write("\n".join(other_lines))
 
@@ -802,7 +792,7 @@ def add_user(repo, user):
             # we cannot use yaml because sometimes reading a recipe via the yaml
             # is impossible or lossy
             # so we have to parse it directly :/
-            with open(recipe_path, "r") as fp:
+            with open(recipe_path) as fp:
                 lines = fp.read().splitlines()
             new_lines = []
             found_extra = False
@@ -857,7 +847,7 @@ def add_bot_automerge(repo):
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
-        with open(cf_yml, 'r') as fp:
+        with open(cf_yml) as fp:
             cfg = yaml.load(fp)
     else:
         cfg = {}
@@ -894,7 +884,7 @@ def remove_bot_automerge(repo):
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
-        with open(cf_yml, 'r') as fp:
+        with open(cf_yml) as fp:
             cfg = yaml.load(fp)
     else:
         cfg = {}
@@ -969,7 +959,7 @@ def make_noarch(repo):
     meta_yaml = _determine_recipe_path(repo)
     if meta_yaml is None:
         return False
-    with open(meta_yaml, 'r') as fh:
+    with open(meta_yaml) as fh:
         lines = [line for line in fh]
     with open(meta_yaml, 'w') as fh:
         build_line = False

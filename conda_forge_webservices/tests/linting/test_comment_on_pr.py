@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import os
 import random
@@ -13,8 +12,7 @@ class Test_comment_on_pr(unittest.TestCase):
     def test_comment_same_as_before(self):
         PR_number = 523
         message_to_post = ("Testing that a message isn't re-posted if it \n"
-                           "was the same as before. ```{}```"
-                           "".format(random.randint(100000, 200000)))
+                           f"was the same as before. ```{random.randint(100000, 200000)}```")  # noqa
         for _ in range(2):
             comment_on_pr('conda-forge', 'conda-forge-webservices', PR_number,
                           message_to_post)

@@ -109,14 +109,11 @@ def print_rate_limiting_info_for_token(token):
     # Compute time until GitHub API Rate Limit reset
     gh_api_reset_time = gh.get_rate_limit().core.reset
     gh_api_reset_time -= datetime.now(timezone.utc)
-    msg = "{user} - remaining {remaining} out of {total}.".format(
-        remaining=gh_api_remaining,
-        total=gh_api_total, user=user,
-    )
+    msg = f"{user} - remaining {gh_api_remaining} out of {gh_api_total}."
     LOGGER.info(
         "github api requests: %s - %s",
         msg,
-        "Will reset in {time}.".format(time=gh_api_reset_time)
+        f"Will reset in {gh_api_reset_time}."
     )
 
 
@@ -219,7 +216,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                     )
             print_rate_limiting_info()
         else:
-            LOGGER.info('Unhandled event "{}".'.format(event))
+            LOGGER.info(f'Unhandled event "{event}".')
             self.set_status(404)
             self.write_error(404)
 
@@ -271,7 +268,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
                 if handled:
                     return
         else:
-            LOGGER.info('Unhandled event "{}".'.format(event))
+            LOGGER.info(f'Unhandled event "{event}".')
         self.set_status(404)
         self.write_error(404)
 
@@ -325,7 +322,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
                 print_rate_limiting_info()
                 return
         else:
-            LOGGER.info('Unhandled event "{}".'.format(event))
+            LOGGER.info(f'Unhandled event "{event}".')
 
         self.set_status(404)
         self.write_error(404)
@@ -490,7 +487,7 @@ class CommandHookHandler(tornado.web.RequestHandler):
                 return
 
         else:
-            LOGGER.info('Unhandled event "{}".'.format(event))
+            LOGGER.info(f'Unhandled event "{event}".')
 
         self.set_status(404)
         self.write_error(404)
@@ -517,7 +514,7 @@ class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
 
 
 def _repo_exists(feedstock):
-    r = requests.get("https://github.com/conda-forge/%s" % feedstock)
+    r = requests.get(f"https://github.com/conda-forge/{feedstock}")
     if r.status_code != 200:
         return False
     else:
@@ -619,7 +616,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
         LOGGER.info("")
         LOGGER.info("===================================================")
-        LOGGER.info("copy outputs for feedstock '%s'" % feedstock)
+        LOGGER.info(f"copy outputs for feedstock '{feedstock}'")
         LOGGER.info("===================================================")
 
         if feedstock is not None and len(feedstock) > 0:
@@ -645,13 +642,13 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             or (not valid_token)
             or hash_type not in ["md5", "sha256"]
         ):
-            LOGGER.warning('    invalid outputs copy request for %s!' % feedstock)
-            LOGGER.warning('    feedstock exists: %s' % feedstock_exists)
-            LOGGER.warning('    outputs: %s' % outputs)
-            LOGGER.warning('    channel: %s' % channel)
-            LOGGER.warning('    valid token: %s' % valid_token)
-            LOGGER.warning('    hash type: %s' % hash_type)
-            LOGGER.warning('    provider: %s' % provider)
+            LOGGER.warning(f'    invalid outputs copy request for {feedstock}!')
+            LOGGER.warning(f'    feedstock exists: {feedstock_exists}')
+            LOGGER.warning(f'    outputs: {outputs}')
+            LOGGER.warning(f'    channel: {channel}')
+            LOGGER.warning(f'    valid token: {valid_token}')
+            LOGGER.warning(f'    hash type: {hash_type}')
+            LOGGER.warning(f'    provider: {provider}')
 
             err_msgs = []
             if outputs is None:
@@ -697,7 +694,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             LOGGER.info("    errors: %s", errors)
             LOGGER.info("    valid: %s", valid)
             LOGGER.info("    copied: %s", copied)
-            LOGGER.info('    provider: %s' % provider)
+            LOGGER.info(f'    provider: {provider}')
 
         print_rate_limiting_info()
 
@@ -782,7 +779,7 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
 
             return
         else:
-            LOGGER.info('Unhandled event "{}".'.format(event))
+            LOGGER.info(f'Unhandled event "{event}".')
 
         self.set_status(404)
         self.write_error(404)

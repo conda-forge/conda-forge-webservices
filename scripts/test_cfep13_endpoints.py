@@ -28,7 +28,7 @@ OUTPUTS_REPO = (
 
 try:
     token_path = "${HOME}/.conda-smithy/conda-forge_staged-recipes.token"
-    with open(os.path.expandvars(token_path), "r") as fp:
+    with open(os.path.expandvars(token_path)) as fp:
         sr_token = fp.read().strip()
 
     headers : dict[str, str] | None = {
@@ -49,7 +49,7 @@ except Exception:
 
 def _run_git_command(*args):
     subprocess.run(
-        " ".join(["git"] + list(args)),
+        " ".join(["git", *list(args)]),
         check=True,
         shell=True,
     )
@@ -140,7 +140,7 @@ def test_feedstock_outputs_copy_missing_data(key):
 def test_feedstock_outputs_copy_bad_hash():
     name = "blah_h" + uuid.uuid4().hex
     try:
-        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
+        _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/{name}.json")
 
         json_data = {
             "feedstock": "staged-recipes",
@@ -155,7 +155,7 @@ def test_feedstock_outputs_copy_bad_hash():
         )
         assert r.status_code == 403, r.status_code
     finally:
-        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
+        _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/{name}.json")
 
 
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
@@ -163,7 +163,7 @@ def test_feedstock_outputs_copy_bad_hash():
 def test_feedstock_outputs_copy_bad_data():
     name = "blah_h" + uuid.uuid4().hex
     try:
-        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
+        _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/{name}.json")
 
         json_data = {
             "feedstock": "staged-recipes",
@@ -177,4 +177,4 @@ def test_feedstock_outputs_copy_bad_data():
         )
         assert r.status_code == 403, r.status_code
     finally:
-        _clone_and_remove(OUTPUTS_REPO, "outputs/b/l/a/%s.json" % name)
+        _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/{name}.json")
