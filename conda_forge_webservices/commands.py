@@ -729,6 +729,17 @@ def restart_pull_request_ci(repo, pr_num):
     pull.edit(state='open')
 
 
+def _determine_recipe_path(repo):
+    """Determine rattler-build or conda-build recipe path."""
+    recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
+    if os.path.exists(recipe_path):
+        return recipe_path
+    rattler_build_recipe_path = os.path.join(repo.working_dir, "recipe", "recipe.yaml")
+    if os.path.exists(rattler_build_recipe_path):
+        return rattler_build_recipe_path
+    return None
+
+
 def add_user(repo, user):
     # a feedstock has user names in three spots as of 2021/06/19
     # 1. the recipe maintainers section
@@ -740,7 +751,9 @@ def add_user(repo, user):
     # adjust those easily enough.
     # Those happen to also be the only locations where adding a user really matters.
 
-    recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
+    recipe_path = _determine_recipe_path(repo)
+    if not recipe_path:
+        return None
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
     yaml = YAML(typ="safe")
     if os.path.exists(recipe_path):
@@ -953,7 +966,9 @@ def update_version(full_name, pr_num, input_ver):
 
 
 def make_noarch(repo):
-    meta_yaml = os.path.join(repo.working_dir, "recipe", "meta.yaml")
+    meta_yaml = _determine_recipe_path(repo)
+    if meta_yaml is None:
+        return False
     with open(meta_yaml, 'r') as fh:
         lines = [line for line in fh]
     with open(meta_yaml, 'w') as fh:
