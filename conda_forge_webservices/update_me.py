@@ -46,14 +46,16 @@ def update(repo_name, pkgs):
     else:
         # We don't have a way to know which versions were actually built into the
         # docker image. Assume that the latest ones were installed.
-        url = (f"https://raw.githubusercontent.com/conda-forge/{repo_name}"
-               "/main/pkg_versions.json")
+        url = (
+            f"https://raw.githubusercontent.com/conda-forge/{repo_name}"
+            "/main/pkg_versions.json"
+        )
 
     r = requests.get(url)
     r.raise_for_status()
     installed_vers = r.json()
 
-    index = get_index(channel_urls=['conda-forge'])
+    index = get_index(channel_urls=["conda-forge"])
     r = Resolve(index)
 
     to_install = {}
@@ -61,7 +63,8 @@ def update(repo_name, pkgs):
 
     for pkg in pkgs:
         available_versions = [
-            p.version for p in r.get_pkgs(MatchSpec(pkg))
+            p.version
+            for p in r.get_pkgs(MatchSpec(pkg))
             if "conda-forge" in str(p.channel)
         ]
         available_versions = sorted(available_versions, key=VersionOrder)
@@ -77,7 +80,7 @@ def update(repo_name, pkgs):
         tmpdir = None
         try:
             gh_token = get_app_token_for_webservices_only()
-            tmpdir = tempfile.mkdtemp('_cf_repo')
+            tmpdir = tempfile.mkdtemp("_cf_repo")
 
             clone_dir = os.path.join(tmpdir, repo_name)
             url = f"https://x-access-token:{gh_token}@github.com/conda-forge/{repo_name}.git"
@@ -92,12 +95,11 @@ def update(repo_name, pkgs):
             repo.index.add(pth)
 
             if len(to_install) > 1:
-                msg = (
-                    "Redeploy for package updates\n\n" +
-                    "\n".join([f"* `{k}={v}`" for k, v in to_install.items()])
+                msg = "Redeploy for package updates\n\n" + "\n".join(
+                    [f"* `{k}={v}`" for k, v in to_install.items()]
                 )
             else:
-                (k, v), = to_install.items()
+                ((k, v),) = to_install.items()
                 msg = f"Redeploy for package update: `{k}={v}`"
 
             repo.index.commit(with_action_url(msg))

@@ -9,9 +9,7 @@ from ..tokens import (
 from ..utils import with_action_url
 
 
-@pytest.mark.parametrize("token_repo", [
-    "cf-autotick-bot-test-package-feedstock"
-])
+@pytest.mark.parametrize("token_repo", ["cf-autotick-bot-test-package-feedstock"])
 def test_github_app_tokens_for_webservices(token_repo):
     token = get_app_token_for_webservices_only()
     assert token is not None
@@ -34,9 +32,7 @@ def test_github_app_tokens_for_webservices(token_repo):
 
         msg = with_action_url("[ci skip] test webservices app token can commit")
         subprocess.run(
-            f"cd {tmpdir}/{repo} && "
-            f"git commit -m '{msg}' "
-            "--allow-empty",
+            f"cd {tmpdir}/{repo} && " f"git commit -m '{msg}' " "--allow-empty",
             shell=True,
             check=True,
         )

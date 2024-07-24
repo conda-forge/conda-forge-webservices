@@ -1,6 +1,7 @@
 """
 This module registers and validates feedstock outputs.
 """
+
 import os
 import json
 import hmac
@@ -38,7 +39,8 @@ def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
         data = r.json()
         assert data["encoding"] == "base64"
         token_data = json.loads(
-            base64.standard_b64decode(data["content"]).decode('utf-8'))
+            base64.standard_b64decode(data["content"]).decode("utf-8")
+        )
         if "tokens" not in token_data:
             token_data = {"tokens": [token_data]}
 
@@ -148,11 +150,7 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
                 LOGGER.info("    did not copy: %s (%s)", dist, repr(e))
                 pass
 
-        if (
-            copied[dist]
-            and _dist_exists(ac_staging, STAGING, dist)
-            and delete
-        ):
+        if copied[dist] and _dist_exists(ac_staging, STAGING, dist) and delete:
             try:
                 ac_staging.remove_dist(
                     STAGING,
@@ -212,7 +210,9 @@ def _is_valid_output_hash(outputs, hash_type):
 
 
 def _is_valid_feedstock_output(
-    project, outputs, register=True,
+    project,
+    outputs,
+    register=True,
 ):
     """Test if feedstock outputs are valid (i.e., the outputs are allowed for that
     feedstock). Optionally register them if they do not exist.
@@ -238,7 +238,7 @@ def _is_valid_feedstock_output(
     gh_token = get_app_token_for_webservices_only()
 
     if project.endswith("-feedstock"):
-        feedstock = project[:-len("-feedstock")]
+        feedstock = project[: -len("-feedstock")]
     else:
         feedstock = project
 
@@ -258,7 +258,7 @@ def _is_valid_feedstock_output(
         r = requests.get(
             "https://api.github.com/repos/conda-forge/"
             f"feedstock-outputs/contents/{un_sharded_path}",
-            headers={"Authorization": f"Bearer {gh_token}"}
+            headers={"Authorization": f"Bearer {gh_token}"},
         )
         if r.status_code != 200:
             # it failed, but we need to know if it failed due to the API or
@@ -266,12 +266,12 @@ def _is_valid_feedstock_output(
             if r.status_code == 404:
                 unique_names_valid[un] = True
 
-                LOGGER.info(
-                    f"    does not exist|valid: {un}|{unique_names_valid[un]}")
+                LOGGER.info(f"    does not exist|valid: {un}|{unique_names_valid[un]}")
                 if register:
                     data = {"feedstocks": [feedstock]}
                     edata = base64.standard_b64encode(
-                        json.dumps(data).encode("utf-8")).decode("ascii")
+                        json.dumps(data).encode("utf-8")
+                    ).decode("ascii")
 
                     r = requests.put(
                         "https://api.github.com/repos/conda-forge/"
@@ -280,9 +280,10 @@ def _is_valid_feedstock_output(
                         json={
                             "message": (
                                 "[cf admin skip] ***NO_CI*** added "
-                                f"output {un} for conda-forge/{feedstock}"),
+                                f"output {un} for conda-forge/{feedstock}"
+                            ),
                             "content": edata,
-                        }
+                        },
                     )
                     if r.status_code != 201:
                         LOGGER.info(
@@ -294,7 +295,8 @@ def _is_valid_feedstock_output(
             data = r.json()
             assert data["encoding"] == "base64"
             data = json.loads(
-                base64.standard_b64decode(data["content"]).decode('utf-8'))
+                base64.standard_b64decode(data["content"]).decode("utf-8")
+            )
             unique_names_valid[un] = feedstock in data["feedstocks"]
             LOGGER.info(f"    checked|valid: {un}|{unique_names_valid[un]}")
 
@@ -364,9 +366,7 @@ def validate_feedstock_outputs(
     for o in outputs_to_test:
         _errors = []
         if not valid_outputs[o]:
-            _errors.append(
-                f"output {o} not allowed for conda-forge/{project}"
-            )
+            _errors.append(f"output {o} not allowed for conda-forge/{project}")
         if not valid_hashes[o]:
             _errors.append(f"output {o} does not have a valid md5 checksum")
 
@@ -400,10 +400,10 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
 
     gh = github.Github(get_app_token_for_webservices_only())
 
-    team_name = feedstock[:-len("-feedstock")]
+    team_name = feedstock[: -len("-feedstock")]
 
-    message = """\
-Hi @conda-forge/%s! This is the friendly automated conda-forge-webservice!
+    message = f"""\
+Hi @conda-forge/{team_name}! This is the friendly automated conda-forge-webservice!
 
 It appears that one or more of your feedstock's outputs did not copy from the
 staging channel (cf-staging) to the production channel (conda-forge). :(
@@ -415,7 +415,7 @@ token. Below we have put some information about the failure to help you debug it
 
 If you have any issues or questions, you can find us on Element in the
 community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or you can bump us right here.
-""" % team_name  # noqa
+"""  # noqa
 
     is_all_valid = True
     if len(valid) > 0:
@@ -456,9 +456,8 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
     repo = gh.get_repo(f"conda-forge/{feedstock}")
     issue = None
     for _issue in repo.get_issues(state="all"):
-        if (
-            (git_sha is not None and git_sha in _issue.title)
-            or ("[warning] failed package validation and/or copy" in _issue.title)
+        if (git_sha is not None and git_sha in _issue.title) or (
+            "[warning] failed package validation and/or copy" in _issue.title
         ):
             issue = _issue
             break

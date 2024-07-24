@@ -40,3 +40,6 @@ select = [
     "E", "F", "W"
 ]
 preview = true
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 88

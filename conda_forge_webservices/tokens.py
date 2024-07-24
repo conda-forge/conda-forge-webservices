@@ -76,9 +76,7 @@ def get_app_token_for_webservices_only(full_name=None, fallback_env_token=None):
         )
         LOGGER.info("===================================================")
 
-    assert APP_TOKEN is not None, (
-        "app token is None!"
-    )
+    assert APP_TOKEN is not None, "app token is None!"
 
     return APP_TOKEN
 
@@ -98,10 +96,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
     gh_token : str
         The github token. May return None if there is an error.
     """
-    if (
-        "GITHUB_ACTIONS" in os.environ
-        and os.environ["GITHUB_ACTIONS"] == "true"
-    ):
+    if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
         sys.stdout.flush()
         print(
             "running in github actions",
@@ -111,7 +106,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
 
     try:
         f = io.StringIO()
-        if raw_pem[0:1] != b'-':
+        if raw_pem[0:1] != b"-":
             with redirect_stdout(f), redirect_stderr(f):
                 raw_pem = base64.b64decode(raw_pem)
             if (
@@ -135,37 +130,25 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
 
         with redirect_stdout(f), redirect_stderr(f):
             gh_auth = Auth.AppAuth(app_id=app_id, private_key=raw_pem)
-        if (
-            "GITHUB_ACTIONS" in os.environ
-            and os.environ["GITHUB_ACTIONS"] == "true"
-        ):
+        if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
             sys.stdout.flush()
             print("loaded Github Auth", flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
             integration = GithubIntegration(auth=gh_auth)
-        if (
-            "GITHUB_ACTIONS" in os.environ
-            and os.environ["GITHUB_ACTIONS"] == "true"
-        ):
+        if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
             sys.stdout.flush()
             print("loaded Github Integration", flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
             installation = integration.get_org_installation("conda-forge")
-        if (
-            "GITHUB_ACTIONS" in os.environ
-            and os.environ["GITHUB_ACTIONS"] == "true"
-        ):
+        if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
             sys.stdout.flush()
             print("found Github installation", flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
             gh_token = integration.get_access_token(installation.id).token
-        if (
-            "GITHUB_ACTIONS" in os.environ
-            and os.environ["GITHUB_ACTIONS"] == "true"
-        ):
+        if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
             sys.stdout.flush()
             print("made GITHUB token and masking it for github actions", flush=True)
             print(f"::add-mask::{gh_token}", flush=True)
