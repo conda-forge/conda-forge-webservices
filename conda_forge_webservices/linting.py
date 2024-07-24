@@ -183,9 +183,7 @@ def compute_lint_message(
         except GitCommandError:
             # Either `merge` doesn't exist because the PR was opened
             # in conflict or it is closed and it can't be the latter.
-            repo.remotes.origin.fetch(
-                [f"pull/{pr_id}/head:pull/{pr_id}/head"]
-            )
+            repo.remotes.origin.fetch([f"pull/{pr_id}/head:pull/{pr_id}/head"])
             ref_head = repo.refs[f"pull/{pr_id}/head"]
         sha = str(ref_head.commit.hexsha)
 

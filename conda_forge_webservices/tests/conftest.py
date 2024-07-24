@@ -13,11 +13,7 @@ MISSING_TOKENS = any(token not in os.environ for token in TOKENS)
 
 @pytest.fixture(scope="session", autouse=True)
 def prep_test_recipes():
-    recipe_data = os.path.join(
-        os.path.dirname(__file__),
-        "linting",
-        "data"
-    )
+    recipe_data = os.path.join(os.path.dirname(__file__), "linting", "data")
     # fix up any weird state from previous runs
     recipes = glob.glob(os.path.join(recipe_data, "*.yaml"))
     for recipe in recipes:
@@ -42,7 +38,6 @@ def pytest_report_teststatus(report, config):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_logreport(report):
-
     if report.when == "call" and report.failed:
         # Ok, so we have a failure, let's see if it a failure we expect
         message = report.longrepr.reprcrash.message
@@ -58,4 +53,4 @@ def skip_if_no_tokens():
     if not MISSING_TOKENS:
         yield
     else:
-        pytest.skip('No conda-forge-webservices app tokens available for testing!')
+        pytest.skip("No conda-forge-webservices app tokens available for testing!")

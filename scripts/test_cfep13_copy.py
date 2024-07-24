@@ -36,12 +36,11 @@ import pytest
 from conda_forge_webservices.utils import pushd, with_action_url
 from conda_forge_webservices.feedstock_outputs import (
     _get_ac_api_prod,
-    _get_ac_api_staging
+    _get_ac_api_staging,
 )
 
 OUTPUTS_REPO = (
-    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/"
-    "feedstock-outputs.git"
+    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/" "feedstock-outputs.git"
 )
 
 try:
@@ -49,7 +48,7 @@ try:
     with open(os.path.expandvars(token_path)) as fp:
         sr_token = fp.read().strip()
 
-    headers : dict[str, str] | None = {
+    headers: dict[str, str] | None = {
         "FEEDSTOCK_TOKEN": sr_token,
     }
 except Exception:
@@ -172,7 +171,7 @@ uuid:
     subprocess.run(
         "mkdir -p built_dists "
         "&& rm -rf built_dists/* "
-        "&& export CONDA_BLD_PATH=\"$(pwd)/built_dists\" "
+        '&& export CONDA_BLD_PATH="$(pwd)/built_dists" '
         "&& conda-build recipe",
         check=True,
         shell=True,
@@ -181,23 +180,23 @@ uuid:
 
 def _split_pkg(pkg):
     if pkg.endswith(".tar.bz2"):
-        pkg = pkg[:-len(".tar.bz2")]
+        pkg = pkg[: -len(".tar.bz2")]
     elif pkg.endswith(".conda"):
-        pkg = pkg[:-len(".conda")]
+        pkg = pkg[: -len(".conda")]
     else:
         raise RuntimeError("Can only process packages that end in .tar.bz2 or .conda!")
     plat, pkg_name = pkg.split(os.path.sep)
-    name_ver, build = pkg_name.rsplit('-', 1)
-    name, ver = name_ver.rsplit('-', 1)
+    name_ver, build = pkg_name.rsplit("-", 1)
+    name, ver = name_ver.rsplit("-", 1)
     return plat, name, ver, build
 
 
 def _compute_local_info(dist, croot, hash_type):
     h = getattr(hashlib, hash_type)()
 
-    with open(os.path.join(croot, dist), 'rb') as fp:
+    with open(os.path.join(croot, dist), "rb") as fp:
         chunk = 0
-        while chunk != b'':
+        while chunk != b"":
             chunk = fp.read(1024)
             h.update(chunk)
 
@@ -254,10 +253,7 @@ def test_feedstock_outputs_copy_works():
     _build_recipe(uid)
     dists = glob.glob("built_dists/noarch/blah-*.tar.bz2")
     assert len(dists) == 1
-    dists = [
-        os.path.relpath(dist, start="built_dists")
-        for dist in dists
-    ]
+    dists = [os.path.relpath(dist, start="built_dists") for dist in dists]
 
     ac_prod = _get_ac_api_prod()
     ac_staging = _get_ac_api_staging()
@@ -279,18 +275,24 @@ def test_feedstock_outputs_copy_works():
                 "=========================================================",
                 flush=True,
             )
-            with _get_temp_token(os.environ['STAGING_BINSTAR_TOKEN']) as fn:
+            with _get_temp_token(os.environ["STAGING_BINSTAR_TOKEN"]) as fn:
                 for output in outputs:
                     pth = os.path.join("built_dists", output)
                     subprocess.run(
-                        " ".join([
-                            'anaconda', '--quiet',
-                            '-t', fn,
-                            'upload', pth,
-                            '--user=cf-staging',
-                            '--channel=main']),
+                        " ".join(
+                            [
+                                "anaconda",
+                                "--quiet",
+                                "-t",
+                                fn,
+                                "upload",
+                                pth,
+                                "--user=cf-staging",
+                                "--channel=main",
+                            ]
+                        ),
                         check=True,
-                        shell=True
+                        shell=True,
                     )
 
             print("\n=========================================================")
