@@ -14,7 +14,7 @@ import logging
 # from .utils import tmp_directory
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
-from .utils import ALLOWED_CMD_NON_FEEDSTOCKS
+from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
 from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 import textwrap
 
@@ -30,12 +30,14 @@ RESTART_CI = re.compile(pre + "(please )?restart (build|builds|ci)", re.I)
 LINT_MSG = re.compile(pre + "(please )?(re-?)?lint", re.I)
 UPDATE_TEAM_MSG = re.compile(pre + "(please )?(update|refresh) (the )?team", re.I)
 UPDATE_CB3_MSG = re.compile(
-    pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I)
+    pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I
+)
 PING_TEAM = re.compile(pre + r"(please )?ping (?P<team>\S+)", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?(add|enable) bot auto-?merge", re.I)
 REMOVE_BOT_AUTOMERGE = re.compile(
-    pre + "(please )?(remove|delete|stop|disable) bot auto-?merge", re.I)
+    pre + "(please )?(remove|delete|stop|disable) bot auto-?merge", re.I
+)
 ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
 UPDATE_VERSION = re.compile(
     pre + r"(please )?update (the )?version( to (?P<ver>\S+))?",
@@ -43,11 +45,94 @@ UPDATE_VERSION = re.compile(
 )
 
 
-def pr_comment(org_name, repo_name, issue_num, comment):
+def _find_reactable_comment(
+    repo: github.Repository.Repository,
+    issue_number: int,
+    comment_id: int | None = None,
+    review_id: int | None = None,
+):
+    if len([arg for arg in (comment_id, review_id) if arg is not None]) != 1:
+        raise ValueError("Must provide either comment_id or review_id")
+
+    if comment_id == -1:  # we pass comment_id = -1 for issue/PR descriptions
+        return repo.get_issue(issue_number)
+    elif comment_id is not None:  # actual comment (not the opening message)
+        return repo.get_issue(issue_number).get_comment(comment_id)
+    elif review_id is not None:
+        for comment_type in (
+            "get_comment",  # same as issue comment, just in case
+            "get_review_comment",  # comments of a submitted review
+            "get_single_review_comments",  # summary/description of a review
+        ):
+            try:
+                pull = repo.get_pull(issue_number)
+                comment = getattr(pull, comment_type)(review_id)
+                if isinstance(comment, github.PaginatedList.PaginatedList):
+                    comment = next(iter(comment), None)
+                if hasattr(comment, "create_reaction"):
+                    return comment
+            except Exception as inner_exc:
+                LOGGER.info(
+                    "Cannot find PR/issue comment with %s. Trying again...",
+                    comment_type,
+                    exc_info=inner_exc,
+                )
+                continue
+    raise RuntimeError(
+        "Couldn't find {}={} for issue {}".format(
+            "comment_id" if comment_id is not None else "review_id",
+            comment_id if comment_id is not None else review_id,
+            issue_number,
+        )
+    )
+
+
+def add_reaction(
+    reaction: str,
+    repo: github.Repository.Repository,
+    issue_number: int,
+    comment_id: int | None = None,
+    review_id: int | None = None,
+    errors_ok: bool = True,
+):
+    assert reaction in (
+        "+1",
+        "-1",
+        "confused",
+        "eyes",
+        "heart",
+        "hooray",
+        "laugh",
+        "rocket",
+    )
+
+    try:
+        for i in range(NUM_GH_API_TRIES):
+            try:
+                comment = _find_reactable_comment(
+                    repo, issue_number, comment_id, review_id
+                )
+                break
+            except RuntimeError as exc:
+                # There seems to be a race condition where we get the payload before the
+                # API can return the actual comment, so let's retry for a tiny bit
+                if i < 4:
+                    time.sleep(0.050 * 2**i)
+                    continue
+                raise exc
+        comment.create_reaction(reaction)
+    except Exception as exc:
+        if errors_ok:
+            LOGGER.info("add_reaction failed", exc_info=exc)
+        else:
+            raise exc
+
+
+def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
     if not COMMAND_PREFIX.search(comment):
         return
     gh = github.Github(get_app_token_for_webservices_only())
-    repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+    repo = gh.get_repo(f"{org_name}/{repo_name}")
     pr = repo.get_pull(int(issue_num))
     pr_detailed_comment(
         org_name,
@@ -57,6 +142,7 @@ def pr_comment(org_name, repo_name, issue_num, comment):
         pr.head.ref,
         issue_num,
         comment,
+        comment_id,
     )
 
 
@@ -68,8 +154,10 @@ def pr_detailed_comment(
     pr_branch,
     pr_num,
     comment,
+    comment_id=None,
+    review_id=None,
 ):
-    is_allowed_cmd = (repo_name in ALLOWED_CMD_NON_FEEDSTOCKS)
+    is_allowed_cmd = repo_name in ALLOWED_CMD_NON_FEEDSTOCKS
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
 
@@ -77,7 +165,7 @@ def pr_detailed_comment(
 
     if not is_allowed_cmd:
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
         pull = repo.get_pull(int(pr_num))
         if pull.head.repo.full_name.split("/")[0] == "conda-forge":
             message = textwrap.dedent("""
@@ -93,42 +181,48 @@ def pr_detailed_comment(
 
     if RESTART_CI.search(comment):
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
+        if comment_id is not None or review_id is not None:
+            add_reaction("rocket", repo, pr_num, comment_id, review_id)
         restart_pull_request_ci(repo, int(pr_num))
 
     if PING_TEAM.search(comment):
         # get the team
         m = PING_TEAM.search(comment)
-        if m.group('team'):
-            team = m.group('team').strip()
-            if team == 'team':
-                team = repo_name.replace('-feedstock', '')
+        if m.group("team"):
+            team = m.group("team").strip()
+            if team == "team":
+                team = repo_name.replace("-feedstock", "")
             else:
-                if 'conda-forge/' in team:
-                    team = team.split('/')[1].strip()
-                if team.endswith('-feedstock'):
-                    team = team[:-len('-feedstock')]
+                if "conda-forge/" in team:
+                    team = team.split("/")[1].strip()
+                if team.endswith("-feedstock"):
+                    team = team[: -len("-feedstock")]
         else:
-            team = repo_name.replace('-feedstock', '')
+            team = repo_name.replace("-feedstock", "")
 
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
+        if comment_id is not None or review_id is not None:
+            add_reaction("rocket", repo, pr_num, comment_id, review_id)
         pull = repo.get_pull(int(pr_num))
-        message = textwrap.dedent("""
+        message = textwrap.dedent(f"""
             Hi! This is the friendly automated conda-forge-webservice.
 
-            I was asked to ping @conda-forge/%s and so here I am doing that.
-            """ % team)
+            I was asked to ping @conda-forge/{team} and so here I am doing that.
+            """)
         pull.create_issue_comment(message)
 
     if not is_allowed_cmd and RERUN_BOT.search(comment):
         gh = github.Github(GH_TOKEN)
-        repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+        repo = gh.get_repo(f"{org_name}/{repo_name}")
+        if comment_id is not None or review_id is not None:
+            add_reaction("rocket", repo, pr_num, comment_id, review_id)
         add_bot_rerun_label(repo, pr_num)
 
     #################################################
     # below here we only allow staged recipes + feedstocks
-    is_staged_recipes = (repo_name == "staged-recipes")
+    is_staged_recipes = repo_name == "staged-recipes"
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         return
 
@@ -139,13 +233,18 @@ def pr_detailed_comment(
     if not any(command.search(comment) for command in pr_commands):
         return
 
+    if comment_id is not None or review_id is not None:
+        repo = github.Github(GH_TOKEN).get_repo(f"{org_name}/{repo_name}")
+        add_reaction("rocket", repo, pr_num, comment_id, review_id)
+
     tmp_dir = None
     try:
-        tmp_dir = tempfile.mkdtemp('_recipe')
+        tmp_dir = tempfile.mkdtemp("_recipe")
 
         feedstock_dir = os.path.join(tmp_dir, repo_name)
-        repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-            GH_TOKEN, pr_owner, pr_repo)
+        repo_url = (
+            f"https://x-access-token:{GH_TOKEN}@github.com/{pr_owner}/{pr_repo}.git"
+        )
 
         for _git_try_num in range(NUM_GIT_CLONE_TRIES):
             try:
@@ -169,7 +268,7 @@ def pr_detailed_comment(
             do_noarch = do_rerender = False
             if ADD_NOARCH_MSG.search(comment):
                 do_noarch = do_rerender = True
-                expected_changes.append('add noarch')
+                expected_changes.append("add noarch")
             if RERENDER_MSG.search(comment):
                 do_rerender = True
 
@@ -179,7 +278,7 @@ def pr_detailed_comment(
         message = None
         if expected_changes:
             if len(expected_changes) > 1:
-                expected_changes[-1] = 'and ' + expected_changes[-1]
+                expected_changes[-1] = "and " + expected_changes[-1]
             joiner = ", " if len(expected_changes) > 2 else " "
             changes_str = joiner.join(expected_changes)
 
@@ -204,14 +303,14 @@ def pr_detailed_comment(
         rerender_error = False
         if not is_staged_recipes and do_rerender:
             try:
-                rerender_error = rerender(org_name + '/' + repo_name, int(pr_num))
+                rerender_error = rerender(org_name + "/" + repo_name, int(pr_num))
             except RequestException:
                 rerender_error = True
 
         if rerender_error:
             doc_url = (
-                'https://conda-forge.org/docs/maintainer/updating_pkgs.html'
-                '#rerendering-with-conda-smithy-locally'
+                "https://conda-forge.org/docs/maintainer/updating_pkgs.html"
+                "#rerendering-with-conda-smithy-locally"
             )
             if message is None:
                 message = textwrap.dedent("""
@@ -226,7 +325,7 @@ def pr_detailed_comment(
 
         if message is not None:
             gh = github.Github(GH_TOKEN)
-            gh_repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            gh_repo = gh.get_repo(f"{org_name}/{repo_name}")
             pull = gh_repo.get_pull(int(pr_num))
             pull.create_issue_comment(message)
 
@@ -235,7 +334,7 @@ def pr_detailed_comment(
             shutil.rmtree(tmp_dir)
 
 
-def issue_comment(org_name, repo_name, issue_num, title, comment):
+def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=None):
     if not repo_name.endswith("-feedstock"):
         return
     if comment is None:
@@ -245,12 +344,25 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
     text = comment + title
 
-    issue_commands = [UPDATE_TEAM_MSG, ADD_NOARCH_MSG,
-                      RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE,
-                      ADD_USER, REMOVE_BOT_AUTOMERGE, UPDATE_VERSION]
+    issue_commands = [
+        UPDATE_TEAM_MSG,
+        ADD_NOARCH_MSG,
+        RERENDER_MSG,
+        UPDATE_CB3_MSG,
+        ADD_BOT_AUTOMERGE,
+        ADD_USER,
+        REMOVE_BOT_AUTOMERGE,
+        UPDATE_VERSION,
+    ]
     send_pr_commands = [
-        ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG, ADD_BOT_AUTOMERGE,
-        ADD_USER, REMOVE_BOT_AUTOMERGE, UPDATE_VERSION]
+        ADD_NOARCH_MSG,
+        RERENDER_MSG,
+        UPDATE_CB3_MSG,
+        ADD_BOT_AUTOMERGE,
+        ADD_USER,
+        REMOVE_BOT_AUTOMERGE,
+        UPDATE_VERSION,
+    ]
 
     if not any(command.search(text) for command in issue_commands):
         return
@@ -264,7 +376,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             # to make a fork
             # the bot used does not need admin permissions
             gh = github.Github(os.environ["GH_TOKEN"])
-            repo = gh.get_repo("{}/{}".format(org_name, repo_name))
+            repo = gh.get_repo(f"{org_name}/{repo_name}")
             default_branch = repo.default_branch
             break
         except Exception as e:
@@ -275,20 +387,21 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 raise e
 
     # these are used when the app takes actions
-    app_repo = (
-        github
-        .Github(APP_GH_TOKEN)
-        .get_repo("{}/{}".format(org_name, repo_name))
-    )
+    app_repo = github.Github(APP_GH_TOKEN).get_repo(f"{org_name}/{repo_name}")
     app_issue = app_repo.get_issue(int(issue_num))
+
+    if comment_id is not None:
+        add_reaction("rocket", app_repo, issue_num, comment_id)
 
     if UPDATE_TEAM_MSG.search(text):
         update_team(org_name, repo_name)
-        message = textwrap.dedent("""
-                Hi! This is the friendly automated conda-forge-webservice.
+        message = textwrap.dedent(
+            f"""
+            Hi! This is the friendly automated conda-forge-webservice.
 
-                I just wanted to let you know that I updated the team with maintainers from %s.
-                """ % default_branch)  # noqa
+            I just wanted to let you know that I updated the team with maintainers from {default_branch}.
+            """  # noqa
+        )
         app_issue.create_comment(message)
         if UPDATE_TEAM_MSG.search(title):
             app_issue.edit(state="closed")
@@ -299,17 +412,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
         # make the fork if it does not exist
         try:
-            forked_user_repo = gh.get_repo("{}/{}".format(forked_user, repo_name))
+            forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
         except github.UnknownObjectException:
-            forked_user_gh.create_fork(gh.get_repo('{}/{}'.format(
-                org_name,
-                repo_name)))
+            forked_user_gh.create_fork(gh.get_repo(f"{org_name}/{repo_name}"))
             # we have to wait since the call above is async
             for i in range(NUM_GH_API_TRIES):
                 try:
-                    forked_user_repo = gh.get_repo("{}/{}".format(
-                        forked_user, repo_name)
-                    )
+                    forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
                     break
                 except Exception as e:
                     if i < 4:
@@ -324,15 +433,18 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
             if forked_user_repo.default_branch != default_branch:
                 _sync_default_branch(
-                    repo_name, forked_user, forked_user_repo.default_branch,
-                    default_branch, gh
+                    repo_name,
+                    forked_user,
+                    forked_user_repo.default_branch,
+                    default_branch,
+                    gh,
                 )
 
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-                os.environ["GH_TOKEN"], forked_user, repo_name)
-            upstream_repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-                APP_GH_TOKEN, org_name, repo_name)
+                os.environ["GH_TOKEN"], forked_user, repo_name
+            )
+            upstream_repo_url = f"https://x-access-token:{APP_GH_TOKEN}@github.com/{org_name}/{repo_name}.git"
 
             for _git_try_num in range(NUM_GIT_CLONE_TRIES):
                 try:
@@ -346,12 +458,11 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                 else:
                     break
 
-            forked_repo_branch = 'conda_forge_admin_{}'.format(issue_num)
-            upstream = git_repo.create_remote('upstream', upstream_repo_url)
+            forked_repo_branch = f"conda_forge_admin_{issue_num}"
+            upstream = git_repo.create_remote("upstream", upstream_repo_url)
             upstream.fetch()
             new_branch = git_repo.create_head(
-                forked_repo_branch,
-                getattr(upstream.refs, default_branch)
+                forked_repo_branch, getattr(upstream.refs, default_branch)
             )
             new_branch.checkout()
 
@@ -385,10 +496,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             elif UPDATE_VERSION.search(text):
                 if UPDATE_VERSION.search(title):
                     m = UPDATE_VERSION.search(title)
-                    input_ver = m.group('ver')
+                    input_ver = m.group("ver")
                 elif UPDATE_VERSION.search(comment):
                     m = UPDATE_VERSION.search(comment)
-                    input_ver = m.group('ver')
+                    input_ver = m.group("ver")
 
                 pr_title = "ENH: update package version"
                 comment_msg = "started a version update"
@@ -423,13 +534,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
             elif ADD_USER.search(text):
                 if ADD_USER.search(title):
                     m = ADD_USER.search(title)
-                    user = m.group('user')
+                    user = m.group("user")
                 elif ADD_USER.search(comment):
                     m = ADD_USER.search(comment)
-                    user = m.group('user')
+                    user = m.group("user")
                 else:
                     user = None
-                comment_msg = "added user @%s" % user
+                comment_msg = f"added user @{user}"
 
                 if user is None:
                     err_msg = (
@@ -443,29 +554,27 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         err_msg = (
                             "the recipe meta.yaml and/or CODEOWNERS file could "
                             "not be found or parsed properly when adding "
-                            "user @%s to the feedstock" % user
+                            f"user @{user} to the feedstock"
                         )
                         to_close = False
                     else:
                         if not _changed_anything:
-                            err_msg = (
-                                "the recipe already has maintainer @%s" % user
-                            )
+                            err_msg = f"the recipe already has maintainer @{user}"
                             to_close = True
                         else:
                             do_rerender = False
                             check_bump_build = False
-                            pr_title = "[ci skip] adding user @%s" % user
+                            pr_title = f"[ci skip] adding user @{user}"
                             to_close = ADD_USER.search(title)
                             extra_msg = (
                                 "\n\nMerge this PR to add the user. Please do not rerender "  # noqa
                                 "this PR or change it in any way. It has `[ci skip]` in "  # noqa
                                 "the commit message to avoid pushing a new build and so "  # noqa
                                 "the build configuration in the feedstock should not be "  # noqa
-                                "changed.\n\nPlease contact [conda-forge/core](https://"  # noqa
-                                "conda-forge.org/docs/maintainer/maintainer_faq.html"  # noqa
-                                "#mfaq-contact-core) to have this PR merged, if the "  # noqa
-                                "maintainer is unresponsive."  # noqa
+                                "changed.\n\nPlease contact [conda-forge/core](https://"
+                                "conda-forge.org/docs/maintainer/maintainer_faq.html"
+                                "#mfaq-contact-core) to have this PR merged, if the "
+                                "maintainer is unresponsive."
                             )
                             changed_anything |= _changed_anything
 
@@ -484,13 +593,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                         """)
 
                 if to_close:
-                    pr_message += "\nFixes #{}".format(issue_num)
+                    pr_message += f"\nFixes #{issue_num}"
 
                 pr = repo.create_pull(
                     title=pr_title,
                     body=pr_message,
                     base=default_branch,
-                    head="{}:{}".format(forked_user, forked_repo_branch),
+                    head=f"{forked_user}:{forked_repo_branch}",
                 )
 
                 message = textwrap.dedent("""
@@ -504,7 +613,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     rerender_error = False
                     try:
                         rerender_error = rerender(
-                            org_name + '/' + repo_name,
+                            org_name + "/" + repo_name,
                             pr.number,
                         )
                     except RequestException:
@@ -512,8 +621,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
 
                     if rerender_error:
                         doc_url = (
-                            'https://conda-forge.org/docs/maintainer/updating_pkgs.html'
-                            '#rerendering-with-conda-smithy-locally'
+                            "https://conda-forge.org/docs/maintainer/updating_pkgs.html"
+                            "#rerendering-with-conda-smithy-locally"
                         )
                         message = textwrap.dedent("""
                             Hi! This is the friendly automated conda-forge-webservice.
@@ -528,7 +637,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment):
                     version_update_error = False
                     try:
                         version_update_error = update_version(
-                            org_name + '/' + repo_name,
+                            org_name + "/" + repo_name,
                             pr.number,
                             input_ver,
                         )
@@ -577,7 +686,7 @@ def _sync_default_branch(
             "Authorization": f"token {os.environ['GH_TOKEN']}",
             "Content-Type": "application/json",
             "Accept": "application/vnd.github.v3+json",
-        }
+        },
     )
     # ignore no such branch errors?
     if r.status_code != 404:
@@ -586,16 +695,14 @@ def _sync_default_branch(
     # poll until ready since this call is async
     for i in range(5):
         try:
-            new_forked_default_branch = gh.get_repo("{}/{}".format(
-                forked_user, repo_name)
+            new_forked_default_branch = gh.get_repo(
+                f"{forked_user}/{repo_name}"
             ).default_branch
             if new_forked_default_branch == default_branch:
                 break
             else:
                 raise RuntimeError(
-                    "Forked repo branch %s could not be renamed to %s for repo %s" % (
-                        forked_default_branch, default_branch, repo_name,
-                    )
+                    f"Forked repo branch {forked_default_branch} could not be renamed to {default_branch} for repo {repo_name}"  # noqa
                 )
         except Exception as e:
             if i < 4:
@@ -618,16 +725,26 @@ def restart_pull_request_ci(repo, pr_num):
     if drone_status:
         drone_build = drone_status.target_url.split("/")[-1]
         from conda_smithy.ci_register import drone_session
+
         session = drone_session()
         session.post(
-            "/api/repos/conda-forge/%s/builds/%s" % (
-                repo.name, drone_build
-            ),
+            f"/api/repos/conda-forge/{repo.name}/builds/{drone_build}",
         )
 
-    pull.edit(state='closed')
+    pull.edit(state="closed")
     time.sleep(1)  # wait a bit to be sure things are ok
-    pull.edit(state='open')
+    pull.edit(state="open")
+
+
+def _determine_recipe_path(repo):
+    """Determine rattler-build or conda-build recipe path."""
+    recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
+    if os.path.exists(recipe_path):
+        return recipe_path
+    rattler_build_recipe_path = os.path.join(repo.working_dir, "recipe", "recipe.yaml")
+    if os.path.exists(rattler_build_recipe_path):
+        return rattler_build_recipe_path
+    return None
 
 
 def add_user(repo, user):
@@ -641,13 +758,15 @@ def add_user(repo, user):
     # adjust those easily enough.
     # Those happen to also be the only locations where adding a user really matters.
 
-    recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
+    recipe_path = _determine_recipe_path(repo)
+    if not recipe_path:
+        return None
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
     yaml = YAML(typ="safe")
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
         with io.StringIO() as fp_out:
-            with open(recipe_path, "r") as fp_in:
+            with open(recipe_path) as fp_in:
                 extra_section = False
                 for line in fp_in:
                     if line.strip().startswith("extra:"):
@@ -666,7 +785,7 @@ def add_user(repo, user):
         else:
             if os.path.exists(co_path):
                 # do code owners first
-                with open(co_path, "r") as fp:
+                with open(co_path) as fp:
                     lines = [ln.strip() for ln in fp.readlines()]
 
                 # get any current lines with "* " at the front
@@ -682,7 +801,7 @@ def add_user(repo, user):
                     parts = co_line.split("*", 1)
                     if len(parts) > 1:
                         all_users.extend(parts[1].strip().split(" "))
-                other_lines = ["* " + " ".join(all_users)] + other_lines
+                other_lines = ["* " + " ".join(all_users), *other_lines]
                 with open(co_path, "w") as fp:
                     fp.write("\n".join(other_lines))
 
@@ -690,7 +809,7 @@ def add_user(repo, user):
             # we cannot use yaml because sometimes reading a recipe via the yaml
             # is impossible or lossy
             # so we have to parse it directly :/
-            with open(recipe_path, "r") as fp:
+            with open(recipe_path) as fp:
                 lines = fp.read().splitlines()
             new_lines = []
             found_extra = False
@@ -730,7 +849,10 @@ def add_user(repo, user):
             )
             # do not @-mention users in commit messages - it causes lots of
             # extra notifications
-            repo.index.commit("[ci skip] added user %s" % user, author=author)
+            repo.index.commit(
+                with_action_url(f"[ci skip] added user {user}"),
+                author=author,
+            )
 
             return True
     else:
@@ -738,16 +860,16 @@ def add_user(repo, user):
 
 
 def add_bot_automerge(repo):
-    yaml = YAML()
+    yaml = YAML(typ="safe")
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
-        with open(cf_yml, 'r') as fp:
+        with open(cf_yml) as fp:
             cfg = yaml.load(fp)
     else:
         cfg = {}
 
-    current_automerge_value = cfg.get('bot', {}).get('automerge', False)
+    current_automerge_value = cfg.get("bot", {}).get("automerge", False)
     if current_automerge_value:
         # already have it
         return False
@@ -755,10 +877,10 @@ def add_bot_automerge(repo):
     # add to conda-forge.yml
     # we do it this way to make room
     # for other keys in the future
-    if 'bot' not in cfg:
-        cfg['bot'] = {}
-    cfg['bot']['automerge'] = True
-    with open(cf_yml, 'w') as fp:
+    if "bot" not in cfg:
+        cfg["bot"] = {}
+    cfg["bot"]["automerge"] = True
+    with open(cf_yml, "w") as fp:
         yaml.dump(cfg, fp)
 
     # now commit
@@ -768,30 +890,32 @@ def add_bot_automerge(repo):
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
     repo.index.commit(
-        "[ci skip] [cf admin skip] ***NO_CI*** added bot automerge", author=author)
+        with_action_url("[ci skip] [cf admin skip] ***NO_CI*** added bot automerge"),
+        author=author,
+    )
     return True
 
 
 def remove_bot_automerge(repo):
-    yaml = YAML()
+    yaml = YAML(typ="safe")
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
-        with open(cf_yml, 'r') as fp:
+        with open(cf_yml) as fp:
             cfg = yaml.load(fp)
     else:
         cfg = {}
 
-    current_automerge_value = cfg.get('bot', {}).get('automerge', False)
+    current_automerge_value = cfg.get("bot", {}).get("automerge", False)
     if not current_automerge_value:
         # already disabled
         return False
 
     # remove it from conda-forge.yml
-    del cfg['bot']['automerge']
-    if len(cfg['bot']) == 0:
-        del cfg['bot']
-    with open(cf_yml, 'w') as fp:
+    del cfg["bot"]["automerge"]
+    if len(cfg["bot"]) == 0:
+        del cfg["bot"]
+    with open(cf_yml, "w") as fp:
         yaml.dump(cfg, fp)
 
     # now commit
@@ -801,7 +925,9 @@ def remove_bot_automerge(repo):
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
     repo.index.commit(
-        "[ci skip] [cf admin skip] ***NO_CI*** removed bot automerge", author=author)
+        with_action_url("[ci skip] [cf admin skip] ***NO_CI*** removed bot automerge"),
+        author=author,
+    )
     return True
 
 
@@ -820,7 +946,7 @@ def make_rerender_dummy_commit(repo):
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
     repo.index.commit(
-        "dummy commit for rerendering",
+        with_action_url("dummy commit for rerendering"),
         author=author,
     )
     return True
@@ -842,22 +968,24 @@ def update_version(full_name, pr_num, input_ver):
 
     return not repo.create_repository_dispatch(
         "version_update",
-        client_payload={"pr": pr_num, "input_version": input_ver or 'null'},
+        client_payload={"pr": pr_num, "input_version": input_ver or "null"},
     )
 
 
 def make_noarch(repo):
-    meta_yaml = os.path.join(repo.working_dir, "recipe", "meta.yaml")
-    with open(meta_yaml, 'r') as fh:
+    meta_yaml = _determine_recipe_path(repo)
+    if meta_yaml is None:
+        return False
+    with open(meta_yaml) as fh:
         lines = [line for line in fh]
-    with open(meta_yaml, 'w') as fh:
+    with open(meta_yaml, "w") as fh:
         build_line = False
         for line in lines:
             if build_line:
                 spaces = len(line) - len(line.lstrip())
-                line = "{}noarch: python\n{}".format(" "*spaces, line)
+                line = "{}noarch: python\n{}".format(" " * spaces, line)
             build_line = False
-            if line.rstrip() == 'build:':
+            if line.rstrip() == "build:":
                 build_line = True
             fh.write(line)
     repo.index.add([meta_yaml])
@@ -865,7 +993,7 @@ def make_noarch(repo):
         "conda-forge-webservices[bot]",
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
-    repo.index.commit("Add noarch:python option", author=author)
+    repo.index.commit(with_action_url("Add noarch:python option"), author=author)
     return True
 
 
@@ -875,12 +1003,12 @@ def relint(owner, repo_name, pr_num):
         owner,
         repo_name,
         pr,
-        repo_name == 'staged-recipes',
+        repo_name == "staged-recipes",
     )
     if not lint_info:
-        LOGGER.warning('Linting was skipped.')
+        LOGGER.warning("Linting was skipped.")
     else:
-        msg = comment_on_pr(owner, repo_name, pr, lint_info['message'], force=True)
+        msg = comment_on_pr(owner, repo_name, pr, lint_info["message"], force=True)
         set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
 
 
@@ -890,12 +1018,14 @@ def add_bot_rerun_label(repo, pr_num):
     try:
         # color and description are from the bot repo
         repo.create_label(
-            'bot-rerun',
-            '#191970',
+            "bot-rerun",
+            "#191970",
             description=(
-                'Apply this label if you want the bot '
-                'to retry issuing a particular '
-                'pull-request'))
+                "Apply this label if you want the bot "
+                "to retry issuing a particular "
+                "pull-request"
+            ),
+        )
     except github.GithubException:
         # an error here is not fatal so swallow it and
         # move on

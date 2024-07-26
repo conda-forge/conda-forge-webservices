@@ -4,12 +4,14 @@ import os
 
 import requests
 
+from conda_forge_webservices.utils import with_action_url
+
 
 def feedstock_token_exists(organization, name):
     r = requests.get(
-        "https://api.github.com/repos/%s/"
-        "feedstock-tokens/contents/tokens/%s.json" % (organization, name),
-        headers={"Authorization": "token %s" % os.environ["GH_TOKEN"]},
+        f"https://api.github.com/repos/{organization}/"
+        f"feedstock-tokens/contents/tokens/{name}.json",
+        headers={"Authorization": "token {}".format(os.environ["GH_TOKEN"])},
     )
     if r.status_code != 200:
         return False
@@ -38,15 +40,17 @@ if __name__ == "__main__":
             )
 
             subprocess.check_call(
-                "git rm tokens/%s.json" % feedstock_name,
+                f"git rm tokens/{feedstock_name}.json",
                 cwd=os.path.join(tmpdir, "feedstock-tokens"),
                 shell=True,
             )
 
+            msg = with_action_url(
+                "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** "
+                f"removing token for {feedstock_name}"
+            )
             subprocess.check_call(
-                "git commit --allow-empty -am "
-                "'[ci skip] [skip ci] [cf admin skip] ***NO_CI*** removing "
-                "token for %s'" % feedstock_name,
+                f"git commit --allow-empty -am '{msg}'",
                 cwd=os.path.join(tmpdir, "feedstock-tokens"),
                 shell=True,
             )

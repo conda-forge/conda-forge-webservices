@@ -16,13 +16,11 @@ from conda_forge_webservices.feedstock_outputs import (
 )
 
 
-@pytest.mark.parametrize('remove', [True, False])
+@pytest.mark.parametrize("remove", [True, False])
 @mock.patch("conda_forge_webservices.feedstock_outputs._dist_exists")
 @mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_staging")
 @mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
-def test_copy_feedstock_outputs_exists(
-    ac_prod, ac_staging, dist_exists, remove
-):
+def test_copy_feedstock_outputs_exists(ac_prod, ac_staging, dist_exists, remove):
     dist_exists.side_effect = [True, remove]
 
     outputs = OrderedDict()
@@ -36,15 +34,11 @@ def test_copy_feedstock_outputs_exists(
     ac_staging.assert_called_once()
 
     dist_exists.assert_any_call(
-        ac_prod.return_value,
-        "conda-forge",
-        "noarch/boo-0.1-py_10.tar.bz2"
+        ac_prod.return_value, "conda-forge", "noarch/boo-0.1-py_10.tar.bz2"
     )
 
     dist_exists.assert_any_call(
-        ac_staging.return_value,
-        "cf-staging",
-        "noarch/boo-0.1-py_10.tar.bz2"
+        ac_staging.return_value, "cf-staging", "noarch/boo-0.1-py_10.tar.bz2"
     )
 
     if remove:
@@ -53,17 +47,15 @@ def test_copy_feedstock_outputs_exists(
             "cf-staging",
             "boo",
             "0.1",
-            basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe="")
+            basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe=""),
         )
 
 
-@pytest.mark.parametrize('error', [False, True])
+@pytest.mark.parametrize("error", [False, True])
 @mock.patch("conda_forge_webservices.feedstock_outputs._dist_exists")
 @mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_staging")
 @mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
-def test_copy_feedstock_outputs_does_no_exist(
-    ac_prod, ac_staging, dist_exists, error
-):
+def test_copy_feedstock_outputs_does_no_exist(ac_prod, ac_staging, dist_exists, error):
     dist_exists.side_effect = [False, True]
     if error:
         ac_prod.return_value.copy.side_effect = [BinstarError("error in copy")]
@@ -117,9 +109,7 @@ def test_copy_feedstock_outputs_does_no_exist(
 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
-def test_validate_feedstock_outputs_badoutputhash(
-    valid_out, valid_hash
-):
+def test_validate_feedstock_outputs_badoutputhash(valid_out, valid_hash):
     valid_out.return_value = {
         "noarch/a-0.1-py_0.tar.bz2": True,
         "noarch/b-0.1-py_0.tar.bz2": False,
@@ -151,11 +141,11 @@ def test_validate_feedstock_outputs_badoutputhash(
     }
     assert len(errs) == 4
     assert (
-        "output noarch/b-0.1-py_0.tar.bz2 not allowed for "
-        "conda-forge/bar-feedstock") in errs
+        "output noarch/b-0.1-py_0.tar.bz2 not allowed for " "conda-forge/bar-feedstock"
+    ) in errs
     assert (
-        "output noarch/d-0.1-py_0.tar.bz2 not allowed for "
-        "conda-forge/bar-feedstock") in errs
+        "output noarch/d-0.1-py_0.tar.bz2 not allowed for " "conda-forge/bar-feedstock"
+    ) in errs
     assert "output noarch/a-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
     assert "output noarch/d-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
 
@@ -198,7 +188,10 @@ def test_is_valid_output_hash():
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.requests")
 def test_is_valid_feedstock_output(
-    req_mock, monkeypatch, project, register,
+    req_mock,
+    monkeypatch,
+    project,
+    register,
 ):
     monkeypatch.setenv("GH_TOKEN", "abc123")
     monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
@@ -222,8 +215,9 @@ def test_is_valid_feedstock_output(
             resp.json.return_value = {
                 "encoding": "base64",
                 "content": base64.standard_b64encode(
-                    json.dumps(data).encode("utf-8")).decode("ascii")
-                }
+                    json.dumps(data).encode("utf-8")
+                ).decode("ascii"),
+            }
         return resp
 
     req_mock.get = _get_function
@@ -235,7 +229,9 @@ def test_is_valid_feedstock_output(
     ]
 
     valid = _is_valid_feedstock_output(
-        project, outputs, register=register,
+        project,
+        outputs,
+        register=register,
     )
 
     if project in ["foo", "foo-feedstock"]:
