@@ -39,6 +39,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
     all_pass = True
     messages = []
     hints = []
+    hints_found = False
 
     # Exclude some things from our list of recipes.
     # Sort the recipes for consistent linting order (which glob doesn't give us).
@@ -60,6 +61,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
             messages.append(hint)
             # also add it to hints so that the PR is marked as mixed
             hints.append(hint)
+            hints_found = True
             continue
 
         try:
@@ -88,6 +90,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
                 )
             )
         if hints:
+            hints_found = True
             messages.append(
                 "\nFor **{}**:\n\n{}".format(
                     rel_path, "\n".join(f" * {hint}" for hint in hints)
@@ -132,7 +135,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
             Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
             """)  # noqa
         status = "no recipes"
-    elif all_pass and len(hints):
+    elif all_pass and hints_found:
         message = mixed
         status = "mixed"
     elif all_pass:
