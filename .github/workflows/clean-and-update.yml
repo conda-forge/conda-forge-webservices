@@ -58,7 +58,7 @@ jobs:
       - name: update and redeploy if needed
         shell: bash -l {0}
         run: |
-          update-webservices
+          update-webservices --force
         env:
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
