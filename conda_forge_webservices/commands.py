@@ -589,7 +589,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                     pr_message += textwrap.dedent("""
 
                         Here's a checklist to do before merging.
-                        - [ ] Bump the build number if needed.
+                        - [ ] Bump the build number [if needed](https://conda-forge.org/docs/maintainer/updating_pkgs.html#updating-recipes)
                         """)
 
                 if to_close:
