@@ -1,0 +1,27 @@
+repos:
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.5.0
+  hooks:
+    - id: ruff
+      args: [ --fix ]    
+    - id: ruff-format
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.11.0
+  hooks:
+  - id: mypy
+    additional_dependencies:
+    - types-requests
+    - types-pytz
+    - types-python-dateutil
+    - types-cachetools
+    - types-mock
+ci:
+    autofix_commit_msg: |
+        [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+        for more information, see https://pre-commit.ci
+    autofix_prs: false
+    autoupdate_commit_msg: '[ci skip] [pre-commit.ci] pre-commit autoupdate'
+    autoupdate_schedule: monthly
+    skip: []
+    submodules: false

@@ -1,18 +1,16 @@
 <!--
-Thank you for the pull request. This repo's testing mechanism requires that the commit be pushed to
+Thank you for the pull request! This repo's tests require that the commit be pushed to
 a branch on conda-forge/conda-forge-webservices. This is to ensure that there's a GH_TOKEN variable
 to test the commenting of the linter and command bot.
 
-If you have push access to this repo, please push directly to a branch in this repo and create
-a PR from that branch
+To make this easy, we use a merge queue. The tests on your fork will run, but some will be skipped
+due to the missing tokens. Once a member of conda-forge/core merges the PR, the complete test suite
+will be run on the upstream repo. If this passes, the PR will get merged into `main`. If not, the PR
+will get kicked out of the queue for fixes.
 
-If you do not have push access to this repo, create a PR from your fork's branch and ask the
-conda-forge/core team to push your commits to a branch on this repo. 
-
-Note that the tests will not pass until the branch is on the main repo and not your fork!
+If you have push access to this repo, you can use a branch for your PR, but this will not bypass the 
+merge queue.
 -->
 
 Checklist
-* [ ] Pushed the branch to main repo
-* [ ] CI passed on the branch
-
+* [ ] CI is passing

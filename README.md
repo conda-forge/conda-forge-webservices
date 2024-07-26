@@ -13,6 +13,8 @@ uses a single machine user with no special permissions in order to make forks fo
 
 ## Testing
 
-The tests for this repo require a GitHub API key which is not available on forks. Thus the tests only pass
-for PRs made from a branch in this repo. If your PR is in a fork, please ask a member of `@conda-forge/core`
-to push your PR branch to the main repo to enable the tests.
+The tests for this repo require a GitHub API key which is not available on forks. We use a merge queue to handle this. 
+The tests in your PR will run, but some of them will be skipped. Once the PR is merged, it will be put into a queue on the 
+upstream repo for complete testing. If it passes, it will be merged. If it does not pass, the PR will be kicked out of the 
+queue and we will have to try again. Only maintainers on the upstream repo can add tests to the merge queue. You can 
+bump `@conda-forge/core` for a review and merge into the queue.
