@@ -1,3 +1,5 @@
+import argparse
+import datetime
 import os
 import subprocess
 import json
@@ -33,7 +35,7 @@ def _run_git_command(args):
     subprocess.run(["git", *args], check=True)
 
 
-def update(repo_name, pkgs):
+def update(repo_name, pkgs, force=False):
     # keep these imports here to protect the webservice from memory errors
     # due to conda
     from conda.core.index import get_index
@@ -76,7 +78,7 @@ def update(repo_name, pkgs):
         else:
             final_install[pkg] = installed_vers[pkg]
 
-    if to_install:
+    if to_install or force:
         tmpdir = None
         try:
             gh_token = get_app_token_for_webservices_only()
@@ -88,21 +90,28 @@ def update(repo_name, pkgs):
             repo = Repo.clone_from(url, clone_dir, depth=1)
 
             # keep a record around
+            tstamp = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+            final_install["conda-forge-webservices-update-timestamp"] = tstamp
             pth = os.path.join(clone_dir, "pkg_versions.json")
             with open(pth, "w") as fp:
                 json.dump(final_install, fp, indent=2)
                 fp.write("\n")
             repo.index.add(pth)
 
-            if len(to_install) > 1:
-                msg = "Redeploy for package updates\n\n" + "\n".join(
-                    [f"* `{k}={v}`" for k, v in to_install.items()]
-                )
+            if to_install:
+                if len(to_install) > 1:
+                    msg = "Redeploy for package updates\n\n" + "\n".join(
+                        [f"* `{k}={v}`" for k, v in to_install.items()]
+                    )
+                else:
+                    ((k, v),) = to_install.items()
+                    msg = f"Redeploy for package update: `{k}={v}`"
             else:
-                ((k, v),) = to_install.items()
-                msg = f"Redeploy for package update: `{k}={v}`"
+                msg = "forcibly redeploy"
 
-            repo.index.commit(with_action_url(msg))
+            repo.index.commit(
+                with_action_url(msg),
+            )
             repo.git.push("origin", "main")
 
         finally:
@@ -115,5 +124,11 @@ def main():
 
     Note this script runs on GHA, not on the heroku app.
     """
-    update("conda-forge-webservices", WEBSERVICE_PKGS)
-    update("webservices-dispatch-action", DOCKER_IMAGE_PKGS)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--force", action="store_true", help="Force the service to update."
+    )
+    args = parser.parse_args()
+    update("conda-forge-webservices", WEBSERVICE_PKGS, force=args.force)
+    update("webservices-dispatch-action", DOCKER_IMAGE_PKGS, force=args.force)
