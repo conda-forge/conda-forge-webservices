@@ -28,6 +28,7 @@ DOCKER_IMAGE_PKGS = [
     "conda-build",
     "conda-libmamba-solver",
     "mamba",
+    "conda-forge-tick",
 ]
 
 
