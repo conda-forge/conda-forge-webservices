@@ -132,7 +132,7 @@ def main():
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--force", action="store_true", help="Force the service to update."
