@@ -44,6 +44,8 @@ def update(repo_name, pkgs, force=False):
     from conda.models.version import VersionOrder
     from conda.resolve import Resolve
 
+    LOGGER.info(f"updating {repo_name}")
+
     if repo_name == "conda-forge-webservices":
         url = "https://conda-forge.herokuapp.com/conda-webservice-update/versions"
     else:
@@ -129,6 +131,8 @@ def main():
     Note this script runs on GHA, not on the heroku app.
     """
 
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--force", action="store_true", help="Force the service to update."
