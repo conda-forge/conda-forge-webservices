@@ -75,7 +75,7 @@ def update(repo_name, pkgs, force=False):
         installed_version = installed_vers.get(pkg, None)
         LOGGER.info(f"{pkg} - latest|installed: {latest_version}|{installed_version}")
         if installed_version is None or VersionOrder(latest_version) != VersionOrder(
-            installed_vers[pkg]
+            installed_version
         ):
             to_install[pkg] = latest_version
             final_install[pkg] = latest_version
