@@ -801,12 +801,44 @@ class AliveHandler(tornado.web.RequestHandler):
         self.write(json.dumps({"status": "operational"}))
 
 
+class UpdateTeamsEndpointHandler(tornado.web.RequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        true_token = os.environ["CF_WEBSERVICES_TOKEN"].encode("utf-8")
+        header_token = headers.get("CF_WEBSERVICES_TOKEN", None)
+
+        if header_token is not None and hmac.compare_digest(
+            header_token.encode("utf-8"), true_token
+        ):
+            data = tornado.escape.json_decode(self.request.body)
+            feedstock = data.get("feedstock", None)
+
+            if feedstock is not None:
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info("updating team endpoint: %s", f"conda-forge/{feedstock}")
+                LOGGER.info("===================================================")
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),  # always threads due to expensive lru_cache
+                    update_teams.update_team,
+                    "conda-forge",
+                    feedstock,
+                    None,
+                )
+                print_rate_limiting_info()
+                return
+
+        self.set_status(404)
+        self.write_error(404)
+
+
 def create_webapp():
     application = tornado.web.Application(
         [
             (r"/conda-linting/org-hook", LintingHookHandler),
             (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
             (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
+            (r"/conda-forge-teams/update", UpdateTeamsEndpointHandler),
             (r"/conda-forge-command/org-hook", CommandHookHandler),
             (r"/conda-webservice-update/versions", UpdateWebservicesVersionsHandler),
             (r"/feedstock-outputs/validate", OutputsValidationHandler),
