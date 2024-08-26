@@ -45,6 +45,19 @@ UPDATE_VERSION = re.compile(
 )
 
 
+def _get_conda_forge_yml(org_name: str, repo_name: str) -> dict:
+    url = (
+        f"https://raw.githubusercontent.com/{org_name}/{repo_name}/main/conda-forge.yml"
+    )
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+        yaml = YAML(typ="safe")
+        return yaml.load(r.text)
+    except requests.HTTPError:
+        return {}
+
+
 def _find_reactable_comment(
     repo: github.Repository.Repository,
     issue_number: int,
@@ -168,16 +181,17 @@ def pr_detailed_comment(
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         pull = repo.get_pull(int(pr_num))
         if pull.head.repo.full_name.split("/")[0] == "conda-forge":
-            message = textwrap.dedent("""
-                    Hi! This is the friendly automated conda-forge-webservice.
+            if "upload_on_branch" not in _get_conda_forge_yml(org_name, repo_name):
+                message = textwrap.dedent("""
+                        Hi! This is the friendly automated conda-forge-webservice.
 
-                    It appears you are making a pull request from a branch in your feedstock and not a fork. This procedure will generate a separate build for each push to the branch and is thus not allowed. See our [documentation](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests) for more details.
+                        It appears you are making a pull request from a branch in your feedstock and not a fork. This procedure will generate a separate build for each push to the branch and is thus not allowed. See our [documentation](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests) for more details.
 
-                    Please close this pull request and remake it from a fork of this feedstock.
+                        Please close this pull request and remake it from a fork of this feedstock.
 
-                    Have a great day!
-                    """)  # noqa
-            pull.create_issue_comment(message)
+                        Have a great day!
+                        """)  # noqa
+                pull.create_issue_comment(message)
 
     if RESTART_CI.search(comment):
         gh = github.Github(GH_TOKEN)
