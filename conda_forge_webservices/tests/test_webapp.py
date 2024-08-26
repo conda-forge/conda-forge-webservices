@@ -469,7 +469,7 @@ class TestBucketHandler(TestHandlerBase):
                 expected_code,
                 msg=f"token: {token}, feedstock: {feedstock}, hook: {hook}",
             )
-            if feedstock is not None:
+            if feedstock is not None and token is not None:
                 update_team_mock.assert_any_call(
                     "conda-forge",
                     feedstock,
