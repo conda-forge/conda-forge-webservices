@@ -446,7 +446,7 @@ class TestBucketHandler(TestHandlerBase):
             (os.environ["CF_WEBSERVICES_TOKEN"], None, 404),
             (None, "repo-feedstock", 404),
         ]:
-            body = {"feedstock": feedstock}
+            body = {"feedstock": feedstock or "null"}
             response = self.fetch(
                 hook,
                 method="POST",
