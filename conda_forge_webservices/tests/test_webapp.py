@@ -435,3 +435,28 @@ class TestBucketHandler(TestHandlerBase):
         comment_on_pr.assert_not_called()
 
         set_pr_status.assert_not_called()
+
+    @mock.patch("conda_forge_webservices.update_teams.update_team", return_value=None)
+    def test_update_team_endpoint(self, update_team_mock):
+        hook = "/conda-forge-teams/update"
+
+        for token, feedstock, expected_code in [
+            (os.environ["CF_WEBSERVICES_TOKEN"], "repo-feedstock", 200),
+            ("dummy", "repo-feedstock", 404),
+            (os.environ["CF_WEBSERVICES_TOKEN"], None, 404),
+            (None, "repo-feedstock", 404),
+        ]:
+            body = {"feedstock": feedstock}
+            response = self.fetch(
+                hook,
+                method="POST",
+                body=json.dumps(body),
+                headers={
+                    "CF_WEBSERVICES_TOKEN": token,
+                },
+            )
+            self.assertEqual(
+                response.code,
+                expected_code,
+                msg=f"token: {token}, feedstock: {feedstock}, hook: {hook}",
+            )
