@@ -450,13 +450,19 @@ class TestBucketHandler(TestHandlerBase):
                 body = {"feedstock": feedstock}
             else:
                 body = {}
+
+            if token is not None:
+                headers = {
+                    "CF_WEBSERVICES_TOKEN": token,
+                }
+            else:
+                headers = {}
+
             response = self.fetch(
                 hook,
                 method="POST",
                 body=json.dumps(body),
-                headers={
-                    "CF_WEBSERVICES_TOKEN": token,
-                },
+                headers=headers,
             )
             self.assertEqual(
                 response.code,
