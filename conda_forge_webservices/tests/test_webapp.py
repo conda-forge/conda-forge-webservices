@@ -473,5 +473,5 @@ class TestBucketHandler(TestHandlerBase):
                 update_team_mock.assert_any_call(
                     "conda-forge",
                     feedstock,
-                    None,
+                    None,  # this sets the commit hash to None so no comments are made
                 )
