@@ -140,4 +140,5 @@ def main():
     )
     args = parser.parse_args()
     update("conda-forge-webservices", WEBSERVICE_PKGS, force=args.force)
-    update("webservices-dispatch-action", DOCKER_IMAGE_PKGS, force=args.force)
+    # no longer needed but keeping this around just in case
+    # update("webservices-dispatch-action", DOCKER_IMAGE_PKGS, force=args.force)
