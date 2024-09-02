@@ -98,8 +98,8 @@ def _reload_cache():
                 key = _make_time_key(t)
                 APP_DATA[slug]["rates"][key] = _data["rates"][ts]
 
-            print("    reloaded %d repos" % len(APP_DATA[slug]["repos"]), flush=True)
-            print("    reloaded %d rates" % len(APP_DATA[slug]["rates"]), flush=True)
+            print(f"    reloaded {len(APP_DATA[slug]['repos'])} repos", flush=True)
+            print(f"    reloaded {len(APP_DATA[slug]['rates'])} rates", flush=True)
     else:
         print("could not get app cache!", flush=True)
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", flush=True)

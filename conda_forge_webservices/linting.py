@@ -221,11 +221,10 @@ def compute_lint_message(
         if ignore_base:
             num_parents = len(ref_merge.commit.parents)
             assert num_parents == 2, textwrap.dedent(
-                """
+                f"""
                    Expected merging our PR with the base branch would have two parents.
-                   Instead there were %i parents found. :/
+                   Instead there were {num_parents} parents found. :/
                    """
-                % num_parents
             )
             base_commit = (set(ref_merge.commit.parents) - {ref_head.commit}).pop()
             ref_base = repo.create_head(f"pull/{pr_id}/base", base_commit)
