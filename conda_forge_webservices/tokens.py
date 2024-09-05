@@ -377,8 +377,7 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
             print("made GITHUB token and masking it for github actions", flush=True)
             print(f"::add-mask::{gh_token}", flush=True)
 
-    except Exception as e:
-        LOGGER.critical("error making token", exc_info=e)
+    except Exception:
         gh_token = None
 
     return gh_token
