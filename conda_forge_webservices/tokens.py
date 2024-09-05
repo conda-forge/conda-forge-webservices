@@ -236,6 +236,7 @@ def inject_app_token_into_feedstock(full_name, repo=None):
         return True
 
 
+# see https://github.com/PyGithub/PyGithub/issues/3037 for why we do this
 class MyGithubIntegration(GithubIntegration):
     def get_access_token(
         self,
