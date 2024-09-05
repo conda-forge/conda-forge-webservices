@@ -15,7 +15,10 @@ import logging
 from .linting import compute_lint_message, comment_on_pr, set_pr_status
 from .update_teams import update_team
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
-from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+from conda_forge_webservices.tokens import (
+    get_app_token_for_webservices_only,
+    inject_app_token_into_feedstock,
+)
 import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
@@ -970,6 +973,8 @@ def rerender(full_name, pr_num):
     gh = github.Github(get_app_token_for_webservices_only())
     repo = gh.get_repo(full_name)
 
+    inject_app_token_into_feedstock(full_name, repo=repo)
+
     return not repo.create_repository_dispatch(
         "rerender",
         client_payload={"pr": pr_num},
@@ -979,6 +984,8 @@ def rerender(full_name, pr_num):
 def update_version(full_name, pr_num, input_ver):
     gh = github.Github(get_app_token_for_webservices_only())
     repo = gh.get_repo(full_name)
+
+    inject_app_token_into_feedstock(full_name, repo=repo)
 
     return not repo.create_repository_dispatch(
         "version_update",
