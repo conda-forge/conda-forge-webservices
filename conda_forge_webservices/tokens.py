@@ -13,8 +13,8 @@ from github import (
     Github,
     GithubIntegration,
     GithubException,
-    InstallationAuthorization,
 )
+from github.InstallationAuthorization import InstallationAuthorization
 
 LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
