@@ -319,8 +319,10 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
                 "checks": "read",
                 "pull_requests": "write",
                 "statuses": "read",
-            }
-            assert gh_token_data.repository_selection == repo
+            }, gh_token_data.permissions
+            assert (
+                gh_token_data.repository_selection == repo
+            ), gh_token_data.repository_selection
 
             gh_token = gh_token_data.token
 
