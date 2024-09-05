@@ -8,7 +8,13 @@ from contextlib import redirect_stdout, redirect_stderr
 
 from typing import Any
 
-from github import Auth, Github, GithubIntegration
+from github import (
+    Auth,
+    Github,
+    GithubIntegration,
+    GithubException,
+    InstallationAuthorization,
+)
 
 LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
@@ -230,6 +236,40 @@ def inject_app_token_into_feedstock(full_name, repo=None):
         return True
 
 
+class MyGithubIntegration(GithubIntegration):
+    def get_access_token(
+        self,
+        installation_id: int,
+        permissions: dict[str, str] | None = None,
+        repositories: list[str] | None = None,
+    ) -> InstallationAuthorization:
+        """
+        :calls: `POST /app/installations/{installation_id}/access_tokens <https://docs.github.com/en/rest/apps/apps#create-an-installation-access-token-for-an-app>`
+        """
+        if permissions is None:
+            permissions = {}
+
+        if not isinstance(permissions, dict):
+            raise GithubException(
+                status=400, data={"message": "Invalid permissions"}, headers=None
+            )
+
+        body = {"permissions": permissions, "repositories": repositories}
+        headers, response = self._GithubIntegration__requester.requestJsonAndCheck(
+            "POST",
+            f"/app/installations/{installation_id}/access_tokens",
+            headers=self._get_headers(),
+            input=body,
+        )
+
+        return InstallationAuthorization(
+            requester=self._GithubIntegration__requester,
+            headers=headers,
+            attributes=response,
+            completed=True,
+        )
+
+
 def generate_app_token_for_feedstock(app_id, raw_pem, repo):
     """Get an app token.
 
@@ -288,7 +328,7 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
             print("loaded Github Auth", flush=True)
 
         with redirect_stdout(f), redirect_stderr(f):
-            integration = GithubIntegration(auth=gh_auth)
+            integration = MyGithubIntegration(auth=gh_auth)
         if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
             sys.stdout.flush()
             print("loaded Github Integration", flush=True)
@@ -310,6 +350,7 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
                     "pull_requests": "write",
                     "statuses": "read",
                 },
+                repositories=[repo],
             )
 
             assert gh_token_data.permissions == {
@@ -321,8 +362,12 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
                 "statuses": "read",
             }, gh_token_data.permissions
             assert (
-                gh_token_data.repository_selection == repo
+                gh_token_data.repository_selection == "selected"
             ), gh_token_data.repository_selection
+            returned_repos = set(
+                rp["name"] for rp in gh_token_data.raw_data["repositories"]
+            )
+            assert returned_repos == set([repo]), returned_repos
 
             gh_token = gh_token_data.token
 
