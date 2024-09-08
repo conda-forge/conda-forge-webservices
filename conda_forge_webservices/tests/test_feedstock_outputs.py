@@ -13,6 +13,8 @@ from conda_forge_webservices.feedstock_outputs import (
     _is_valid_output_hash,
     copy_feedstock_outputs,
     validate_feedstock_outputs,
+    check_allowed_autoreg_feedstock_globs,
+    _load_allowed_autoreg_feedstock_globs,
 )
 
 
@@ -197,6 +199,8 @@ def test_is_valid_feedstock_output(
     monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
 
     def _get_function(name, *args, **kwargs):
+        data = None
+        text = None
         if "bar.json" in name:
             assert "b/a/r/bar.json" in name
             data = {"feedstocks": ["foo", "blah"]}
@@ -205,9 +209,11 @@ def test_is_valid_feedstock_output(
             assert "g/o/o/goo.json" in name
             data = {"feedstocks": ["blarg"]}
             status = 200
+        elif ".feedstock_outputs_autoreg_allowlist.yml" in name:
+            status = 200
+            text = "{}"
         else:
             status = 404
-            data = None
 
         resp = mock.MagicMock()
         resp.status_code = status
@@ -218,6 +224,8 @@ def test_is_valid_feedstock_output(
                     json.dumps(data).encode("utf-8")
                 ).decode("ascii"),
             }
+        if text is not None:
+            resp.text = text
         return resp
 
     req_mock.get = _get_function
@@ -238,13 +246,13 @@ def test_is_valid_feedstock_output(
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
     elif project == "blah":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
     elif project == "blarg":
         assert valid == {
@@ -263,3 +271,10 @@ def test_is_valid_feedstock_output(
         assert len(req_mock.put.call_args_list) == 1
     else:
         req_mock.put.assert_not_called()
+
+
+def test_check_allowed_autoreg_feedstock_globs():
+    _load_allowed_autoreg_feedstock_globs.cache_clear()
+    assert check_allowed_autoreg_feedstock_globs("llvmdev", "libllvm3456")
+    assert not check_allowed_autoreg_feedstock_globs("llvmdev", "python")
+    assert not check_allowed_autoreg_feedstock_globs("blah", "python")

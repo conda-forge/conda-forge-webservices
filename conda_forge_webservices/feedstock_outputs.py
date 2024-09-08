@@ -7,10 +7,13 @@ import json
 import hmac
 import urllib.parse
 import logging
-import requests
 import base64
 import time
+from functools import lru_cache
+from fnmatch import fnmatch
 
+from ruamel.yaml import YAML
+import requests
 import scrypt
 import github
 
@@ -26,6 +29,29 @@ LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
+
+
+@lru_cache(maxsize=1)
+def _load_allowed_autoreg_feedstock_globs(time_int):
+    r = requests.get(
+        "https://raw.githubusercontent.com/conda-forge/admin-requests/"
+        "main/.feedstock_outputs_autoreg_allowlist.yml"
+    )
+    r.raise_for_status()
+    yaml = YAML(typ="safe")
+    return yaml.load(r.text)
+
+
+def load_allowed_autoreg_feedstock_globs():
+    return _load_allowed_autoreg_feedstock_globs(time.monotonic() // 120)
+
+
+def check_allowed_autoreg_feedstock_globs(feedstock, output):
+    fs_pats = load_allowed_autoreg_feedstock_globs()
+    for pat in fs_pats.get(feedstock, []):
+        if fnmatch(output, pat):
+            return True
+    return False
 
 
 def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
@@ -264,10 +290,8 @@ def _is_valid_feedstock_output(
             # it failed, but we need to know if it failed due to the API or
             # if the file is not there
             if r.status_code == 404:
-                unique_names_valid[un] = True
-
-                LOGGER.info(f"    does not exist|valid: {un}|{unique_names_valid[un]}")
-                if register:
+                if register or check_allowed_autoreg_feedstock_globs(feedstock, un):
+                    unique_names_valid[un] = True
                     data = {"feedstocks": [feedstock]}
                     edata = base64.standard_b64encode(
                         json.dumps(data).encode("utf-8")
@@ -291,6 +315,10 @@ def _is_valid_feedstock_output(
                             f"feedstock conda-forge/{feedstock}"
                         )
                         r.raise_for_status()
+                else:
+                    unique_names_valid[un] = False
+
+                LOGGER.info(f"    does not exist|valid: {un}|{unique_names_valid[un]}")
         else:
             data = r.json()
             assert data["encoding"] == "base64"
@@ -405,13 +433,24 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
     message = f"""\
 Hi @conda-forge/{team_name}! This is the friendly automated conda-forge-webservice!
 
-It appears that one or more of your feedstock's outputs did not copy from the
+It appears that one or more of your feedstock's packages did not copy from the
 staging channel (cf-staging) to the production channel (conda-forge). :(
 
 This failure can happen for a lot of reasons, including an outdated feedstock
-token. Below we have put some information about the failure to help you debug it.
+token or your feedstock not having permissions to upload the given package.
+Below we have put some information about the failure to help you debug it.
 
-**Rerendering the feedstock will usually fix these problems.**
+Common ways to fix this problem include:
+
+- Retry the package build and upload by pushing an empty commit to the feedstock.
+- Rerender the feedstock in a PR from a fork of the feedstock and merge.
+- Request a feedstock token reset via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#reset-your-feedstock-token).
+- Request that any new packages be added to the allowed outputs for the feedstock
+  via our [admin-requests-repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#add-a-package-output-to-a-feedstock).
+- In rare cases, the package name may change regularly in a well defined way (e.g., `libllvm18`, `libllvm19`, etc.).
+  In this case, please submit a PR updating our
+  [list of feedstocks with allowed glob patterns](https://github.com/conda-forge/admin-requests/blob/main/.feedstock_outputs_autoreg_allowlist.yml).
+  Output packages that match these patterns will be automatically registered for your feedstock.
 
 If you have any issues or questions, you can find us on Element in the
 community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or you can bump us right here.
@@ -419,7 +458,7 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
 
     is_all_valid = True
     if len(valid) > 0:
-        valid_msg = "output validation (is this output allowed for your feedstock?):\n"
+        valid_msg = "output validation (is this package allowed for your feedstock?):\n"
         for o, v in valid.items():
             valid_msg += f" - **{o}**: {v}\n"
             is_all_valid &= v
@@ -428,7 +467,9 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
         message += valid_msg
 
     if len(copied) > 0:
-        copied_msg = "copied (did this output get copied to the production channel?):\n"
+        copied_msg = (
+            "copied (did this package get copied to the production channel?):\n"
+        )
         for o, v in copied.items():
             copied_msg += f" - **{o}**: {v}\n"
 
@@ -447,10 +488,11 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
     if not is_all_valid:
         message += (
             "\n\n"
-            "To fix invalid outputs, you may need to manually add this feedstock to the"
-            " feedstock-outputs map (did another feedstock already make this package?):"
-            "\n"
-            " - https://github.com/conda-forge/feedstock-outputs"
+            "To fix package package output validation errors, follow the "
+            "instructions above to add"
+            "new package outputs to your feedstock or to add your "
+            "feedstock+packages to the allow list for automatic "
+            "registration."
         )
 
     repo = gh.get_repo(f"conda-forge/{feedstock}")
