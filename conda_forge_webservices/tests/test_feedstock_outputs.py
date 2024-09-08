@@ -198,25 +198,21 @@ def test_is_valid_feedstock_output(
     monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
 
     def _get_function(name, *args, **kwargs):
+        data = None
+        text = None
         if "bar.json" in name:
             assert "b/a/r/bar.json" in name
             data = {"feedstocks": ["foo", "blah"]}
-            test = None
             status = 200
         elif "goo.json" in name:
             assert "g/o/o/goo.json" in name
             data = {"feedstocks": ["blarg"]}
-            test = None
             status = 200
         elif ".feedstock_outputs_autoreg_allowlist.yml" in name:
             status = 200
-            data = None
-            test = None
             text = "{}"
         else:
             status = 404
-            test = None
-            data = None
 
         resp = mock.MagicMock()
         resp.status_code = status
