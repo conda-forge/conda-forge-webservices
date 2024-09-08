@@ -201,17 +201,21 @@ def test_is_valid_feedstock_output(
         if "bar.json" in name:
             assert "b/a/r/bar.json" in name
             data = {"feedstocks": ["foo", "blah"]}
+            test = None
             status = 200
         elif "goo.json" in name:
             assert "g/o/o/goo.json" in name
             data = {"feedstocks": ["blarg"]}
+            test = None
             status = 200
         elif ".feedstock_outputs_autoreg_allowlist.yml" in name:
             status = 200
             data = None
+            test = None
             text = "{}"
         else:
             status = 404
+            test = None
             data = None
 
         resp = mock.MagicMock()
