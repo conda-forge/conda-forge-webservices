@@ -206,6 +206,10 @@ def test_is_valid_feedstock_output(
             assert "g/o/o/goo.json" in name
             data = {"feedstocks": ["blarg"]}
             status = 200
+        elif ".feedstock_outputs_autoreg_allowlist.yml" in name:
+            status = 200
+            data = None
+            text = "{}"
         else:
             status = 404
             data = None
@@ -219,6 +223,8 @@ def test_is_valid_feedstock_output(
                     json.dumps(data).encode("utf-8")
                 ).decode("ascii"),
             }
+        if text is not None:
+            resp.text = text
         return resp
 
     req_mock.get = _get_function
