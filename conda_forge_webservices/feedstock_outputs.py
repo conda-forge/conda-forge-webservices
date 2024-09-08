@@ -39,7 +39,7 @@ def _load_allowed_autoreg_feedstock_globs(time_int):
     )
     r.raise_for_status()
     yaml = YAML(typ="safe")
-    return yaml.load(r.text)
+    return yaml.load(r.text.decode("utf-8"))
 
 
 def load_allowed_autoreg_feedstock_globs():
