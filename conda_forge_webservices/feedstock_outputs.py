@@ -7,10 +7,13 @@ import json
 import hmac
 import urllib.parse
 import logging
-import requests
 import base64
 import time
+from functools import lru_cache
+from fnmatch import fnmatch
 
+from ruamel.yaml import YAML
+import requests
 import scrypt
 import github
 
@@ -26,6 +29,29 @@ LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
+
+
+@lru_cache(maxsize=1)
+def _load_allowed_autoreg_feedstock_globs(time_int):
+    r = requests.get(
+        "https://raw.githubusercontent.com/conda-forge/admin-requests/"
+        "main/.feedstock_outputs_autoreg_allowlist.yml"
+    )
+    r.raise_for_status()
+    yaml = YAML(typ="safe")
+    return yaml.load(r.text)
+
+
+def load_allowed_autoreg_feedstock_globs():
+    return _load_allowed_autoreg_feedstock_globs(time.monotonic() // 120)
+
+
+def check_allowed_autoreg_feedstock_globs(feedstock, output):
+    fs_pats = load_allowed_autoreg_feedstock_globs()
+    for pat in fs_pats.get(feedstock, []):
+        if fnmatch(output, pat):
+            return True
+    return False
 
 
 def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
@@ -264,10 +290,8 @@ def _is_valid_feedstock_output(
             # it failed, but we need to know if it failed due to the API or
             # if the file is not there
             if r.status_code == 404:
-                unique_names_valid[un] = True
-
-                LOGGER.info(f"    does not exist|valid: {un}|{unique_names_valid[un]}")
-                if register:
+                if register or check_allowed_autoreg_feedstock_globs(feedstock, un):
+                    unique_names_valid[un] = True
                     data = {"feedstocks": [feedstock]}
                     edata = base64.standard_b64encode(
                         json.dumps(data).encode("utf-8")
@@ -286,11 +310,16 @@ def _is_valid_feedstock_output(
                         },
                     )
                     if r.status_code != 201:
+                        unique_names_valid[un] = False
                         LOGGER.info(
                             f"    output {un} not created for "
                             f"feedstock conda-forge/{feedstock}"
                         )
                         r.raise_for_status()
+                else:
+                    unique_names_valid[un] = False
+
+                LOGGER.info(f"    does not exist|valid: {un}|{unique_names_valid[un]}")
         else:
             data = r.json()
             assert data["encoding"] == "base64"

@@ -13,6 +13,7 @@ from conda_forge_webservices.feedstock_outputs import (
     _is_valid_output_hash,
     copy_feedstock_outputs,
     validate_feedstock_outputs,
+    check_allowed_autoreg_feedstock_globs,
 )
 
 
@@ -263,3 +264,9 @@ def test_is_valid_feedstock_output(
         assert len(req_mock.put.call_args_list) == 1
     else:
         req_mock.put.assert_not_called()
+
+
+def test_check_allowed_autoreg_feedstock_globs():
+    assert check_allowed_autoreg_feedstock_globs("llvmdev", "libllvm3456")
+    assert not check_allowed_autoreg_feedstock_globs("llvmdev", "python")
+    assert not check_allowed_autoreg_feedstock_globs("blah", "python")
