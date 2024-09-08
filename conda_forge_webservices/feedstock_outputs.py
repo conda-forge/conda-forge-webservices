@@ -238,7 +238,7 @@ def _is_valid_output_hash(outputs, hash_type):
 def _is_valid_feedstock_output(
     project,
     outputs,
-    register=True,
+    register=False,
 ):
     """Test if feedstock outputs are valid (i.e., the outputs are allowed for that
     feedstock). Optionally register them if they do not exist.
@@ -253,7 +253,8 @@ def _is_valid_feedstock_output(
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
     register : bool, optional
         If True, attempt to register any outputs that do not exist by pushing
-        the proper json blob to `output_repo`. Default is True.
+        the proper json blob to `output_repo`. Default is False.
+        ** DO NOT TURN TO TRUE UNLESS YOU KNOW WHAT YOU ARE DOING. **
 
     Returns
     -------
@@ -387,6 +388,7 @@ def validate_feedstock_outputs(
     valid_outputs = _is_valid_feedstock_output(
         project,
         outputs_to_test,
+        register=False,  # ** DO NOT TURN TO TRUE UNLESS YOU KNOW WHAT YOU ARE DOING. **
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test, hash_type)
