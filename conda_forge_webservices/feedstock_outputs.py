@@ -310,7 +310,6 @@ def _is_valid_feedstock_output(
                         },
                     )
                     if r.status_code != 201:
-                        unique_names_valid[un] = False
                         LOGGER.info(
                             f"    output {un} not created for "
                             f"feedstock conda-forge/{feedstock}"
