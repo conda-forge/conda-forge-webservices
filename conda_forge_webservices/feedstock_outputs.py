@@ -460,10 +460,11 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
     if not is_all_valid:
         message += (
             "\n\n"
-            "To fix package package output validation errors, you can submit "
-            "a PR to our "
-            "[admin requests repo](https://github.com/conda-forge/admin-requests"
-            "?tab=readme-ov-file#add-a-package-output-to-a-feedstock)."
+            "To fix package package output validation errors, follow the "
+            "instructions above to add"
+            "new package outputs to your feedstock or to add your "
+            "feedstock+packages to the allow list for automatic "
+            "registration."
         )
 
     repo = gh.get_repo(f"conda-forge/{feedstock}")
