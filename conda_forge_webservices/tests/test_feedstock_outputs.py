@@ -14,6 +14,7 @@ from conda_forge_webservices.feedstock_outputs import (
     copy_feedstock_outputs,
     validate_feedstock_outputs,
     check_allowed_autoreg_feedstock_globs,
+    _load_allowed_autoreg_feedstock_globs,
 )
 
 
@@ -245,13 +246,13 @@ def test_is_valid_feedstock_output(
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
     elif project == "blah":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": True,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
     elif project == "blarg":
         assert valid == {
@@ -273,6 +274,7 @@ def test_is_valid_feedstock_output(
 
 
 def test_check_allowed_autoreg_feedstock_globs():
+    _load_allowed_autoreg_feedstock_globs.cache_clear()
     assert check_allowed_autoreg_feedstock_globs("llvmdev", "libllvm3456")
     assert not check_allowed_autoreg_feedstock_globs("llvmdev", "python")
     assert not check_allowed_autoreg_feedstock_globs("blah", "python")
