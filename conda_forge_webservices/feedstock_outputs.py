@@ -405,13 +405,19 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
     message = f"""\
 Hi @conda-forge/{team_name}! This is the friendly automated conda-forge-webservice!
 
-It appears that one or more of your feedstock's outputs did not copy from the
+It appears that one or more of your feedstock's packages did not copy from the
 staging channel (cf-staging) to the production channel (conda-forge). :(
 
 This failure can happen for a lot of reasons, including an outdated feedstock
-token. Below we have put some information about the failure to help you debug it.
+token or your feedstock not having permissions to upload the given package.
+Below we have put some information about the failure to help you debug it.
 
-**Rerendering the feedstock will usually fix these problems.**
+Common ways to fix this problem include:
+
+- Retry the package build and upload by pushing an empty commit to the feedstock.
+- Rerender the feedstock in a PR from a fork of the feedstock and merge.
+- Request a feedstock token reset via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#reset-your-feedstock-token).
+- Request that any new packages be added to the feedstock via our [admin-requests-repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#add-a-package-output-to-a-feedstock).
 
 If you have any issues or questions, you can find us on Element in the
 community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or you can bump us right here.
@@ -419,7 +425,7 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
 
     is_all_valid = True
     if len(valid) > 0:
-        valid_msg = "output validation (is this output allowed for your feedstock?):\n"
+        valid_msg = "output validation (is this package allowed for your feedstock?):\n"
         for o, v in valid.items():
             valid_msg += f" - **{o}**: {v}\n"
             is_all_valid &= v
@@ -428,7 +434,9 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
         message += valid_msg
 
     if len(copied) > 0:
-        copied_msg = "copied (did this output get copied to the production channel?):\n"
+        copied_msg = (
+            "copied (did this package get copied to the production channel?):\n"
+        )
         for o, v in copied.items():
             copied_msg += f" - **{o}**: {v}\n"
 
@@ -447,10 +455,10 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
     if not is_all_valid:
         message += (
             "\n\n"
-            "To fix invalid outputs, you may need to manually add this feedstock to the"
-            " feedstock-outputs map (did another feedstock already make this package?):"
-            "\n"
-            " - https://github.com/conda-forge/feedstock-outputs"
+            "To fix package package output validation errors, you can submit "
+            "a PR to our "
+            "[admin requests repo](https://github.com/conda-forge/admin-requests"
+            "?tab=readme-ov-file#add-a-package-output-to-a-feedstock)."
         )
 
     repo = gh.get_repo(f"conda-forge/{feedstock}")
