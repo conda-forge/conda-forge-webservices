@@ -34,8 +34,8 @@ PROD = "conda-forge"
 @lru_cache(maxsize=1)
 def _load_allowed_autoreg_feedstock_globs(time_int):
     r = requests.get(
-        "https://raw.githubusercontent.com/conda-forge/admin-requests/"
-        "main/.feedstock_outputs_autoreg_allowlist.yml"
+        "https://raw.githubusercontent.com/conda-forge/feedstock-outputs/"
+        "main/feedstock_outputs_autoreg_allowlist.yml"
     )
     r.raise_for_status()
     yaml = YAML(typ="safe")
@@ -451,7 +451,7 @@ Common ways to fix this problem include:
   via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#add-a-package-output-to-a-feedstock).
 - In rare cases, the package name may change regularly in a well defined way (e.g., `libllvm18`, `libllvm19`, etc.).
   In this case, please submit a PR updating our
-  [list of feedstocks with allowed glob patterns](https://github.com/conda-forge/admin-requests/blob/main/.feedstock_outputs_autoreg_allowlist.yml).
+  [list of feedstocks with allowed glob patterns](https://github.com/conda-forge/feedstock-outputs/blob/main/feedstock_outputs_autoreg_allowlist.yml).
   Output packages that match these patterns will be automatically registered for your feedstock.
 
 If you have any issues or questions, you can find us on Element in the
