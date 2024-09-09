@@ -169,7 +169,11 @@ def _set_pr_status(
 
 
 def compute_lint_message(
-    repo_owner: str, repo_name: str, pr_id: int, ignore_base: bool = False
+    repo_owner: str,
+    repo_name: str,
+    pr_id: int,
+    ignore_base: bool = False,
+    set_pending_status: bool = True,
 ) -> LintInfo | None:
     gh = github.Github(get_app_token_for_webservices_only())
 
@@ -222,7 +226,8 @@ def compute_lint_message(
         if should_skip:
             return None
 
-        _set_pr_status(repo_owner, repo_name, sha, "pending")
+        if set_pending_status:
+            _set_pr_status(repo_owner, repo_name, sha, "pending")
 
         # Raise an error if the PR is not mergeable.
         if not mergeable:
@@ -267,8 +272,9 @@ def compute_lint_message(
     if pull_request.state == "open":
         return {"message": message, "status": status, "sha": sha}
     else:
-        # won't happen later with a comment and we should npt leave things pending
-        _set_pr_status(repo_owner, repo_name, sha, status)
+        if set_pending_status:
+            # won't happen later with a comment and we should not leave things pending
+            _set_pr_status(repo_owner, repo_name, sha, status)
         return None
 
 
