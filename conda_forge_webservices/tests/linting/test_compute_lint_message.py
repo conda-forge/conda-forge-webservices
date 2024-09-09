@@ -12,22 +12,30 @@ def data_folder():
 
 
 def test_skip_ci_recipe():
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 58)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 58, set_pending_status=False
+    )
     assert lint is None
 
 
 def test_skip_lint_recipe():
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 59)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 59, set_pending_status=False
+    )
     assert lint is None
 
 
 def test_ci_skip_recipe():
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 65)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 65, set_pending_status=False
+    )
     assert lint is None
 
 
 def test_lint_skip_recipe():
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 66)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 66, set_pending_status=False
+    )
     assert lint is None
 
 
@@ -40,7 +48,9 @@ def test_good_recipe():
 
     """  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 16)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 16, set_pending_status=False
+    )
     assert lint is not None, lint["message"]
     assert "found it was in an excellent condition." in lint["message"], lint["message"]
 
@@ -53,7 +63,9 @@ def test_ok_recipe_above_good_recipe():
 
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 54)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 54, set_pending_status=False
+    )
     assert expected_message == lint["message"]
 
 
@@ -65,7 +77,9 @@ def test_ok_recipe_beside_good_recipe():
 
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 62)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 62, set_pending_status=False
+    )
     assert expected_message == lint["message"]
 
 
@@ -77,7 +91,9 @@ def test_ok_recipe_above_ignored_good_recipe():
 
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 54, True)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 54, True, set_pending_status=False
+    )
     assert expected_message == lint["message"]
 
 
@@ -89,7 +105,9 @@ def test_ok_recipe_beside_ignored_good_recipe():
 
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 62, True)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 62, True, set_pending_status=False
+    )
     assert expected_message == lint["message"]
 
 
@@ -103,7 +121,9 @@ def test_conflict_ok_recipe():
     Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 56)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 56, set_pending_status=False
+    )
     assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
@@ -118,12 +138,14 @@ def test_conflict_2_ok_recipe():
     Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 57)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 57, set_pending_status=False
+    )
     assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
 
-def test_rattler_build_recipe():
+def test_v1_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -134,11 +156,13 @@ def test_rattler_build_recipe():
 
 
     For **recipe/recipe.yaml**:
-    
-    This is a rattler-build recipe and not yet lintable. We are working on it!
+
+    This is a v1 recipe and not yet lintable. We are working on it!
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 632)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 632, set_pending_status=False
+    )
     assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
@@ -165,7 +189,9 @@ def test_bad_recipe():
         * Recipe maintainer "support" does not exist
     """  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 17)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 17, set_pending_status=False
+    )
     assert lint is not None, lint["message"]
     assert "found some lint" in lint["message"], lint["message"]
     assert "The home item is expected in the about section." in lint["message"], lint[
@@ -190,7 +216,9 @@ def test_mixed_recipe():
         * Whenever possible python packages should use pip. See https://conda-forge.org/docs/maintainer/adding_pkgs.html#use-pip
     """  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 217)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 217, set_pending_status=False
+    )
     assert lint is not None, lint["message"]
     assert (
         "I do have some suggestions for making it better though" in lint["message"]
@@ -205,13 +233,17 @@ def test_no_recipe():
     Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
     """)  # noqa
 
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 523)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 523, set_pending_status=False
+    )
     assert lint is not None, lint["message"]
     assert expected_message == lint["message"]
 
 
 def test_closed_pr():
-    lint = compute_lint_message("conda-forge", "conda-forge-webservices", 52)
+    lint = compute_lint_message(
+        "conda-forge", "conda-forge-webservices", 52, set_pending_status=False
+    )
     assert lint is None
 
 
@@ -235,7 +267,7 @@ I do have some suggestions for making it better though...
 
 For **recipe/recipe.yaml**:
 
-This is a rattler-build recipe and not yet lintable. We are working on it!
+This is a v1 recipe and not yet lintable. We are working on it!
 """,  # noqa
             "mixed",
         )

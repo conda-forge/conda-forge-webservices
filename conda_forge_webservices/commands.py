@@ -754,13 +754,13 @@ def restart_pull_request_ci(repo, pr_num):
 
 
 def _determine_recipe_path(repo):
-    """Determine rattler-build or conda-build recipe path."""
+    """Determine v1 or v0 path."""
     recipe_path = os.path.join(repo.working_dir, "recipe", "meta.yaml")
     if os.path.exists(recipe_path):
         return recipe_path
-    rattler_build_recipe_path = os.path.join(repo.working_dir, "recipe", "recipe.yaml")
-    if os.path.exists(rattler_build_recipe_path):
-        return rattler_build_recipe_path
+    v1_recipe_path = os.path.join(repo.working_dir, "recipe", "recipe.yaml")
+    if os.path.exists(v1_recipe_path):
+        return v1_recipe_path
     return None
 
 

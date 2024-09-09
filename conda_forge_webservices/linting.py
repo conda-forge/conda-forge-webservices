@@ -52,11 +52,10 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
         rel_pr_recipes.append(rel_path)
 
         if recipe.name == "recipe.yaml":
-            # this is a rattler-build recipe and not yet handled
+            # this is a v1 recipe and not yet handled
             hint = "\nFor **{}**:\n\n{}".format(
                 rel_path,
-                "This is a rattler-build recipe and not yet lintable. "
-                "We are working on it!",
+                "This is a v1 recipe and not yet lintable. " "We are working on it!",
             )
             messages.append(hint)
             # also add it to hints so that the PR is marked as mixed
@@ -148,8 +147,32 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
     return message, status
 
 
+def _set_pr_status(
+    owner: str, repo_name: str, sha: str, status: str, target_url: str | None = None
+):
+    if target_url is not None:
+        kwargs = {"target_url": target_url}
+    else:
+        kwargs = {}
+
+    gh = github.Github(get_app_token_for_webservices_only())
+    user = gh.get_user(owner)
+    repo = user.get_repo(repo_name)
+    commit = repo.get_commit(sha)
+    commit.create_status(
+        status,
+        description="Linting in progress...",
+        context="conda-forge-linter",
+        **kwargs,
+    )
+
+
 def compute_lint_message(
-    repo_owner: str, repo_name: str, pr_id: int, ignore_base: bool = False
+    repo_owner: str,
+    repo_name: str,
+    pr_id: int,
+    ignore_base: bool = False,
+    set_pending_status: bool = True,
 ) -> LintInfo | None:
     gh = github.Github(get_app_token_for_webservices_only())
 
@@ -202,6 +225,9 @@ def compute_lint_message(
         if should_skip:
             return None
 
+        if set_pending_status:
+            _set_pr_status(repo_owner, repo_name, sha, "pending")
+
         # Raise an error if the PR is not mergeable.
         if not mergeable:
             message = textwrap.dedent("""
@@ -245,6 +271,9 @@ def compute_lint_message(
     if pull_request.state == "open":
         return {"message": message, "status": status, "sha": sha}
     else:
+        if set_pending_status:
+            # won't happen later with a comment and we should not leave things pending
+            _set_pr_status(repo_owner, repo_name, sha, status)
         return None
 
 
