@@ -388,7 +388,7 @@ def validate_feedstock_outputs(
     valid_outputs = _is_valid_feedstock_output(
         project,
         outputs_to_test,
-        register=False,  # ** DO NOT TURN TO TRUE UNLESS YOU KNOW WHAT YOU ARE DOING. **
+        register=True,  # ** DO NOT TURN TO TRUE UNLESS YOU KNOW WHAT YOU ARE DOING. **
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test, hash_type)
@@ -448,7 +448,7 @@ Common ways to fix this problem include:
 - Rerender the feedstock in a PR from a fork of the feedstock and merge.
 - Request a feedstock token reset via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#reset-your-feedstock-token).
 - Request that any new packages be added to the allowed outputs for the feedstock
-  via our [admin-requests-repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#add-a-package-output-to-a-feedstock).
+  via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#add-a-package-output-to-a-feedstock).
 - In rare cases, the package name may change regularly in a well defined way (e.g., `libllvm18`, `libllvm19`, etc.).
   In this case, please submit a PR updating our
   [list of feedstocks with allowed glob patterns](https://github.com/conda-forge/admin-requests/blob/main/.feedstock_outputs_autoreg_allowlist.yml).
