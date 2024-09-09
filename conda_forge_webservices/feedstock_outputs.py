@@ -388,7 +388,7 @@ def validate_feedstock_outputs(
     valid_outputs = _is_valid_feedstock_output(
         project,
         outputs_to_test,
-        register=False,  # ** DO NOT TURN TO TRUE UNLESS YOU KNOW WHAT YOU ARE DOING. **
+        register=True,  # ** DO NOT TURN TO TRUE UNLESS YOU KNOW WHAT YOU ARE DOING. **
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test, hash_type)
