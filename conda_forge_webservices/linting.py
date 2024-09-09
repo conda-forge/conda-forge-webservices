@@ -151,8 +151,12 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
 def _set_pr_status(
     owner: str, repo_name: str, sha: str, status: str, target_url: str | None = None
 ):
-    gh = github.Github(get_app_token_for_webservices_only())
+    if target_url is not None:
+        kwargs = {"target_url": target_url}
+    else:
+        kwargs = {}
 
+    gh = github.Github(get_app_token_for_webservices_only())
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
     commit = repo.get_commit(sha)
@@ -160,7 +164,7 @@ def _set_pr_status(
         status,
         description="Linting in progress...",
         context="conda-forge-linter",
-        target_url=target_url,
+        **kwargs,
     )
 
 
