@@ -148,6 +148,22 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
     return message, status
 
 
+def _set_pr_status(
+    owner: str, repo_name: str, sha: str, status: str, target_url: str | None = None
+):
+    gh = github.Github(get_app_token_for_webservices_only())
+
+    user = gh.get_user(owner)
+    repo = user.get_repo(repo_name)
+    commit = repo.get_commit(sha)
+    commit.create_status(
+        status,
+        description="Linting in progress...",
+        context="conda-forge-linter",
+        target_url=target_url,
+    )
+
+
 def compute_lint_message(
     repo_owner: str, repo_name: str, pr_id: int, ignore_base: bool = False
 ) -> LintInfo | None:
@@ -202,6 +218,8 @@ def compute_lint_message(
         if should_skip:
             return None
 
+        _set_pr_status(repo_owner, repo_name, sha, "pending")
+
         # Raise an error if the PR is not mergeable.
         if not mergeable:
             message = textwrap.dedent("""
@@ -245,6 +263,8 @@ def compute_lint_message(
     if pull_request.state == "open":
         return {"message": message, "status": status, "sha": sha}
     else:
+        # won't happen later with a comment and we should npt leave things pending
+        _set_pr_status(repo_owner, repo_name, sha, status)
         return None
 
 
