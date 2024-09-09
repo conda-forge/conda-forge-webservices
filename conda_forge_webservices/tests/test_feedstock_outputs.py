@@ -209,7 +209,7 @@ def test_is_valid_feedstock_output(
             assert "g/o/o/goo.json" in name
             data = {"feedstocks": ["blarg"]}
             status = 200
-        elif ".feedstock_outputs_autoreg_allowlist.yml" in name:
+        elif "feedstock_outputs_autoreg_allowlist.yml" in name:
             status = 200
             text = "{}"
         else:
