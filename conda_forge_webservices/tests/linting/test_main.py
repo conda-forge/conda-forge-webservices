@@ -131,3 +131,19 @@ def test_cli_success_no_recipe(skip_if_no_tokens):
     )
     out, _ = child.communicate()
     assert child.returncode == 0, out
+
+
+def test_cli_success_v1_recipe(skip_if_no_tokens):
+    child = subprocess.Popen(
+        [
+            sys.executable,
+            "-m" "conda_forge_webservices.linting",
+            "conda-forge/conda-forge-webservices",
+            "632",
+            "--enable-commenting",
+        ],
+        stdout=subprocess.PIPE,
+        env=os.environ,
+    )
+    out, _ = child.communicate()
+    assert child.returncode == 0, out

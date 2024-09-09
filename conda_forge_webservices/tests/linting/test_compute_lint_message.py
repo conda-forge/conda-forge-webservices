@@ -145,7 +145,7 @@ def test_conflict_2_ok_recipe():
     assert expected_message == lint["message"]
 
 
-def test_rattler_build_recipe():
+def test_v1_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -157,7 +157,7 @@ def test_rattler_build_recipe():
 
     For **recipe/recipe.yaml**:
 
-    This is a rattler-build recipe and not yet lintable. We are working on it!
+    This is a v1 recipe and not yet lintable. We are working on it!
     """)  # noqa
 
     lint = compute_lint_message(
@@ -267,7 +267,7 @@ I do have some suggestions for making it better though...
 
 For **recipe/recipe.yaml**:
 
-This is a rattler-build recipe and not yet lintable. We are working on it!
+This is a v1 recipe and not yet lintable. We are working on it!
 """,  # noqa
             "mixed",
         )

@@ -52,11 +52,10 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
         rel_pr_recipes.append(rel_path)
 
         if recipe.name == "recipe.yaml":
-            # this is a rattler-build recipe and not yet handled
+            # this is a v1 recipe and not yet handled
             hint = "\nFor **{}**:\n\n{}".format(
                 rel_path,
-                "This is a rattler-build recipe and not yet lintable. "
-                "We are working on it!",
+                "This is a v1 recipe and not yet lintable. " "We are working on it!",
             )
             messages.append(hint)
             # also add it to hints so that the PR is marked as mixed
