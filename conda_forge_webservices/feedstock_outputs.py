@@ -491,7 +491,7 @@ community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or yo
         message += (
             "\n\n"
             "To fix package package output validation errors, follow the "
-            "instructions above to add"
+            "instructions above to add "
             "new package outputs to your feedstock or to add your "
             "feedstock+packages to the allow list for automatic "
             "registration."
