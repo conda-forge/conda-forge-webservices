@@ -243,6 +243,7 @@ def test_is_valid_feedstock_output(
         return return_value
 
     p2f_mock.__call__ = _get_p2f_fun
+    print(p2f_mock("g/o/o/goo.json"), p2f_mock("b/a/r/bar.json"), p2f_mock("blah.json"))
 
     outputs = [
         "noarch/bar-0.1-py_0.tar.bz2",
