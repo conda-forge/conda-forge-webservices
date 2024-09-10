@@ -9,16 +9,14 @@ import urllib.parse
 import logging
 import base64
 import time
-from functools import lru_cache
-from fnmatch import fnmatch
 
-from ruamel.yaml import YAML
 import requests
 import scrypt
 import github
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
+from conda_forge_metadata.feedstock_outputs import package_to_feedstock
 from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
 import binstar_client.errors
 
@@ -29,29 +27,6 @@ LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
-
-
-@lru_cache(maxsize=1)
-def _load_allowed_autoreg_feedstock_globs(time_int):
-    r = requests.get(
-        "https://raw.githubusercontent.com/conda-forge/feedstock-outputs/"
-        "main/feedstock_outputs_autoreg_allowlist.yml"
-    )
-    r.raise_for_status()
-    yaml = YAML(typ="safe")
-    return yaml.load(r.text)
-
-
-def load_allowed_autoreg_feedstock_globs():
-    return _load_allowed_autoreg_feedstock_globs(time.monotonic() // 120)
-
-
-def check_allowed_autoreg_feedstock_globs(feedstock, output):
-    fs_pats = load_allowed_autoreg_feedstock_globs()
-    for pat in fs_pats.get(feedstock, []):
-        if fnmatch(output, pat):
-            return True
-    return False
 
 
 def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
@@ -235,6 +210,52 @@ def _is_valid_output_hash(outputs, hash_type):
     return valid
 
 
+def _add_feedstock_output(
+    feedstock: str,
+    pkg_name: str,
+):
+    gh_token = get_app_token_for_webservices_only()
+    gh = github.Github(auth=github.Auth.Token(gh_token))
+    repo = gh.get_repo("conda-forge/feedstock-outputs")
+    try:
+        contents = repo.get_contents(_get_sharded_path(pkg_name))
+    except github.UnknownObjectException:
+        contents = None
+
+    if contents is None:
+        data = {"feedstocks": [feedstock]}
+        repo.create_file(
+            _get_sharded_path(pkg_name),
+            f"[cf admin skip] ***NO_CI*** add output {pkg_name} for "
+            f"conda-forge/{feedstock}-feedstock",
+            json.dumps(data),
+        )
+        LOGGER.info(
+            f"    output {pkg_name} added for feedstock "
+            f"conda-forge/{feedstock}-feedstock"
+        )
+    else:
+        data = json.loads(contents.decoded_content.decode("utf-8"))
+        if feedstock not in data["feedstocks"]:
+            data["feedstocks"].append(feedstock)
+            repo.update_file(
+                contents.path,
+                f"[cf admin skip] ***NO_CI*** add output {pkg_name} "
+                f"for conda-forge/{feedstock}-feedstock",
+                json.dumps(data),
+                contents.sha,
+            )
+            LOGGER.info(
+                f"    output {pkg_name} added for feedstock "
+                f"conda-forge/{feedstock}-feedstock"
+            )
+        else:
+            LOGGER.info(
+                f"    output {pkg_name} already exists for feedstock "
+                f"conda-forge/{feedstock}-feedstock"
+            )
+
+
 def _is_valid_feedstock_output(
     project,
     outputs,
@@ -281,53 +302,30 @@ def _is_valid_feedstock_output(
 
     unique_names_valid = dict.fromkeys(unique_names, False)
     for un in unique_names:
-        un_sharded_path = _get_sharded_path(un)
-        r = requests.get(
-            "https://api.github.com/repos/conda-forge/"
-            f"feedstock-outputs/contents/{un_sharded_path}",
-            headers={"Authorization": f"Bearer {gh_token}"},
-        )
-        if r.status_code != 200:
-            # it failed, but we need to know if it failed due to the API or
-            # if the file is not there
-            if r.status_code == 404:
-                if register or check_allowed_autoreg_feedstock_globs(feedstock, un):
-                    unique_names_valid[un] = True
-                    data = {"feedstocks": [feedstock]}
-                    edata = base64.standard_b64encode(
-                        json.dumps(data).encode("utf-8")
-                    ).decode("ascii")
+        try:
+            registered_feedstocks = package_to_feedstock(un)
+        except requests.HTTPError:
+            registered_feedstocks = []
 
-                    r = requests.put(
-                        "https://api.github.com/repos/conda-forge/"
-                        f"feedstock-outputs/contents/{un_sharded_path}",
-                        headers={"Authorization": f"Bearer {gh_token}"},
-                        json={
-                            "message": (
-                                "[cf admin skip] ***NO_CI*** added "
-                                f"output {un} for conda-forge/{feedstock}"
-                            ),
-                            "content": edata,
-                        },
-                    )
-                    if r.status_code != 201:
-                        LOGGER.info(
-                            f"    output {un} not created for "
-                            f"feedstock conda-forge/{feedstock}"
-                        )
-                        r.raise_for_status()
-                else:
-                    unique_names_valid[un] = False
-
-                LOGGER.info(f"    does not exist|valid: {un}|{unique_names_valid[un]}")
-        else:
-            data = r.json()
-            assert data["encoding"] == "base64"
-            data = json.loads(
-                base64.standard_b64decode(data["content"]).decode("utf-8")
-            )
-            unique_names_valid[un] = feedstock in data["feedstocks"]
+        if registered_feedstocks:
+            # if we find any, we check
+            unique_names_valid[un] = feedstock in registered_feedstocks
             LOGGER.info(f"    checked|valid: {un}|{unique_names_valid[un]}")
+        else:
+            # otherwise it is only valid if we are registering on the fly
+            unique_names_valid[un] = register
+            LOGGER.info(f"    does not exist|valid: {un}|{unique_names_valid[un]}")
+
+        # make the output if we need to
+        if unique_names_valid[un]:
+            un_sharded_path = _get_sharded_path(un)
+            r = requests.get(
+                "https://api.github.com/repos/conda-forge/"
+                f"feedstock-outputs/contents/{un_sharded_path}",
+                headers={"Authorization": f"Bearer {gh_token}"},
+            )
+            if r.status_code == 404:
+                _add_feedstock_output(feedstock, un)
 
     for dist in outputs:
         try:

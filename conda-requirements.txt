@@ -2,7 +2,7 @@ anaconda-client>=1.8.0
 cachetools
 conda
 conda-build
-conda-forge-metadata>=0.4.1
+conda-forge-metadata>=0.9.1
 conda-forge-pinning
 conda-smithy>=3.34.1  # this pin is for jinja2 sandboxes
 cryptography>=39
