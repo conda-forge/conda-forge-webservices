@@ -16,7 +16,10 @@ import github
 
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
-from conda_forge_metadata.feedstock_outputs import package_to_feedstock
+from conda_forge_metadata.feedstock_outputs import (
+    package_to_feedstock,
+    feedstock_outputs_config,
+)
 from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
 import binstar_client.errors
 
@@ -386,7 +389,9 @@ def validate_feedstock_outputs(
     valid_outputs = _is_valid_feedstock_output(
         project,
         outputs_to_test,
-        register=True,  # ** DO NOT TURN TO TRUE UNLESS YOU KNOW WHAT YOU ARE DOING. **
+        # to turn this off, set the value in the config.json blob in
+        # conda-forge/feedstock-outputs
+        register=feedstock_outputs_config().get("auto_register_all", False),
     )
 
     valid_hashes = _is_valid_output_hash(outputs_to_test, hash_type)

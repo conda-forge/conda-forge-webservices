@@ -188,7 +188,13 @@ def test_is_valid_output_hash():
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.requests")
 @mock.patch("conda_forge_webservices.feedstock_outputs.package_to_feedstock")
+@mock.patch(
+    "conda_forge_webservices.feedstock_outputs.get_app_token_for_webservices_only"
+)
+@mock.patch("conda_forge_webservices.feedstock_outputs._add_feedstock_output")
 def test_is_valid_feedstock_output(
+    afs_mock,
+    gat_mock,
     p2f_mock,
     req_mock,
     monkeypatch,
@@ -196,7 +202,6 @@ def test_is_valid_feedstock_output(
     register,
 ):
     monkeypatch.setenv("GH_TOKEN", "abc123")
-    monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
 
     def _get_function(name, *args, **kwargs):
         data = None
@@ -231,11 +236,9 @@ def test_is_valid_feedstock_output(
     req_mock.get = _get_function
 
     def _get_p2f_fun(name):
-        if "bar.json" in name:
-            assert "b/a/r/bar.json" in name
+        if "bar" in name:
             return_value = ["foo", "blah"]
-        elif "goo.json" in name:
-            assert "g/o/o/goo.json" in name
+        elif "goo" in name:
             return_value = ["blarg"]
         else:
             return_value = []
@@ -268,20 +271,26 @@ def test_is_valid_feedstock_output(
             "noarch/goo-0.3-py_10.tar.bz2": False,
             "noarch/glob-0.2-py_12.tar.bz2": register,
         }
-    elif project == "blarg":
+    elif project == "blarg-feedstock":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": True,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
-    elif project == "boo":
+    elif project == "boo-feedstock":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
 
-    if register:
-        assert len(req_mock.put.call_args_list) == 1
+    if register and project in [
+        "foo",
+        "foo-feedstock",
+        "blah",
+        "blarg-feedstock",
+        "boo-feedstock",
+    ]:
+        assert afs_mock.called_once_with(project.replace("-feedstock", ""), "glob")
     else:
-        req_mock.put.assert_not_called()
+        afs_mock.assert_not_called()
