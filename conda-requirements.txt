@@ -12,7 +12,7 @@ lxml
 mock
 parameterized
 pygithub>=2.2.0  # for GH App endpoints
-python=3.10.*
+python=3.11.*
 pytz
 requests
 ruamel.yaml>=0.16

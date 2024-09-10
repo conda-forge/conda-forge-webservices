@@ -187,7 +187,9 @@ def test_is_valid_output_hash():
     "project", ["foo-feedstock", "blah", "foo", "blarg-feedstock", "boo-feedstock"]
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.requests")
+@mock.patch("conda_forge_webservices.feedstock_outputs.package_to_feedstock")
 def test_is_valid_feedstock_output(
+    p2f_mock,
     req_mock,
     monkeypatch,
     project,
@@ -227,6 +229,20 @@ def test_is_valid_feedstock_output(
         return resp
 
     req_mock.get = _get_function
+
+    def _get_p2f_fun(name):
+        if "bar.json" in name:
+            assert "b/a/r/bar.json" in name
+            return_value = ["foo", "blah"]
+        elif "goo.json" in name:
+            assert "g/o/o/goo.json" in name
+            return_value = ["blarg"]
+        else:
+            return_value = []
+
+        return return_value
+
+    p2f_mock.__call__ = _get_p2f_fun
 
     outputs = [
         "noarch/bar-0.1-py_0.tar.bz2",
