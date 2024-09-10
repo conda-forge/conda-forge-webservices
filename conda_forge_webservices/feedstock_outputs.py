@@ -304,7 +304,7 @@ def _is_valid_feedstock_output(
     for un in unique_names:
         try:
             registered_feedstocks = package_to_feedstock(un)
-        except requests.HTTPError:
+        except requests.exceptions.HTTPError:
             registered_feedstocks = []
 
         if registered_feedstocks:
