@@ -284,13 +284,7 @@ def test_is_valid_feedstock_output(
             "noarch/glob-0.2-py_12.tar.bz2": register,
         }
 
-    if register and project in [
-        "foo",
-        "foo-feedstock",
-        "blah",
-        "blarg-feedstock",
-        "boo-feedstock",
-    ]:
+    if register:
         assert afs_mock.called_once_with(project.replace("-feedstock", ""), "glob")
     else:
         afs_mock.assert_not_called()
