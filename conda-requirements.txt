@@ -2,7 +2,7 @@ anaconda-client>=1.8.0
 cachetools
 conda
 conda-build
-conda-forge-metadata>=0.4.1
+conda-forge-metadata>=0.9.2
 conda-forge-pinning
 conda-smithy>=3.34.1  # this pin is for jinja2 sandboxes
 cryptography>=39
@@ -12,7 +12,7 @@ lxml
 mock
 parameterized
 pygithub>=2.2.0  # for GH App endpoints
-python=3.10.*
+python=3.11.*
 pytz
 requests
 ruamel.yaml>=0.16

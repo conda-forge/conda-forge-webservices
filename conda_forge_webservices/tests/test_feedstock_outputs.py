@@ -13,8 +13,6 @@ from conda_forge_webservices.feedstock_outputs import (
     _is_valid_output_hash,
     copy_feedstock_outputs,
     validate_feedstock_outputs,
-    check_allowed_autoreg_feedstock_globs,
-    _load_allowed_autoreg_feedstock_globs,
 )
 
 
@@ -189,14 +187,21 @@ def test_is_valid_output_hash():
     "project", ["foo-feedstock", "blah", "foo", "blarg-feedstock", "boo-feedstock"]
 )
 @mock.patch("conda_forge_webservices.feedstock_outputs.requests")
+@mock.patch("conda_forge_webservices.feedstock_outputs.package_to_feedstock")
+@mock.patch(
+    "conda_forge_webservices.feedstock_outputs.get_app_token_for_webservices_only"
+)
+@mock.patch("conda_forge_webservices.feedstock_outputs._add_feedstock_output")
 def test_is_valid_feedstock_output(
+    afs_mock,
+    gat_mock,
+    p2f_mock,
     req_mock,
     monkeypatch,
     project,
     register,
 ):
     monkeypatch.setenv("GH_TOKEN", "abc123")
-    monkeypatch.setenv("FEEDSTOCK_OUTPUTS_REPO", "efg456")
 
     def _get_function(name, *args, **kwargs):
         data = None
@@ -230,6 +235,18 @@ def test_is_valid_feedstock_output(
 
     req_mock.get = _get_function
 
+    def _get_p2f_fun(name):
+        if "bar" in name:
+            return_value = ["foo", "blah"]
+        elif "goo" in name:
+            return_value = ["blarg"]
+        else:
+            return_value = []
+
+        return return_value
+
+    p2f_mock.side_effect = _get_p2f_fun
+
     outputs = [
         "noarch/bar-0.1-py_0.tar.bz2",
         "noarch/goo-0.3-py_10.tar.bz2",
@@ -254,27 +271,20 @@ def test_is_valid_feedstock_output(
             "noarch/goo-0.3-py_10.tar.bz2": False,
             "noarch/glob-0.2-py_12.tar.bz2": register,
         }
-    elif project == "blarg":
+    elif project == "blarg-feedstock":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": True,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
-    elif project == "boo":
+    elif project == "boo-feedstock":
         assert valid == {
             "noarch/bar-0.1-py_0.tar.bz2": False,
             "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": True,
+            "noarch/glob-0.2-py_12.tar.bz2": register,
         }
 
     if register:
-        assert len(req_mock.put.call_args_list) == 1
+        assert afs_mock.called_once_with(project.replace("-feedstock", ""), "glob")
     else:
-        req_mock.put.assert_not_called()
-
-
-def test_check_allowed_autoreg_feedstock_globs():
-    _load_allowed_autoreg_feedstock_globs.cache_clear()
-    assert check_allowed_autoreg_feedstock_globs("llvmdev", "libllvm3456")
-    assert not check_allowed_autoreg_feedstock_globs("llvmdev", "python")
-    assert not check_allowed_autoreg_feedstock_globs("blah", "python")
+        afs_mock.assert_not_called()
