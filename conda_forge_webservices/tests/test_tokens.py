@@ -7,6 +7,7 @@ import pytest
 from ..tokens import (
     generate_app_token_for_feedstock,
     inject_app_token_into_feedstock,
+    inject_app_token_into_feedstock_readonly,
     get_app_token_for_webservices_only,
 )
 from ..utils import with_action_url
@@ -59,8 +60,8 @@ def test_github_app_tokens_for_webservices_cache():
     "token_repo", ["staged-recipes", "cf-autotick-bot-test-package-feedstock"]
 )
 def test_github_app_tokens_for_feedstocks(token_repo):
-    app_id = os.environ["CF_WEBSERVICES_APP_ID"]
-    raw_pem = os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode()
+    app_id = os.environ["CF_WEBSERVICES_FEEDSTOCK_APP_ID"]
+    raw_pem = os.environ["CF_WEBSERVICES_FEEDSTOCK_PRIVATE_KEY"].encode()
     token = generate_app_token_for_feedstock(
         app_id,
         raw_pem,
@@ -106,6 +107,17 @@ def test_github_app_tokens_for_feedstocks(token_repo):
 )
 def test_inject_app_token_into_feedstock(token_repo):
     res = inject_app_token_into_feedstock("conda-forge/" + token_repo)
+    if token_repo == "cf-autotick-bot-test-package-feedstock":
+        assert res
+    else:
+        assert not res
+
+
+@pytest.mark.parametrize(
+    "token_repo", ["staged-recipes", "cf-autotick-bot-test-package-feedstock"]
+)
+def test_inject_app_token_into_feedstock_readonly(token_repo):
+    res = inject_app_token_into_feedstock_readonly("conda-forge/" + token_repo)
     if token_repo == "cf-autotick-bot-test-package-feedstock":
         assert res
     else:
