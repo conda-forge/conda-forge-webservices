@@ -19,6 +19,7 @@ from github.InstallationAuthorization import InstallationAuthorization
 LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
 FEEDSTOCK_TOKEN_RESET_TIMES: dict[str, Any] = {}
+READONLY_FEEDSTOCK_TOKEN_RESET_TIMES: dict[str, Any] = {}
 APP_TOKEN_RESET_TIME = None
 
 
@@ -168,39 +169,69 @@ def inject_app_token_into_feedstock(full_name, repo=None):
     injected : bool
         True if the token was injected, False otherwise.
     """
+    return _inject_app_token_into_feedstock(full_name, repo=repo, readonly=False)
+
+
+def inject_app_token_into_feedstock_readonly(full_name, repo=None):
+    """Inject the cf-webservices-tokens app token into the repo secrets.
+
+    Parameters
+    ----------
+    full_name : str
+        The full name of the repo (e.g., "conda-forge/blah").
+    repo : pygithub Repository
+        Optional repo object to use. If not passed, a new one will be made.
+
+    Returns
+    -------
+    injected : bool
+        True if the token was injected, False otherwise.
+    """
+    return _inject_app_token_into_feedstock(full_name, repo=repo, readonly=True)
+
+
+def _inject_app_token_into_feedstock(full_name, repo=None, readonly=False):
     repo_name = full_name.split("/")[1]
 
     # this is for testing - will turn it on for all repos later
-    return False
+    if repo_name != "cf-autotick-bot-test-package-feedstock":
+        return False
 
     if not repo_name.endswith("-feedstock"):
         return False
 
     global FEEDSTOCK_TOKEN_RESET_TIMES
+    global READONLY_FEEDSTOCK_TOKEN_RESET_TIMES
+
+    if readonly:
+        reset_times_dict = READONLY_FEEDSTOCK_TOKEN_RESET_TIMES
+        token_name = "READONLY_GITHUB_TOKEN"
+    else:
+        reset_times_dict = FEEDSTOCK_TOKEN_RESET_TIMES
+        token_name = "RERENDERING_GITHUB_TOKEN"
 
     now = time.time()
     now_plus_30min = now + 30 * 60
-    if FEEDSTOCK_TOKEN_RESET_TIMES.get(repo_name, now_plus_30min) <= now_plus_30min:
+    if reset_times_dict.get(repo_name, now_plus_30min) <= now_plus_30min:
         token = generate_app_token_for_feedstock(
-            os.environ["CF_WEBSERVICES_APP_ID"],
-            os.environ["CF_WEBSERVICES_PRIVATE_KEY"].encode(),
+            os.environ["CF_WEBSERVICES_FEEDSTOCK_APP_ID"],
+            os.environ["CF_WEBSERVICES_FEEDSTOCK_PRIVATE_KEY"].encode(),
             repo_name,
+            readonly=readonly,
         )
         if token is not None:
             if repo is None:
                 gh = Github(get_app_token_for_webservices_only())
                 repo = gh.get_repo(full_name)
             try:
-                repo.create_secret("RERENDERING_GITHUB_TOKEN", token)
-                FEEDSTOCK_TOKEN_RESET_TIMES[repo_name] = Github(
-                    token
-                ).rate_limiting_resettime
+                repo.create_secret(token_name, token)
+                reset_times_dict[repo_name] = Github(token).rate_limiting_resettime
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info(
                     "injected app token for repo %s - timeout %sm",
                     repo_name,
-                    (FEEDSTOCK_TOKEN_RESET_TIMES[repo_name] - now) / 60,
+                    (reset_times_dict[repo_name] - now) / 60,
                 )
                 LOGGER.info("===================================================")
                 worked = True
@@ -226,7 +257,7 @@ def inject_app_token_into_feedstock(full_name, repo=None):
         LOGGER.info(
             "app token exists for repo %s - timeout %sm",
             repo_name,
-            (FEEDSTOCK_TOKEN_RESET_TIMES[repo_name] - now) / 60,
+            (reset_times_dict[repo_name] - now) / 60,
         )
         LOGGER.info("===================================================")
         return True
@@ -241,7 +272,8 @@ class MyGithubIntegration(GithubIntegration):
         repositories: list[str] | None = None,
     ) -> InstallationAuthorization:
         """
-        :calls: `POST /app/installations/{installation_id}/access_tokens <https://docs.github.com/en/rest/apps/apps#create-an-installation-access-token-for-an-app>`
+        :calls: `POST /app/installations/{installation_id}/access_tokens
+        <https://docs.github.com/en/rest/apps/apps#create-an-installation-access-token-for-an-app>`
         """
         if permissions is None:
             permissions = {}
@@ -267,7 +299,7 @@ class MyGithubIntegration(GithubIntegration):
         )
 
 
-def generate_app_token_for_feedstock(app_id, raw_pem, repo):
+def generate_app_token_for_feedstock(app_id, raw_pem, repo, readonly=False):
     """Get an app token.
 
     Parameters
@@ -280,12 +312,22 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
         The name of the repo for which the token is scoped.
         This should be like `ngmix-feedstock` without the org `conda-forge`
         in front.
+    readonly : bool
+        If True, the token will only have read access.
 
     Returns
     -------
     gh_token : str
         The github token. May return None if there is an error.
     """
+    read_or_write = "read" if readonly else "write"
+    permissions = {
+        "metadata": "read",
+        "contents": read_or_write,
+        "workflows": read_or_write,
+        "members": "read",
+    }
+
     if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
         sys.stdout.flush()
         print(
@@ -339,25 +381,11 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo):
         with redirect_stdout(f), redirect_stderr(f):
             gh_token_data = integration.get_access_token(
                 installation.id,
-                permissions={
-                    "contents": "write",
-                    "metadata": "read",
-                    "workflows": "write",
-                    "checks": "read",
-                    "pull_requests": "write",
-                    "statuses": "read",
-                },
+                permissions=permissions,
                 repositories=[repo],
             )
 
-            assert gh_token_data.permissions == {
-                "contents": "write",
-                "metadata": "read",
-                "workflows": "write",
-                "checks": "read",
-                "pull_requests": "write",
-                "statuses": "read",
-            }, gh_token_data.permissions
+            assert gh_token_data.permissions == permissions, gh_token_data.permissions
             assert (
                 gh_token_data.repository_selection == "selected"
             ), gh_token_data.repository_selection

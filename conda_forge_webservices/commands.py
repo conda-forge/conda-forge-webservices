@@ -18,6 +18,7 @@ from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     inject_app_token_into_feedstock,
+    inject_app_token_into_feedstock_readonly,
 )
 import textwrap
 
@@ -974,6 +975,7 @@ def rerender(full_name, pr_num):
     repo = gh.get_repo(full_name)
 
     inject_app_token_into_feedstock(full_name, repo=repo)
+    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
     return not repo.create_repository_dispatch(
         "rerender",
@@ -986,6 +988,7 @@ def update_version(full_name, pr_num, input_ver):
     repo = gh.get_repo(full_name)
 
     inject_app_token_into_feedstock(full_name, repo=repo)
+    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
     return not repo.create_repository_dispatch(
         "version_update",
