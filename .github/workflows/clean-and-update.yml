@@ -12,12 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
+      - name: setup conda
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1
         with:
-          python-version: '3.10'
-          channels: conda-forge
-          channel-priority: strict
-          show-channel-urls: true
+          environment-file: conda-lock.yml
+          environment-name: webservices
+          condarc: |
+            show_channel_urls: true
+            channel_priority: strict
+            channels:
+              - conda-forge
 
       - name: generate token
         id: generate_token
@@ -27,14 +31,19 @@ jobs:
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - name: configure conda
+      - name: relock
+        uses: beckermr/relock-conda@37dda99dfc45d796d0b2526761856b10ff257d32
+        with:
+          github-token: ${{ steps.generate_token.outputs.token }}
+          automerge: true
+          skip-if-pr-exists: true
+
+      - name: install code
         shell: bash -l {0}
         run: |
-          conda config --set show_channel_urls True
-          conda config --add channels conda-forge
-          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
+          git config --global pull.rebase false
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           pip install --no-deps -e .
         env:
@@ -51,14 +60,6 @@ jobs:
         shell: bash -l {0}
         run: |
           cache-status-data
-        env:
-          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
-          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-
-      - name: update and redeploy if needed
-        shell: bash -l {0}
-        run: |
-          update-webservices
         env:
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}

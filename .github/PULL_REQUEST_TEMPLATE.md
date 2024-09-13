@@ -8,9 +8,6 @@ due to the missing tokens. Once a member of conda-forge/core merges the PR, the 
 will be run on the upstream repo. If this passes, the PR will get merged into `main`. If not, the PR
 will get kicked out of the queue for fixes.
 
-If you have push access to this repo, you can use a branch for your PR, but this will not bypass the 
+If you have push access to this repo, you can use a branch for your PR, but this will not bypass the
 merge queue.
 -->
-
-Checklist
-* [ ] CI is passing

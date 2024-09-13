@@ -21,13 +21,16 @@ jobs:
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
+      - name: setup conda
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1
         with:
-          python-version: '3.10'
-          channels: conda-forge
-          channel-priority: strict
-          show-channel-urls: true
-          miniforge-version: latest
+          environment-file: conda-lock.yml
+          environment-name: webservices
+          condarc: |
+            show_channel_urls: true
+            channel_priority: strict
+            channels:
+              - conda-forge
 
       - name: generate token
         id: generate_token
@@ -38,14 +41,12 @@ jobs:
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - name: configure conda
+      - name: install code
         shell: bash -l {0}
         run: |
-          conda config --set show_channel_urls True
-          conda config --add channels conda-forge
-          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
+          git config --global pull.rebase false
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           pip install --no-deps -e .
         env:
@@ -86,14 +87,17 @@ jobs:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         if: ${{ !github.event.pull_request.head.repo.fork }}
 
-      - uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
+      - name: setup conda
         if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1
         with:
-          python-version: '3.10'
-          channels: conda-forge
-          channel-priority: strict
-          show-channel-urls: true
-          miniforge-version: latest
+          environment-file: conda-lock.yml
+          environment-name: webservices
+          condarc: |
+            show_channel_urls: true
+            channel_priority: strict
+            channels:
+              - conda-forge
 
       - name: generate token
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -104,13 +108,10 @@ jobs:
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - name: configure conda
+      - name: install code
         shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          conda config --set show_channel_urls True
-          conda config --add channels conda-forge
-          conda install --yes --quiet --file conda-requirements.txt --file conda-test-requirements.txt
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
           git config --global pull.rebase false
@@ -121,11 +122,10 @@ jobs:
 
       - name: run package upload tests
         shell: bash -l {0}
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           export CF_WEBSERVICES_TEST=1
-          if [[ '${{ github.event.pull_request.head.repo.fork }}' != "true" ]]; then
-            ./scripts/run_cfep13_tests.sh
-          fi
+          ./scripts/run_cfep13_tests.sh
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
