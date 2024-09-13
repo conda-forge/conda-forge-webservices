@@ -13,7 +13,7 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 0e9a5bdbd16b1cd00dccd055ebb1c36ae45df960af7c2a5198cfec9c77dd5243
+    linux-64: cd47eab8d0cd9b658842a170d3af8d638b99c70f62e66368571b920bff484780
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -2000,6 +2000,20 @@ package:
     sha256: 90a09d134a4a43911b716d4d6eb9d169238aff2349056f7323d9db613812667e
   category: main
   optional: false
+- name: pip
+  version: '24.2'
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.8,<3.13.0a0'
+    setuptools: ''
+    wheel: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/pip-24.2-pyh8b19718_1.conda
+  hash:
+    md5: 6c78fbb8ddfd64bcb55b5cbafd2d2c43
+    sha256: d820e5358bcb117fa6286e55d4550c60b0332443df62121df839eab2d11c890b
+  category: main
+  optional: false
 - name: pkginfo
   version: 1.11.1
   manager: conda
@@ -2977,6 +2991,18 @@ package:
   hash:
     md5: 5ffe8d559c6ba5f1ccde047342f41ff4
     sha256: 00613c36181696b7a7e2e12fdc4d0dd9d6202ae582c2efc3dd8ee24f0fd89d11
+  category: main
+  optional: false
+- name: wheel
+  version: 0.44.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.44.0-pyhd8ed1ab_0.conda
+  hash:
+    md5: d44e3b085abcaef02983c6305b84b584
+    sha256: d828764736babb4322b8102094de38074dedfc71f5ff405c9dfee89191c14ebc
   category: main
   optional: false
 - name: wrapt
