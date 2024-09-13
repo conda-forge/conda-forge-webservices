@@ -1,3 +1,7 @@
+### Description
+
+<!-- Please put a description of your PR here along with any cross-refs to issues, etc. -->
+
 <!--
 Thank you for the pull request! This repo's tests require that the commit be pushed to
 a branch on conda-forge/conda-forge-webservices. This is to ensure that there's a GH_TOKEN variable
