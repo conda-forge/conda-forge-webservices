@@ -80,7 +80,7 @@ COPY / conda_forge_webservices/
 RUN cd conda_forge_webservices && \
     source /opt/conda/etc/profile.d/conda.sh && \
     conda activate webservices && \
-    pip install -e .
+    pip install --no-deps --no-build-isolation -e .
 
 CMD ["/opt/conda/bin/tini", \
      "--", \
