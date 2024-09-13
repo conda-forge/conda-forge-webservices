@@ -37,6 +37,12 @@ jobs:
           github-token: ${{ steps.generate_token.outputs.token }}
           automerge: true
           skip-if-pr-exists: true
+          include-only-packages:
+            conda-smithy
+            conda
+            conda-build
+            conda-libmamba-solver
+            mamba
 
       - name: install code
         shell: bash -l {0}
