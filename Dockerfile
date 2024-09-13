@@ -65,7 +65,7 @@ RUN echo "**** install dev packages ****" && \
     conda config --set always_yes yes && \
     conda config --set solver libmamba && \
     conda update --all --quiet && \
-    conda install --quiet conda-lock && \
+    conda install --quiet conda-lock tini && \
     conda-lock install -n webservices /conda-lock.yml && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
