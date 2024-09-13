@@ -1,2 +1,0 @@
-pytest<8.2.0
-inline-snapshot>=0.11

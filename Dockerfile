@@ -42,7 +42,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ADD https://loripsum.net/api /opt/docker/etc/gibberish
 
 # Install conda
-COPY conda-requirements.txt /
+COPY conda-lock.yml /
 RUN echo "**** install dev packages ****" && \
     apk add --no-cache bash ca-certificates wget && \
     rm -rf /var/cache/apk/* && \
@@ -56,7 +56,7 @@ RUN echo "**** install dev packages ****" && \
     bash miniforge3.sh -f -b -p "$CONDA_DIR" && \
     rm -f miniforge3.sh && \
     \
-    echo "**** install base env ****" && \
+    echo "**** install env ****" && \
     source /opt/conda/etc/profile.d/conda.sh && \
     conda activate base && \
     conda config --set show_channel_urls True  && \
@@ -65,7 +65,8 @@ RUN echo "**** install dev packages ****" && \
     conda config --set always_yes yes && \
     conda config --set solver libmamba && \
     conda update --all --quiet && \
-    conda install --quiet --file conda-requirements.txt && \
+    conda install --quiet conda-lock && \
+    conda-lock install -n webservices /conda-lock.yml && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
     \
@@ -78,8 +79,8 @@ RUN mkdir -p conda_forge_webservices
 COPY / conda_forge_webservices/
 RUN cd conda_forge_webservices && \
     source /opt/conda/etc/profile.d/conda.sh && \
-    conda activate base && \
-    pip install -e .
+    conda activate webservices && \
+    pip install --no-deps --no-build-isolation -e .
 
 CMD ["/opt/conda/bin/tini", \
      "--", \

@@ -6,7 +6,7 @@ echo "==========================================================================
 
 source /opt/conda/etc/profile.d/conda.sh
 
-conda activate base
+conda activate webservices
 
 conda info
 

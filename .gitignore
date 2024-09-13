@@ -6,3 +6,7 @@ feedstock-tokens
 .vscode/
 built_dists/*
 recipe/*
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+built_dists/
