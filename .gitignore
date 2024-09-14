@@ -10,3 +10,4 @@ recipe/*
 .pytest_cache/
 .ruff_cache/
 built_dists/
+conda_forge_webservices/_version.py
