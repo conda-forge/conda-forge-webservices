@@ -325,7 +325,6 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo, readonly=False):
         "metadata": "read",
         "contents": read_or_write,
         "workflows": read_or_write,
-        "members": "read",
     }
 
     if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
