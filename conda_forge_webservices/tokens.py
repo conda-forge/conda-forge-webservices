@@ -322,8 +322,13 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo, readonly=False):
     """
     read_or_write = "read" if readonly else "write"
     permissions = {
-        "metadata": "read",
+        "actions": read_or_write,
+        "checks": read_or_write,
         "contents": read_or_write,
+        "issues": read_or_write,
+        "metadata": "read",
+        "pull_requests": read_or_write,
+        "statuses": read_or_write,
         "workflows": read_or_write,
     }
 
