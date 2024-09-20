@@ -5,13 +5,20 @@ package:
 build:
   number: 0
 
+requirements:
+  host:
+    - python
+    - pip
+  run:
+    - python
+
 test:
   commands:
     - echo "test"
 
 about:
   home: https://github.com/conda-forge/conda-forge-linting-service
-  license: BSD 3-Clause
+  license: BSD-3-Clause
   license_file: LICENSE
   summary: A test recipe for linting
 
