@@ -5,11 +5,14 @@ package:
 build:
   number: 0
 
-test: {}
+test:
+  commands:
+    - echo "hello"
 
 about:
   home: https://github.com/conda-forge/conda-forge-linting-service
-  license: BSD 3-clause
+  license: BSD-3-Clause
+  license_file: LICENSE
   summary: A test recipe for linting
 
 extra:
