@@ -171,11 +171,13 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
+    @mock.patch("conda_forge_webservices.commands.github.Github")
     @mock.patch("conda_forge_webservices.commands.get_gh_client")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_issue_command_triggers(
         self,
         git_repo,
+        gh_app,
         gh,
         update_team,
         relint,
