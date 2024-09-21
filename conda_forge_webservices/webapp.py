@@ -189,28 +189,34 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("linting: %s", body["repository"]["full_name"])
                 LOGGER.info("===================================================")
 
-                lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
-                    linting.compute_lint_message,
-                    owner,
-                    repo_name,
-                    pr_id,
-                    repo_name == "staged-recipes",
-                )
-                if lint_info:
-                    msg = linting.comment_on_pr(
+                if True:
+                    linting.lint_via_github_actions(
+                        body["repository"]["full_name"],
+                        pr_id,
+                    )
+                else:
+                    lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
+                        _worker_pool(),
+                        linting.compute_lint_message,
                         owner,
                         repo_name,
                         pr_id,
-                        lint_info["message"],
-                        search="conda-forge-linting service",
+                        repo_name == "staged-recipes",
                     )
-                    linting.set_pr_status(
-                        owner,
-                        repo_name,
-                        lint_info,
-                        target_url=msg.html_url,
-                    )
+                    if lint_info:
+                        msg = linting.comment_on_pr(
+                            owner,
+                            repo_name,
+                            pr_id,
+                            lint_info["message"],
+                            search="conda-forge-linting service",
+                        )
+                        linting.set_pr_status(
+                            owner,
+                            repo_name,
+                            lint_info,
+                            target_url=msg.html_url,
+                        )
             print_rate_limiting_info()
         else:
             LOGGER.info(f'Unhandled event "{event}".')
