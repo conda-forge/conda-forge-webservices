@@ -108,6 +108,9 @@ class TestBucketHandler(TestHandlerBase):
         )
 
     @mock.patch(
+        "conda_forge_webservices.linting.lint_via_github_actions", return_value=None
+    )
+    @mock.patch(
         "conda_forge_webservices.linting.compute_lint_message", return_value=None
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status", return_value=None)

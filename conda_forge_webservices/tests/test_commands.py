@@ -51,7 +51,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
-    @mock.patch("github.Github")
+    @mock.patch("conda_forge.webservices.commands.get_gh_client")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_pr_command_triggers(
         self, repo, gh, update_team, relint, make_noarch, rerender, add_bot_rerun_label
@@ -171,7 +171,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
-    @mock.patch("github.Github")
+    @mock.patch("conda_forge.webservices.commands.get_gh_client")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_issue_command_triggers(
         self,
@@ -367,7 +367,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
-    @mock.patch("github.Github")
+    @mock.patch("conda_forge.webservices.commands.get_gh_client")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_rerender_failure(
         self, repo, gh, update_team, relint, make_noarch, rerender
