@@ -9,7 +9,6 @@ import unittest.mock as mock
 from tornado.testing import AsyncHTTPTestCase
 
 from conda_forge_webservices.webapp import create_webapp
-from conda_forge_webservices import linting
 
 
 class TestHandlerBase(AsyncHTTPTestCase):
@@ -46,10 +45,6 @@ class TestBucketHandler(TestHandlerBase):
         self.assertIn(response.code, [403, 500])
 
     @mock.patch(
-        "conda_forge_webservices.linting.lint_via_github_actions",
-        return_value=None,
-    )
-    @mock.patch(
         "conda_forge_webservices.linting.compute_lint_message",
         return_value={"message": mock.sentinel.message},
     )
@@ -58,13 +53,7 @@ class TestBucketHandler(TestHandlerBase):
         return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
-    def test_good_header(
-        self,
-        set_pr_status,
-        comment_on_pr,
-        compute_lint_message,
-        lint_via_gha,
-    ):
+    def test_good_header(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {
             "repository": {
@@ -99,33 +88,25 @@ class TestBucketHandler(TestHandlerBase):
 
         self.assertEqual(response.code, 200)
 
-        if linting.LINT_VIA_GHA:
-            lint_via_gha.assert_called_once_with(
-                "conda-forge/repo_name-feedstock", PR_number
-            )
-        else:
-            compute_lint_message.assert_called_once_with(
-                "conda-forge", "repo_name-feedstock", PR_number, False
-            )
+        compute_lint_message.assert_called_once_with(
+            "conda-forge", "repo_name-feedstock", PR_number, False
+        )
 
-            comment_on_pr.assert_called_once_with(
-                "conda-forge",
-                "repo_name-feedstock",
-                PR_number,
-                mock.sentinel.message,
-                search="conda-forge-linting service",
-            )
+        comment_on_pr.assert_called_once_with(
+            "conda-forge",
+            "repo_name-feedstock",
+            PR_number,
+            mock.sentinel.message,
+            search="conda-forge-linting service",
+        )
 
-            set_pr_status.assert_called_once_with(
-                "conda-forge",
-                "repo_name-feedstock",
-                {"message": mock.sentinel.message},
-                target_url=mock.sentinel.html_url,
-            )
+        set_pr_status.assert_called_once_with(
+            "conda-forge",
+            "repo_name-feedstock",
+            {"message": mock.sentinel.message},
+            target_url=mock.sentinel.html_url,
+        )
 
-    @mock.patch(
-        "conda_forge_webservices.linting.lint_via_github_actions", return_value=None
-    )
     @mock.patch(
         "conda_forge_webservices.linting.compute_lint_message", return_value=None
     )
@@ -343,10 +324,6 @@ class TestBucketHandler(TestHandlerBase):
                                 )
 
     @mock.patch(
-        "conda_forge_webservices.linting.lint_via_github_actions",
-        return_value=None,
-    )
-    @mock.patch(
         "conda_forge_webservices.linting.compute_lint_message",
         return_value={"message": mock.sentinel.message},
     )
@@ -355,9 +332,7 @@ class TestBucketHandler(TestHandlerBase):
         return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
-    def test_staged_recipes(
-        self, set_pr_status, comment_on_pr, compute_lint_message, lint_via_gha
-    ):
+    def test_staged_recipes(self, set_pr_status, comment_on_pr, compute_lint_message):
         PR_number = 16
         body = {
             "repository": {
@@ -391,29 +366,24 @@ class TestBucketHandler(TestHandlerBase):
         )
 
         self.assertEqual(response.code, 200)
-        if linting.LINT_VIA_GHA:
-            lint_via_gha.assert_called_once_with(
-                "conda-forge/staged-recipes", PR_number
-            )
-        else:
-            compute_lint_message.assert_called_once_with(
-                "conda-forge", "staged-recipes", PR_number, True
-            )
+        compute_lint_message.assert_called_once_with(
+            "conda-forge", "staged-recipes", PR_number, True
+        )
 
-            comment_on_pr.assert_called_once_with(
-                "conda-forge",
-                "staged-recipes",
-                PR_number,
-                mock.sentinel.message,
-                search="conda-forge-linting service",
-            )
+        comment_on_pr.assert_called_once_with(
+            "conda-forge",
+            "staged-recipes",
+            PR_number,
+            mock.sentinel.message,
+            search="conda-forge-linting service",
+        )
 
-            set_pr_status.assert_called_once_with(
-                "conda-forge",
-                "staged-recipes",
-                {"message": mock.sentinel.message},
-                target_url=mock.sentinel.html_url,
-            )
+        set_pr_status.assert_called_once_with(
+            "conda-forge",
+            "staged-recipes",
+            {"message": mock.sentinel.message},
+            target_url=mock.sentinel.html_url,
+        )
 
     @mock.patch(
         "conda_forge_webservices.linting.compute_lint_message",
