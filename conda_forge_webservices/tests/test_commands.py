@@ -305,7 +305,7 @@ class TestCommands(unittest.TestCase):
         ]
 
         for command, should, should_not in commands:
-            issue = gh.return_value.get_repo.return_value.get_issue.return_value
+            issue = gh_app.return_value.get_repo.return_value.get_issue.return_value
             repo = gh.return_value.get_repo.return_value
             gh.return_value.get_repo.return_value.default_branch = "main"
             for msg in should:
