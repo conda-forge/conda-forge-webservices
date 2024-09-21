@@ -7,7 +7,7 @@ import textwrap
 from functools import cache
 
 from ruamel.yaml import YAML
-from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+from conda_forge_webservices.tokens import get_gh_client
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
@@ -66,7 +66,7 @@ def update_team(org_name, repo_name, commit=None):
     ] or team_name.startswith("help-"):
         return
 
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
