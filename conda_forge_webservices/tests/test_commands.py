@@ -51,7 +51,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
-    @mock.patch("conda_forge_webservices.commands.get_gh_client")
+    @mock.patch("github.Github")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_pr_command_triggers(
         self, repo, gh, update_team, relint, make_noarch, rerender, add_bot_rerun_label
@@ -171,13 +171,11 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
-    @mock.patch("conda_forge_webservices.commands.github.Github")
-    @mock.patch("conda_forge_webservices.commands.get_gh_client")
+    @mock.patch("github.Github")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_issue_command_triggers(
         self,
         git_repo,
-        gh_app,
         gh,
         update_team,
         relint,
@@ -305,7 +303,7 @@ class TestCommands(unittest.TestCase):
         ]
 
         for command, should, should_not in commands:
-            issue = gh_app.return_value.get_repo.return_value.get_issue.return_value
+            issue = gh.return_value.get_repo.return_value.get_issue.return_value
             repo = gh.return_value.get_repo.return_value
             gh.return_value.get_repo.return_value.default_branch = "main"
             for msg in should:
@@ -369,7 +367,7 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
-    @mock.patch("conda_forge_webservices.commands.get_gh_client")
+    @mock.patch("github.Github")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_rerender_failure(
         self, repo, gh, update_team, relint, make_noarch, rerender
