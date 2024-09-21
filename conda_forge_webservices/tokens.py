@@ -5,7 +5,6 @@ import io
 import sys
 import logging
 from contextlib import redirect_stdout, redirect_stderr
-from functools import lru_cache
 
 from typing import Any
 
@@ -22,15 +21,6 @@ LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 FEEDSTOCK_TOKEN_RESET_TIMES: dict[str, Any] = {}
 READONLY_FEEDSTOCK_TOKEN_RESET_TIMES: dict[str, Any] = {}
 APP_TOKEN_RESET_TIME = None
-
-
-@lru_cache(maxsize=1)
-def _get_gh_client(token):
-    return Github(auth=Auth.Token(token))
-
-
-def get_gh_client():
-    return _get_gh_client(get_app_token_for_webservices_only())
 
 
 def get_app_token_for_webservices_only():
@@ -231,7 +221,7 @@ def _inject_app_token_into_feedstock(full_name, repo=None, readonly=False):
         )
         if token is not None:
             if repo is None:
-                gh = get_gh_client()
+                gh = Github(get_app_token_for_webservices_only())
                 repo = gh.get_repo(full_name)
             try:
                 repo.create_secret(token_name, token)

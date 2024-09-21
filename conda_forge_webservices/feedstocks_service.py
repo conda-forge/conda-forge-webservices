@@ -4,11 +4,9 @@ import time
 import tempfile
 import shutil
 import logging
+import github
 
-from conda_forge_webservices.tokens import (
-    get_app_token_for_webservices_only,
-    get_gh_client,
-)
+from conda_forge_webservices.tokens import get_app_token_for_webservices_only
 from conda_forge_webservices.utils import with_action_url
 
 LOGGER = logging.getLogger("conda_forge_webservices.feedstocks_service")
@@ -45,7 +43,7 @@ def update_feedstock(org_name, repo_name):
         # sometimes the webhook outpaces other bits of the API so we try a bit
         for i in range(5):
             try:
-                gh = get_gh_client()
+                gh = github.Github(gh_token)
                 default_branch = gh.get_repo(f"{org_name}/{repo_name}").default_branch
                 break
             except Exception as e:
