@@ -12,11 +12,18 @@ from requests.exceptions import RequestException
 import logging
 
 # from .utils import tmp_directory
-from .linting import compute_lint_message, comment_on_pr, set_pr_status
+from .linting import (
+    compute_lint_message,
+    comment_on_pr,
+    set_pr_status,
+    lint_via_github_actions,
+    LINT_VIA_GHA,
+)
 from .update_teams import update_team
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
+    get_gh_client,
     inject_app_token_into_feedstock,
     inject_app_token_into_feedstock_readonly,
 )
@@ -148,7 +155,7 @@ def add_reaction(
 def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
     if not COMMAND_PREFIX.search(comment):
         return
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
     repo = gh.get_repo(f"{org_name}/{repo_name}")
     pr = repo.get_pull(int(issue_num))
     pr_detailed_comment(
@@ -178,10 +185,8 @@ def pr_detailed_comment(
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
 
-    GH_TOKEN = get_app_token_for_webservices_only()
-
     if not is_allowed_cmd:
-        gh = github.Github(GH_TOKEN)
+        gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         pull = repo.get_pull(int(pr_num))
         if pull.head.repo.full_name.split("/")[0] == "conda-forge":
@@ -198,7 +203,7 @@ def pr_detailed_comment(
                 pull.create_issue_comment(message)
 
     if RESTART_CI.search(comment):
-        gh = github.Github(GH_TOKEN)
+        gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
             add_reaction("rocket", repo, pr_num, comment_id, review_id)
@@ -219,7 +224,7 @@ def pr_detailed_comment(
         else:
             team = repo_name.replace("-feedstock", "")
 
-        gh = github.Github(GH_TOKEN)
+        gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
             add_reaction("rocket", repo, pr_num, comment_id, review_id)
@@ -232,7 +237,7 @@ def pr_detailed_comment(
         pull.create_issue_comment(message)
 
     if not is_allowed_cmd and RERUN_BOT.search(comment):
-        gh = github.Github(GH_TOKEN)
+        gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
             add_reaction("rocket", repo, pr_num, comment_id, review_id)
@@ -252,16 +257,17 @@ def pr_detailed_comment(
         return
 
     if comment_id is not None or review_id is not None:
-        repo = github.Github(GH_TOKEN).get_repo(f"{org_name}/{repo_name}")
+        repo = get_gh_client().get_repo(f"{org_name}/{repo_name}")
         add_reaction("rocket", repo, pr_num, comment_id, review_id)
 
     tmp_dir = None
     try:
         tmp_dir = tempfile.mkdtemp("_recipe")
 
+        gh_token = get_app_token_for_webservices_only()
         feedstock_dir = os.path.join(tmp_dir, repo_name)
         repo_url = (
-            f"https://x-access-token:{GH_TOKEN}@github.com/{pr_owner}/{pr_repo}.git"
+            f"https://x-access-token:{gh_token}@github.com/{pr_owner}/{pr_repo}.git"
         )
 
         for _git_try_num in range(NUM_GIT_CLONE_TRIES):
@@ -342,7 +348,7 @@ def pr_detailed_comment(
                 """).format(doc_url)  # noqa
 
         if message is not None:
-            gh = github.Github(GH_TOKEN)
+            gh = get_gh_client()
             gh_repo = gh.get_repo(f"{org_name}/{repo_name}")
             pull = gh_repo.get_pull(int(pr_num))
             pull.create_issue_comment(message)
@@ -385,8 +391,6 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
     if not any(command.search(text) for command in issue_commands):
         return
 
-    APP_GH_TOKEN = get_app_token_for_webservices_only()
-
     # sometimes the webhook outpaces other bits of the API so we try a bit
     for i in range(NUM_GH_API_TRIES):
         try:
@@ -405,7 +409,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                 raise e
 
     # these are used when the app takes actions
-    app_repo = github.Github(APP_GH_TOKEN).get_repo(f"{org_name}/{repo_name}")
+    app_repo = get_gh_client().get_repo(f"{org_name}/{repo_name}")
     app_issue = app_repo.get_issue(int(issue_num))
 
     if comment_id is not None:
@@ -458,11 +462,12 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                     gh,
                 )
 
+            gh_token = get_app_token_for_webservices_only()
             feedstock_dir = os.path.join(tmp_dir, repo_name)
             repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
                 os.environ["GH_TOKEN"], forked_user, repo_name
             )
-            upstream_repo_url = f"https://x-access-token:{APP_GH_TOKEN}@github.com/{org_name}/{repo_name}.git"
+            upstream_repo_url = f"https://x-access-token:{gh_token}@github.com/{org_name}/{repo_name}.git"
 
             for _git_try_num in range(NUM_GIT_CLONE_TRIES):
                 try:
@@ -971,7 +976,7 @@ def make_rerender_dummy_commit(repo):
 
 
 def rerender(full_name, pr_num):
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
     repo = gh.get_repo(full_name)
 
     inject_app_token_into_feedstock(full_name, repo=repo)
@@ -984,7 +989,7 @@ def rerender(full_name, pr_num):
 
 
 def update_version(full_name, pr_num, input_ver):
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
     repo = gh.get_repo(full_name)
 
     inject_app_token_into_feedstock(full_name, repo=repo)
@@ -1023,17 +1028,23 @@ def make_noarch(repo):
 
 def relint(owner, repo_name, pr_num):
     pr = int(pr_num)
-    lint_info = compute_lint_message(
-        owner,
-        repo_name,
-        pr,
-        repo_name == "staged-recipes",
-    )
-    if not lint_info:
-        LOGGER.warning("Linting was skipped.")
+    if LINT_VIA_GHA:
+        lint_via_github_actions(
+            f"{owner}/{repo_name}",
+            pr,
+        )
     else:
-        msg = comment_on_pr(owner, repo_name, pr, lint_info["message"], force=True)
-        set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
+        lint_info = compute_lint_message(
+            owner,
+            repo_name,
+            pr,
+            repo_name == "staged-recipes",
+        )
+        if not lint_info:
+            LOGGER.warning("Linting was skipped.")
+        else:
+            msg = comment_on_pr(owner, repo_name, pr, lint_info["message"], force=True)
+            set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
 
 
 def add_bot_rerun_label(repo, pr_num):

@@ -24,7 +24,10 @@ from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_
 import binstar_client.errors
 
 from .utils import parse_conda_pkg
-from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+from conda_forge_webservices.tokens import (
+    get_app_token_for_webservices_only,
+    get_gh_client,
+)
 
 LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
@@ -217,8 +220,7 @@ def _add_feedstock_output(
     feedstock: str,
     pkg_name: str,
 ):
-    gh_token = get_app_token_for_webservices_only()
-    gh = github.Github(auth=github.Auth.Token(gh_token))
+    gh = get_gh_client()
     repo = gh.get_repo("conda-forge/feedstock-outputs")
     try:
         contents = repo.get_contents(_get_sharded_path(pkg_name))
@@ -431,7 +433,7 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
     if not feedstock.endswith("-feedstock"):
         return None
 
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
 
     team_name = feedstock[: -len("-feedstock")]
 
