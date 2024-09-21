@@ -12,7 +12,13 @@ from requests.exceptions import RequestException
 import logging
 
 # from .utils import tmp_directory
-from .linting import compute_lint_message, comment_on_pr, set_pr_status
+from .linting import (
+    compute_lint_message,
+    comment_on_pr,
+    set_pr_status,
+    lint_via_github_actions,
+    LINT_VIA_GHA,
+)
 from .update_teams import update_team
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
 from conda_forge_webservices.tokens import (
@@ -1022,17 +1028,23 @@ def make_noarch(repo):
 
 def relint(owner, repo_name, pr_num):
     pr = int(pr_num)
-    lint_info = compute_lint_message(
-        owner,
-        repo_name,
-        pr,
-        repo_name == "staged-recipes",
-    )
-    if not lint_info:
-        LOGGER.warning("Linting was skipped.")
+    if LINT_VIA_GHA:
+        lint_via_github_actions(
+            f"{owner}/{repo_name}",
+            pr,
+        )
     else:
-        msg = comment_on_pr(owner, repo_name, pr, lint_info["message"], force=True)
-        set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
+        lint_info = compute_lint_message(
+            owner,
+            repo_name,
+            pr,
+            repo_name == "staged-recipes",
+        )
+        if not lint_info:
+            LOGGER.warning("Linting was skipped.")
+        else:
+            msg = comment_on_pr(owner, repo_name, pr, lint_info["message"], force=True)
+            set_pr_status(owner, repo_name, lint_info, target_url=msg.html_url)
 
 
 def add_bot_rerun_label(repo, pr_num):
