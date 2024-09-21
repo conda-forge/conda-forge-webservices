@@ -189,7 +189,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
                 LOGGER.info("linting: %s", body["repository"]["full_name"])
                 LOGGER.info("===================================================")
 
-                if True:
+                if linting.LINT_VIA_GHA:
                     linting.lint_via_github_actions(
                         body["repository"]["full_name"],
                         pr_id,

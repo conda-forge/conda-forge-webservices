@@ -18,6 +18,7 @@ SKIP_MSGS = [
     "[lint skip]",
     "[skip lint]",
 ]
+LINT_VIA_GHA = True
 
 
 class LintInfo(TypedDict):
