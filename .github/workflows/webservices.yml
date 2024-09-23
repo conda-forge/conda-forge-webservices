@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: webservices
         id: webservices
-        uses: conda-forge/webservices-dispatch-action@main
+        uses: conda-forge/webservices-dispatch-action@gh-readonly-queue/main/pr-121-3c25ed85d274fcbc3da71bb2b61deaa04d52b09b
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           rerendering_github_token: ${{ secrets.RERENDERING_GITHUB_TOKEN }}
