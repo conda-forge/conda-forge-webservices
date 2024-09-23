@@ -398,12 +398,14 @@ class TestCommands(unittest.TestCase):
     @mock.patch("conda_forge_webservices.commands.make_noarch")
     @mock.patch("conda_forge_webservices.commands.relint")
     @mock.patch("conda_forge_webservices.commands.update_team")
+    @mock.patch("conda_forge_webservices.commands.get_gh_client")
     @mock.patch("github.Github")
     @mock.patch("conda_forge_webservices.commands.Repo")
     def test_update_version_failure(
         self,
         repo,
         gh,
+        gh_app,
         update_team,
         relint,
         make_noarch,
