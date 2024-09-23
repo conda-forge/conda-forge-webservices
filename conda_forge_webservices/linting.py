@@ -7,18 +7,48 @@ from pathlib import Path
 from typing import TypedDict
 
 from git import GitCommandError, Repo
-import github
 import conda_smithy.lint_recipe
 
-from conda_forge_webservices.tokens import get_app_token_for_webservices_only
+from conda_forge_webservices.tokens import get_gh_client
 
 LOGGER = logging.getLogger("conda_forge_webservices.linting")
+SKIP_MSGS = [
+    "[ci skip]",
+    "[skip ci]",
+    "[lint skip]",
+    "[skip lint]",
+]
+LINT_VIA_GHA = True
 
 
 class LintInfo(TypedDict):
     message: str
     status: str
     sha: str
+
+
+def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
+    gh = get_gh_client()
+    repo = gh.get_repo(full_name)
+    repo_owner, repo_name = full_name.split("/")
+    pr = repo.get_pull(pr_num)
+    sha = pr.head.sha
+    commit = gh.get_repo(pr.head.repo.full_name).get_git_commit(sha)
+    commit_msg = commit.message
+
+    should_skip = any([msg in commit_msg for msg in SKIP_MSGS])
+    if should_skip:
+        return False
+
+    running = repo.create_repository_dispatch(
+        "lint",
+        client_payload={"pr": pr_num},
+    )
+
+    if running:
+        _set_pr_status(repo_owner, repo_name, sha, "pending")
+
+    return running
 
 
 def find_recipes(path: Path) -> list[Path]:
@@ -143,7 +173,7 @@ def _set_pr_status(
     else:
         kwargs = {}
 
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
     commit = repo.get_commit(sha)
@@ -162,7 +192,7 @@ def compute_lint_message(
     ignore_base: bool = False,
     set_pending_status: bool = True,
 ) -> LintInfo | None:
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
 
     owner = gh.get_user(repo_owner)
     remote_repo = owner.get_repo(repo_name)
@@ -202,14 +232,8 @@ def compute_lint_message(
         sha = str(ref_head.commit.hexsha)
 
         # Check if the linter is skipped via the commit message.
-        skip_msgs = [
-            "[ci skip]",
-            "[skip ci]",
-            "[lint skip]",
-            "[skip lint]",
-        ]
         commit_msg = repo.commit(sha).message
-        should_skip = any([msg in commit_msg for msg in skip_msgs])
+        should_skip = any([msg in commit_msg for msg in SKIP_MSGS])
         if should_skip:
             return None
 
@@ -273,7 +297,7 @@ def comment_on_pr(
     force: bool = False,
     search: str | None = None,
 ):
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
@@ -312,7 +336,7 @@ def comment_on_pr(
 def set_pr_status(
     owner: str, repo_name: str, lint_info: LintInfo, target_url: str | None = None
 ):
-    gh = github.Github(get_app_token_for_webservices_only())
+    gh = get_gh_client()
 
     user = gh.get_user(owner)
     repo = user.get_repo(repo_name)
