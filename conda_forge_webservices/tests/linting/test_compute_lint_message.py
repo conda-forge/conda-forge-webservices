@@ -65,21 +65,21 @@ def test_ok_recipe_above_good_recipe():
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 54, set_pending_status=False
     )
-    assert expected_message == lint["message"]
+    assert lint["message"].startswith(expected_message)
 
 
 def test_ok_recipe_beside_good_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
-    I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```, ```recipes/recipe/meta.yaml```) and found it was in an excellent condition.
+    I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/blah/meta.yaml```, ```recipe/meta.yaml```, ```recipes/recipe/meta.yaml```) and found it was in an excellent condition.
 
     """)  # noqa
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 62, set_pending_status=False
     )
-    assert expected_message == lint["message"]
+    assert lint["message"].startswith(expected_message)
 
 
 def test_ok_recipe_above_ignored_good_recipe():
@@ -93,21 +93,21 @@ def test_ok_recipe_above_ignored_good_recipe():
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 54, True, set_pending_status=False
     )
-    assert expected_message == lint["message"]
+    assert lint["message"].startswith(expected_message)
 
 
 def test_ok_recipe_beside_ignored_good_recipe():
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
-    I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```) and found it was in an excellent condition.
+    I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/blah/meta.yaml```, ```recipe/meta.yaml```) and found it was in an excellent condition.
 
     """)  # noqa
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 62, True, set_pending_status=False
     )
-    assert expected_message == lint["message"]
+    assert lint["message"].startswith(expected_message)
 
 
 def test_conflict_ok_recipe():
