@@ -27,9 +27,8 @@ dependencies:
   - setuptools
   - setuptools_scm >=8
   - shellcheck
-  - tini
+  # - tini
   - tornado
   - tqdm
   # dev dependencies
   - pytest <8.2.0
-  - inline-snapshot >=0.11
