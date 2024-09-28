@@ -623,6 +623,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                     body=pr_message,
                     base=default_branch,
                     head=f"{forked_user}:{forked_repo_branch}",
+                    draft=True,
                 )
 
                 message = textwrap.dedent("""
