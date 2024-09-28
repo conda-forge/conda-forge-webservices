@@ -7,8 +7,8 @@ jobs:
     steps:
       - name: webservices
         id: webservices
-        uses: conda-forge/webservices-dispatch-action@main
+        uses: conda-forge/webservices-dispatch-action@ssh0key
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           rerendering_github_token: ${{ secrets.RERENDERING_GITHUB_TOKEN }}
-          
+          ssh_private_key: ${{ secrets.CONDA_FORGE_WRITE_SSH_DEPLOY_KEY }}
