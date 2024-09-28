@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "0 * * * *"
   workflow_dispatch: null
+  issue_comment:
 
 jobs:
   relock:
@@ -36,6 +37,7 @@ jobs:
   clean-and-cache:
     name: clean-and-cache
     runs-on: "ubuntu-latest"
+    if: github.event_name != 'issue_comment'
     defaults:
       run:
         shell: bash -leo pipefail {0}
