@@ -1,6 +1,8 @@
 import os
 
-from conda_forge_webservices.env_management import SensitiveEnv
+from conda_forge_webservices.github_actions_integration.env_management import (
+    SensitiveEnv,
+)
 
 
 def test_simple_sensitive_env(env_setup):
