@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from webservices_dispatch_action import global_sensitive_env
+from conda_forge_webservices.github_actions_integration import global_sensitive_env
 
 
 @pytest.fixture
