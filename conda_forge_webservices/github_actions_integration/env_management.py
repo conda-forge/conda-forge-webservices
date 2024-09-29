@@ -1,15 +1,16 @@
 import os
+import typing
 from contextlib import contextmanager
 
 
 class SensitiveEnv:
-    SENSITIVE_KEYS = (
+    SENSITIVE_KEYS: typing.ClassVar = [
         "USERNAME",
         "PASSWORD",
         "GITHUB_TOKEN",
         "GH_TOKEN",
         "CF_ADMIN_GITHUB_TOKEN",
-    )
+    ]
 
     def __init__(self):
         self.classified_info = {}
