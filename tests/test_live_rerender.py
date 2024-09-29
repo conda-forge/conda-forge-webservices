@@ -7,7 +7,7 @@ import time
 import github
 from conda_forge_webservices.utils import pushd
 
-from condfest import _merge_main_to_branch
+from conftest import _merge_main_to_branch
 
 
 def _run_test(branch):
