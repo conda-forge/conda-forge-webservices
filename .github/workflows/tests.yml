@@ -120,17 +120,35 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
-      - name: run package upload tests
+      - name: run rerender tests
         shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          export CF_WEBSERVICES_TEST=1
-          ./scripts/run_cfep13_tests.sh
+          if [[ "${GITHUB_HEAD_REF}" != "" ]]; then
+            branch="${GITHUB_HEAD_REF}"
+          else
+            branch="${GITHUB_REF_NAME}"
+          fi
+
+          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
+          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="prod"
+
+          cd tests
+          pytest -vvs --branch=${branch} test_live_rerender.py
         env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
-          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
-          STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
-          CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
-          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
-          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
+          GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
+
+      # - name: run package upload tests
+      #   shell: bash -l {0}
+      #   if: ${{ !github.event.pull_request.head.repo.fork }}
+      #   run: |
+      #     export CF_WEBSERVICES_TEST=1
+      #     ./scripts/run_cfep13_tests.sh
+      #   env:
+      #     GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+      #     PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
+      #     STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
+      #     CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
+      #     CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+      #     CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+      #     ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
