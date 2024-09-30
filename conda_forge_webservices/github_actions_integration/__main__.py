@@ -61,10 +61,11 @@ def main_run_task(task, repo, pr_number, task_data_dir):
 
     if task == "rerender":
         _pull_docker_image()
-        changed, rerender_error, info_message = rerender(git_repo)
+        changed, rerender_error, info_message, commit_message = rerender(git_repo)
         task_data["task_results"]["changed"] = changed
         task_data["task_results"]["rerender_error"] = rerender_error
         task_data["task_results"]["info_message"] = info_message
+        task_data["task_results"]["commit_message"] = commit_message
     else:
         raise ValueError(f"Task `{task}` is not valid!")
 
