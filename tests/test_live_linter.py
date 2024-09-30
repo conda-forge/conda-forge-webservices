@@ -100,7 +100,7 @@ def test_linter_pr(pytestconfig):
     while tot < 180:
         time.sleep(10)
         tot += 10
-        print(f"    slept {tot} seconds out of 120", flush=True)
+        print(f"    slept {tot} seconds out of 180", flush=True)
 
     for pr_number, expected_status, expected_msgs in TEST_CASES:
         pr = repo.get_pull(pr_number)
