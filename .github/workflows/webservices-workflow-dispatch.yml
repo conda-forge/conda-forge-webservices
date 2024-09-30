@@ -53,6 +53,11 @@ jobs:
 
       - name: run task
         run: |
+
+          # FIXME: we need to build the container here
+          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
+          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="prod"
+
           conda-forge-webservices-run-task \
             --task=${{ inputs.task }} \
             --repo=${{ inputs.repo }} \
