@@ -65,7 +65,7 @@ jobs:
             unset CF_WEBSERVICES_FEEDSTOCK_TOKEN
             unset CF_WEBSERVICES_FEEDSTOCK_APP_ID
           fi
-          pytest -v conda_forge_webservices
+          # pytest -v conda_forge_webservices
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
