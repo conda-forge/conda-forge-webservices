@@ -13,6 +13,7 @@ def rerender(git_repo):
     LOGGER.info("rerendering")
 
     info_message = None
+    msg = None
 
     _ensure_output_validation_is_on(git_repo)
 
