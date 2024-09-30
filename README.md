@@ -1,5 +1,5 @@
 # conda-forge-webservices
-[![tests](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/tests.yml/badge.svg?event=merge_group)](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/tests.yml) [![clean-and-update](https://github.com/conda-forge/conda-forge-webservices/workflows/clean-and-update/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions?query=workflow%3Aclean-and-update)
+[![tests](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/tests.yml/badge.svg?event=merge_group)](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/tests.yml) [![release](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/release.yml/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions/workflows/release.yml) [![clean-and-update](https://github.com/conda-forge/conda-forge-webservices/workflows/clean-and-update/badge.svg)](https://github.com/conda-forge/conda-forge-webservices/actions?query=workflow%3Aclean-and-update)
 
 This repository is the source for the Heroku hosted webapp which powers the conda-forge-admin
 commands and lints conda-forge's recipes. The linting itself comes from conda-smithy
