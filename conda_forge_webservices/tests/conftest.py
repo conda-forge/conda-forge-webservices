@@ -56,11 +56,3 @@ def skip_if_no_tokens():
         yield
     else:
         pytest.skip("No conda-forge-webservices app tokens available for testing!")
-
-
-@pytest.fixture(scope="session", autouse=True)
-def reveal_secrets():
-    from conda_forge_webservices.github_actions_integration import sensitive_env
-
-    with sensitive_env():
-        yield

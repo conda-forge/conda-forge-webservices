@@ -5,8 +5,6 @@ import requests
 import urllib3.util.retry
 from github import Github
 
-from . import sensitive_env
-
 
 def create_api_sessions():
     """Create API sessions for GitHub.
@@ -18,8 +16,7 @@ def create_api_sessions():
     gh : github.MainClass.Github
         A `Github` object from the PyGithub package.
     """
-    with sensitive_env():
-        return _create_api_sessions(os.environ["GH_TOKEN"])
+    return _create_api_sessions(os.environ["GH_TOKEN"])
 
 
 @lru_cache(maxsize=1)

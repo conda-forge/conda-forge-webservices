@@ -21,7 +21,6 @@ def _run_test(branch):
             "task": "rerender",
             "repo": "cf-autotick-bot-test-package-feedstock",
             "pr_number": "445",
-            "ref": branch,
         },
     )
 

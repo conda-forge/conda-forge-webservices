@@ -5,8 +5,6 @@ import sys
 import requests
 from git import GitCommandError
 
-from . import sensitive_env
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -31,8 +29,7 @@ def comment_and_push_if_changed(
     help_message,
     info_message,
 ):
-    with sensitive_env():
-        token = os.environ["GH_TOKEN"]
+    token = os.environ["GH_TOKEN"]
     actor = "x-access-token"
 
     LOGGER.info(
@@ -131,8 +128,7 @@ mutation {{
 }}
 """
 
-    with sensitive_env():
-        token = os.environ["GH_TOKEN"]
+    token = os.environ["GH_TOKEN"]
     headers = {"Authorization": f"bearer {token}"}
     req = requests.post(
         "https://api.github.com/graphql",
