@@ -56,3 +56,13 @@ def skip_if_no_tokens():
         yield
     else:
         pytest.skip("No conda-forge-webservices app tokens available for testing!")
+
+
+@pytest.fixture
+def skip_if_linting_via_gha():
+    import conda_forge_webservices.linting
+
+    if not conda_forge_webservices.linting.LINT_VIA_GHA:
+        yield
+    else:
+        pytest.skip("Skipping test for direct webservices-based linting!")
