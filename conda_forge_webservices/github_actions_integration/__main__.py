@@ -12,6 +12,7 @@ from git import Repo
 
 from .utils import (
     comment_and_push_if_changed,
+    dedent_with_escaped_continue,
     flush_logger,
     mark_pr_as_ready_for_review,
 )
@@ -94,17 +95,20 @@ def _push_rerender_changes(
     pr_repo,
     repo_name,
 ):
-    more_info_message = """\
-\nThe following suggestions might help debug any issues:
-* Is the `recipe/{{meta.yaml,recipe.yaml}}` file valid?
-* If there is a `recipe/conda-build-config.yaml` file in the feedstock make sure
-  that it is compatible with the current [global pinnnings]({}).
-* Is the fork used for this PR on an organization or user GitHub account? \
-Automated rerendering via the webservices admin bot only works for user \
-GitHub accounts.
-""".format(
-        "https://github.com/conda-forge/conda-forge-pinning-feedstock/"
-        "blob/master/recipe/conda_build_config.yaml"
+    more_info_message = "\n" + dedent_with_escaped_continue(
+        """
+        The following suggestions might help debug any issues:
+        * Is the `recipe/{{meta.yaml,recipe.yaml}}` file valid?
+        * If there is a `recipe/conda-build-config.yaml` file in \\
+        the feedstock make sure that it is compatible with the current \\
+        [global pinnnings]({}).
+        * Is the fork used for this PR on an organization or user GitHub account? \\
+        Automated rerendering via the webservices admin bot only works for user \\
+        GitHub accounts.
+    """.format(
+            "https://github.com/conda-forge/conda-forge-pinning-feedstock/"
+            "blob/master/recipe/conda_build_config.yaml"
+        )
     )
     if rerender_error:
         if info_message is None:

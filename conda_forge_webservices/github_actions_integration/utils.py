@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import textwrap
 
 import requests
 from git import GitCommandError
@@ -12,6 +13,31 @@ def get_gha_run_link():
     """Get the link to the GHA run."""
     run_id = os.environ["GITHUB_RUN_ID"]
     return f"https://github.com/conda-forge-webservices/actions/runs/{run_id}"
+
+
+def dedent_with_escaped_continue(text):
+    """This routine dedents `text` using `textwrap.dedent`.
+
+    Any line that ends with an escaped backslash is concatenated with the next line.
+    """
+    text = textwrap.dedent(text)
+    msg = ""
+    for line in text.splitlines():
+        if not msg and not line.strip():
+            continue
+        line = line.rstrip()
+        if msg.endswith("\\"):
+            msg = msg[:-2]
+            msg += " "
+            msg += line
+        else:
+            if msg:
+                msg += "\n"
+            msg += line
+
+    if not msg.endswith("\n"):
+        msg += "\n"
+    return msg
 
 
 def comment_and_push_if_changed(
@@ -53,20 +79,20 @@ def comment_and_push_if_changed(
         except GitCommandError as e:
             push_error = True
             LOGGER.critical(repr(e))
-            message = f"""\
-Hi! This is the friendly automated conda-forge-webservice.
+            message = dedent_with_escaped_continue(f"""
+                Hi! This is the friendly automated conda-forge-webservice.
 
-I tried to {action} for you, but it looks like I wasn't \
-able to push to the `{pr_branch}` \
-branch of `{pr_owner}`/`{pr_repo}`. Did you check the "Allow edits from \
-maintainers" box?
+                I tried to {action} for you, but it looks like I wasn't \\
+                able to push to the `{pr_branch}` \\
+                branch of `{pr_owner}`/`{pr_repo}`. Did you check the "Allow \\
+                edits from maintainers" box?
 
-**NOTE**: Our webservices cannot push to PRs from organization accounts \
-or PRs from forks made from \
-organization forks because of GitHub \
-permissions. Please fork the feedstock directly from conda-forge \
-into your personal GitHub account.
-"""
+                **NOTE**: Our webservices cannot push to PRs from organization \\
+                accounts or PRs from forks made from \\
+                organization forks because of GitHub \\
+                permissions. Please fork the feedstock directly from conda-forge \\
+                into your personal GitHub account.
+            """)
         finally:
             git_repo.remotes.origin.set_url(
                 f"https://github.com/{pr_owner}/{pr_repo}.git",
@@ -74,29 +100,30 @@ into your personal GitHub account.
             )
     else:
         if error:
-            message = f"""\
-Hi! This is the friendly automated conda-forge-webservice.
+            message = dedent_with_escaped_continue(f"""
+                Hi! This is the friendly automated conda-forge-webservice.
 
-I tried to {action} for you but ran into some issues. \
-Please check the output logs of the GitHub actions workflow below for more details. \
-You can also ping conda-forge/core for further assistance{help_message}.
-"""
+                I tried to {action} for you but ran into some issues. \\
+                Please check the output logs of the GitHub actions workflow \\
+                below for more details. You can also ping conda-forge/core \\
+                for further assistance{help_message}.
+            """)
         else:
-            message = f"""\
-Hi! This is the friendly automated conda-forge-webservice.
+            message = dedent_with_escaped_continue(f"""
+                Hi! This is the friendly automated conda-forge-webservice.
 
-I tried to {action} for you, but it looks like there was nothing to do.
-"""
+                I tried to {action} for you, but it looks like there was nothing to do.
+            """)
             if close_pr_if_no_changes_or_errors:
                 message += "\nI'm closing this PR!"
 
     if info_message:
         if message is None:
-            message = f"""\
-Hi! This is the friendly automated conda-forge-webservice.
+            message = dedent_with_escaped_continue(f"""
+                Hi! This is the friendly automated conda-forge-webservice.
 
-{info_message}
-"""
+                {info_message}
+            """)
         else:
             message += "\n" + info_message
 
@@ -120,13 +147,13 @@ def mark_pr_as_ready_for_review(pr):
     if not pr.draft:
         return True
 
-    mutation = f"""\
-mutation {{
-    markPullRequestReadyForReview(input:{{pullRequestId: "{pr.node_id:s}"}}) {{
-        pullRequest{{id, isDraft}}
-    }}
-}}
-"""
+    mutation = textwrap.dedent(f"""
+        mutation {{
+            markPullRequestReadyForReview(input:{{pullRequestId: "{pr.node_id:s}"}}) {{
+                pullRequest{{id, isDraft}}
+            }}
+        }}
+    """)
 
     token = os.environ["GH_TOKEN"]
     headers = {"Authorization": f"bearer {token}"}
