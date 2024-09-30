@@ -95,12 +95,12 @@ def test_linter_pr(pytestconfig):
             },
         )
 
-    print("\nsleeping for three minutes to let the linter work...", flush=True)
+    print("\nsleeping for four minutes to let the linter work...", flush=True)
     tot = 0
-    while tot < 180:
+    while tot < 240:
         time.sleep(10)
         tot += 10
-        print(f"    slept {tot} seconds out of 180", flush=True)
+        print(f"    slept {tot} seconds out of 240", flush=True)
 
     for pr_number, expected_status, expected_msgs in TEST_CASES:
         pr = repo.get_pull(pr_number)
