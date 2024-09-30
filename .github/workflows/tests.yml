@@ -67,7 +67,7 @@ jobs:
             unset CF_WEBSERVICES_FEEDSTOCK_TOKEN
             unset CF_WEBSERVICES_FEEDSTOCK_APP_ID
           fi
-          # pytest -v conda_forge_webservices
+          pytest -v conda_forge_webservices
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
@@ -79,8 +79,68 @@ jobs:
           CF_WEBSERVICES_FEEDSTOCK_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
           ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
 
-  live-tests:
-    name: live-tests
+  live-tests-upload:
+    name: live-tests-upload
+    runs-on: "ubuntu-latest"
+    needs: tests
+    concurrency:
+      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests' || format('{0}-{1}', github.workflow, github.ref) }}
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        with:
+          fetch-depth: 0
+
+      - name: setup conda
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1
+        with:
+          environment-file: conda-lock.yml
+          environment-name: webservices
+          condarc: |
+            show_channel_urls: true
+            channel_priority: strict
+            channels:
+              - conda-forge
+
+      - name: generate token
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        id: generate_token
+        uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
+        with:
+          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: install code
+        shell: bash -l {0}
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
+          git config --global user.name "conda-forge-curator[bot]"
+          git config --global pull.rebase false
+          mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
+          pip install --no-deps -e .
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+
+      - name: run package upload tests
+        shell: bash -l {0}
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          export CF_WEBSERVICES_TEST=1
+          ./scripts/run_cfep13_tests.sh
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+          PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
+          STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
+          CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
+
+  live-tests-rerender:
+    name: live-tests-rerender
     runs-on: "ubuntu-latest"
     needs: tests
     concurrency:
@@ -142,18 +202,3 @@ jobs:
           pytest -vvs --branch=${branch} test_live_rerender.py
         env:
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
-
-      # - name: run package upload tests
-      #   shell: bash -l {0}
-      #   if: ${{ !github.event.pull_request.head.repo.fork }}
-      #   run: |
-      #     export CF_WEBSERVICES_TEST=1
-      #     ./scripts/run_cfep13_tests.sh
-      #   env:
-      #     GH_TOKEN: ${{ steps.generate_token.outputs.token }}
-      #     PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
-      #     STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
-      #     CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
-      #     CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
-      #     CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-      #     ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
