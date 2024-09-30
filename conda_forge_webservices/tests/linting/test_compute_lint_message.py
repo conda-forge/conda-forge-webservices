@@ -10,35 +10,35 @@ def data_folder():
     return Path(__file__).parent / "data"
 
 
-def test_skip_ci_recipe():
+def test_skip_ci_recipe(skip_if_linting_via_gha):
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 58, set_pending_status=False
     )
     assert lint is None
 
 
-def test_skip_lint_recipe():
+def test_skip_lint_recipe(skip_if_linting_via_gha):
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 59, set_pending_status=False
     )
     assert lint is None
 
 
-def test_ci_skip_recipe():
+def test_ci_skip_recipe(skip_if_linting_via_gha):
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 65, set_pending_status=False
     )
     assert lint is None
 
 
-def test_lint_skip_recipe():
+def test_lint_skip_recipe(skip_if_linting_via_gha):
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 66, set_pending_status=False
     )
     assert lint is None
 
 
-def test_good_recipe():
+def test_good_recipe(skip_if_linting_via_gha):
     # a message similar to this comes out
     """
     Hi! This is the friendly automated conda-forge-linting service.
@@ -54,7 +54,7 @@ def test_good_recipe():
     assert "found it was in an excellent condition." in lint["message"], lint["message"]
 
 
-def test_ok_recipe_above_good_recipe():
+def test_ok_recipe_above_good_recipe(skip_if_linting_via_gha):
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -68,7 +68,7 @@ def test_ok_recipe_above_good_recipe():
     assert lint["message"].startswith(expected_message)
 
 
-def test_ok_recipe_beside_good_recipe():
+def test_ok_recipe_beside_good_recipe(skip_if_linting_via_gha):
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -82,7 +82,7 @@ def test_ok_recipe_beside_good_recipe():
     assert lint["message"].startswith(expected_message)
 
 
-def test_ok_recipe_above_ignored_good_recipe():
+def test_ok_recipe_above_ignored_good_recipe(skip_if_linting_via_gha):
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -96,7 +96,7 @@ def test_ok_recipe_above_ignored_good_recipe():
     assert lint["message"].startswith(expected_message)
 
 
-def test_ok_recipe_beside_ignored_good_recipe():
+def test_ok_recipe_beside_ignored_good_recipe(skip_if_linting_via_gha):
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -110,7 +110,7 @@ def test_ok_recipe_beside_ignored_good_recipe():
     assert lint["message"].startswith(expected_message)
 
 
-def test_conflict_ok_recipe():
+def test_conflict_ok_recipe(skip_if_linting_via_gha):
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -127,7 +127,7 @@ def test_conflict_ok_recipe():
     assert expected_message == lint["message"]
 
 
-def test_conflict_2_ok_recipe():
+def test_conflict_2_ok_recipe(skip_if_linting_via_gha):
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -144,7 +144,7 @@ def test_conflict_2_ok_recipe():
     assert expected_message == lint["message"]
 
 
-def test_v1_recipe():
+def test_v1_recipe(skip_if_linting_via_gha):
     expected = (
         "I wanted to let you know that I linted all conda-recipes in your PR "
         "(```recipe/recipe.yaml```) and found some lint."
@@ -157,7 +157,7 @@ def test_v1_recipe():
     assert expected in lint["message"], lint["message"]
 
 
-def test_bad_recipe():
+def test_bad_recipe(skip_if_linting_via_gha):
     # a message similar to this comes out
     """
     Hi! This is the friendly automated conda-forge-linting service.
@@ -190,7 +190,7 @@ def test_bad_recipe():
     assert "For **recipes/bad_recipe/meta.yaml**:" in lint["message"], lint["message"]
 
 
-def test_mixed_recipe():
+def test_mixed_recipe(skip_if_linting_via_gha):
     # a message similar to this comes out
     """
     Hi! This is the friendly automated conda-forge-linting service.
@@ -215,7 +215,7 @@ def test_mixed_recipe():
     ), lint["message"]
 
 
-def test_no_recipe():
+def test_no_recipe(skip_if_linting_via_gha):
     expected_message = textwrap.dedent("""
     Hi! This is the friendly automated conda-forge-linting service.
 
@@ -230,14 +230,14 @@ def test_no_recipe():
     assert expected_message == lint["message"]
 
 
-def test_closed_pr():
+def test_closed_pr(skip_if_linting_via_gha):
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 52, set_pending_status=False
     )
     assert lint is None
 
 
-def test_new_recipe(tmp_path):
+def test_new_recipe(tmp_path, skip_if_linting_via_gha):
     recipe_file = tmp_path / "recipe" / "recipe.yaml"
     recipe_file.parent.mkdir(parents=True)
     shutil.copy(data_folder() / "recipe.yaml", recipe_file)

@@ -15,6 +15,10 @@ on:
         description: 'the pull request number'
         required: true
         type: string
+      container_tag:
+        description: 'the container tag to use'
+        required: true
+        type: string
 
 env:
   PY_COLORS: 1
@@ -33,6 +37,7 @@ jobs:
       - name: checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
+          fetch-depth: 0
           ref: ${{ github.ref }}
 
       - name: setup conda
@@ -48,10 +53,16 @@ jobs:
 
       - name: install code
         run: |
-          pip install --no-deps --no-build-backend -e .
+          pip install --no-deps --no-build-isolation -e .
 
       - name: run task
         run: |
+          git config --global user.name "conda-forge-webservices[bot]"
+          git config --global user.email "91080706+conda-forge-webservices[bot]@users.noreply.github.com"
+
+          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
+          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${{ inputs.container_tag }}"
+
           conda-forge-webservices-run-task \
             --task=${{ inputs.task }} \
             --repo=${{ inputs.repo }} \
@@ -76,6 +87,7 @@ jobs:
       - name: checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
+          fetch-depth: 0
           ref: ${{ github.ref }}
 
       - name: setup conda
@@ -91,7 +103,7 @@ jobs:
 
       - name: install code
         run: |
-          pip install --no-deps --no-build-backend -e .
+          pip install --no-deps --no-build-isolation -e .
 
       - name: download task data
         uses: actions/download-artifact@v4
@@ -101,6 +113,12 @@ jobs:
 
       - name: finalize task
         run: |
+          git config --global user.name "conda-forge-webservices[bot]"
+          git config --global user.email "91080706+conda-forge-webservices[bot]@users.noreply.github.com"
+
+          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
+          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${{ inputs.container_tag }}"
+
           conda-forge-webservices-finalize-task \
             --task-data-dir=${{ github.workspace }}/task-data
         env:

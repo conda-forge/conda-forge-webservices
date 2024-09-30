@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 
-def test_cli_skip_ci(skip_if_no_tokens):
+def test_cli_skip_ci(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -19,7 +19,7 @@ def test_cli_skip_ci(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_bad(skip_if_no_tokens):
+def test_cli_success_bad(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -35,7 +35,7 @@ def test_cli_success_bad(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_ok_above_ignored_good(skip_if_no_tokens):
+def test_cli_success_ok_above_ignored_good(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -52,7 +52,7 @@ def test_cli_success_ok_above_ignored_good(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_ok_beside_ignored_good(skip_if_no_tokens):
+def test_cli_success_ok_beside_ignored_good(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -69,7 +69,7 @@ def test_cli_success_ok_beside_ignored_good(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_conflict_ok(skip_if_no_tokens):
+def test_cli_success_conflict_ok(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -85,7 +85,7 @@ def test_cli_success_conflict_ok(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_conflict_2_ok(skip_if_no_tokens):
+def test_cli_success_conflict_2_ok(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -101,7 +101,7 @@ def test_cli_success_conflict_2_ok(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_good(skip_if_no_tokens):
+def test_cli_success_good(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -117,7 +117,7 @@ def test_cli_success_good(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_no_recipe(skip_if_no_tokens):
+def test_cli_success_no_recipe(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
@@ -133,7 +133,7 @@ def test_cli_success_no_recipe(skip_if_no_tokens):
     assert child.returncode == 0, out
 
 
-def test_cli_success_v1_recipe(skip_if_no_tokens):
+def test_cli_success_v1_recipe(skip_if_no_tokens, skip_if_linting_via_gha):
     child = subprocess.Popen(
         [
             sys.executable,
