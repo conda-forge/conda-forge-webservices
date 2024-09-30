@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import time
 
+import conda_forge_webservices
 import github
 from conda_forge_webservices.utils import pushd
 
@@ -21,6 +22,7 @@ def _run_test(branch):
             "task": "rerender",
             "repo": "cf-autotick-bot-test-package-feedstock",
             "pr_number": "445",
+            "container_tag": conda_forge_webservices.__version__,
         },
     )
 

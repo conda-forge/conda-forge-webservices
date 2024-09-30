@@ -15,6 +15,10 @@ on:
         description: 'the pull request number'
         required: true
         type: string
+      container_tag:
+        description: 'the container tag to use'
+        required: true
+        type: string
 
 env:
   PY_COLORS: 1
@@ -56,9 +60,8 @@ jobs:
           git config --global user.name "conda-forge-webservices[bot]"
           git config --global user.email "91080706+conda-forge-webservices[bot]@users.noreply.github.com"
 
-          version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
           export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
-          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
+          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${{ inputs.container_tag }}"
 
           conda-forge-webservices-run-task \
             --task=${{ inputs.task }} \
@@ -113,9 +116,8 @@ jobs:
           git config --global user.name "conda-forge-webservices[bot]"
           git config --global user.email "91080706+conda-forge-webservices[bot]@users.noreply.github.com"
 
-          version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
           export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
-          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
+          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${{ inputs.container_tag }}"
 
           conda-forge-webservices-finalize-task \
             --task-data-dir=${{ github.workspace }}/task-data
