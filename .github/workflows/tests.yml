@@ -53,7 +53,7 @@ jobs:
           mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
           pip install --no-deps -e .
 
-          version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__)")
+          version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__).replace('+', '.')")
           echo "version=${version}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
@@ -218,7 +218,7 @@ jobs:
             branch="${GITHUB_REF_NAME}"
           fi
 
-          version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__)")
+          version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
           export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
