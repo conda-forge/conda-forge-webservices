@@ -26,12 +26,12 @@ def _run_test(branch):
         },
     )
 
-    print("sleeping for a few minutes to let the rerender happen...", flush=True)
+    print("sleeping for four minutes to let the rerender happen...", flush=True)
     tot = 0
-    while tot < 180:
+    while tot < 240:
         time.sleep(10)
         tot += 10
-        print(f"    slept {tot} seconds out of 180", flush=True)
+        print(f"    slept {tot} seconds out of 240", flush=True)
 
     print("checking repo for the rerender...", flush=True)
     with tempfile.TemporaryDirectory() as tmpdir:
