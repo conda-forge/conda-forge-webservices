@@ -1,0 +1,112 @@
+name: webservices-workflow-dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'the task to perform'
+        required: true
+        type: string
+      repo:
+        description: 'the repository to run on'
+        required: true
+        type: string
+      pr_number:
+        description: 'the pull request number'
+        required: true
+        type: string
+      ref:
+        description: 'the conda-forge-webservices branch to use'
+        required: false
+        type: string
+        default: 'main'
+
+env:
+  PY_COLORS: 1
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
+permissions: {}
+
+jobs:
+  run-task:
+    name: run-task
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: setup conda
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
+        with:
+          environment-file: conda-lock.yml
+          environment-name: webservices
+          condarc: |
+            show_channel_urls: true
+            channel_priority: strict
+            channels:
+              - conda-forge
+
+      - name: install code
+        run: |
+          pip install --no-deps --no-build-backend -e .
+
+      - name: run task
+        run: |
+          conda-forge-webservices-run-task \
+            --task=${{ inputs.task }} \
+            --repo=${{ inputs.repo }} \
+            --pr-number=${{ inputs.pr_number }} \
+            --task-data-dir=${{ github.workspace }}/task-data
+
+      - name: upload task data
+        id: upload-task-data
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-data-${{ inputs.task }}-${{ inputs.repo }}-${{ inputs.pr_number }}-${{ github.run_id }}-${{ github.run_number }}
+          path: ${{ github.workspace }}/task-data
+          retention-days: 2
+          include-hidden-files: true
+
+  finalize-task:
+    name: finalize-task
+    runs-on: ubuntu-latest
+    needs:
+      - run-task
+    steps:
+      - name: checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: setup conda
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
+        with:
+          environment-file: conda-lock.yml
+          environment-name: webservices
+          condarc: |
+            show_channel_urls: true
+            channel_priority: strict
+            channels:
+              - conda-forge
+
+      - name: install code
+        run: |
+          pip install --no-deps --no-build-backend -e .
+
+      - name: download task data
+        uses: actions/download-artifact@v4
+        with:
+          name: task-data-${{ inputs.task }}-${{ inputs.repo }}-${{ inputs.pr_number }}-${{ github.run_id }}-${{ github.run_number }}
+          path: ${{ github.workspace }}/task-data
+
+      - name: finalize task
+        run: |
+          conda-forge-webservices-finalize-task \
+            --task-data-dir=${{ github.workspace }}/task-data
+        env:
+          GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
