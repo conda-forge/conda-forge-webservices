@@ -20,6 +20,8 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        with:
+          fetch-depth: 0
 
       - name: setup conda
         uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1
@@ -86,6 +88,8 @@ jobs:
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         if: ${{ !github.event.pull_request.head.repo.fork }}
+        with:
+          fetch-depth: 0
 
       - name: setup conda
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -130,6 +134,7 @@ jobs:
             branch="${GITHUB_REF_NAME}"
           fi
 
+          # FIXME: we need to build the container here
           export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="prod"
 
