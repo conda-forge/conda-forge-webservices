@@ -212,17 +212,17 @@ jobs:
         shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          # if [[ "${GITHUB_HEAD_REF}" != "" ]]; then
-          #   branch="${GITHUB_HEAD_REF}"
-          # else
-          #   branch="${GITHUB_REF_NAME}"
-          # fi
+          if [[ "${GITHUB_HEAD_REF}" != "" ]]; then
+            branch="${GITHUB_HEAD_REF}"
+          else
+            branch="${GITHUB_REF_NAME}"
+          fi
 
           version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
           export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
           cd tests
-          pytest -vvs --branch=${GITHUB_REF} test_live_rerender.py
+          pytest -vvs --branch=${branch} test_live_rerender.py
         env:
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
