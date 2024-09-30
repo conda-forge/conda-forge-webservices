@@ -95,9 +95,9 @@ def test_linter_pr(pytestconfig):
             },
         )
 
-    print("\nsleeping for two minutes to let the linter work...", flush=True)
+    print("\nsleeping for three minutes to let the linter work...", flush=True)
     tot = 0
-    while tot < 120:
+    while tot < 180:
         time.sleep(10)
         tot += 10
         print(f"    slept {tot} seconds out of 120", flush=True)

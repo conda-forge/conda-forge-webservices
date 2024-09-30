@@ -1,5 +1,6 @@
-import textwrap
 import time
+
+from .utils import dedent_with_escaped_continue
 
 
 def _is_mergeable(repo, pr_id):
@@ -77,14 +78,18 @@ def make_lint_comment(repo, pr_id, message):
 def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
     mergeable = _is_mergeable(repo, pr_id)
     if not mergeable:
-        message = textwrap.dedent("""
+        message = dedent_with_escaped_continue(
+            """
             Hi! This is the friendly automated conda-forge-linting service.
 
-            I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
-            Please try to merge or rebase with the base branch to resolve this conflict.
+            I was trying to look for recipes to lint for you, but it appears we \\
+            have a merge conflict. Please try to merge or rebase with the base \\
+            branch to resolve this conflict.
 
-            Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-            """)  # noqa
+            Please ping the 'conda-forge/core' team (using the @ notation in a \\
+            comment) if you believe this is a bug.
+            """,
+        )
         status = "merge_conflict"
     else:
         fnames = set(hints.keys()) | set(lints.keys())
@@ -132,40 +137,46 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
         # Put the recipes in the form "```recipe/a```, ```recipe/b```".
         recipe_code_blocks = ", ".join(f"```{r}```" for r in linted_recipes)
 
-        good = textwrap.dedent(
+        good = dedent_with_escaped_continue(
             f"""
-        Hi! This is the friendly automated conda-forge-linting service.
+            Hi! This is the friendly automated conda-forge-linting service.
 
-        I just wanted to let you know that I linted all conda-recipes in your PR ({recipe_code_blocks}) and found it was in an excellent condition.
-
-        """  # noqa: E501
+            I just wanted to let you know that I linted all conda-recipes in your \\
+            PR ({recipe_code_blocks}) and found it was in an excellent condition.
+            """,
         )
 
-        mixed = good + textwrap.dedent("""
-        I do have some suggestions for making it better though...
+        mixed = good + dedent_with_escaped_continue(
+            """
+            I do have some suggestions for making it better though...
 
-        {}
-        """).format("\n".join(messages))
+            {}
+            """.format("\n".join(messages)),
+        )
 
-        bad = textwrap.dedent(
+        bad = dedent_with_escaped_continue(
             f"""
-        Hi! This is the friendly automated conda-forge-linting service.
+            Hi! This is the friendly automated conda-forge-linting service.
 
-        I wanted to let you know that I linted all conda-recipes in your PR ({recipe_code_blocks}) and found some lint.
+            I wanted to let you know that I linted all conda-recipes in your \\
+            PR ({recipe_code_blocks}) and found some lint.
 
-        Here's what I've got...
+            Here's what I've got...
 
-        {{}}
-        """  # noqa: E501
-        ).format("\n".join(messages))
+            {{}}
+            """.format("\n".join(messages)),
+        )
 
         if not fnames:
-            message = textwrap.dedent("""
+            message = dedent_with_escaped_continue(
+                """
                 Hi! This is the friendly automated conda-forge-linting service.
 
                 I was trying to look for recipes to lint for you, but couldn't find any.
-                Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
-                """)  # noqa
+                Please ping the 'conda-forge/core' team (using the @ notation in a \\
+                comment) if you believe this is a bug.
+                """,
+            )
             status = "no recipes"
         elif all_pass and hints_found:
             message = mixed
