@@ -137,7 +137,9 @@ jobs:
   live-tests-upload:
     name: live-tests-upload
     runs-on: "ubuntu-latest"
-    needs: docker-build
+    needs:
+      - tests
+      - docker-build
     concurrency:
       group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-upload' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:
@@ -197,7 +199,9 @@ jobs:
   live-tests-rerender:
     name: live-tests-rerender
     runs-on: "ubuntu-latest"
-    needs: docker-build
+    needs:
+      - tests
+      - docker-build
     concurrency:
       group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-rerender' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:
@@ -261,7 +265,9 @@ jobs:
   live-tests-linter:
     name: live-tests-linter
     runs-on: "ubuntu-latest"
-    needs: docker-build
+    needs:
+      - tests
+      - docker-build
     concurrency:
       group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-linter' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:
