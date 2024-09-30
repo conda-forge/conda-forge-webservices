@@ -987,10 +987,8 @@ def rerender(full_name, pr_num):
     _, repo_name = full_name.split("/")
     if repo_name == "cf-autotick-bot-test-package-feedstock":
         ref = conda_forge_webservices.__version__.replace("+", ".")
-        workflow = (
-            gh
-            .get_repo("conda-forge/conda-forge-webservices")
-            .get_workflow("webservices-workflow-dispatch.yml")
+        workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+            "webservices-workflow-dispatch.yml"
         )
         running = workflow.create_dispatch(
             ref=ref,
