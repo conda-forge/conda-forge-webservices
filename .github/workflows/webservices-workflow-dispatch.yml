@@ -113,9 +113,11 @@ jobs:
           git config --global user.name "conda-forge-webservices[bot]"
           git config --global user.email "91080706+conda-forge-webservices[bot]@users.noreply.github.com"
 
+          version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__)")
+
           # FIXME: we need to build the container here
           export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
-          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="prod"
+          export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
           conda-forge-webservices-finalize-task \
             --task-data-dir=${{ github.workspace }}/task-data
