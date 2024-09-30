@@ -48,7 +48,7 @@ jobs:
 
       - name: install code
         run: |
-          pip install --no-deps --no-build-backend -e .
+          pip install --no-deps --no-build-isolation -e .
 
       - name: run task
         run: |
@@ -91,7 +91,7 @@ jobs:
 
       - name: install code
         run: |
-          pip install --no-deps --no-build-backend -e .
+          pip install --no-deps --no-build-isolation -e .
 
       - name: download task data
         uses: actions/download-artifact@v4
