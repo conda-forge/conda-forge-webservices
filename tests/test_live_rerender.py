@@ -22,7 +22,7 @@ def _run_test(branch):
             "task": "rerender",
             "repo": "cf-autotick-bot-test-package-feedstock",
             "pr_number": "445",
-            "container_tag": conda_forge_webservices.__version__.replace('+', '.'),
+            "container_tag": conda_forge_webservices.__version__.replace("+", "."),
         },
     )
 
