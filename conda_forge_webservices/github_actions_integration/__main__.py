@@ -33,10 +33,10 @@ def _pull_docker_image():
 
 
 @click.command(name="conda-forge-webservices-run-task")
-@click.option("--task", required=True, type="str")
-@click.option("--repo", required=True, type="str")
-@click.option("--pr-number", required=True, type="str")
-@click.option("--task-data-dir", required=True, type="str")
+@click.option("--task", required=True, type=str)
+@click.option("--repo", required=True, type=str)
+@click.option("--pr-number", required=True, type=str)
+@click.option("--task-data-dir", required=True, type=str)
 def main_run_task(task, repo, pr_number, task_data_dir):
     from .rerendering import rerender
 
@@ -79,7 +79,7 @@ def main_run_task(task, repo, pr_number, task_data_dir):
 
 
 @click.command(name="conda-forge-webservices-finalize-task")
-@click.option("--task-data-dir", required=True, type="str")
+@click.option("--task-data-dir", required=True, type=str)
 def main_finalize_task(task_data_dir):
     from .utils import flush_logger
 
