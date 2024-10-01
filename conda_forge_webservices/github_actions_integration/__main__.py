@@ -224,11 +224,7 @@ def _push_changes(
         info_message=info_message,
     )
 
-    if action_error or push_error:
-        raise RuntimeError(
-            f"The item `{action}` failed! error "
-            f"in push|rerender: {push_error}|{action_error}"
-        )
+    return action_error or push_error
 
 
 @click.command(name="conda-forge-webservices-finalize-task")
@@ -258,10 +254,11 @@ def main_finalize_task(task_data_dir):
 
         if task in ["rerender", "version_update", "lint"]:
             if pr.state == "closed":
-                raise RuntimeError(
+                LOGGER.error(
                     "Closed PRs cannot be linted, rerendered, "
-                    " or have their versions updated!"
+                    " or have their versions updated! Exiting..."
                 )
+                return
 
         # commit the changes if needed
         if task in ["rerender", "version_update"]:
@@ -310,7 +307,7 @@ def main_finalize_task(task_data_dir):
 
         # now do any comments and/or pushes
         if task == "rerender":
-            _push_changes(
+            finalize_error = _push_changes(
                 action="rerender",
                 action_error=task_results["rerender_error"],
                 info_message=task_results["info_message"],
@@ -325,7 +322,11 @@ def main_finalize_task(task_data_dir):
             )
 
             # if the pr was made by the bot, mark it as ready for review
-            if pr.title == "MNT: rerender" and pr.user.login == "conda-forge-admin":
+            if (
+                (not finalize_error)
+                and pr.title == "MNT: rerender"
+                and pr.user.login == "conda-forge-admin"
+            ):
                 mark_pr_as_ready_for_review(pr)
 
         elif task == "version_update":
@@ -354,7 +355,7 @@ def main_finalize_task(task_data_dir):
                     # error if any
                     action_error = False
 
-            _push_changes(
+            finalize_error = _push_changes(
                 action="update the version and rerender",
                 action_error=action_error,
                 info_message=task_results["info_message"],
@@ -369,7 +370,8 @@ def main_finalize_task(task_data_dir):
             )
 
             # we always do this for versions
-            mark_pr_as_ready_for_review(pr)
+            if not finalize_error:
+                mark_pr_as_ready_for_review(pr)
         elif task == "lint":
             if task_results["lint_error"]:
                 _message = dedent_with_escaped_continue(
