@@ -98,11 +98,15 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
         task_data["task_results"]["info_message"] = info_message
         task_data["task_results"]["commit_message"] = commit_message
     elif task == "version_update":
-        if requested_version == "null" or not requested_version:
+        if (
+            requested_version.lower() == "null"
+            or requested_version.lower() == "none"
+            or not requested_version
+        ):
             requested_version = None
 
         LOGGER.info(
-            "version update requested version: %s",
+            "version update requested version: '%s'",
             requested_version,
         )
         _pull_docker_image()
