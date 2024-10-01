@@ -3,19 +3,10 @@ import os
 import pprint
 import subprocess
 
-import conda_forge_tick.update_recipe
 from conda.models.version import VersionOrder
-from conda_forge_tick.feedstock_parser import load_feedstock
-from conda_forge_tick.update_recipe.version import update_version_feedstock_dir
-from conda_forge_tick.update_upstream_versions import (
-    all_version_sources,
-    get_latest_version,
-)
-from conda_forge_tick.utils import setup_logging
 
 from .api_sessions import create_api_sessions
 
-setup_logging()
 
 LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +17,19 @@ def update_version(
     """
     Returns [whether version changed, errors occurred, new version found]
     """
+    # these imports are guarded here in this function since the
+    # conda_forge_tick package will hide sensitive env vars
+    import conda_forge_tick.update_recipe
+    from conda_forge_tick.feedstock_parser import load_feedstock
+    from conda_forge_tick.update_recipe.version import update_version_feedstock_dir
+    from conda_forge_tick.update_upstream_versions import (
+        all_version_sources,
+        get_latest_version,
+    )
+    from conda_forge_tick.utils import setup_logging
+
+    setup_logging()
+
     name = os.path.basename(repo_name).rsplit("-", 1)[0]
     LOGGER.info("using feedstock name %s for repo %s", name, repo_name)
 
