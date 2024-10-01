@@ -335,7 +335,7 @@ jobs:
       - tests
       - docker-build
     concurrency:
-      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-version' || format('{0}-{1}', github.workflow, github.ref) }}
+      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-version-update' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         if: ${{ !github.event.pull_request.head.repo.fork }}
