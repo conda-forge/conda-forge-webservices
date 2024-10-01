@@ -92,7 +92,7 @@ def _change_version(new_version="0.13", branch="main"):
     with open("recipe/meta.yaml", "w") as fp:
         fp.write("".join(new_lines))
 
-    print("staging file..", flush=True)
+    print("committing file...", flush=True)
     subprocess.run(["git", "add", "recipe/meta.yaml"], check=True)
     subprocess.run(
         [
