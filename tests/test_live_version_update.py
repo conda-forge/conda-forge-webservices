@@ -169,7 +169,7 @@ def _run_test(branch, version):
                 )
                 output = c.stdout.decode("utf-8")
                 print("    last commit:", output.strip(), flush=True)
-                assert "Re-" in output or "ENH " in output
+                assert "Re-" in output or "ENH:" in output
 
     if version:
         assert _pr_title() == f"ENH: update package version to {version}"
