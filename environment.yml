@@ -14,6 +14,7 @@ dependencies:
   - conda-forge-feedstock-ops >=0.7.0
   - conda-smithy >=3.34.1  # this pin is for jinja2 sandboxes
   - cryptography >=39
+  - docker-squash
   - python-dateutil
   - git
   - gitpython

@@ -114,25 +114,18 @@ jobs:
           version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: enable experimental docker features (needed for squash)
-        run: |
-          sudo cp docker_daemon_config.json /etc/docker/daemon.json
-          sudo service docker restart
-
-      - name: docker info
-        run: |
-          docker info
-
-      - name: build and push
+      - name: build, squash, and push
         run: |
           image_tag=condaforge/webservices-dispatch-action:${{ steps.install-code.outputs.version }}
 
           docker build \
-            -t ${image_tag} \
+            -t ${image_tag}.full \
             -f Dockerfile_wda \
             --no-cache --squash .
 
-          docker login -u condaforgebot -p $DH_PASSWORD
+          docker-squash ${image_tag}.full -t ${image_tag}
+
+          echo $DH_PASSWORD | docker login -u condaforgebot --password-stdin
           docker push ${image_tag}
         env:
           DH_PASSWORD: ${{ secrets.CF_BOT_DH_PASSWORD }}
