@@ -26,15 +26,13 @@ def _set_pr_draft():
         return
 
     # based on this post: https://github.com/orgs/community/discussions/70061
-    mutation = (
-        f"""
+    mutation = f"""
         mutation {{
             convertPullRequestToDraft(input:{{pullRequestId: "{pr.node_id:s}"}}) {{
                 pullRequest{{id, isDraft}}
             }}
         }}
         """
-    )
 
     headers = {"Authorization": f"Bearer {os.environ['GH_TOKEN']}"}
     req = requests.post(
@@ -54,15 +52,13 @@ def _set_pr_not_draft():
     if not pr.draft:
         return
 
-    mutation = (
-        f"""
+    mutation = f"""
         mutation {{
             markPullRequestReadyForReview(input:{{pullRequestId: "{pr.node_id:s}"}}) {{
                 pullRequest{{id, isDraft}}
             }}
         }}
         """
-    )
 
     headers = {"Authorization": f"Bearer {os.environ['GH_TOKEN']}"}
     req = requests.post(
