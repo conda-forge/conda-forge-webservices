@@ -19,6 +19,11 @@ on:
         description: 'the container tag to use'
         required: true
         type: string
+      requested_version:
+        description: 'the requested version for a version update'
+        required: false
+        type: string
+        default: 'null'
 
 env:
   PY_COLORS: 1
@@ -109,7 +114,8 @@ jobs:
             --task=${{ inputs.task }} \
             --repo=${{ inputs.repo }} \
             --pr-number=${{ inputs.pr_number }} \
-            --task-data-dir=${{ github.workspace }}/task-data
+            --task-data-dir=${{ github.workspace }}/task-data \
+            --requested-version=${{ inputs.requested_version }}
 
       - name: upload task data
         id: upload-task-data

@@ -1009,10 +1009,22 @@ def update_version(full_name, pr_num, input_ver):
     inject_app_token_into_feedstock(full_name, repo=repo)
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
-    return not repo.create_repository_dispatch(
-        "version_update",
-        client_payload={"pr": pr_num, "input_version": input_ver or "null"},
+    _, repo_name = full_name.split("/")
+    ref = __version__.replace("+", ".")
+    workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+        "webservices-workflow-dispatch.yml"
     )
+    running = workflow.create_dispatch(
+        ref=ref,
+        inputs={
+            "task": "version_update",
+            "repo": repo_name,
+            "pr_number": str(pr_num),
+            "container_tag": ref,
+            "requested_version": str(input_ver) or "null",
+        },
+    )
+    return not running
 
 
 def make_noarch(repo):
