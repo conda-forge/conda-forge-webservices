@@ -9,8 +9,8 @@ from typing import TypedDict
 from git import GitCommandError, Repo
 import conda_smithy.lint_recipe
 
-import conda_forge_webservices
 from conda_forge_webservices.tokens import get_gh_client
+from ._version import __version__
 
 LOGGER = logging.getLogger("conda_forge_webservices.linting")
 SKIP_MSGS = [
@@ -42,7 +42,7 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
         return False
 
     if repo_name == "cf-autotick-bot-test-package-feedstock":
-        ref = conda_forge_webservices.__version__.replace("+", ".")
+        ref = __version__.replace("+", ".")
         workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
             "webservices-workflow-dispatch.yml"
         )

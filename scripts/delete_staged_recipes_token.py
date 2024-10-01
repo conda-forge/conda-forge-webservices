@@ -1,7 +1,6 @@
-import tempfile
-import subprocess
 import os
 
+import github
 import requests
 
 from conda_forge_webservices.utils import with_action_url
@@ -23,46 +22,14 @@ if __name__ == "__main__":
     feedstock_name = "staged-recipes"
 
     if feedstock_token_exists("conda-forge", feedstock_name):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            subprocess.check_call(
-                "git clone https://x-access-token:${GH_TOKEN}@github.com/conda-forge/"
-                "feedstock-tokens.git",
-                cwd=tmpdir,
-                shell=True,
-            )
-
-            subprocess.check_call(
-                "git remote set-url --push origin "
-                "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/"
-                "feedstock-tokens.git",
-                cwd=os.path.join(tmpdir, "feedstock-tokens"),
-                shell=True,
-            )
-
-            subprocess.check_call(
-                f"git rm tokens/{feedstock_name}.json",
-                cwd=os.path.join(tmpdir, "feedstock-tokens"),
-                shell=True,
-            )
-
-            msg = with_action_url(
+        gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
+        repo = gh.get_repo("conda-forge/feedstock-tokens")
+        file = repo.get_contents(f"tokens/{feedstock_name}.json")
+        repo.delete_file(
+            path=file.path,
+            message=with_action_url(
                 "[ci skip] [skip ci] [cf admin skip] ***NO_CI*** "
                 f"removing token for {feedstock_name}"
-            )
-            subprocess.check_call(
-                f"git commit --allow-empty -am '{msg}'",
-                cwd=os.path.join(tmpdir, "feedstock-tokens"),
-                shell=True,
-            )
-
-            subprocess.check_call(
-                "git pull",
-                cwd=os.path.join(tmpdir, "feedstock-tokens"),
-                shell=True,
-            )
-
-            subprocess.check_call(
-                "git push",
-                cwd=os.path.join(tmpdir, "feedstock-tokens"),
-                shell=True,
-            )
+            ),
+            sha=file.sha,
+        )

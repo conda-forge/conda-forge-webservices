@@ -19,6 +19,7 @@ import requests
 import github
 from datetime import datetime, timezone
 
+import conda_forge_webservices
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
@@ -908,7 +909,10 @@ def main():
     http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
     port = int(os.environ.get("PORT", 5000))
 
-    LOGGER.info("starting server")
+    LOGGER.info(
+        "starting server - conda-forge-webservices "
+        f"version {conda_forge_webservices.__version__}"
+    )
 
     if args.local:
         LOGGER.info("server address: http://127.0.0.1:5000/")
