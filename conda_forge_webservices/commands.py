@@ -13,7 +13,6 @@ from requests.exceptions import RequestException
 import logging
 
 # from .utils import tmp_directory
-import conda_forge_webservices
 from .linting import (
     compute_lint_message,
     comment_on_pr,
@@ -23,6 +22,7 @@ from .linting import (
 )
 from .update_teams import update_team
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
+from ._version import __version__
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     get_gh_client,
@@ -55,14 +55,6 @@ UPDATE_VERSION = re.compile(
     pre + r"(please )?update (the )?version( to (?P<ver>\S+))?",
     re.I,
 )
-
-
-def _print_cfw_version():
-    print(
-        f"in command conda-forge-webservices version "
-        f"{conda_forge_webservices.__version__}",
-        flush=True,
-    )
 
 
 def _get_conda_forge_yml(org_name: str, repo_name: str) -> dict:
@@ -994,7 +986,7 @@ def rerender(full_name, pr_num):
 
     _, repo_name = full_name.split("/")
     if repo_name == "cf-autotick-bot-test-package-feedstock":
-        ref = conda_forge_webservices.__version__.replace("+", ".")
+        ref = __version__.replace("+", ".")
         workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
             "webservices-workflow-dispatch.yml"
         )
