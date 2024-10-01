@@ -120,7 +120,7 @@ jobs:
           image_tag=condaforge/webservices-dispatch-action:${{ steps.install-code.outputs.version }}
 
           docker build \
-            -t ${image_tag}.full \
+            -t ${image_tag} \
             -f Dockerfile_wda \
             --no-cache \
             .

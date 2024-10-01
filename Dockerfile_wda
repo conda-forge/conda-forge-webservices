@@ -14,8 +14,8 @@ RUN conda activate base && \
     conda install conda-lock --yes && \
     conda-lock install -n $CF_FEEDSTOCK_OPS_ENV $CF_FEEDSTOCK_OPS_DIR/conda-lock.yml && \
     conda clean --tarballs --index-cache --packages --yes && \
-    find /opt/conda/ -follow -type f -name '*.a' -delete && \
-    find /opt/conda/ -follow -type f -name '*.pyc' -delete && \
+    find /opt/conda -follow -type f -name '*.a' -delete && \
+    find /opt/conda -follow -type f -name '*.pyc' -delete && \
     conda clean --force-pkgs-dirs --all --yes  && \
     # Lucky group gets permission to write in the conda dir
     chown -R root /opt/conda && \
