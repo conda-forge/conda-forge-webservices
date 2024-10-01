@@ -78,6 +78,8 @@ def _change_version(new_version="0.13", branch="main"):
     print("changing the version to an old one...", flush=True)
     subprocess.run(["git", "checkout", branch], check=True)
 
+    subprocess.run(["git", "pull"], check=True)
+
     new_lines = []
     with open("recipe/meta.yaml") as fp:
         for line in fp.readlines():
@@ -104,6 +106,7 @@ def _change_version(new_version="0.13", branch="main"):
     )
 
     print("push to origin...", flush=True)
+    subprocess.run(["git", "pull"], check=True)
     subprocess.run(["git", "push"], check=True)
 
 
