@@ -52,7 +52,7 @@ def main_init_task(task, repo, pr_number):
 
     LOGGER.info("initializing task %s for conda-forge/%s#%s", task, repo, pr_number)
 
-    if task == "rerender":
+    if task in ["rerender", "rerender"]:
         pass
     elif task == "lint":
         _, gh = create_api_sessions()
@@ -89,6 +89,23 @@ def main_run_task(task, repo, pr_number, task_data_dir):
     task_data = {"task": task, "repo": repo, "pr_number": pr_number, "task_results": {}}
 
     if task == "rerender":
+        _pull_docker_image()
+        changed, rerender_error, info_message, commit_message = rerender(git_repo)
+        task_data["task_results"]["changed"] = changed
+        task_data["task_results"]["rerender_error"] = rerender_error
+        task_data["task_results"]["info_message"] = info_message
+        task_data["task_results"]["commit_message"] = commit_message
+    elif task == "version":
+        # FIXME: do version update here
+        LOGGER.info(
+            "Running version update for %s with input_version %s",
+            repo_name,
+            input_version,
+        )
+        version_changed, version_error, found_version = update_version(
+            git_repo, repo_name, input_version=input_version
+        )
+
         _pull_docker_image()
         changed, rerender_error, info_message, commit_message = rerender(git_repo)
         task_data["task_results"]["changed"] = changed
@@ -210,7 +227,7 @@ def main_finalize_task(task_data_dir):
         pr = gh_repo.get_pull(int(pr_number))
 
         # commit the changes if needed
-        if task in ["rerender"]:
+        if task in ["rerender", "version"]:
             pr_branch = pr.head.ref
             pr_owner = pr.head.repo.owner.login
             pr_repo = pr.head.repo.name
@@ -274,6 +291,24 @@ def main_finalize_task(task_data_dir):
             if pr.title == "MNT: rerender" and pr.user.login == "conda-forge-admin":
                 mark_pr_as_ready_for_review(pr)
 
+        elif task == "version":
+            if pr.state == "closed":
+                raise RuntimeError("Closed PRs do not finish version updates!")
+
+            _push_rerender_changes(
+                task_results["rerender_error"],
+                task_results["info_message"],
+                task_results["changed"],
+                git_repo,
+                pr,
+                pr_branch,
+                pr_owner,
+                pr_repo,
+                f"conda-forge/{repo}",
+            )
+
+            # we always do this for versions
+            mark_pr_as_ready_for_review(pr)
         elif task == "lint":
             if pr.state == "closed":
                 raise RuntimeError("Closed PRs are not linted!")
