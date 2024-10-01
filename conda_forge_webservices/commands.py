@@ -6,6 +6,7 @@ import re
 import time
 import shutil
 import tempfile
+import textwrap
 from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
@@ -21,13 +22,13 @@ from .linting import (
 )
 from .update_teams import update_team
 from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
+from ._version import __version__
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     get_gh_client,
     inject_app_token_into_feedstock,
     inject_app_token_into_feedstock_readonly,
 )
-import textwrap
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
 NUM_GIT_CLONE_TRIES = 10
@@ -983,10 +984,22 @@ def rerender(full_name, pr_num):
     inject_app_token_into_feedstock(full_name, repo=repo)
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
-    return not repo.create_repository_dispatch(
-        "rerender",
-        client_payload={"pr": pr_num},
+    _, repo_name = full_name.split("/")
+    ref = __version__.replace("+", ".")
+    workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+        "webservices-workflow-dispatch.yml"
     )
+    running = workflow.create_dispatch(
+        ref=ref,
+        inputs={
+            "task": "rerender",
+            "repo": repo_name,
+            "pr_number": str(pr_num),
+            "container_tag": ref,
+        },
+    )
+
+    return not running
 
 
 def update_version(full_name, pr_num, input_ver):
