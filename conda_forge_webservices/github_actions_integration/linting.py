@@ -3,6 +3,24 @@ import time
 from .utils import dedent_with_escaped_continue
 
 
+def get_recipes_for_linting(gh, repo, pr_id, lints, hints):
+    fnames = set(hints.keys()) | set(lints.keys())
+
+    if repo.name == "staged-recipes":
+        pr = repo.get_pull(pr_id)
+        recipes_to_lint = set(f.filename for f in pr.get_files())
+        recipes_to_lint = set(
+            fname
+            for fname in recipes_to_lint
+            if fname
+            not in ["recipes/example/meta.yaml", "recipes/example-v1/recipe.yaml"]
+        )
+    else:
+        recipes_to_lint = set(fnames)
+
+    return recipes_to_lint, fnames
+
+
 def _is_mergeable(repo, pr_id):
     mergeable = None
     while mergeable is None:
@@ -92,25 +110,15 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
         )
         status = "merge_conflict"
     else:
-        fnames = set(hints.keys()) | set(lints.keys())
-
-        if repo.name == "staged-recipes":
-            pr = repo.get_pull(pr_id)
-            recipes_to_lint = set(f.filename for f in pr.get_files())
-            recipes_to_lint = set(
-                fname
-                for fname in recipes_to_lint
-                if fname
-                not in ["recipes/example/meta.yaml", "recipes/example-v1/recipe.yaml"]
-            )
-        else:
-            recipes_to_lint = set(fnames)
+        recipes_to_lint, all_recipes = get_recipes_for_linting(
+            gh, repo, pr_id, lints, hints
+        )
 
         linted_recipes = []
         all_pass = True
         messages = []
         hints_found = False
-        for fname in fnames:
+        for fname in all_recipes:
             if fname not in recipes_to_lint:
                 continue
 
@@ -167,7 +175,7 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
             """.format("\n".join(messages)),
         )
 
-        if not fnames:
+        if not all_recipes:
             message = dedent_with_escaped_continue(
                 """
                 Hi! This is the friendly automated conda-forge-linting service.

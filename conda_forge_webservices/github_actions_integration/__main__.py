@@ -21,7 +21,12 @@ from .utils import (
 )
 from .api_sessions import create_api_sessions
 from .rerendering import rerender
-from .linting import make_lint_comment, build_and_make_lint_comment, set_pr_status
+from .linting import (
+    make_lint_comment,
+    build_and_make_lint_comment,
+    set_pr_status,
+    get_recipes_for_linting,
+)
 from .version_updating import update_version, update_pr_title
 
 
@@ -144,7 +149,12 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
     elif task == "lint":
         _pull_docker_image()
         try:
-            lints, hints = lint_feedstock(feedstock_dir, use_container=True)
+            res = lint_feedstock(feedstock_dir, use_container=True)
+            if len(res) == 2:
+                lints, hints = res
+                errors = None
+            else:
+                lints, hints, errors = res
             lint_error = False
         except Exception as err:
             LOGGER.warning("LINTING ERROR: %s", repr(err))
@@ -156,6 +166,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
         task_data["task_results"]["lint_error"] = lint_error
         task_data["task_results"]["lints"] = lints
         task_data["task_results"]["hints"] = hints
+        task_data["task_results"]["errors"] = errors
     else:
         raise ValueError(f"Task `{task}` is not valid!")
 
@@ -395,6 +406,15 @@ def main_finalize_task(task_data_dir):
                 )
                 sys.exit(1)
         elif task == "lint":
+            if task_results.get("errors"):
+                recipes_to_lint, _ = get_recipes_for_linting(
+                    gh, gh_repo, pr.number, task_results["lints"], task_results["hints"]
+                )
+                if any(
+                    task_results["errors"].get(rec, False) for rec in recipes_to_lint
+                ):
+                    task_results["lint_error"] = True
+
             if task_results["lint_error"]:
                 _message = dedent_with_escaped_continue(
                     """
