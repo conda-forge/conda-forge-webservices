@@ -41,25 +41,19 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     if should_skip:
         return False
 
-    if repo_name == "cf-autotick-bot-test-package-feedstock":
-        ref = __version__.replace("+", ".")
-        workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
-            "webservices-workflow-dispatch.yml"
-        )
-        running = workflow.create_dispatch(
-            ref=ref,
-            inputs={
-                "task": "lint",
-                "repo": repo_name,
-                "pr_number": str(pr_num),
-                "container_tag": ref,
-            },
-        )
-    else:
-        running = repo.create_repository_dispatch(
-            "lint",
-            client_payload={"pr": pr_num},
-        )
+    ref = __version__.replace("+", ".")
+    workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+        "webservices-workflow-dispatch.yml"
+    )
+    running = workflow.create_dispatch(
+        ref=ref,
+        inputs={
+            "task": "lint",
+            "repo": repo_name,
+            "pr_number": str(pr_num),
+            "container_tag": ref,
+        },
+    )
 
     if running:
         _set_pr_status(repo_owner, repo_name, sha, "pending")
