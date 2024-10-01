@@ -152,7 +152,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
             res = lint_feedstock(feedstock_dir, use_container=True)
             if len(res) == 2:
                 lints, hints = res
-                errors = None
+                errors = {}
             else:
                 lints, hints, errors = res
             lint_error = False
