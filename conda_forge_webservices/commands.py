@@ -985,25 +985,19 @@ def rerender(full_name, pr_num):
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
     _, repo_name = full_name.split("/")
-    if repo_name == "cf-autotick-bot-test-package-feedstock":
-        ref = __version__.replace("+", ".")
-        workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
-            "webservices-workflow-dispatch.yml"
-        )
-        running = workflow.create_dispatch(
-            ref=ref,
-            inputs={
-                "task": "rerender",
-                "repo": repo_name,
-                "pr_number": str(pr_num),
-                "container_tag": ref,
-            },
-        )
-    else:
-        running = repo.create_repository_dispatch(
-            "rerender",
-            client_payload={"pr": pr_num},
-        )
+    ref = __version__.replace("+", ".")
+    workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+        "webservices-workflow-dispatch.yml"
+    )
+    running = workflow.create_dispatch(
+        ref=ref,
+        inputs={
+            "task": "rerender",
+            "repo": repo_name,
+            "pr_number": str(pr_num),
+            "container_tag": ref,
+        },
+    )
 
     return not running
 
