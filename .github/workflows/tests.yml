@@ -122,7 +122,8 @@ jobs:
           docker build \
             -t ${image_tag}.full \
             -f Dockerfile_wda \
-            --no-cache --squash .
+            --no-cache \
+            .
 
           docker-squash ${image_tag}.full -t ${image_tag}
 
