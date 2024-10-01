@@ -82,7 +82,7 @@ def _change_version(new_version="0.13", branch="main"):
     with open("recipe/meta.yaml") as fp:
         for line in fp.readlines():
             if line.startswith("{% set version ="):
-                new_lines.append(f'{{%% set version = "{new_version}" %%}}\n')
+                new_lines.append(f'{{% set version = "{new_version}" %}}\n')
             elif line.startswith("  sha256: "):
                 new_lines.append(f"  sha256: {new_sha}\n")
             else:
