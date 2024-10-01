@@ -22,6 +22,7 @@ from .utils import (
 from .api_sessions import create_api_sessions
 from .rerendering import rerender
 from .linting import make_lint_comment, build_and_make_lint_comment, set_pr_status
+from .version_updating import update_version, update_pr_title
 
 
 LOGGER = logging.getLogger(__name__)
@@ -50,9 +51,9 @@ def _pull_docker_image():
 def main_init_task(task, repo, pr_number):
     logging.basicConfig(level=logging.INFO)
 
-    LOGGER.info("initializing task %s for conda-forge/%s#%s", task, repo, pr_number)
+    LOGGER.info("initializing task `%s` for conda-forge/%s#%s", task, repo, pr_number)
 
-    if task in ["rerender", "rerender"]:
+    if task in ["rerender", "version_update"]:
         pass
     elif task == "lint":
         _, gh = create_api_sessions()
@@ -68,10 +69,11 @@ def main_init_task(task, repo, pr_number):
 @click.option("--repo", required=True, type=str)
 @click.option("--pr-number", required=True, type=str)
 @click.option("--task-data-dir", required=True, type=str)
-def main_run_task(task, repo, pr_number, task_data_dir):
+@click.option("--requested-version", required=False, type=str, default=None)
+def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
     logging.basicConfig(level=logging.INFO)
 
-    LOGGER.info("running task %s for conda-forge/%s#%s", task, repo, pr_number)
+    LOGGER.info("running task `%s` for conda-forge/%s#%s", task, repo, pr_number)
 
     feedstock_dir = os.path.join(
         task_data_dir,
@@ -95,23 +97,46 @@ def main_run_task(task, repo, pr_number, task_data_dir):
         task_data["task_results"]["rerender_error"] = rerender_error
         task_data["task_results"]["info_message"] = info_message
         task_data["task_results"]["commit_message"] = commit_message
-    elif task == "version":
-        # FIXME: do version update here
-        LOGGER.info(
-            "Running version update for %s with input_version %s",
-            repo_name,
-            input_version,
-        )
-        version_changed, version_error, found_version = update_version(
-            git_repo, repo_name, input_version=input_version
-        )
+    elif task == "version_update":
+        if requested_version == "null" or not requested_version:
+            requested_version = None
 
+        LOGGER.info(
+            "version update requested version: %s",
+            requested_version,
+        )
         _pull_docker_image()
-        changed, rerender_error, info_message, commit_message = rerender(git_repo)
-        task_data["task_results"]["changed"] = changed
-        task_data["task_results"]["rerender_error"] = rerender_error
-        task_data["task_results"]["info_message"] = info_message
-        task_data["task_results"]["commit_message"] = commit_message
+        full_repo_name = f"conda-forge/{repo}"
+        version_changed, version_error, new_version = update_version(
+            git_repo,
+            full_repo_name,
+            input_version=requested_version,
+        )
+        task_data["task_results"]["version_changed"] = version_changed
+        task_data["task_results"]["version_error"] = version_error
+        task_data["task_results"]["new_version"] = new_version
+
+        if version_changed:
+            task_data["task_results"]["commit_message"] = (
+                f"ENH: updated version to {new_version}"
+            )
+
+            rerender_changed, rerender_error, info_message, commit_message = rerender(
+                git_repo
+            )
+            task_data["task_results"]["rerender_changed"] = rerender_changed
+            task_data["task_results"]["rerender_error"] = rerender_error
+            task_data["task_results"]["info_message"] = info_message
+            if rerender_changed:
+                task_data["task_results"]["commit_message"] += (
+                    " & " + commit_message[len("MNT: ") :]
+                )
+        else:
+            task_data["task_results"]["rerender_changed"] = False
+            task_data["task_results"]["rerender_error"] = False
+            task_data["task_results"]["info_message"] = None
+            task_data["task_results"]["commit_message"] = None
+
     elif task == "lint":
         _pull_docker_image()
         try:
@@ -146,8 +171,10 @@ def main_run_task(task, repo, pr_number, task_data_dir):
         )
 
 
-def _push_rerender_changes(
-    rerender_error,
+def _push_changes(
+    *,
+    action,
+    action_error,
     info_message,
     changed,
     git_repo,
@@ -156,6 +183,7 @@ def _push_rerender_changes(
     pr_owner,
     pr_repo,
     repo_name,
+    close_pr_if_no_changes_or_errors,
 ):
     more_info_message = "\n" + dedent_with_escaped_continue(
         """
@@ -172,22 +200,22 @@ def _push_rerender_changes(
             "blob/master/recipe/conda_build_config.yaml"
         )
     )
-    if rerender_error:
+    if action_error:
         if info_message is None:
             info_message = ""
         info_message += more_info_message
 
     push_error = comment_and_push_if_changed(
-        action="rerender",
+        action=action,
         changed=changed,
-        error=rerender_error,
+        error=action_error,
         git_repo=git_repo,
         pull=pr,
         pr_branch=pr_branch,
         pr_owner=pr_owner,
         pr_repo=pr_repo,
         repo_name=repo_name,
-        close_pr_if_no_changes_or_errors=False,
+        close_pr_if_no_changes_or_errors=close_pr_if_no_changes_or_errors,
         help_message=(
             " or you can try [rerendering locally]"
             "(https://conda-forge.org/docs/maintainer/updating_pkgs.html"
@@ -196,9 +224,10 @@ def _push_rerender_changes(
         info_message=info_message,
     )
 
-    if rerender_error or push_error:
+    if action_error or push_error:
         raise RuntimeError(
-            f"Rerendering failed! error in push|rerender: {push_error}|{rerender_error}"
+            f"The item `{action}` failed! error "
+            f"in push|rerender: {push_error}|{action_error}"
         )
 
 
@@ -215,19 +244,27 @@ def main_finalize_task(task_data_dir):
     pr_number = task_data["pr_number"]
     task_results = task_data["task_results"]
 
-    LOGGER.info("finalizing task %s for conda-forge/%s#%s", task, repo, pr_number)
+    LOGGER.info("finalizing task `%s` for conda-forge/%s#%s", task, repo, pr_number)
     LOGGER.info("task results:")
     flush_logger(LOGGER)
     print(pprint.pformat(task_results), flush=True)
     flush_logger(LOGGER)
 
     with tempfile.TemporaryDirectory() as tmpdir:
+        full_repo_name = f"conda-forge/{repo}"
         _, gh = create_api_sessions()
-        gh_repo = gh.get_repo(f"conda-forge/{repo}")
+        gh_repo = gh.get_repo(full_repo_name)
         pr = gh_repo.get_pull(int(pr_number))
 
+        if task in ["rerender", "version_update", "lint"]:
+            if pr.state == "closed":
+                raise RuntimeError(
+                    "Closed PRs cannot be linted, rerendered, "
+                    " or have their versions updated!"
+                )
+
         # commit the changes if needed
-        if task in ["rerender", "version"]:
+        if task in ["rerender", "version_update"]:
             pr_branch = pr.head.ref
             pr_owner = pr.head.repo.owner.login
             pr_repo = pr.head.repo.name
@@ -258,61 +295,82 @@ def main_finalize_task(task_data_dir):
                 cwd=feedstock_dir,
                 check=True,
             )
-            subprocess.run(
-                [
-                    "git",
-                    "commit",
-                    "-m",
-                    task_results["commit_message"],
-                    "--allow-empty",
-                ],
-                cwd=feedstock_dir,
-                check=True,
-            )
+            if task_results["commit_message"] is not None:
+                subprocess.run(
+                    [
+                        "git",
+                        "commit",
+                        "-m",
+                        task_results["commit_message"],
+                        "--allow-empty",
+                    ],
+                    cwd=feedstock_dir,
+                    check=True,
+                )
 
         # now do any comments and/or pushes
         if task == "rerender":
-            if pr.state == "closed":
-                raise RuntimeError("Closed PRs cannot be rerendered!")
-
-            _push_rerender_changes(
-                task_results["rerender_error"],
-                task_results["info_message"],
-                task_results["changed"],
-                git_repo,
-                pr,
-                pr_branch,
-                pr_owner,
-                pr_repo,
-                f"conda-forge/{repo}",
+            _push_changes(
+                action="rerender",
+                action_error=task_results["rerender_error"],
+                info_message=task_results["info_message"],
+                changed=task_results["changed"],
+                git_repo=git_repo,
+                pr=pr,
+                pr_branch=pr_branch,
+                pr_oweber=pr_owner,
+                pr_repo=pr_repo,
+                repo_name=full_repo_name,
+                close_pr_if_no_changes_or_errors=False,
             )
 
             # if the pr was made by the bot, mark it as ready for review
             if pr.title == "MNT: rerender" and pr.user.login == "conda-forge-admin":
                 mark_pr_as_ready_for_review(pr)
 
-        elif task == "version":
-            if pr.state == "closed":
-                raise RuntimeError("Closed PRs do not finish version updates!")
+        elif task == "version_update":
+            if (
+                (not task_results["version_error"])
+                and task_results["version_changed"]
+                and task_results["new_version"]
+            ):
+                LOGGER.info(
+                    "Updating PR title for %s#%s with version=%s",
+                    full_repo_name,
+                    pr_number,
+                    task_results["new_version"],
+                )
+                update_pr_title(full_repo_name, pr_number, task_results["new_version"])
 
-            _push_rerender_changes(
-                task_results["rerender_error"],
-                task_results["info_message"],
-                task_results["changed"],
-                git_repo,
-                pr,
-                pr_branch,
-                pr_owner,
-                pr_repo,
-                f"conda-forge/{repo}",
+            if task_results["version_error"]:
+                action_error = True
+            else:
+                if task_results["version_changed"]:
+                    # if there is no version error and the version changed
+                    # then we can report if rerendering failed
+                    action_error = task_results["rerender_error"]
+                else:
+                    # if the version did not change, we can ignore the rerendering
+                    # error if any
+                    action_error = False
+
+            _push_changes(
+                action="update the version and rerender",
+                action_error=action_error,
+                info_message=task_results["info_message"],
+                changed=task_results["version_changed"],
+                git_repo=git_repo,
+                pr=pr,
+                pr_branch=pr_branch,
+                pr_oweber=pr_owner,
+                pr_repo=pr_repo,
+                repo_name=full_repo_name,
+                close_pr_if_no_changes_or_errors=True,
             )
 
             # we always do this for versions
             mark_pr_as_ready_for_review(pr)
         elif task == "lint":
-            if pr.state == "closed":
-                raise RuntimeError("Closed PRs are not linted!")
-
             if task_results["lint_error"]:
                 _message = dedent_with_escaped_continue(
                     """
