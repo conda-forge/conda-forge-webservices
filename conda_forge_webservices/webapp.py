@@ -524,6 +524,12 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
 
 
 def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error, hash_type):
+    print(
+        f"in copy conda-forge-webservices version "
+        f"{conda_forge_webservices.__version__}",
+        flush=True,
+    )
+
     valid, errors = validate_feedstock_outputs(
         feedstock,
         outputs,
@@ -612,6 +618,10 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         LOGGER.info("===================================================")
         LOGGER.info(f"copy outputs for feedstock '{feedstock}'")
         LOGGER.info("===================================================")
+        LOGGER.info(
+            "    conda-forge-webservices version: "
+            f"{conda_forge_webservices.__version__}"
+        )
 
         if feedstock is not None and len(feedstock) > 0:
             feedstock_exists = _repo_exists(feedstock)
