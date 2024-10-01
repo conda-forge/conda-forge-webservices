@@ -307,7 +307,7 @@ def main_finalize_task(task_data_dir):
 
         # now do any comments and/or pushes
         if task == "rerender":
-            finalize_error = _push_changes(
+            comment_push_error = _push_changes(
                 action="rerender",
                 action_error=task_results["rerender_error"],
                 info_message=task_results["info_message"],
@@ -323,11 +323,18 @@ def main_finalize_task(task_data_dir):
 
             # if the pr was made by the bot, mark it as ready for review
             if (
-                (not finalize_error)
+                (not comment_push_error)
                 and pr.title == "MNT: rerender"
                 and pr.user.login == "conda-forge-admin"
             ):
                 mark_pr_as_ready_for_review(pr)
+
+            if comment_push_error:
+                LOGGER.error(
+                    f"Error in rerender for {full_repo_name}#{pr_number}! "
+                    "Check the workflow logs of the `run task` job for more details!",
+                )
+                sys.exit(1)
 
         elif task == "version_update":
             if (
@@ -341,7 +348,7 @@ def main_finalize_task(task_data_dir):
                     pr_number,
                     task_results["new_version"],
                 )
-                update_pr_title(
+                _, pr_title_error = update_pr_title(
                     full_repo_name, int(pr_number), task_results["new_version"]
                 )
 
@@ -357,7 +364,7 @@ def main_finalize_task(task_data_dir):
                     # error if any
                     action_error = False
 
-            finalize_error = _push_changes(
+            comment_push_error = _push_changes(
                 action="update the version and rerender",
                 action_error=action_error,
                 info_message=task_results["info_message"],
@@ -372,8 +379,17 @@ def main_finalize_task(task_data_dir):
             )
 
             # we always do this for versions
-            if not finalize_error:
+            if not comment_push_error:
                 mark_pr_as_ready_for_review(pr)
+
+            if pr_title_error or comment_push_error:
+                LOGGER.error(
+                    f"Error in version update for "
+                    f"{full_repo_name}#{pr_number}: {pr_title_error=} "
+                    f"{comment_push_error=}. "
+                    "Check the workflow logs of the `run task` job for more details!",
+                )
+                sys.exit(1)
         elif task == "lint":
             if task_results["lint_error"]:
                 _message = dedent_with_escaped_continue(
@@ -403,5 +419,12 @@ def main_finalize_task(task_data_dir):
             set_pr_status(pr.base.repo, pr.head.sha, status, target_url=msg.html_url)
             print(f"Linter status: {status}")
             print(f"Linter message:\n{msg.body}")
+
+            if task_results["lint_error"]:
+                LOGGER.error(
+                    f"Error in linting for {full_repo_name}#{pr_number}! "
+                    "Check the workflow logs of the `run task` job for more details!"
+                )
+                sys.exit(1)
         else:
             raise ValueError(f"Task `{task}` is not valid!")
