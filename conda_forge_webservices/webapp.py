@@ -911,7 +911,7 @@ def main():
 
     LOGGER.info(
         "starting server - conda-forge-webservices "
-        f"version {conda_forge_webservices.__version__}"
+        f"version {conda_forge_webservices._version.__version__}"
     )
 
     if args.local:
