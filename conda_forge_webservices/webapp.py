@@ -673,6 +673,10 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.set_status(403)
             self.write_error(403)
         else:
+            await tornado.ioloop.IOLoop.current().run_in_executor(
+                _worker_pool(),
+                commands._print_cfw_version
+            )
             (
                 valid,
                 errors,

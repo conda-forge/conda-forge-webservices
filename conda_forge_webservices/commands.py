@@ -57,6 +57,14 @@ UPDATE_VERSION = re.compile(
 )
 
 
+def _print_cfw_version():
+    print(
+        f"in command conda-forge-webservices version "
+        f"{conda_forge_webservices.__version__}",
+        flush=True,
+    )
+
+
 def _get_conda_forge_yml(org_name: str, repo_name: str) -> dict:
     url = (
         f"https://raw.githubusercontent.com/{org_name}/{repo_name}/main/conda-forge.yml"
