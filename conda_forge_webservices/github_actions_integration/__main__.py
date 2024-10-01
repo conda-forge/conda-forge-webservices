@@ -230,28 +230,31 @@ def main_finalize_task(task_data_dir):
                 repo,
             )
 
-            sync_dirs(
-                source_feedstock_dir,
-                feedstock_dir,
-                ignore_dot_git=True,
-                update_git=True,
-            )
-            subprocess.run(
-                ["git", "add", "."],
-                cwd=feedstock_dir,
-                check=True,
-            )
-            subprocess.run(
-                [
-                    "git",
-                    "commit",
-                    "-m",
-                    task_results["commit_message"],
-                    "--allow-empty",
-                ],
-                cwd=feedstock_dir,
-                check=True,
-            )
+            if not task_results["rerender_error"]:
+                sync_dirs(
+                    source_feedstock_dir,
+                    feedstock_dir,
+                    ignore_dot_git=True,
+                    update_git=True,
+                )
+                subprocess.run(
+                    ["git", "add", "."],
+                    cwd=feedstock_dir,
+                    check=True,
+                )
+
+                if task_results["commit_message"]:
+                    subprocess.run(
+                        [
+                            "git",
+                            "commit",
+                            "-m",
+                            task_results["commit_message"],
+                            "--allow-empty",
+                        ],
+                        cwd=feedstock_dir,
+                        check=True,
+                    )
 
         # now do any comments and/or pushes
         if task == "rerender":
