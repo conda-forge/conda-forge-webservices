@@ -795,6 +795,12 @@ class StatusMonitorOpenGPUServerHandler(tornado.web.RequestHandler):
         self.write(status_monitor.get_open_gpu_server_status())
 
 
+class StatusMonitorDockerHandler(tornado.web.RequestHandler):
+    async def get(self):
+        self.add_header("Access-Control-Allow-Origin", "*")
+        self.write(status_monitor.get_docker_status())
+
+
 class StatusMonitorDBHandler(tornado.web.RequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
@@ -863,6 +869,7 @@ def create_webapp():
             (r"/status-monitor/payload", StatusMonitorPayloadHookHandler),
             (r"/status-monitor/azure", StatusMonitorAzureHandler),
             (r"/status-monitor/open-gpu-server", StatusMonitorOpenGPUServerHandler),
+            (r"/status-monitor/docker", StatusMonitorDockerHandler),
             (r"/status-monitor/db", StatusMonitorDBHandler),
             (r"/status-monitor/report/(.*)", StatusMonitorReportHandler),
             (r"/status-monitor", StatusMonitorHandler),

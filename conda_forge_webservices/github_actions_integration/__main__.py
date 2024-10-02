@@ -152,7 +152,8 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
             res = lint_feedstock(feedstock_dir, use_container=True)
             if len(res) == 2:
                 lints, hints = res
-                errors = {}
+                all_keys = set(lints.keys()) | set(hints.keys())
+                errors = {key: False for key in all_keys}
             else:
                 lints, hints, errors = res
             lint_error = False
@@ -162,6 +163,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
             lint_error = True
             lints = None
             hints = None
+            errors = {}
 
         task_data["task_results"]["lint_error"] = lint_error
         task_data["task_results"]["lints"] = lints
@@ -406,12 +408,12 @@ def main_finalize_task(task_data_dir):
                 )
                 sys.exit(1)
         elif task == "lint":
-            if task_results.get("errors"):
+            if "errors" in task_results:
                 recipes_to_lint, _ = get_recipes_for_linting(
                     gh, gh_repo, pr.number, task_results["lints"], task_results["hints"]
                 )
                 if any(
-                    task_results["errors"].get(rec, False) for rec in recipes_to_lint
+                    task_results["errors"].get(rec, True) for rec in recipes_to_lint
                 ):
                     task_results["lint_error"] = True
 
