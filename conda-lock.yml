@@ -3,7 +3,7 @@ metadata:
     - url: conda-forge
       used_env_vars: []
   content_hash:
-    linux-64: 211f4af602a6eee83acd0368902507b78acc778b4b2652a5ceffa120eb77f7dc
+    linux-64: b002d340c53ed605fc72b19f0212265885343f12bd7ffabc647ee6faccb5cb28
   platforms:
     - linux-64
   sources:
@@ -191,6 +191,22 @@ package:
     url:
       https://conda.anaconda.org/conda-forge/noarch/backports.tarfile-1.0.0-pyhd8ed1ab_1.conda
     version: 1.0.0
+  - category: main
+    dependencies:
+      __glibc: '>=2.17,<3.0.a0'
+      libgcc: '>=13'
+      python: '>=3.11,<3.12.0a0'
+      python_abi: 3.11.*
+    hash:
+      md5: 20a2ce70d703e1d2b619aa07363961a1
+      sha256: e0bebfacdb16886ee8087c7cc3cb167bc20dbe3ecd7b85d674edabc408f1864a
+    manager: conda
+    name: bcrypt
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/linux-64/bcrypt-4.2.0-py311h9e33e62_1.conda
+    version: 4.2.0
   - category: main
     dependencies:
       python: '>=3.6'
@@ -1132,6 +1148,38 @@ package:
     platform: linux-64
     url: https://conda.anaconda.org/conda-forge/noarch/dnspython-2.6.1-pyhd8ed1ab_1.conda
     version: 2.6.1
+  - category: main
+    dependencies:
+      paramiko: '>=2.4.3'
+      python: '>=3.8'
+      pywin32-on-windows: ''
+      requests: '>=2.26.0'
+      urllib3: '>=1.26.0'
+      websocket-client: '>=0.32.0'
+    hash:
+      md5: 3e547e36de765ca8f28a7623fb3f255a
+      sha256: eca0bf5605a6ce79021afa1cd234cc74093a239f86cd311872e4d9b0972b5a85
+    manager: conda
+    name: docker-py
+    optional: false
+    platform: linux-64
+    url: https://conda.anaconda.org/conda-forge/noarch/docker-py-7.1.0-pyhd8ed1ab_0.conda
+    version: 7.1.0
+  - category: main
+    dependencies:
+      docker-py: ''
+      python: '>=3.6'
+      six: ''
+    hash:
+      md5: 475bf42fcefc72c1d6a88dd20c22b4a2
+      sha256: bd4a680e4c6a25f155cd3ce58419f693b551cbd31bb3743b6fcc2b6df4e03e0d
+    manager: conda
+    name: docker-squash
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/docker-squash-1.2.0-pyhd8ed1ab_0.conda
+    version: 1.2.0
   - category: main
     dependencies:
       python: '>=3.7'
@@ -3190,6 +3238,21 @@ package:
     version: 0.9.0
   - category: main
     dependencies:
+      bcrypt: '>=3.2'
+      cryptography: '>=3.3'
+      pynacl: '>=1.5'
+      python: '>=3.6'
+    hash:
+      md5: 3a359c35a1f9ec2859fbddcabcfd4c4d
+      sha256: f2c3ac882c1123a71479c15ecec0c632aa004bc8a8c10daf25d69461ea1da38a
+    manager: conda
+    name: paramiko
+    optional: false
+    platform: linux-64
+    url: https://conda.anaconda.org/conda-forge/noarch/paramiko-3.5.0-pyhd8ed1ab_0.conda
+    version: 3.5.0
+  - category: main
+    dependencies:
       locket: ''
       python: '>=3.9'
       toolz: ''
@@ -3841,6 +3904,20 @@ package:
     platform: linux-64
     url: https://conda.anaconda.org/conda-forge/noarch/pytz-2024.2-pyhd8ed1ab_0.conda
     version: '2024.2'
+  - category: main
+    dependencies:
+      __unix: ''
+      python: '>=2.7'
+    hash:
+      md5: 2807a0becd1d986fe1ef9b7f8135f215
+      sha256: 6502696aaef571913b22a808b15c185bd8ea4aabb952685deb29e6a6765761cb
+    manager: conda
+    name: pywin32-on-windows
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/pywin32-on-windows-0.1.0-pyh1179c8e_3.tar.bz2
+    version: 0.1.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -4700,6 +4777,19 @@ package:
     url:
       https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_2.conda
     version: 0.5.1
+  - category: main
+    dependencies:
+      python: '>=3.8'
+    hash:
+      md5: f372c576b8774922da83cda2b12f9d29
+      sha256: 44a5e3b97feef24cd719f7851cca9af9799dc9c17d3e0298d5856baab2d682f5
+    manager: conda
+    name: websocket-client
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/websocket-client-1.8.0-pyhd8ed1ab_0.conda
+    version: 1.8.0
   - category: main
     dependencies:
       libgcc-ng: '>=12'

@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # source profile scripts for conda
-source ~/.bash_profile
+source ~/.bashrc
 
 # activate env
-conda activate $CF_FEEDSTOCK_OPS_ENV
+micromamba activate $CF_FEEDSTOCK_OPS_ENV
 
 # Run whatever the user wants.
 exec "$@"

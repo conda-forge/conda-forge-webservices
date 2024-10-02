@@ -11,6 +11,10 @@ on:
 env:
   PY_COLORS: 1
 
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
 jobs:
   tests:
     name: tests
@@ -45,7 +49,6 @@ jobs:
 
       - name: install code
         id: install-code
-        shell: bash -l {0}
         run: |
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
@@ -56,7 +59,6 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run test suite
-        shell: bash -l {0}
         run: |
           echo "owner: ${GITHUB_REPOSITORY_OWNER}"
           export CF_WEBSERVICES_TEST=1
@@ -104,7 +106,6 @@ jobs:
 
       - name: install code
         id: install-code
-        shell: bash -l {0}
         run: |
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
@@ -170,7 +171,6 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: install code
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
@@ -182,7 +182,6 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run package upload tests
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           export CF_WEBSERVICES_TEST=1
@@ -232,7 +231,6 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: install code
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
@@ -244,7 +242,6 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run rerender tests
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           if [[ "${GITHUB_HEAD_REF}" != "" ]]; then
@@ -298,7 +295,6 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: install code
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
@@ -310,7 +306,6 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run linter tests
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           if [[ "${GITHUB_HEAD_REF}" != "" ]]; then
@@ -364,7 +359,6 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: install code
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
@@ -376,7 +370,6 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run version tests
-        shell: bash -l {0}
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           if [[ "${GITHUB_HEAD_REF}" != "" ]]; then

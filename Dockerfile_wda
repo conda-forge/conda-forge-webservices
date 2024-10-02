@@ -1,62 +1,94 @@
-FROM quay.io/condaforge/linux-anvil-cos7-x86_64:latest
+FROM mambaorg/micromamba:1.5.10-noble AS build-env
 
-# baseline env
-ENV TMPDIR=/tmp
-ENV CF_FEEDSTOCK_OPS_DIR=/opt/cf-feedstock-ops
-ENV CF_FEEDSTOCK_OPS_ENV=cf-feedstock-ops
+ENV PYTHONDONTWRITEBYTECODE=1
+USER root
+
+# make sure the install below is not cached by docker
+ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cache
+
+COPY conda-lock.yml /tmp/conda-lock.yml
+
+RUN <<EOF
+    groupadd -g 32766 lucky
+    echo "**** install base env ****"
+    micromamba create --yes --quiet --name cf-feedstock-ops --file /tmp/conda-lock.yml
+    echo "**** cleanup ****"
+    micromamba clean --all --force-pkgs-dirs --yes
+    find "${MAMBA_ROOT_PREFIX}" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete
+    echo "**** finalize ****"
+    chown -R root /opt/conda
+    chgrp -R lucky /opt/conda
+    chmod -R g=u /opt/conda
+    mkdir -p "${MAMBA_ROOT_PREFIX}/locks"
+    chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
+EOF
+
+FROM frolvlad/alpine-glibc:alpine-3.16_glibc-2.34
+LABEL maintainer="conda-forge <conda-forge@googlegroups.com>"
+
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    TMPDIR=/tmp \
+    CF_FEEDSTOCK_OPS_DIR=/opt/cf-feedstock-ops \
+    CF_FEEDSTOCK_OPS_ENV=cf-feedstock-ops
+
+RUN apk add --no-cache bash
+
+COPY --from=build-env /opt/conda /opt/conda
+COPY --from=build-env /usr/bin/micromamba /usr/bin/micromamba
 
 # use bash for a while to make conda manipulations easier
 SHELL ["/bin/bash", "-l", "-c"]
 
-# build the conda env first
-COPY conda-lock.yml $CF_FEEDSTOCK_OPS_DIR/conda-lock.yml
-RUN conda activate base && \
-    conda install conda-lock --yes && \
-    conda-lock install -n $CF_FEEDSTOCK_OPS_ENV $CF_FEEDSTOCK_OPS_DIR/conda-lock.yml && \
-    conda clean --all --yes && \
-    # Lucky group gets permission to write in the conda dir
-    chown -R root /opt/conda && \
-    chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda && \
-    conda deactivate
-
-# deal with entrypoint
-COPY entrypoint_wda /opt/docker/bin/entrypoint
-RUN chmod +x /opt/docker/bin/entrypoint
-
 # not needed right now but keeping just in case
 # now install the main code
 # COPY . $CF_FEEDSTOCK_OPS_DIR
-# RUN conda activate base && \
-#     conda activate $CF_FEEDSTOCK_OPS_ENV && \
+# FIXME: if we add this back, we will need to add an eval of the
+#  micromamba shell hook
+# RUN micromamba activate $CF_FEEDSTOCK_OPS_ENV && \
 #     cd $CF_FEEDSTOCK_OPS_DIR && \
 #     pip install --no-deps --no-build-isolation -e . && \
-#     cd - && \
-#     conda deactivate && \
-#     conda deactivate
+#     cd -
 
-# now make the conda user for running tasks and set the user
-RUN useradd --shell /bin/bash -c "" -m conda
-ENV HOME=/home/conda
-ENV USER=conda
-ENV LOGNAME=conda
-ENV MAIL=/var/spool/mail/conda
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/conda/bin
-RUN chown conda:conda $HOME && \
-    cp -R /etc/skel $HOME && \
-    chown -R conda:conda $HOME/skel && \
-    (ls -A1 $HOME/skel | xargs -I {} mv -n $HOME/skel/{} $HOME) && \
-    rm -Rf $HOME/skel && \
+# deal with entrypoint, tini, users+groups creation
+COPY entrypoint_wda /opt/docker/bin/entrypoint
+RUN <<EOF
+    chmod +x /opt/docker/bin/entrypoint
+    ln -s /opt/conda/envs/$CF_FEEDSTOCK_OPS_ENV/bin/tini /opt/docker/bin/tini
+    addgroup -g 32766 lucky
+    adduser --disabled-password --shell /bin/bash conda
+EOF
+
+# finalize the conda user
+ENV HOME=/home/conda \
+    USER=conda \
+    LOGNAME=conda \
+    MAIL=/var/spool/mail/conda \
+    PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/conda/bin
+RUN <<EOF
+    chown conda:conda $HOME
+    # cp -R /etc/skel $HOME
+    # chown -R conda:conda $HOME/skel
+    # (ls -A1 $HOME/skel | xargs -I {} mv -n $HOME/skel/{} $HOME)
+    # rm -Rf $HOME/skel
     cd $HOME
+EOF
 USER conda
 
 # deal with git config for user and mounted directory
-RUN conda activate $CF_FEEDSTOCK_OPS_ENV && \
-    git config --global --add safe.directory /cf_feedstock_ops_dir && \
-    git config --global init.defaultBranch main && \
-    git config --global user.email "conda@conda.conda" && \
-    git config --global user.name "conda conda" && \
-    conda deactivate && \
-    conda init --all --user
+RUN <<EOF
+    micromamba shell init -s bash -r /opt/conda
+    source $HOME/.bashrc
+    micromamba activate $CF_FEEDSTOCK_OPS_ENV
+    git config --global --add safe.directory /cf_feedstock_ops_dir
+    git config --global init.defaultBranch main
+    git config --global user.email "conda@conda.conda"
+    git config --global user.name "conda conda"
+    micromamba deactivate
+EOF
 
 # put the shell back
 SHELL ["/bin/sh", "-c"]
+
+ENTRYPOINT [ "/opt/docker/bin/tini", "--", "/opt/docker/bin/entrypoint" ]
+CMD [ "/bin/bash" ]
