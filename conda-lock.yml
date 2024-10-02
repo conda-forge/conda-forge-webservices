@@ -248,15 +248,15 @@ package:
       python-dateutil: '>=2.1,<3.0.0'
       urllib3: '>=1.25.4,!=2.2.0,<3'
     hash:
-      md5: d4fccd06c73715c144fe07ae9f7bdfab
-      sha256: 14306065894902a5ffe8546d51fdd031995dba6744070b1454cecd79c65ff54a
+      md5: 0de47cdd47fc5fe311c13903e6ff2a6f
+      sha256: 65e83c5fe88f7417577784c918a88a69afe3b0c98596c879f444e71617db5d7a
     manager: conda
     name: botocore
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.30-pyge310_1234567_0.conda
-    version: 1.35.30
+      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.31-pyge310_1234567_0.conda
+    version: 1.35.31
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -563,15 +563,15 @@ package:
       truststore: '>=0.8.0'
       zstandard: '>=0.19.0'
     hash:
-      md5: 8d66b00f8025b5d4046d73090f5aec79
-      sha256: f8fc9e4cbd956e1aa3731582084a76e7d295546c1ff78aba8c69ae8fa502f4ba
+      md5: 63a6341170bb4762fbf5557d8a6ba48f
+      sha256: d02721990001d49babfde6fab507b02dffc3daa49f3dca9b10d1abcd17d2ece8
     manager: conda
     name: conda
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/conda-24.9.0-py311h38be061_0.conda
-    version: 24.9.0
+      https://conda.anaconda.org/conda-forge/linux-64/conda-24.7.1-py311h38be061_0.conda
+    version: 24.7.1
   - category: main
     dependencies:
       beautifulsoup4: ''
@@ -3623,21 +3623,21 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      dnspython: <3.0.0,>=1.16.0
+      dnspython: '>=1.16.0,<3.0.0'
       libgcc: '>=13'
       libstdcxx: '>=13'
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 844288843b966a9aa1168e992f937c24
-      sha256: 642655a6ca531234180145900845b9c5abcc3d4669145f0b593efe6b564b3489
+      md5: 118c033d3a3bfc1a62be9b85e5369e5f
+      sha256: 90d414278508442b40ff468258722779320ab59d740c18d91cf2760b6b89e823
     manager: conda
     name: pymongo
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/pymongo-4.10.0-py311hfdbb021_0.conda
-    version: 4.10.0
+      https://conda.anaconda.org/conda-forge/linux-64/pymongo-4.9.1-py311hfdbb021_0.conda
+    version: 4.9.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -3881,14 +3881,14 @@ package:
       __glibc: '>=2.17,<3.0.a0'
       openssl: '>=3.3.2,<4.0a0'
     hash:
-      md5: 13b81ab6a0dcd4b9c594825c448520c6
-      sha256: 7aa4731bbcb0a5bf0db7f924a7ad977082428f035db52cbc8b8f77a5ac3ebc1d
+      md5: b31944cb3fa01f2e481aea8480f3e0cc
+      sha256: 96152ff3f03f936a0152881610a775225dd82659089be94091c660ffadb62d75
     manager: conda
     name: rattler-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.22.0-h51b9b6e_1.conda
+      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.22.0-h51b9b6e_0.conda
     version: 0.22.0
   - category: main
     dependencies:
@@ -4027,16 +4027,15 @@ package:
     version: 13.9.1
   - category: main
     dependencies:
-      __glibc: '>=2.17,<3.0.a0'
-      libgcc: '>=13'
+      libgcc-ng: '>=12'
     hash:
-      md5: 78ecf732e9165aa28abb40699795b796
-      sha256: 18e222e44a28787efcb09449e642bd710ee35bad0c8b551363d4c5b4a460451d
+      md5: 5a476f7033a8a1b9175626b5ebf86d1d
+      sha256: 4fcf37724b87440765cb3c6cf573e99d12fc631001426a0309d132f495c3d62a
     manager: conda
     name: ripgrep
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/ripgrep-14.1.0-h8fae777_1.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/ripgrep-14.1.0-he8a937b_0.conda
     version: 14.1.0
   - category: main
     dependencies:
@@ -4822,30 +4821,30 @@ package:
       __glibc: '>=2.17,<3.0.a0'
       libgcc: '>=13'
     hash:
-      md5: 8035c64cb77ed555e3f150b7b3972480
-      sha256: 6b250f3e59db07c2514057944a3ea2044d6a8cdde8a47b6497c254520fade1ee
+      md5: 0f0d069428b003625074443455f25e0d
+      sha256: c0d391f19dfe3b0fc6e66686a85a07061923e4a58bbc9db69cf2440169dbb24f
     manager: conda
     name: xorg-libxdmcp
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdmcp-1.1.5-hb9d3cd8_0.conda
-    version: 1.1.5
+      https://conda.anaconda.org/conda-forge/linux-64/xorg-libxdmcp-1.1.3-hb9d3cd8_2.conda
+    version: 1.1.3
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
       libgcc: '>=13'
       xorg-libx11: '>=1.8.10,<2.0a0'
     hash:
-      md5: febbab7d15033c913d53c7a2c102309d
-      sha256: da5dc921c017c05f38a38bd75245017463104457b63a1ce633ed41f214159c14
+      md5: 823aa41a70f0c76f28e7d57206db6efa
+      sha256: 792afe2b1f1f5eb94ad9fb56a2215f432fac41bf132ee1b5060900afe783c561
     manager: conda
     name: xorg-libxext
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/xorg-libxext-1.3.6-hb9d3cd8_0.conda
-    version: 1.3.6
+      https://conda.anaconda.org/conda-forge/linux-64/xorg-libxext-1.3.4-hb9d3cd8_3.conda
+    version: 1.3.4
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
