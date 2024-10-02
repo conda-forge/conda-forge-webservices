@@ -8,12 +8,15 @@ ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cach
 
 COPY conda-lock.yml /tmp/conda-lock.yml
 
-RUN echo "**** install base env ****" && \
+RUN groupadd -g 32766 lucky && \
+    echo "**** install base env ****" && \
     micromamba create --yes --quiet --name cf-feedstock-ops --file /tmp/conda-lock.yml && \
     echo "**** cleanup ****" && \
     micromamba clean --all --force-pkgs-dirs --yes && \
     find "${MAMBA_ROOT_PREFIX}" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
     echo "**** finalize ****" && \
+    chown -R root /opt/conda && \
+    chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda && \
     mkdir -p "${MAMBA_ROOT_PREFIX}/locks" && \
     chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
 
@@ -34,14 +37,10 @@ COPY --from=build-env /usr/bin/micromamba /usr/bin/micromamba
 # use bash for a while to make conda manipulations easier
 SHELL ["/bin/bash", "-l", "-c"]
 
-# # Lucky group gets permission to write in the conda dir
-# RUN addgroup -g 32766 lucky && \
-#     chown -R root /opt/conda && \
-#     chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda
-
-# deal with entrypoint
+# deal with entrypoint and tini
 COPY entrypoint_wda /opt/docker/bin/entrypoint
-RUN chmod +x /opt/docker/bin/entrypoint
+RUN chmod +x /opt/docker/bin/entrypoint && \
+    ln -s /opt/conda/envs/$CF_FEEDSTOCK_OPS_ENV/bin/tini /opt/docker/bin/tini
 
 # not needed right now but keeping just in case
 # now install the main code
@@ -52,7 +51,8 @@ RUN chmod +x /opt/docker/bin/entrypoint
 #     cd -
 
 # now make the conda user for running tasks and set the user
-RUN adduser --disabled-password --shell /bin/bash conda
+RUN addgroup -g 32766 lucky && \
+    adduser --disabled-password --shell /bin/bash conda
 ENV HOME=/home/conda \
     USER=conda \
     LOGNAME=conda \
@@ -79,5 +79,5 @@ RUN micromamba shell init -s bash -r /opt/conda && \
 # put the shell back
 SHELL ["/bin/sh", "-c"]
 
-ENTRYPOINT [ "/opt/conda/envs/cf-feedstock-ops/bin/tini", "--", "/opt/docker/bin/entrypoint" ]
+ENTRYPOINT [ "/opt/docker/bin/tini", "--", "/opt/docker/bin/entrypoint" ]
 CMD [ "/bin/bash" ]
