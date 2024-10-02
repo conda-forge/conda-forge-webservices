@@ -34,7 +34,7 @@ COPY --from=build-env /opt/conda /opt/conda
 SHELL ["/bin/bash", "-l", "-c"]
 
 # Lucky group gets permission to write in the conda dir
-RUN groupadd -g 32766 lucky && \
+RUN addgroup -g 32766 lucky && \
     chown -R root /opt/conda && \
     chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda
 
@@ -51,7 +51,7 @@ RUN chmod +x /opt/docker/bin/entrypoint
 #     cd -
 
 # now make the conda user for running tasks and set the user
-RUN useradd --shell /bin/bash -c "" -m conda
+RUN adduser --shell /bin/bash -c "" -m conda
 ENV HOME=/home/conda
 ENV USER=conda
 ENV LOGNAME=conda
