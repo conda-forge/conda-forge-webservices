@@ -256,6 +256,31 @@ def get_open_gpu_server_status():
     return json.dumps(status_data)
 
 
+def get_docker_status():
+    status_data = {}
+    try:
+        r = requests.get("https://www.dockerstatus.com/", timeout=2)
+        if r.status_code != 200:
+            status_data["status"] = NOSTATUS
+        else:
+            doc = lxml.html.document_fromstring(r.content)
+            status = "All Systems Operational"
+            for elem in doc.xpath("//p[contains(@class, 'component-status')]"):
+                if elem.text.lower() != "operational":
+                    status = "Partial System Outage"
+                    break
+            status_data["status"] = status
+    except requests.exceptions.RequestException:
+        status_data["status"] = NOSTATUS
+
+    fmt = "%Y-%m-%d %H:%M:%S %Z%z"
+    status_data["updated_at"] = (
+        datetime.datetime.now().astimezone(pytz.UTC).strftime(fmt)
+    )
+
+    return json.dumps(status_data)
+
+
 def update_data_status(event_data):
     global APP_DATA
 
