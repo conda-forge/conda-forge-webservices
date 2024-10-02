@@ -34,10 +34,10 @@ COPY --from=build-env /usr/bin/micromamba /usr/bin/micromamba
 # use bash for a while to make conda manipulations easier
 SHELL ["/bin/bash", "-l", "-c"]
 
-# Lucky group gets permission to write in the conda dir
-RUN addgroup -g 32766 lucky && \
-    chown -R root /opt/conda && \
-    chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda
+# # Lucky group gets permission to write in the conda dir
+# RUN addgroup -g 32766 lucky && \
+#     chown -R root /opt/conda && \
+#     chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda
 
 # deal with entrypoint
 COPY entrypoint_wda /opt/docker/bin/entrypoint
