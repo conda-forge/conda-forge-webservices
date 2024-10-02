@@ -1,13 +1,6 @@
-FROM --platform=linux/amd64 mambaorg/micromamba:1.5.10-noble
-LABEL maintainer="conda-forge <conda-forge@googlegroups.com>"
+FROM mambaorg/micromamba:1.5.10-noble AS build-env
 
-ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US.UTF-8 \
-    TMPDIR=/tmp \
-    CF_FEEDSTOCK_OPS_DIR=/opt/cf-feedstock-ops \
-    CF_FEEDSTOCK_OPS_ENV=cf-feedstock-ops \
-    PYTHONDONTWRITEBYTECODE=1
-
+ENV PYTHONDONTWRITEBYTECODE=1
 USER root
 
 # make sure the install below is not cached by docker
@@ -24,11 +17,25 @@ RUN echo "**** install base env ****" && \
     mkdir -p "${MAMBA_ROOT_PREFIX}/locks" && \
     chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
 
+FROM frolvlad/alpine-glibc:alpine-3.16_glibc-2.34
+LABEL maintainer="conda-forge <conda-forge@googlegroups.com>"
+
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    TMPDIR=/tmp \
+    CF_FEEDSTOCK_OPS_DIR=/opt/cf-feedstock-ops \
+    CF_FEEDSTOCK_OPS_ENV=cf-feedstock-ops
+
+RUN apk add --no-cache bash
+
+COPY --from=build-env /opt/conda /opt/conda
+COPY --from=build-env /usr/bin/micromamba /usr/bin/micromamba
+
 # use bash for a while to make conda manipulations easier
 SHELL ["/bin/bash", "-l", "-c"]
 
 # Lucky group gets permission to write in the conda dir
-RUN groupadd -g 32766 lucky && \
+RUN addgroup -g 32766 lucky && \
     chown -R root /opt/conda && \
     chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda
 
@@ -45,7 +52,7 @@ RUN chmod +x /opt/docker/bin/entrypoint
 #     cd -
 
 # now make the conda user for running tasks and set the user
-RUN useradd --shell /bin/bash -c "" -m conda
+RUN adduser --disabled-password --shell /bin/bash conda
 ENV HOME=/home/conda \
     USER=conda \
     LOGNAME=conda \
@@ -60,11 +67,9 @@ RUN chown conda:conda $HOME && \
 USER conda
 
 # deal with git config for user and mounted directory
-RUN micromamba shell init -s bash
-RUN eval "$(micromamba shell hook --shell bash)" && \
+RUN micromamba shell init -s bash && \
+    source $HOME/.bashrc && \
     micromamba activate $CF_FEEDSTOCK_OPS_ENV && \
-    echo $PATH && \
-    ls -lah /opt/conda/envs/cf-feedstock-ops && \
     git config --global --add safe.directory /cf_feedstock_ops_dir && \
     git config --global init.defaultBranch main && \
     git config --global user.email "conda@conda.conda" && \
