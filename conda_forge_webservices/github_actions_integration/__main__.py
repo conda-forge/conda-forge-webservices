@@ -235,8 +235,8 @@ def _push_changes(
         close_pr_if_no_changes_or_errors=close_pr_if_no_changes_or_errors,
         help_message=(
             " or you can try [rerendering locally]"
-            "(https://conda-forge.org/docs/maintainer/updating_pkgs.html)"
-            "#rerendering-with-conda-smithy-locally"
+            "(https://conda-forge.org/docs/maintainer/updating_pkgs.html"
+            "#rerendering-with-conda-smithy-locally)"
         ),
         info_message=info_message,
     )
