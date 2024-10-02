@@ -16,7 +16,8 @@ def get_recipes_for_linting(gh, repo, pr_id, lints, hints):
             if (
                 fname
                 not in ["recipes/example/meta.yaml", "recipes/example-v1/recipe.yaml"]
-            ) and os.path.basename(fname) in ["meta.yaml", "recipe.yaml"]
+            )
+            and os.path.basename(fname) in ["meta.yaml", "recipe.yaml"]
         )
     else:
         recipes_to_lint = set(fnames)
