@@ -163,7 +163,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
             lint_error = True
             lints = None
             hints = None
-            errors = {}
+            errors = None
 
         task_data["task_results"]["lint_error"] = lint_error
         task_data["task_results"]["lints"] = lints
@@ -408,7 +408,11 @@ def main_finalize_task(task_data_dir):
                 )
                 sys.exit(1)
         elif task == "lint":
-            if "errors" in task_results:
+            if (
+                task_results["lints"] is not None
+                and task_results["hints"] is not None
+                and task_results["errors"] is not None
+            ):
                 recipes_to_lint, _ = get_recipes_for_linting(
                     gh, gh_repo, pr.number, task_results["lints"], task_results["hints"]
                 )
