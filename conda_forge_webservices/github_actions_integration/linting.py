@@ -159,8 +159,8 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
             I do have some suggestions for making it better though...
 
             {}
-            """.format("\n".join(messages)),
-        )
+            """
+        ).format("\n".join(messages))
 
         bad = dedent_with_escaped_continue(
             f"""
@@ -172,8 +172,8 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
             Here's what I've got...
 
             {{}}
-            """.format("\n".join(messages)),
-        )
+            """
+        ).format("\n".join(messages))
 
         if not all_recipes:
             message = dedent_with_escaped_continue(
