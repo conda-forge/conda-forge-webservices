@@ -79,5 +79,5 @@ RUN micromamba shell init -s bash -r /opt/conda && \
 # put the shell back
 SHELL ["/bin/sh", "-c"]
 
-ENTRYPOINT [ "/opt/conda/bin/tini", "--", "/opt/docker/bin/entrypoint" ]
+ENTRYPOINT [ "/opt/conda/envs/cf-feedstock-ops/bin/tini", "--", "/opt/docker/bin/entrypoint" ]
 CMD [ "/bin/bash" ]
