@@ -12,7 +12,9 @@ LOGGER = logging.getLogger(__name__)
 def get_gha_run_link():
     """Get the link to the GHA run."""
     run_id = os.environ["GITHUB_RUN_ID"]
-    return f"https://github.com/conda-forge/conda-forge-webservices/actions/runs/{run_id}"
+    return (
+        f"https://github.com/conda-forge/conda-forge-webservices/actions/runs/{run_id}"
+    )
 
 
 def dedent_with_escaped_continue(text):
