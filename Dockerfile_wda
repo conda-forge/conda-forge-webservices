@@ -67,7 +67,7 @@ RUN chown conda:conda $HOME && \
 USER conda
 
 # deal with git config for user and mounted directory
-RUN micromamba init --all --user && \
+RUN micromamba shell init -r /opt/conda -s bash && \
     micromamba activate $CF_FEEDSTOCK_OPS_ENV && \
     git config --global --add safe.directory /cf_feedstock_ops_dir && \
     git config --global init.defaultBranch main && \
