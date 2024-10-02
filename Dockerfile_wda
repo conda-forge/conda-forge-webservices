@@ -16,7 +16,6 @@ RUN echo "**** cleanup ****" && \
 RUN echo "**** finalize ****" && \
     mkdir -p "${MAMBA_ROOT_PREFIX}/locks" && \
     chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
-RUN which micromamba
 
 FROM frolvlad/alpine-glibc:alpine-3.16_glibc-2.34
 LABEL maintainer="conda-forge <conda-forge@googlegroups.com>"
@@ -30,6 +29,7 @@ ENV CF_FEEDSTOCK_OPS_ENV=cf-feedstock-ops
 RUN apk add --no-cache bash
 
 COPY --from=build-env /opt/conda /opt/conda
+COPY --from=build-env /usr/bin/micromamba /usr/bin/micromamba
 
 # use bash for a while to make conda manipulations easier
 SHELL ["/bin/bash", "-l", "-c"]
