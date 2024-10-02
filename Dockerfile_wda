@@ -34,7 +34,8 @@ COPY --from=build-env /opt/conda /opt/conda
 SHELL ["/bin/bash", "-l", "-c"]
 
 # Lucky group gets permission to write in the conda dir
-RUN chown -R root /opt/conda && \
+RUN groupadd -g 32766 lucky && \
+    chown -R root /opt/conda && \
     chgrp -R lucky /opt/conda && chmod -R g=u /opt/conda
 
 # deal with entrypoint
