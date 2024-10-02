@@ -51,7 +51,7 @@ RUN chmod +x /opt/docker/bin/entrypoint
 #     cd -
 
 # now make the conda user for running tasks and set the user
-RUN adduser --shell /bin/bash -c "" -m conda
+RUN adduser --shell /bin/bash -m conda
 ENV HOME=/home/conda
 ENV USER=conda
 ENV LOGNAME=conda
