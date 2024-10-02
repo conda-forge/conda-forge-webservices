@@ -264,15 +264,15 @@ package:
       python-dateutil: '>=2.1,<3.0.0'
       urllib3: '>=1.25.4,!=2.2.0,<3'
     hash:
-      md5: a2b583f2abd32d79c981c7765a1651c1
-      sha256: 977610c13bbbca485208ed7c5729f80fff541cc0258e3a5376457c61c2b7d6ae
+      md5: d4fccd06c73715c144fe07ae9f7bdfab
+      sha256: 14306065894902a5ffe8546d51fdd031995dba6744070b1454cecd79c65ff54a
     manager: conda
     name: botocore
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.29-pyge310_1234567_0.conda
-    version: 1.35.29
+      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.30-pyge310_1234567_0.conda
+    version: 1.35.30
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -914,15 +914,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: 6d6acc2abeca9945e5c446d9ddb2ab7b
-      sha256: 39a38e535062c0056c3636e7c99aeba7221826a09130499903b8c5a3a51e543f
+      md5: 1b36b5378a77a23e8b1d830f220a37e7
+      sha256: b7e526fa1103d7862a168c15a44cfcc301d208f90b59296373d92f6d38de086e
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.41.0-unix_pyh707e725_0.conda
-    version: 3.41.0
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.41.1-unix_pyh707e725_0.conda
+    version: 3.41.1
   - category: main
     dependencies:
       python: '>=3.8'
@@ -1788,14 +1788,14 @@ package:
       python: '>=3.8'
       sniffio: 1.*
     hash:
-      md5: a6b9a0158301e697e4d0a36a3d60e133
-      sha256: 4025644200eefa0598e4600a66fd4804a57d9fd7054a5c8c45e508fd875e0b84
+      md5: b8e1901ef9a215fc41ecfb6bef7e0943
+      sha256: 8952c3f1eb18bf4d7e813176c3b23e0af4e863e8b05087e73f74f371d73077ca
     manager: conda
     name: httpcore
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/httpcore-1.0.5-pyhd8ed1ab_0.conda
-    version: 1.0.5
+    url: https://conda.anaconda.org/conda-forge/noarch/httpcore-1.0.6-pyhd8ed1ab_0.conda
+    version: 1.0.6
   - category: main
     dependencies:
       anyio: ''
@@ -4091,17 +4091,17 @@ package:
     dependencies:
       markdown-it-py: '>=2.2.0'
       pygments: '>=2.13.0,<3.0.0'
-      python: '>=3.7'
+      python: '>=3.8'
       typing_extensions: '>=4.0.0,<5.0.0'
     hash:
-      md5: 748f1807fa7fda73651795c5617b9557
-      sha256: eb7d88222ec1a05c1b333aab5ca9bf486f2005f17c0d86a6b7653da47c6c143b
+      md5: 24e980e71d48ab4d5f5d63e5495a50bf
+      sha256: 54c8a56a5314d04aeaeaf41c3ed963a7dae0dce1a28dd8b25908419fc6a9ab24
     manager: conda
     name: rich
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.8.1-pyhd8ed1ab_0.conda
-    version: 13.8.1
+    url: https://conda.anaconda.org/conda-forge/noarch/rich-13.9.1-pyhd8ed1ab_0.conda
+    version: 13.9.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
