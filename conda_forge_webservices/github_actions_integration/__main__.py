@@ -153,10 +153,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
             if len(res) == 2:
                 lints, hints = res
                 all_keys = set(lints.keys()) | set(hints.keys())
-                errors = {
-                    key: False
-                    for key in all_keys
-                }
+                errors = {key: False for key in all_keys}
             else:
                 lints, hints, errors = res
             lint_error = False
