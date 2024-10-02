@@ -1,3 +1,4 @@
+import os
 import time
 
 from .utils import dedent_with_escaped_continue
@@ -12,8 +13,10 @@ def get_recipes_for_linting(gh, repo, pr_id, lints, hints):
         recipes_to_lint = set(
             fname
             for fname in recipes_to_lint
-            if fname
-            not in ["recipes/example/meta.yaml", "recipes/example-v1/recipe.yaml"]
+            if (
+                fname
+                not in ["recipes/example/meta.yaml", "recipes/example-v1/recipe.yaml"]
+            ) and os.path.basename(fname) in ["meta.yaml", "recipe.yaml"]
         )
     else:
         recipes_to_lint = set(fnames)
