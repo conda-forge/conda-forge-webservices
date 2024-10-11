@@ -57,6 +57,14 @@ UPDATE_VERSION = re.compile(
 )
 
 
+def _get_yaml_parser(typ="rt"):
+    parser = YAML(typ=typ)
+    parser.indent(mapping=2, sequence=4, offset=2)
+    parser.width = 320
+    parser.preserve_quotes = True
+    return parser
+
+
 def _get_conda_forge_yml(org_name: str, repo_name: str) -> dict:
     url = (
         f"https://raw.githubusercontent.com/{org_name}/{repo_name}/main/conda-forge.yml"
@@ -64,7 +72,7 @@ def _get_conda_forge_yml(org_name: str, repo_name: str) -> dict:
     try:
         r = requests.get(url)
         r.raise_for_status()
-        yaml = YAML(typ="safe")
+        yaml = _get_yaml_parser()
         return yaml.load(r.text)
     except requests.HTTPError:
         return {}
@@ -787,7 +795,7 @@ def add_user(repo, user):
     if not recipe_path:
         return None
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
-    yaml = YAML(typ="safe")
+    yaml = _get_yaml_parser(typ="rt")
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
         with io.StringIO() as fp_out:
@@ -885,7 +893,7 @@ def add_user(repo, user):
 
 
 def add_bot_automerge(repo):
-    yaml = YAML(typ="safe")
+    yaml = _get_yaml_parser(typ="rt")
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
@@ -922,7 +930,7 @@ def add_bot_automerge(repo):
 
 
 def remove_bot_automerge(repo):
-    yaml = YAML(typ="safe")
+    yaml = _get_yaml_parser(typ="rt")
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
