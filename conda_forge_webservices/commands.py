@@ -795,7 +795,7 @@ def add_user(repo, user):
     if not recipe_path:
         return None
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
-    yaml = _get_yaml_parser(typ="rt")
+    yaml = _get_yaml_parser()
     if os.path.exists(recipe_path):
         # get the current maintainers - if user is in them, return False
         with io.StringIO() as fp_out:
@@ -893,7 +893,7 @@ def add_user(repo, user):
 
 
 def add_bot_automerge(repo):
-    yaml = _get_yaml_parser(typ="rt")
+    yaml = _get_yaml_parser()
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
@@ -930,7 +930,7 @@ def add_bot_automerge(repo):
 
 
 def remove_bot_automerge(repo):
-    yaml = _get_yaml_parser(typ="rt")
+    yaml = _get_yaml_parser()
 
     cf_yml = os.path.join(repo.working_dir, "conda-forge.yml")
     if os.path.exists(cf_yml):
