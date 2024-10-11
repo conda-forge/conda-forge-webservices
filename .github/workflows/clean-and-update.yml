@@ -22,7 +22,7 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: relock
-        uses: beckermr/relock-conda@2fef2c0c536910c687bf0ae5a5691ab5da5fe579
+        uses: beckermr/relock-conda@49530e32234db1af2014b31a9e7c484488ec5daa
         with:
           github-token: ${{ steps.generate_token.outputs.token }}
           automerge: true
