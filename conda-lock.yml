@@ -82,14 +82,15 @@ package:
       sniffio: '>=1.1'
       typing_extensions: '>=4.1'
     hash:
-      md5: e51aabc880ba72986edfb1b33b65f3ae
-      sha256: fc12e653b4911b4bab53252d82c1b34b6b76b08769dacdb189dd405067be49e4
+      md5: 688697ec5e9588bdded167d19577625b
+      sha256: 4b54b7ce79d818e3cce54ae4d552dba51b7afac160ceecdefd04b3917a37c502
     manager: conda
     name: anyio
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/anyio-4.6.2-pyhd8ed1ab_0.conda
-    version: 4.6.2
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/anyio-4.6.2.post1-pyhd8ed1ab_0.conda
+    version: 4.6.2.post1
   - category: main
     dependencies:
       python: ''
@@ -848,15 +849,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: 47210b13d66d657e010750e0f5e0e929
-      sha256: b6793eca795288d1bb8f298b543824df2eac4c934512922a197e26b47864c329
+      md5: 5271a074d73159951eba0d5d159ad450
+      sha256: 18413fc54004fde10dc1687b52887699824d1a5dc92908a04ea1257a54a55b84
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.42.1-unix_pyh707e725_0.conda
-    version: 3.42.1
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.42.2-unix_pyh707e725_0.conda
+    version: 3.42.2
   - category: main
     dependencies:
       python: '>=3.8'
@@ -2325,13 +2326,13 @@ package:
       libzlib: '>=1.3.1,<2.0a0'
       pcre2: '>=10.44,<10.45.0a0'
     hash:
-      md5: 47a2209fa0df11797df0b767d1de1275
-      sha256: fe9bebb2347d0fc8c5c9e1dd0750e0d640061dc66712a4218bad46d0adc11131
+      md5: 23b2601708f7fd71ceb52b4da41cdd66
+      sha256: 17eaf179e98847dd834aae75c74753e98026ee5ac818550185896b3b7bc6e76f
     manager: conda
     name: libglib
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.82.1-h2ff4ddf_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.82.1-h2ff4ddf_1.conda
     version: 2.82.1
   - category: main
     dependencies:
