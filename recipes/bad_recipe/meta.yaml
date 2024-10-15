@@ -1,6 +1,8 @@
+{% set blah = foo.upper() %}
+
 package:
   name: python
-  version: {{ version }}
+  version: {{ version.replace("_", "-") }}
 
 extra:
   recipe-maintainers:
