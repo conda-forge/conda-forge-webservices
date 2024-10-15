@@ -8,6 +8,7 @@ import tempfile
 import traceback
 
 import click
+from conda_forge_feedstock_ops import setup_logging
 from conda_forge_feedstock_ops.lint import lint as lint_feedstock
 from conda_forge_feedstock_ops.os_utils import sync_dirs
 from git import Repo
@@ -76,7 +77,7 @@ def main_init_task(task, repo, pr_number):
 @click.option("--task-data-dir", required=True, type=str)
 @click.option("--requested-version", required=False, type=str, default=None)
 def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
-    logging.basicConfig(level=logging.INFO)
+    setup_logging()
 
     LOGGER.info("running task `%s` for conda-forge/%s#%s", task, repo, pr_number)
 
@@ -426,7 +427,7 @@ def main_finalize_task(task_data_dir):
                     """
                     Hi! This is the friendly automated conda-forge-linting service.
 
-                    I Failed to even lint the recipe, probably because of a conda-smithy
+                    I failed to even lint the recipe, probably because of a conda-smithy
                     bug :cry:. This likely indicates a problem in your `meta.yaml`, \\
                     though. To get a traceback to help figure out what's going on, \\
                     install conda-smithy and run \\

@@ -7,6 +7,13 @@ import conda_forge_webservices
 
 TEST_CASES = [
     (
+        733,
+        "failure",
+        [
+            "failed to even lint the recipe",
+        ],
+    ),
+    (
         632,
         "failure",
         [
