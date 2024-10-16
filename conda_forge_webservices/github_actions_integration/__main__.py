@@ -427,7 +427,8 @@ def main_finalize_task(task_data_dir):
                     """
                     Hi! This is the friendly automated conda-forge-linting service.
 
-                    I failed to even lint the recipe, probably because of a conda-smithy
+                    I failed to even lint the recipe, probably because of a \\
+                    conda-smithy \\
                     bug :cry:. This likely indicates a problem in your `meta.yaml`, \\
                     though. To get a traceback to help figure out what's going on, \\
                     install conda-smithy and run \\
