@@ -705,15 +705,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 5258aefacbd611aebcf8255335c7305c
-      sha256: 0598cb720e5b3d6ee8f2b79d81215f3946cdfa146a161e0b4bdc50389af64bfc
+      md5: b1d7535d6d3ac96bfb4276cb4bbc4e44
+      sha256: 70c7bc5e341c321819e07088b1868867e733e0eab070d480409ce66c3987ebfb
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2024.10.2-pyhd8ed1ab_0.conda
-    version: 2024.10.2
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2024.10.12-pyhd8ed1ab_0.conda
+    version: 2024.10.12
   - category: main
     dependencies:
       click: '>=8'
@@ -4677,14 +4677,14 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: f820dec118406e896be62db8c53151ad
-      sha256: 66ec8fc80cebbabef8a43a8a420f6540399200dcc0c9195db0bdda2836eee7be
+      md5: c4316a4c2b47ae154259fa5caffd53f1
+      sha256: 4f05a61c3c3127ce7e487001215d20f49da0563fa4335462b2f6cc0028bb265b
     manager: conda
     name: uv
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.4.25-h0f3a69f_0.conda
-    version: 0.4.25
+    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.4.26-h0f3a69f_0.conda
+    version: 0.4.26
   - category: main
     dependencies:
       distlib: <1,>=0.3.7
