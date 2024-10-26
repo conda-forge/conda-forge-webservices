@@ -11,7 +11,7 @@ dependencies:
   - conda-forge-metadata >=0.9.2
   - conda-forge-pinning
   - conda-forge-tick >=2024.9.26
-  - conda-forge-feedstock-ops >=0.10.0
+  - conda-forge-feedstock-ops >=0.10.0  # pin to fix bug in rerender patches
   - conda-smithy >=3.34.1  # this pin is for jinja2 sandboxes
   - cryptography >=39
   - python-dateutil
