@@ -188,11 +188,13 @@ def flush_logger(logger):
 def get_git_patch_relative_to_commit(git_repo, prev_head):
     """Get the git patch between the input commit and the latest commit."""
     curr_head = git_repo.active_branch.commit
+    git_sha_diff = prev_head + ".." + curr_head
     ret = subprocess.run(
-        ["git", "diff", prev_head + ".." + curr_head],
+        ["git", "diff", git_sha_diff],
         cwd=git_repo.working_dir,
         capture_output=True,
         text=True,
         check=True,
     )
+    LOGGER.info("git patch for diff %s: %s", git_sha_diff, ret.stdout)
     return ret.stdout
