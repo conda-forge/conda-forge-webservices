@@ -10,7 +10,6 @@ import traceback
 import click
 from conda_forge_feedstock_ops import setup_logging
 from conda_forge_feedstock_ops.lint import lint as lint_feedstock
-from conda_forge_feedstock_ops.os_utils import sync_dirs
 from git import Repo
 
 from .utils import (
@@ -18,6 +17,7 @@ from .utils import (
     dedent_with_escaped_continue,
     flush_logger,
     get_gha_run_link,
+    get_git_patch_relative_to_commit,
     mark_pr_as_ready_for_review,
 )
 from .api_sessions import create_api_sessions
@@ -93,16 +93,19 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
     )
     git_repo.remotes.origin.fetch([f"pull/{pr_number}/head:pull/{pr_number}/head"])
     git_repo.git.switch(f"pull/{pr_number}/head")
+    prev_head = git_repo.active_branch.commit.hexsha
 
     task_data = {"task": task, "repo": repo, "pr_number": pr_number, "task_results": {}}
 
     if task == "rerender":
         _pull_docker_image()
         changed, rerender_error, info_message, commit_message = rerender(git_repo)
+        patch = get_git_patch_relative_to_commit(git_repo, prev_head)
         task_data["task_results"]["changed"] = changed
         task_data["task_results"]["rerender_error"] = rerender_error
         task_data["task_results"]["info_message"] = info_message
         task_data["task_results"]["commit_message"] = commit_message
+        task_data["task_results"]["patch"] = patch
     elif task == "version_update":
         if (
             requested_version.lower() == "null"
@@ -125,6 +128,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
         task_data["task_results"]["version_changed"] = version_changed
         task_data["task_results"]["version_error"] = version_error
         task_data["task_results"]["new_version"] = new_version
+        task_data["task_results"]["patch"] = None
 
         if version_changed:
             task_data["task_results"]["commit_message"] = (
@@ -141,6 +145,8 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
                 task_data["task_results"]["commit_message"] += (
                     " & " + commit_message[len("MNT: ") :]
                 )
+            patch = get_git_patch_relative_to_commit(git_repo, prev_head)
+            task_data["task_results"]["patch"] = patch
         else:
             task_data["task_results"]["rerender_changed"] = False
             task_data["task_results"]["rerender_error"] = False
@@ -181,12 +187,11 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
         check=True,
         capture_output=True,
     )
-    if task == "lint":
-        subprocess.run(
-            ["rm", "-rf", feedstock_dir],
-            check=True,
-            capture_output=True,
-        )
+    subprocess.run(
+        ["rm", "-rf", feedstock_dir],
+        check=True,
+        capture_output=True,
+    )
 
 
 def _push_changes(
@@ -283,34 +288,39 @@ def main_finalize_task(task_data_dir):
             pr_branch = pr.head.ref
             pr_owner = pr.head.repo.owner.login
             pr_repo = pr.head.repo.name
-            repo_url = f"https://github.com/{pr_owner}/{pr_repo}.git"
-            feedstock_dir = os.path.join(
-                tmpdir,
-                pr_repo,
-            )
-            git_repo = Repo.clone_from(
-                repo_url,
-                feedstock_dir,
-                branch=pr_branch,
-            )
+            if task_results["patch"] is not None:
+                if task_results["commit_message"] is None:
+                    LOGGER.warning(
+                        "The webservices tasks did not provide a commit message "
+                        "but did provide a patch. This is likely an error. "
+                        "Proceeding with a default commit message."
+                    )
+                    task_results["commit_message"] = (
+                        "chore: conda-forge-webservices update"
+                    )
+                feedstock_dir = os.path.join(
+                    tmpdir,
+                    pr_repo,
+                )
+                git_repo = Repo.clone_from(
+                    f"https://github.com/{pr_owner}/{pr_repo}.git",
+                    feedstock_dir,
+                    branch=pr_branch,
+                )
+                patch_file = os.path.join(tmpdir, "rerender-diff.patch")
+                with open(patch_file, "w") as fp:
+                    fp.write(task_results["patch"])
+                subprocess.run(
+                    ["git", "apply", "--allow-empty", patch_file],
+                    check=True,
+                    cwd=feedstock_dir,
+                )
+                subprocess.run(
+                    ["git", "add", "."],
+                    cwd=feedstock_dir,
+                    check=True,
+                )
 
-            source_feedstock_dir = os.path.join(
-                task_data_dir,
-                repo,
-            )
-
-            sync_dirs(
-                source_feedstock_dir,
-                feedstock_dir,
-                ignore_dot_git=True,
-                update_git=True,
-                sync_stat_metadata=False,  # turn this off for now
-            )
-            subprocess.run(
-                ["git", "add", "."],
-                cwd=feedstock_dir,
-                check=True,
-            )
             if task_results["commit_message"] is not None:
                 subprocess.run(
                     [
