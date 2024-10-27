@@ -320,6 +320,7 @@ def main_finalize_task(task_data_dir):
                     cwd=feedstock_dir,
                     check=True,
                 )
+
             if task_results["commit_message"] is not None:
                 subprocess.run(
                     [
