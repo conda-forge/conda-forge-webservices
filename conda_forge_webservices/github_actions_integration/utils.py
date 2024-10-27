@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 import sys
 import textwrap
 
@@ -182,3 +183,16 @@ def flush_logger(logger):
     sys.stderr.flush()
     sys.__stderr__.flush()
     sys.__stdout__.flush()
+
+
+def get_git_patch_relative_to_commit(git_repo, prev_head):
+    """Get the git patch between the input commit and the latest commit."""
+    curr_head = git_repo.active_branch.commit
+    ret = subprocess.run(
+        ["git", "diff", prev_head + ".." + curr_head],
+        cwd=git_repo.working_dir,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return ret.stdout
