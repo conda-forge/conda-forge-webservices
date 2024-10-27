@@ -304,7 +304,7 @@ def main_finalize_task(task_data_dir):
                 feedstock_dir,
                 ignore_dot_git=True,
                 update_git=True,
-                sync_stat_metadata=True,
+                sync_stat_metadata=False,  # turn this off for now
             )
             subprocess.run(
                 ["git", "add", "."],
