@@ -93,7 +93,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
     )
     git_repo.remotes.origin.fetch([f"pull/{pr_number}/head:pull/{pr_number}/head"])
     git_repo.git.switch(f"pull/{pr_number}/head")
-    prev_head = git_repo.active_branch.commit
+    prev_head = git_repo.active_branch.commit.hexsha
 
     task_data = {"task": task, "repo": repo, "pr_number": pr_number, "task_results": {}}
 
