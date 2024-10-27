@@ -187,7 +187,7 @@ def flush_logger(logger):
 
 def get_git_patch_relative_to_commit(git_repo, prev_head):
     """Get the git patch between the input commit and the latest commit."""
-    curr_head = git_repo.active_branch.commit
+    curr_head = git_repo.active_branch.commit.hexsha
     git_sha_diff = prev_head + ".." + curr_head
     ret = subprocess.run(
         ["git", "diff", git_sha_diff],
