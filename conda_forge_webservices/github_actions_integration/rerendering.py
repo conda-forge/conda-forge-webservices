@@ -32,7 +32,7 @@ def rerender(git_repo):
         ret = 0
         if msg is not None:
             subprocess.call(
-                ["git", "add", "."],
+                ["git", "add", "-f", "."],
                 cwd=git_repo.working_dir,
             )
             subprocess.call(
