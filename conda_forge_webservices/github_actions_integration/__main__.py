@@ -316,7 +316,7 @@ def main_finalize_task(task_data_dir):
                     cwd=feedstock_dir,
                 )
                 subprocess.run(
-                    ["git", "add", "."],
+                    ["git", "add", "-f", "."],
                     cwd=feedstock_dir,
                     check=True,
                 )
