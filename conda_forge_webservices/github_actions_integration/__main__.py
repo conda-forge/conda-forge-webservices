@@ -482,9 +482,14 @@ def main_automerge(repo, sha):
 
     LOGGER.info("Running automerge for conda-forge/%s@%s", repo, sha)
 
+    found_pr = False
     full_repo_name = f"conda-forge/{repo}"
     _, gh = create_api_sessions()
     gh_repo = gh.get_repo(full_repo_name)
     for pr in gh_repo.get_pulls():
         if pr.head.sha == sha:
             automerge_pr(gh_repo, pr)
+            found_pr = True
+
+    if not found_pr:
+        raise RuntimeError(f"No PR found for {full_repo_name}@{sha}!")

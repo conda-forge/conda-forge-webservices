@@ -8,6 +8,7 @@ import github
 from conda_forge_webservices.utils import pushd
 
 TEST_BRANCH = f"automerge-live-test-h{uuid.uuid4().hex[:6]}"
+DEBUG = True
 
 
 def _run_git_cmd(*args):
@@ -120,11 +121,12 @@ def test_live_automerge(pytestconfig):
                         raise RuntimeError(f"PR {pr.number} was not merged!")
 
                 finally:
-                    print("closing PR if it is open...", flush=True)
-                    if pr is not None and not pr.is_merged():
-                        pr.edit(state="closed")
+                    if not DEBUG:
+                        print("closing PR if it is open...", flush=True)
+                        if pr is not None and not pr.is_merged():
+                            pr.edit(state="closed")
 
-                    print("deleting the test branch...", flush=True)
-                    _run_git_cmd("checkout", "main")
-                    _run_git_cmd("branch", "-d", TEST_BRANCH)
-                    _run_git_cmd("push", "-d", "origin", TEST_BRANCH)
+                        print("deleting the test branch...", flush=True)
+                        _run_git_cmd("checkout", "main")
+                        _run_git_cmd("branch", "-d", TEST_BRANCH)
+                        _run_git_cmd("push", "-d", "origin", TEST_BRANCH)
