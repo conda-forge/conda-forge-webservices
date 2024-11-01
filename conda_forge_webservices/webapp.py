@@ -24,6 +24,7 @@ import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
+from conda_forge_webservices._version import __version__
 from conda_forge_webservices.update_me import WEBSERVICE_PKGS
 from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
@@ -35,6 +36,7 @@ from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
 from conda_forge_webservices import status_monitor
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
+    get_gh_client,
     inject_app_token_into_feedstock,
     inject_app_token_into_feedstock_readonly,
 )
@@ -731,6 +733,25 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         # return
 
 
+def _dispatch_automerge_job(repo, sha):
+    gh = get_gh_client()
+    ref = __version__.replace("+", ".")
+    workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+        "automerge.yml"
+    )
+    running = workflow.create_dispatch(
+        ref=ref,
+        inputs={
+            "repo": repo,
+            "sha": sha,
+        },
+    )
+    if running:
+        LOGGER.info("    automerge job dispatched: conda-forge/%s@%s", repo, sha)
+    else:
+        LOGGER.info("    automerge job dispatch failed")
+
+
 class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -763,7 +784,22 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
         elif event == "check_suite":
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
-            self.write(event)
+
+            LOGGER.info("")
+            LOGGER.info("===================================================")
+            LOGGER.info("check suite: %s", body["repository"]["full_name"])
+            LOGGER.info("===================================================")
+
+            if body["action"] == "completed" and body["repository"][
+                "full_name"
+            ].endswith("-feedstock"):
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool(),
+                    _dispatch_automerge_job,
+                    body["repository"]["name"],
+                    body["check_suite"]["head_sha"],
+                )
+
             return
         elif event == "status":
             LOGGER.info("")
@@ -775,7 +811,30 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
             async with STATUS_DATA_LOCK:
                 status_monitor.update_data_status(body)
 
+            if body["repository"]["full_name"].endswith("-feedstock"):
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool(),
+                    _dispatch_automerge_job,
+                    body["repository"]["name"],
+                    body["sha"],
+                )
+
             return
+        elif event in ["pull_request", "pull_request_review"]:
+            LOGGER.info("")
+            LOGGER.info("===================================================")
+            LOGGER.info(
+                "pull request/pull request review: %s", body["repository"]["full_name"]
+            )
+            LOGGER.info("===================================================")
+
+            if body["repository"]["full_name"].endswith("-feedstock"):
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool(),
+                    _dispatch_automerge_job,
+                    body["repository"]["name"],
+                    body["pull_request"]["head"]["sha"],
+                )
         else:
             LOGGER.info(f'Unhandled event "{event}".')
 
