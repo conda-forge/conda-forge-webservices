@@ -329,7 +329,6 @@ jobs:
     needs:
       - tests
       - docker-build
-      - live-tests-automerge
     concurrency:
       group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-version-update' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:

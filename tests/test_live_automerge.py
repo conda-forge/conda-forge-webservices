@@ -7,7 +7,8 @@ import uuid
 import github
 from conda_forge_webservices.utils import pushd
 
-TEST_BRANCH = f"automerge-live-test-h{uuid.uuid4().hex[:6]}"
+TEST_BASE_BRANCH = "automerge-live-test-base-branch"
+TEST_HEAD_BRANCH = f"automerge-live-test-head-branch-h{uuid.uuid4().hex[:6]}"
 DEBUG = True
 
 
@@ -32,8 +33,8 @@ def test_live_automerge(pytestconfig):
                 pr = None
                 try:
                     print("checkout branch...", flush=True)
-                    _run_git_cmd("checkout", "main")
-                    _run_git_cmd("checkout", "-b", TEST_BRANCH)
+                    _run_git_cmd("checkout", TEST_BASE_BRANCH)
+                    _run_git_cmd("checkout", "-b", TEST_HEAD_BRANCH)
 
                     print("adding a correct recipe and conda-forge.yml...", flush=True)
                     test_dir = os.path.dirname(__file__)
@@ -66,7 +67,7 @@ def test_live_automerge(pytestconfig):
                     )
 
                     print("push to branch...", flush=True)
-                    _run_git_cmd("push", "-u", "origin", TEST_BRANCH)
+                    _run_git_cmd("push", "-u", "origin", TEST_HEAD_BRANCH)
 
                     print("making a PR...", flush=True)
                     gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
@@ -75,8 +76,8 @@ def test_live_automerge(pytestconfig):
                     )
 
                     pr = repo.create_pull(
-                        "main",
-                        TEST_BRANCH,
+                        TEST_BASE_BRANCH,
+                        TEST_HEAD_BRANCH,
                         title="[DO NOT TOUCH] test pr for automerge",
                         body=(
                             "This is a test PR for automerge from "
@@ -125,6 +126,6 @@ def test_live_automerge(pytestconfig):
                             pr.edit(state="closed")
 
                         print("deleting the test branch...", flush=True)
-                        _run_git_cmd("checkout", "main")
-                        _run_git_cmd("branch", "-d", TEST_BRANCH)
-                        _run_git_cmd("push", "-d", "origin", TEST_BRANCH)
+                        _run_git_cmd("checkout", TEST_BASE_BRANCH)
+                        _run_git_cmd("branch", "-d", TEST_HEAD_BRANCH)
+                        _run_git_cmd("push", "-d", "origin", TEST_HEAD_BRANCH)
