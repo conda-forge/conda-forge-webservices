@@ -734,6 +734,12 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
 
 def _dispatch_automerge_job(repo, sha):
+    if repo != "cf-autotick-bot-test-package-feedstock":
+        LOGGER.info(
+            "    skipping automerge job dispatch for conda-forge/%s@%s", repo, sha
+        )
+        return
+
     gh = get_gh_client()
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
