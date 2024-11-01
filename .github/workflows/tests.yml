@@ -442,4 +442,4 @@ jobs:
           pytest -vvs --branch=${branch} test_live_automerge.py
         env:
           GHA_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
