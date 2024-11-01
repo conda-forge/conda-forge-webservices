@@ -429,7 +429,7 @@ jobs:
           git config --global pull.rebase false
           pip install --no-deps --no-build-isolation -e .
 
-      - name: run version tests
+      - name: run automerge tests
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
           if [[ "${GITHUB_HEAD_REF}" != "" ]]; then
@@ -439,6 +439,7 @@ jobs:
           fi
 
           cd tests
-          pytest -vvs test_live_automerge.py
+          pytest -vvs --branch=${branch} test_live_automerge.py
         env:
+          GHA_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}

@@ -14,7 +14,9 @@ def _run_git_cmd(*args):
     subprocess.run(["git", *list(args)], check=True)
 
 
-def test_live_automerge():
+def test_live_automerge(pytestconfig):
+    branch = pytestconfig.getoption("branch")
+
     print("making an edit to the head ref...", flush=True)
     with tempfile.TemporaryDirectory() as tmpdir:
         with pushd(tmpdir):
@@ -92,10 +94,27 @@ def test_live_automerge():
                         time.sleep(10)
                         tot += 10
                         print(f"    slept {tot} seconds out of 600", flush=True)
-                        if tot % 30 == 0 and pr.is_merged():
-                            print("PR was merged!", flush=True)
-                            merged = True
-                            break
+                        if tot % 30 == 0:
+                            if pr.is_merged():
+                                print("PR was merged!", flush=True)
+                                merged = True
+                                break
+                            elif tot > 0:
+                                cfws_repo = gh.get_repo(
+                                    "conda-forge/conda-forge-webservices"
+                                )
+                                workflow = cfws_repo.get_workflow(
+                                    "webservices-workflow-dispatch.yml"
+                                )
+                                workflow.create_dispatch(
+                                    ref=branch,
+                                    inputs={
+                                        "repo": (
+                                            "cf-autotick-bot-test-package-feedstock"
+                                        ),
+                                        "sha": pr.head.sha,
+                                    },
+                                )
 
                     if not merged:
                         raise RuntimeError(f"PR {pr.number} was not merged!")
@@ -105,6 +124,7 @@ def test_live_automerge():
                     if pr is not None and not pr.is_merged():
                         pr.edit(state="closed")
 
-                    print("deleting the branch...", flush=True)
+                    print("deleting the test branch...", flush=True)
+                    _run_git_cmd("checkout", "main")
                     _run_git_cmd("branch", "-d", TEST_BRANCH)
                     _run_git_cmd("push", "-d", "origin", TEST_BRANCH)
