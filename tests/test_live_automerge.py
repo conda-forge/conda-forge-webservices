@@ -9,7 +9,7 @@ from conda_forge_webservices.utils import pushd
 
 TEST_BASE_BRANCH = "automerge-live-test-base-branch"
 TEST_HEAD_BRANCH = f"automerge-live-test-head-branch-h{uuid.uuid4().hex[:6]}"
-DEBUG = True
+DEBUG = False
 
 
 def _run_git_cmd(*args):
