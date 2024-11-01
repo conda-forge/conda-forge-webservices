@@ -21,7 +21,7 @@ def test_live_automerge():
             print("cloning...", flush=True)
             _run_git_cmd(
                 "clone",
-                "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/"
+                f"https://x-access-token:{os.environ['GH_TOKEN']}@github.com/conda-forge/"
                 "cf-autotick-bot-test-package-feedstock.git",
             )
 
