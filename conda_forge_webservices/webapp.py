@@ -734,12 +734,6 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
 
 def _dispatch_automerge_job(repo, sha):
-    if repo != "cf-autotick-bot-test-package-feedstock":
-        LOGGER.info(
-            "    skipping automerge job dispatch for conda-forge/%s@%s", repo, sha
-        )
-        return
-
     gh = get_gh_client()
 
     skip_test_pr = False
@@ -859,6 +853,7 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
                 )
+            return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
 

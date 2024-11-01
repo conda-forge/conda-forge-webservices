@@ -492,4 +492,9 @@ def main_automerge(repo, sha):
             found_pr = True
 
     if not found_pr:
-        raise RuntimeError(f"No PR found for {full_repo_name}@{sha}!")
+        LOGGER.error(f"No PR found for {full_repo_name}@{sha}!")
+        print(
+            "::warning title=No PR Found for Automerge::"
+            f"No PR found for {full_repo_name}@{sha}",
+            flush=True,
+        )
