@@ -487,4 +487,4 @@ def main_automerge(repo, sha):
     gh_repo = gh.get_repo(full_repo_name)
     for pr in gh_repo.get_pulls():
         if pr.head.sha == sha:
-            automerge_pr(repo, pr)
+            automerge_pr(gh_repo, pr)
