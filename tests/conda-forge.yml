@@ -1,0 +1,13 @@
+bot:
+  automerge: true
+conda_forge_output_validation: true
+github:
+  branch_name: main
+  tooling_branch_name: main
+azure:
+  store_build_artifacts: true
+conda_build:
+  pkg_format: 2
+provider:
+  linux_64: azure
+  osx_64: github_actions

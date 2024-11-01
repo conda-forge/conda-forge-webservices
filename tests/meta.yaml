@@ -1,0 +1,37 @@
+{% set name = "cf-autotick-bot-test-package" %}
+{% set version = "0.14" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/regro/cf-autotick-bot-test-package/archive/v{{ version }}.tar.gz
+  sha256: f6c45d5788f51dbe1cc55e1010f3e9ebd18b6c0f21907fc35499468a59827eef
+
+build:
+  number: 0
+  skip: true  # [py != 39 or win or aarch64 or ppc64le or s390x]
+
+requirements:
+  host:
+    - python
+    - pip
+    - setuptools
+  run:
+    - python
+
+test:
+  commands:
+    - echo "works!"
+
+about:
+  home: https://github.com/regro/cf-scripts
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: testing feedstock for the regro-cf-autotick-bot
+
+extra:
+  recipe-maintainers:
+    - conda-forge-daemon
