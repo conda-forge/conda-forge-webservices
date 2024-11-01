@@ -741,21 +741,39 @@ def _dispatch_automerge_job(repo, sha):
         return
 
     gh = get_gh_client()
-    ref = __version__.replace("+", ".")
-    workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
-        "automerge.yml"
-    )
-    running = workflow.create_dispatch(
-        ref=ref,
-        inputs={
-            "repo": repo,
-            "sha": sha,
-        },
-    )
-    if running:
-        LOGGER.info("    automerge job dispatched: conda-forge/%s@%s", repo, sha)
+
+    skip_test_pr = False
+    if repo == "cf-autotick-bot-test-package-feedstock":
+        gh_repo = gh.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
+        for pr in gh_repo.get_pulls():
+            if pr.head.sha == sha:
+                if pr.head.ref.startswith("automerge-live-test-head-branch-"):
+                    skip_test_pr = True
+                break
+
+    if not skip_test_pr:
+        ref = __version__.replace("+", ".")
+        workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+            "automerge.yml"
+        )
+        running = workflow.create_dispatch(
+            ref=ref,
+            inputs={
+                "repo": repo,
+                "sha": sha,
+            },
+        )
+
+        if running:
+            LOGGER.info("    automerge job dispatched: conda-forge/%s@%s", repo, sha)
+        else:
+            LOGGER.info("    automerge job dispatch failed")
     else:
-        LOGGER.info("    automerge job dispatch failed")
+        LOGGER.info(
+            "    automerge job dispatch skipped for testing: conda-forge/%s@%s",
+            repo,
+            sha,
+        )
 
 
 class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
