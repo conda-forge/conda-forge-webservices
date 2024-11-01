@@ -104,9 +104,7 @@ def test_live_automerge(pytestconfig):
                                 cfws_repo = gh.get_repo(
                                     "conda-forge/conda-forge-webservices"
                                 )
-                                workflow = cfws_repo.get_workflow(
-                                    "automerge.yml"
-                                )
+                                workflow = cfws_repo.get_workflow("automerge.yml")
                                 workflow.create_dispatch(
                                     ref=branch,
                                     inputs={
