@@ -104,7 +104,7 @@ def test_live_automerge(pytestconfig):
                                     "conda-forge/conda-forge-webservices"
                                 )
                                 workflow = cfws_repo.get_workflow(
-                                    "webservices-workflow-dispatch.yml"
+                                    "automerge.yml"
                                 )
                                 workflow.create_dispatch(
                                     ref=branch,
