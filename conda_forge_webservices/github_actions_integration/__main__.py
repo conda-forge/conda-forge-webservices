@@ -12,6 +12,7 @@ from conda_forge_feedstock_ops import setup_logging
 from conda_forge_feedstock_ops.lint import lint as lint_feedstock
 from git import Repo
 
+from .automerge import automerge_pr
 from .utils import (
     comment_and_push_if_changed,
     dedent_with_escaped_continue,
@@ -471,3 +472,19 @@ def main_finalize_task(task_data_dir):
                 sys.exit(1)
         else:
             raise ValueError(f"Task `{task}` is not valid!")
+
+
+@click.command(name="conda-forge-webservices-automerge")
+@click.option("--repo", required=True, type=str)
+@click.option("--sha", required=True, type=str)
+def main_automerge(repo, sha):
+    logging.basicConfig(level=logging.INFO)
+
+    LOGGER.info("Running automerge for conda-forge/%s@%s", repo, sha)
+
+    full_repo_name = f"conda-forge/{repo}"
+    _, gh = create_api_sessions()
+    gh_repo = gh.get_repo(full_repo_name)
+    for pr in gh_repo.get_pulls():
+        if pr.head.sha == sha:
+            automerge_pr(repo, pr)
