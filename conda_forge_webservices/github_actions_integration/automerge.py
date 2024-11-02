@@ -432,7 +432,11 @@ I considered the following status checks when analyzing this PR:
     _comment_on_pr_with_race(pr, comment, check_slug)
 
 
-def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
+def _automerge_pr(
+    repo: Repository,
+    pr: PullRequest,
+    pr_for_admin: PullRequest,
+) -> tuple[bool, str | None]:
     cfg = _get_conda_forge_config(pr)
     allowed, msg = _check_pr(pr, cfg)
 
@@ -452,7 +456,7 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
         status_states, check_states, req_checks_and_states
     )
     if not ok:
-        _comment_on_pr(pr, final_statuses, "not passing and not merged.")
+        _comment_on_pr(pr_for_admin, final_statuses, "not passing and not merged.")
         return False, "PR has failing or pending statuses/checks"
 
     # make sure PR is mergeable and not already merged
@@ -464,7 +468,7 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
 
     if pr.mergeable is None or not pr.mergeable:
         _comment_on_pr(
-            pr,
+            pr_for_admin,
             final_statuses,
             f"passing, but not in a mergeable state (mergeable={pr.mergeable}).",
         )
@@ -472,7 +476,7 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
 
     # we're good - now merge
     try:
-        merge_status = pr.merge(
+        merge_status = pr_for_admin.merge(
             commit_message="automerged PR by conda-forge/automerge-action",
             commit_title=f"{pr.title} (#{pr.number})",
             merge_method="merge",
@@ -497,18 +501,22 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
 
     if not merge_status_merged:
         _comment_on_pr(
-            pr,
+            pr_for_admin,
             final_statuses,
             f"passing, but could not be merged (error={merge_status_message}).",
         )
         return (False, f"PR could not be merged: {merge_status_message}")
     else:
         # use a smaller check_race here to make sure this one is prompt
-        _comment_on_pr(pr, final_statuses, "passing and merged! Have a great day!")
+        _comment_on_pr(
+            pr_for_admin, final_statuses, "passing and merged! Have a great day!"
+        )
         return True, "all is well :)"
 
 
-def automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
+def automerge_pr(
+    repo: Repository, pr: PullRequest, pr_for_admin: PullRequest
+) -> tuple[bool, str | None]:
     """Possibly automerge a PR.
 
     Parameters
@@ -516,7 +524,11 @@ def automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     repo : github.Repository.Repository
         A `Repository` object for the given repo from the PyGithub package.
     pr : github.PullRequest.PullRequest
-        A `PullRequest` object for the given PR from the PyGithub package.
+        A `PullRequest` object for the given PR from the PyGithub package
+        that is used for API-request heavy operations.
+    pr_for_admin : github.PullRequest.PullRequest
+        A `PullRequest` object for the given PR from the PyGithub package
+        that is used only to comment on and/or merge the PR.
 
     Returns
     -------
@@ -525,7 +537,7 @@ def automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     reason : str
         The reason the merge worked or did not work.
     """
-    did_merge, reason = _automerge_pr(repo, pr)
+    did_merge, reason = _automerge_pr(repo, pr, pr_for_admin)
 
     if did_merge:
         LOGGER.info("MERGED PR %s on %s: %s", pr.number, repo.full_name, reason)
