@@ -89,7 +89,7 @@ atexit.register(_shutdown_thread_pool)
 
 def get_commit_message(full_name, commit):
     return (
-        github.Github(os.environ["GH_TOKEN"])
+        github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
         .get_repo(full_name)
         .get_commit(commit)
         .commit.message
@@ -105,7 +105,7 @@ def print_rate_limiting_info_for_token(token):
     # spending it and how to better optimize it.
 
     # Get GitHub API Rate Limit usage and total
-    gh = github.Github(token)
+    gh = github.Github(auth=github.Auth.Token(token))
     gh_api_remaining = gh.get_rate_limit().core.remaining
     gh_api_total = gh.get_rate_limit().core.limit
 
@@ -547,7 +547,7 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error, hash_type):
         # send for github releases copy
         # if False:
         #     try:
-        #         gh = github.Github(os.environ["GH_TOKEN"])
+        #         gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
         #         repo = gh.get_repo("conda-forge/repodata-shards")
         #         for dist in copied:
         #             if not copied[dist]:
