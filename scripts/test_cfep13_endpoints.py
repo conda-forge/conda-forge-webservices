@@ -41,7 +41,7 @@ bad_headers = {
 }
 
 try:
-    GH = github.Github(os.environ["GH_TOKEN"])
+    GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
 except Exception:
     GH = None
 

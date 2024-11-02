@@ -14,7 +14,7 @@ LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
 @cache
 def get_filter_out_members():
-    gh = github.Github(os.environ["GH_TOKEN"])
+    gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     org = gh.get_organization("conda-forge")
     teams = ["staged-recipes", "help-r", "r"]
     gh_teams = list(org.get_team_by_slug(team) for team in teams)

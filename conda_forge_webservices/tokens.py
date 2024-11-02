@@ -58,7 +58,7 @@ def get_app_token_for_webservices_only():
         )
         if token is not None:
             try:
-                APP_TOKEN_RESET_TIME = Github(token).rate_limiting_resettime
+                APP_TOKEN_RESET_TIME = Github(auth=Auth.Token(token)).rate_limiting_resettime
             except Exception:
                 LOGGER.info("")
                 LOGGER.info("===================================================")
@@ -236,7 +236,7 @@ def _inject_app_token_into_feedstock(full_name, repo=None, readonly=False):
                 repo = gh.get_repo(full_name)
             try:
                 repo.create_secret(token_name, token)
-                reset_times_dict[repo_name] = Github(token).rate_limiting_resettime
+                reset_times_dict[repo_name] = Github(auth=Auth.Token(token)).rate_limiting_resettime
                 LOGGER.info("")
                 LOGGER.info("===================================================")
                 LOGGER.info(

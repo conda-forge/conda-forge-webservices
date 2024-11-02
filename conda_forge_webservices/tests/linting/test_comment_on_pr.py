@@ -19,7 +19,7 @@ class Test_comment_on_pr(unittest.TestCase):
                 "conda-forge", "conda-forge-webservices", PR_number, message_to_post
             )
 
-        gh = github.Github(os.environ["GH_TOKEN"])
+        gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
         linting_repo = gh.get_user("conda-forge").get_repo("conda-forge-webservices")
         pr = linting_repo.get_issue(PR_number)
         comments = list(pr.get_comments())

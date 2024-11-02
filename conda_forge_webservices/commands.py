@@ -406,7 +406,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
             # this token has to be that of an actual bot since we use this
             # to make a fork
             # the bot used does not need admin permissions
-            gh = github.Github(os.environ["GH_TOKEN"])
+            gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
             repo = gh.get_repo(f"{org_name}/{repo_name}")
             default_branch = repo.default_branch
             break
