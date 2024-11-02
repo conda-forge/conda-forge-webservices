@@ -335,7 +335,9 @@ def _no_extra_pr_commits(pr):
     return all(e.event != "committed" for e in events[label_ind + 1 :])
 
 
-def _check_pr(pr: PullRequest, cfg) -> tuple[bool, str | None]:
+def _check_pr(
+    pr: PullRequest, pr_for_admin: PullRequest, cfg
+) -> tuple[bool, str | None]:
     """make sure a PR is ok to automerge"""
 
     pr_has_automerge_label = any(label.name == "automerge" for label in pr.get_labels())
@@ -351,7 +353,7 @@ def _check_pr(pr: PullRequest, cfg) -> tuple[bool, str | None]:
                 return True, None
             else:
                 pr.remove_from_labels("automerge")
-                pr.create_issue_comment(
+                pr_for_admin.create_issue_comment(
                     """\
 Hi! This is the friendly conda-forge automerge bot!
 
@@ -378,7 +380,7 @@ like to enable automerge again!
         committers = {getattr(c.author, "login", None) for c in pr.get_commits()}
         if not all(c in ALLOWED_USERS for c in committers):
             _comment_on_pr_with_race(
-                pr,
+                pr_for_admin,
                 """\
 Hi! This is the friendly conda-forge automerge bot!
 
@@ -438,7 +440,7 @@ def _automerge_pr(
     pr_for_admin: PullRequest,
 ) -> tuple[bool, str | None]:
     cfg = _get_conda_forge_config(pr)
-    allowed, msg = _check_pr(pr, cfg)
+    allowed, msg = _check_pr(pr, pr_for_admin, cfg)
 
     if not allowed:
         return False, msg
