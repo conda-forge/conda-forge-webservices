@@ -17,11 +17,17 @@ def test_automerge_pr_bad_user(get_cfg_mock):
     pr = MagicMock()
     pr.user.login = "blah"
 
-    did_merge, reason = automerge_pr(repo, pr)
+    pr_for_admin = MagicMock()
+    pr_for_admin.user.login = "regro-cf-autotick-bot"
+
+    did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
     assert not did_merge
     assert "user blah" in reason
     get_cfg_mock.assert_called_once_with(pr)
+    pr_for_admin.create_issue_comment.assert_not_called()
+    pr_for_admin.get_issue_comments.assert_not_called()
+    pr_for_admin.merge.assert_not_called()
 
 
 @unittest.mock.patch(
@@ -36,11 +42,17 @@ def test_automerge_pr_no_title_slug(get_cfg_mock):
     pr.user.login = "regro-cf-autotick-bot"
     pr.title = "blah"
 
-    did_merge, reason = automerge_pr(repo, pr)
+    pr_for_admin = MagicMock()
+    pr_for_admin.user.login = "regro-cf-autotick-bot"
+
+    did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
     assert not did_merge
     assert "slug in the title" in reason
     get_cfg_mock.assert_called_once_with(pr)
+    pr_for_admin.create_issue_comment.assert_not_called()
+    pr_for_admin.get_issue_comments.assert_not_called()
+    pr_for_admin.merge.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -63,11 +75,17 @@ def test_automerge_pr_feedstock_off(get_cfg_mock, cfg):
     pr.user.login = "regro-cf-autotick-bot"
     pr.title = "[bot-automerge] blah"
 
-    did_merge, reason = automerge_pr(repo, pr)
+    pr_for_admin = MagicMock()
+    pr_for_admin.user.login = "regro-cf-autotick-bot"
+
+    did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
     assert not did_merge
     assert "off for this feedstock" in reason
     get_cfg_mock.assert_called_once_with(pr)
+    pr_for_admin.create_issue_comment.assert_not_called()
+    pr_for_admin.get_issue_comments.assert_not_called()
+    pr_for_admin.merge.assert_not_called()
 
 
 @pytest.mark.parametrize("fail", ["check", "status"])
@@ -103,7 +121,11 @@ def test_automerge_pr_feedstock_status_or_check_fail(
     pr.user.login = "regro-cf-autotick-bot"
     pr.title = "[bot-automerge] blah"
 
-    did_merge, reason = automerge_pr(repo, pr)
+    pr_for_admin = MagicMock()
+    pr_for_admin.user.login = "regro-cf-autotick-bot"
+    pr_for_admin.get_issue_comments.return_value = []
+
+    did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
     assert not did_merge
     assert "pending statuses" in reason
@@ -111,6 +133,9 @@ def test_automerge_pr_feedstock_status_or_check_fail(
     check_mock.assert_called_once_with(repo, pr)
     stat_mock.assert_called_once_with(repo, pr)
     req_mock.assert_called_once_with(pr, get_cfg_mock.return_value)
+    pr_for_admin.create_issue_comment.assert_called_once()
+    pr_for_admin.get_issue_comments.assert_called()
+    pr_for_admin.merge.assert_not_called()
 
 
 @unittest.mock.patch(
@@ -140,7 +165,10 @@ def test_automerge_pr_feedstock_no_statuses_or_checks(
     pr.user.login = "regro-cf-autotick-bot"
     pr.title = "[bot-automerge] blah"
 
-    did_merge, reason = automerge_pr(repo, pr)
+    pr_for_admin = MagicMock()
+    pr_for_admin.user.login = "regro-cf-autotick-bot"
+
+    did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
     assert not did_merge
     assert "At least one status or check must be required" in reason
@@ -148,3 +176,6 @@ def test_automerge_pr_feedstock_no_statuses_or_checks(
     check_mock.assert_called_once_with(repo, pr)
     stat_mock.assert_called_once_with(repo, pr)
     req_mock.assert_called_once_with(pr, get_cfg_mock.return_value)
+    pr_for_admin.create_issue_comment.assert_not_called()
+    pr_for_admin.get_issue_comments.assert_not_called()
+    pr_for_admin.merge.assert_not_called()

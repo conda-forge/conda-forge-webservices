@@ -54,8 +54,8 @@ jobs:
 
       - name: automerge
         run: |
-          git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
-          git config --global user.name "conda-forge-curator[bot]"
+          git config --global user.name "conda-forge-webservices[bot]"
+          git config --global user.email "91080706+conda-forge-webservices[bot]@users.noreply.github.com"
           git config --global pull.rebase false
 
           conda-forge-webservices-automerge \
@@ -63,4 +63,5 @@ jobs:
             --sha=${{ inputs.sha }}
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GH_TOKEN_FOR_ADMIN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 
