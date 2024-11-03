@@ -58,7 +58,11 @@ def _pull_docker_image():
 def main_init_task(task, repo, pr_number):
     logging.basicConfig(level=logging.INFO)
 
-    LOGGER.info("initializing task `%s` for conda-forge/%s#%s", task, repo, pr_number)
+    action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
+    print(
+        f"::notice title=conda-forge-webservices job information::{action_desc}",
+        flush=True,
+    )
 
     if task in ["rerender", "version_update"]:
         pass
@@ -480,7 +484,11 @@ def main_finalize_task(task_data_dir):
 def main_automerge(repo, sha):
     logging.basicConfig(level=logging.INFO)
 
-    LOGGER.info("Running automerge for conda-forge/%s@%s", repo, sha)
+    action_desc = f"task `automerge` for conda-forge/{repo}@{sha}"
+    print(
+        f"::notice title=conda-forge-webservices job information::{action_desc}",
+        flush=True,
+    )
 
     found_pr = False
     full_repo_name = f"conda-forge/{repo}"
