@@ -58,7 +58,7 @@ def _pull_docker_image():
 def main_init_task(task, repo, pr_number):
     logging.basicConfig(level=logging.INFO)
 
-    action_desc = f"task `{tasl}` for conda-forge/{repo}#{pr_number}"
+    action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
     print(
         f"::notice title=conda-forge-webservices job information::{action_desc}",
         flush=True,
