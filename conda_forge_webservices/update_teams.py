@@ -125,7 +125,7 @@ def update_team(org_name, repo_name, commit=None):
                 Your package won't be available for installation locally until it is built
                 and synced to the anaconda.org CDN (takes 1-2 hours after the build finishes).
 
-                Feel free to join the community [Element channel](https://app.element.io/#/room/#conda-forge:matrix.org).
+                Feel free to join the community on [Zulip](https://conda-forge.zulipchat.com).
 
                 NOTE: Please make sure to not push to the repository directly.
                       Use branches in your fork for any changes and send a PR.
