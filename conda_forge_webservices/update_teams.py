@@ -14,7 +14,7 @@ LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
 @cache
 def get_filter_out_members():
-    gh = github.Github(os.environ["GH_TOKEN"])
+    gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     org = gh.get_organization("conda-forge")
     teams = ["staged-recipes", "help-r", "r"]
     gh_teams = list(org.get_team_by_slug(team) for team in teams)
@@ -125,7 +125,7 @@ def update_team(org_name, repo_name, commit=None):
                 Your package won't be available for installation locally until it is built
                 and synced to the anaconda.org CDN (takes 1-2 hours after the build finishes).
 
-                Feel free to join the community [Element channel](https://app.element.io/#/room/#conda-forge:matrix.org).
+                Feel free to join the community on [Zulip](https://conda-forge.zulipchat.com).
 
                 NOTE: Please make sure to not push to the repository directly.
                       Use branches in your fork for any changes and send a PR.

@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 import logging
 from pathlib import Path
 from typing import TypedDict
+import uuid
 
 from git import GitCommandError, Repo
 import conda_smithy.lint_recipe
@@ -41,6 +42,7 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     if should_skip:
         return False
 
+    uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
         "webservices-workflow-dispatch.yml"
@@ -52,6 +54,7 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
             "repo": repo_name,
             "pr_number": str(pr_num),
             "container_tag": ref,
+            "uuid": uid,
         },
     )
 

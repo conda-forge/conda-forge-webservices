@@ -7,6 +7,7 @@ import time
 import shutil
 import tempfile
 import textwrap
+import uuid
 from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
@@ -406,7 +407,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
             # this token has to be that of an actual bot since we use this
             # to make a fork
             # the bot used does not need admin permissions
-            gh = github.Github(os.environ["GH_TOKEN"])
+            gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
             repo = gh.get_repo(f"{org_name}/{repo_name}")
             default_branch = repo.default_branch
             break
@@ -993,6 +994,7 @@ def rerender(full_name, pr_num):
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
     _, repo_name = full_name.split("/")
+    uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
         "webservices-workflow-dispatch.yml"
@@ -1004,6 +1006,7 @@ def rerender(full_name, pr_num):
             "repo": repo_name,
             "pr_number": str(pr_num),
             "container_tag": ref,
+            "uuid": uid,
         },
     )
 
@@ -1017,6 +1020,7 @@ def update_version(full_name, pr_num, input_ver):
     inject_app_token_into_feedstock(full_name, repo=repo)
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
+    uid = uuid.uuid4().hex
     _, repo_name = full_name.split("/")
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
@@ -1030,6 +1034,7 @@ def update_version(full_name, pr_num, input_ver):
             "pr_number": str(pr_num),
             "container_tag": ref,
             "requested_version": str(input_ver) or "null",
+            "uuid": uid,
         },
     )
     return not running

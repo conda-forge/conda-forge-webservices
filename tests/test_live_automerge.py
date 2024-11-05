@@ -102,6 +102,7 @@ def test_live_automerge(pytestconfig):
                                 merged = True
                                 break
                             elif tot > 0:
+                                uid = uuid.uuid4().hex
                                 cfws_repo = gh.get_repo(
                                     "conda-forge/conda-forge-webservices"
                                 )
@@ -113,6 +114,7 @@ def test_live_automerge(pytestconfig):
                                             "cf-autotick-bot-test-package-feedstock"
                                         ),
                                         "sha": pr.head.sha,
+                                        "uuid": uid,
                                     },
                                 )
 

@@ -21,7 +21,7 @@ from .utils import (
     get_git_patch_relative_to_commit,
     mark_pr_as_ready_for_review,
 )
-from .api_sessions import create_api_sessions
+from .api_sessions import create_api_sessions, create_api_sessions_for_admin
 from .rerendering import rerender
 from .linting import (
     make_lint_comment,
@@ -58,7 +58,11 @@ def _pull_docker_image():
 def main_init_task(task, repo, pr_number):
     logging.basicConfig(level=logging.INFO)
 
-    LOGGER.info("initializing task `%s` for conda-forge/%s#%s", task, repo, pr_number)
+    action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
+    print(
+        f"::notice title=conda-forge-webservices job information::{action_desc}",
+        flush=True,
+    )
 
     if task in ["rerender", "version_update"]:
         pass
@@ -480,7 +484,11 @@ def main_finalize_task(task_data_dir):
 def main_automerge(repo, sha):
     logging.basicConfig(level=logging.INFO)
 
-    LOGGER.info("Running automerge for conda-forge/%s@%s", repo, sha)
+    action_desc = f"task `automerge` for conda-forge/{repo}@{sha}"
+    print(
+        f"::notice title=conda-forge-webservices job information::{action_desc}",
+        flush=True,
+    )
 
     found_pr = False
     full_repo_name = f"conda-forge/{repo}"
@@ -488,7 +496,10 @@ def main_automerge(repo, sha):
     gh_repo = gh.get_repo(full_repo_name)
     for pr in gh_repo.get_pulls():
         if pr.head.sha == sha:
-            automerge_pr(gh_repo, pr)
+            _, gh_for_admin = create_api_sessions_for_admin()
+            gh_repo_for_admin = gh_for_admin.get_repo(full_repo_name)
+            pr_for_admin = gh_repo_for_admin.get_pull(pr.number)
+            automerge_pr(gh_repo, pr, pr_for_admin)
             found_pr = True
 
     if not found_pr:

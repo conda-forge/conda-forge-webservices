@@ -19,7 +19,20 @@ def create_api_sessions():
     return _create_api_sessions(os.environ["GH_TOKEN"])
 
 
-@lru_cache(maxsize=1)
+def create_api_sessions_for_admin():
+    """Create API sessions for GitHub using the admin token.
+
+    Returns
+    -------
+    session : requests.Session
+        A `requests` session w/ the beta `check_run` API configured.
+    gh : github.MainClass.Github
+        A `Github` object from the PyGithub package.
+    """
+    return _create_api_sessions(os.environ["GH_TOKEN_FOR_ADMIN"])
+
+
+@lru_cache(maxsize=2)
 def _create_api_sessions(github_token):
     # based on
     #  https://alexwlchan.net/2019/03/
