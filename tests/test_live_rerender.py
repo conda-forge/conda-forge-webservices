@@ -67,11 +67,13 @@ def _run_test(branch):
                 assert "MNT:" in output
 
                 print("checking rerender undid workflow edits...", flush=True)
-                with open(".github/workflows/automerge.yml") as fp:
-                    lines = fp.readlines()
-                assert not any(
-                    line.startswith("# test line for rerender edits") for line in lines
-                )
+                if os.path.exists(".github/workflows/automerge.yml"):
+                    with open(".github/workflows/automerge.yml") as fp:
+                        lines = fp.readlines()
+                    assert not any(
+                        line.startswith("# test line for rerender edits")
+                        for line in lines
+                    )
 
     print("tests passed!")
 
@@ -143,37 +145,26 @@ def test_live_rerender(pytestconfig):
                         check=True,
                     )
 
-                    print("undoing edit to a workflow...", flush=True)
-                    with open(".github/workflows/automerge.yml") as fp:
-                        lines = fp.readlines()
+                    if os.path.exists(".github/workflows/automerge.yml"):
+                        print("removing old workflow file...", flush=True)
+                        subprocess.run(
+                            ["git", "rm", "-f", ".github/workflows/automerge.yml"],
+                            check=True,
+                        )
 
-                    lines = [
-                        line.strip()
-                        for line in lines
-                        if not line.startswith("# test line for rerender edits")
-                    ]
+                        print("committing...", flush=True)
+                        subprocess.run(
+                            [
+                                "git",
+                                "commit",
+                                "--allow-empty",
+                                "-m",
+                                "[ci skip] remove workflow changes if any",
+                            ],
+                            check=True,
+                        )
 
-                    with open(".github/workflows/automerge.yml", "w") as fp:
-                        fp.write("\n".join(lines))
-
-                    subprocess.run(
-                        ["git", "add", "-f", ".github/workflows/automerge.yml"],
-                        check=True,
-                    )
-
-                    print("committing...", flush=True)
-                    subprocess.run(
-                        [
-                            "git",
-                            "commit",
-                            "--allow-empty",
-                            "-m",
-                            "[ci skip] undo workflow changes if any",
-                        ],
-                        check=True,
-                    )
-
-                    print("push to origin...", flush=True)
-                    subprocess.run(["git", "push"], check=True)
+                        print("push to origin...", flush=True)
+                        subprocess.run(["git", "push"], check=True)
 
                     _merge_main_to_branch("rerender-live-test", verbose=True)
