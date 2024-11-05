@@ -1,6 +1,6 @@
 name: automerge
 
-run-name: task 'automerge' for conda-forge/${{ inputs.repo }}@${{ inputs.sha }}
+run-name: 'automerge' for conda-forge/${{ inputs.repo }}@${{ inputs.sha }}
 
 on:
   workflow_dispatch:
