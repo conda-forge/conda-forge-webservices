@@ -1,5 +1,7 @@
 name: webservices-workflow-dispatch
 
+run-name: task '${{ inputs.task }}' for conda-forge/${{ inputs.repo }}#${{ inputs.pr_number }} [container=${{ inputs.container_tag }}, requested_version=${{ inputs.requested_version }}]
+
 on:
   workflow_dispatch:
     inputs:
