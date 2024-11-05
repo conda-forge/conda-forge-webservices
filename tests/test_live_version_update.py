@@ -2,6 +2,7 @@ import os
 import subprocess
 import tempfile
 import time
+import uuid
 
 import github
 import requests
@@ -121,6 +122,7 @@ def _pr_title(new=None):
 
 def _run_test(branch, version):
     print("sending workflow dispatch event to version updater...", flush=True)
+    uid = uuid.uuid4().hex
     repo = GH.get_repo("conda-forge/conda-forge-webservices")
     workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
     workflow.create_dispatch(
@@ -131,6 +133,7 @@ def _run_test(branch, version):
             "pr_number": str(PR_NUM),
             "container_tag": conda_forge_webservices.__version__.replace("+", "."),
             "requested_version": version or "null",
+            "uuid": uid,
         },
     )
 

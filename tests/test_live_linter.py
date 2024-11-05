@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 
 import github
 
@@ -90,6 +91,7 @@ def test_linter_pr(pytestconfig):
     repo = gh.get_repo("conda-forge/conda-forge-webservices")
 
     for pr_number, _, _ in TEST_CASES:
+        uid = uuid.uuid4().hex
         pr = repo.get_pull(pr_number)
         workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
         workflow.create_dispatch(
@@ -99,6 +101,7 @@ def test_linter_pr(pytestconfig):
                 "repo": "conda-forge-webservices",
                 "pr_number": str(pr_number),
                 "container_tag": conda_forge_webservices.__version__.replace("+", "."),
+                "uid": uid,
             },
         )
 

@@ -8,6 +8,7 @@ import tornado.web
 import tornado.locks
 import hmac
 import hashlib
+import uuid
 import json
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import atexit
@@ -746,6 +747,7 @@ def _dispatch_automerge_job(repo, sha):
                 break
 
     if not skip_test_pr:
+        uid = uuid.uuid4().hex
         ref = __version__.replace("+", ".")
         workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
             "automerge.yml"
@@ -755,11 +757,17 @@ def _dispatch_automerge_job(repo, sha):
             inputs={
                 "repo": repo,
                 "sha": sha,
+                "uuid": uid,
             },
         )
 
         if running:
-            LOGGER.info("    automerge job dispatched: conda-forge/%s@%s", repo, sha)
+            LOGGER.info(
+                "    automerge job dispatched: conda-forge/%s@%s [uuid=%s]",
+                repo,
+                sha,
+                uid,
+            )
         else:
             LOGGER.info("    automerge job dispatch failed")
     else:

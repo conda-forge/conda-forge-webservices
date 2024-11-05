@@ -1,5 +1,8 @@
 name: webservices-workflow-dispatch
 
+run-name: >-
+  ${{ inputs.task }}: conda-forge/${{ inputs.repo }}#${{ inputs.pr_number }} [container=${{ inputs.container_tag }}, requested_version=${{ inputs.requested_version }}, uuid=${{ inputs.uuid }}]
+
 on:
   workflow_dispatch:
     inputs:
@@ -24,6 +27,10 @@ on:
         required: false
         type: string
         default: 'null'
+      uuid:
+        description: 'a unique identifier for this run'
+        required: true
+        type: string
 
 env:
   PY_COLORS: 1

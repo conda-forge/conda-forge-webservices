@@ -1,5 +1,8 @@
 name: automerge
 
+run-name: >-
+  automerge: conda-forge/${{ inputs.repo }}@${{ inputs.sha }} [uuid=${{ inputs.uuid }}]
+
 on:
   workflow_dispatch:
     inputs:
@@ -9,6 +12,10 @@ on:
         type: string
       sha:
         description: 'the commit SHA to possibly merge'
+        required: true
+        type: string
+      uuid:
+        description: 'a unique identifier for this run'
         required: true
         type: string
 
