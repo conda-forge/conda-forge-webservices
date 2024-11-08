@@ -75,6 +75,8 @@ def _change_version(new_version="0.13", branch="main"):
     import random
 
     new_sha = "".join(random.choices("0123456789abcdef", k=64))
+    if new_version == "0.14":
+        new_sha = "f6c45d5788f51dbe1cc55e1010f3e9ebd18b6c0f21907fc35499468a59827eef"
 
     print("changing the version to an old one...", flush=True)
     subprocess.run(["git", "checkout", branch], check=True)
@@ -101,7 +103,7 @@ def _change_version(new_version="0.13", branch="main"):
             "commit",
             "--allow-empty",
             "-m",
-            "[ci skip] moved version to older 0.13",
+            f"[ci skip] moved version to {new_version}",
         ],
         check=True,
     )
