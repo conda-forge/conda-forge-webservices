@@ -59,7 +59,16 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     )
 
     if running:
-        _set_pr_status(repo_owner, repo_name, sha, "pending")
+        run = None
+        for _run in workflow.get_runs(branch=ref, event="workflow_dispatch"):
+            if uid in run.name:
+                run = _run
+                break
+        if run:
+            target_url = run.html_url
+        else:
+            target_url = None
+        _set_pr_status(repo_owner, repo_name, sha, "pending", target_url=target_url)
 
     return running
 
