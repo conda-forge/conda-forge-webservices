@@ -122,7 +122,9 @@ jobs:
             --repo=${{ inputs.repo }} \
             --pr-number=${{ inputs.pr_number }} \
             --task-data-dir=${{ github.workspace }}/task-data \
-            --requested-version=${{ inputs.requested_version }}
+            --requested-version=${{ inputs.requested_version }} \
+            --uid=${{ inputs.uuid }} \
+            --workflow-ref=${{ github.ref }}
 
       - name: upload task data
         id: upload-task-data
