@@ -30,6 +30,15 @@ class LintInfo(TypedDict):
 
 
 def _get_workflow_run_from_uid(workflow, uid, ref):
+    for _ in range(10):
+        time.sleep(1)
+        run = _inner_get_workflow_run_from_uid(workflow, uid, ref)
+        if run:
+            return run
+    return None
+
+
+def _inner_get_workflow_run_from_uid(workflow, uid, ref):
     num_try = 0
     max_try = 20
     for run in workflow.get_runs(branch=ref, event="workflow_dispatch"):
@@ -73,9 +82,7 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     )
 
     if running:
-        for _ in range(10):
-            time.sleep(1)
-            run = _get_workflow_run_from_uid(workflow, uid, ref)
+        run = _get_workflow_run_from_uid(workflow, uid, ref)
         if run:
             target_url = run.html_url
         else:

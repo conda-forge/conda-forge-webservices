@@ -107,11 +107,7 @@ def test_linter_pr(pytestconfig):
             },
         )
         assert workflow_ran, f"Workflow did not run for PR {pr_number}!"
-        for _ in range(10):
-            time.sleep(1)
-            run = _get_workflow_run_from_uid(workflow, uid, branch)
-            if run:
-                break
+        run = _get_workflow_run_from_uid(workflow, uid, branch)
         if run:
             target_url = run.html_url
         else:
