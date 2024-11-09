@@ -5,7 +5,6 @@ import pprint
 import subprocess
 import sys
 import tempfile
-import time
 import traceback
 
 import click
@@ -368,7 +367,6 @@ def main_finalize_task(task_data_dir):
                 repo_name=full_repo_name,
                 close_pr_if_no_changes_or_errors=False,
             )
-            time.sleep(1)
             status = "success" if not comment_push_error else "failure"
             target_url = (
                 f"https://github.com/conda-forge/conda-forge-webservices/"
