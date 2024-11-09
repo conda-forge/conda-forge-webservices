@@ -96,7 +96,7 @@ def test_linter_pr(pytestconfig):
         uid = uuid.uuid4().hex
         pr = repo.get_pull(pr_number)
         workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
-        workflow.create_dispatch(
+        workflow_ran = workflow.create_dispatch(
             ref=branch,
             inputs={
                 "task": "lint",
@@ -106,6 +106,7 @@ def test_linter_pr(pytestconfig):
                 "uid": uid,
             },
         )
+        assert workflow_ran, f"Workflow did not run for PR {pr_number}!"
         run = _get_workflow_run_from_uid(workflow, uid, branch)
         if run:
             target_url = run.html_url
