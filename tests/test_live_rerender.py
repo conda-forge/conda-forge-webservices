@@ -20,6 +20,11 @@ def _run_test(branch):
     gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     repo = gh.get_repo("conda-forge/conda-forge-webservices")
     workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
+    pr_sha = (
+        gh.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
+        .get_pull(pr_number)
+        .head.sha
+    )
     running = workflow.create_dispatch(
         ref=branch,
         inputs={
@@ -28,6 +33,7 @@ def _run_test(branch):
             "pr_number": str(pr_number),
             "container_tag": conda_forge_webservices.__version__.replace("+", "."),
             "uuid": uid,
+            "sha": pr_sha,
         },
     )
     assert running, f"Workflow dispatch failed for rerendering on PR {pr_number}!"
@@ -41,6 +47,7 @@ def _run_test(branch):
         pr_number,
         "pending",
         target_url=target_url,
+        sha=pr_sha,
     )
 
     print("sleeping for four minutes to let the rerender happen...", flush=True)
