@@ -82,9 +82,7 @@ def main_init_task(task, repo, pr_number):
 @click.option("--pr-number", required=True, type=str)
 @click.option("--task-data-dir", required=True, type=str)
 @click.option("--requested-version", required=False, type=str, default=None)
-def main_run_task(
-    task, repo, pr_number, task_data_dir, requested_version, uid, workflow_ref
-):
+def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
     setup_logging(level="DEBUG")
 
     LOGGER.info("running task `%s` for conda-forge/%s#%s", task, repo, pr_number)
@@ -107,8 +105,6 @@ def main_run_task(
         "task": task,
         "repo": repo,
         "pr_number": pr_number,
-        "uid": uid,
-        "workflow_ref": workflow_ref,
         "task_results": {},
     }
 
