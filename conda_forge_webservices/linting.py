@@ -29,6 +29,29 @@ class LintInfo(TypedDict):
     sha: str
 
 
+def _get_workflow_run_from_uid(workflow, uid, ref):
+    for _ in range(10):
+        time.sleep(1)
+        run = _inner_get_workflow_run_from_uid(workflow, uid, ref)
+        if run:
+            return run
+    return None
+
+
+def _inner_get_workflow_run_from_uid(workflow, uid, ref):
+    num_try = 0
+    max_try = 20
+    for run in workflow.get_runs(branch=ref, event="workflow_dispatch"):
+        if uid in run.name:
+            return run
+
+        num_try += 1
+        if num_try > max_try:
+            break
+
+    return None
+
+
 def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
@@ -59,7 +82,12 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     )
 
     if running:
-        _set_pr_status(repo_owner, repo_name, sha, "pending")
+        run = _get_workflow_run_from_uid(workflow, uid, ref)
+        if run:
+            target_url = run.html_url
+        else:
+            target_url = None
+        _set_pr_status(repo_owner, repo_name, sha, "pending", target_url=target_url)
 
     return running
 
