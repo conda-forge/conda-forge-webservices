@@ -111,6 +111,7 @@ def test_linter_pr(pytestconfig):
             target_url = run.html_url
         else:
             target_url = None
+        print(f"target_url: {target_url}", flush=True)
         set_pr_status(repo, pr.head.sha, "pending", target_url=target_url)
 
     print("\nsleeping for four minutes to let the linter work...", flush=True)
