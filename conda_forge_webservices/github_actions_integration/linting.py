@@ -135,14 +135,15 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
                 all_pass = False
                 messages.append(
                     "\nFor **{}**:\n\n{}".format(
-                        fname, "\n".join(f" * {lint}" for lint in _lints)
+                        fname, "\n".join(f" * ❌ {lint}" for lint in _lints)
                     )
                 )
             if _hints:
                 hints_found = True
                 messages.append(
                     "\nFor **{}**:\n\n{}".format(
-                        fname, "\n".join(f" * {hint}" for hint in _hints)
+                        fname,
+                        "\n".join(f" * ℹ️ {hint}" for hint in _hints),  # noqa: RUF001
                     )
                 )
 
