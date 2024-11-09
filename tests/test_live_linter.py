@@ -5,7 +5,7 @@ import uuid
 import github
 
 import conda_forge_webservices
-from conda_forge_webservices.linting import _get_workflow_run_from_uid
+from conda_forge_webservices.utils import get_workflow_run_from_uid
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 TEST_CASES = [
@@ -107,7 +107,7 @@ def test_linter_pr(pytestconfig):
             },
         )
         assert workflow_ran, f"Workflow did not run for PR {pr_number}!"
-        run = _get_workflow_run_from_uid(workflow, uid, branch)
+        run = get_workflow_run_from_uid(workflow, uid, branch)
         if run:
             target_url = run.html_url
         else:
