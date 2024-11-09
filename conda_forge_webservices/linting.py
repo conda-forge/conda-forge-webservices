@@ -123,14 +123,15 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
             all_pass = False
             messages.append(
                 "\nFor **{}**:\n\n{}".format(
-                    rel_path, "\n".join(f" * {lint}" for lint in lints)
+                    rel_path, "\n".join(f" * ❌ {lint}" for lint in lints)
                 )
             )
         if hints:
             hints_found = True
             messages.append(
                 "\nFor **{}**:\n\n{}".format(
-                    rel_path, "\n".join(f" * {hint}" for hint in hints)
+                    rel_path,
+                    "\n".join(f" * ℹ️ {hint}" for hint in hints),  # noqa: RUF001
                 )
             )
 
