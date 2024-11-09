@@ -36,7 +36,12 @@ def _run_test(branch):
     target_url = run.html_url
     print(f"target_url for PR {pr_number}: {target_url}", flush=True)
 
-    set_rerender_pr_status(repo, pr_number, "pending", target_url=target_url)
+    set_rerender_pr_status(
+        gh.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock"),
+        pr_number,
+        "pending",
+        target_url=target_url,
+    )
 
     print("sleeping for four minutes to let the rerender happen...", flush=True)
     tot = 0
