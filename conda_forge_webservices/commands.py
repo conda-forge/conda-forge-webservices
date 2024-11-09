@@ -1011,7 +1011,7 @@ def set_rerender_pr_status(repo, pr_num, status, target_url=None, sha=None):
     commit.create_status(
         status,
         description=msg,
-        context="conda-forge-rerender-service",
+        context="conda-forge-rerendering-service",
         **kwargs,
     )
 
