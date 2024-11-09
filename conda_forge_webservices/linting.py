@@ -73,7 +73,9 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     )
 
     if running:
-        run = _get_workflow_run_from_uid(workflow, uid, ref)
+        for _ in range(10):
+            time.sleep(1)
+            run = _get_workflow_run_from_uid(workflow, uid, ref)
         if run:
             target_url = run.html_url
         else:
