@@ -990,14 +990,15 @@ def make_rerender_dummy_commit(repo):
     return True
 
 
-def set_rerender_pr_status(repo, pr_num, status, target_url=None):
+def set_rerender_pr_status(repo, pr_num, status, target_url=None, sha=None):
     if target_url is not None:
         kwargs = {"target_url": target_url}
     else:
         kwargs = {}
 
-    pull = repo.get_pull(int(pr_num))
-    sha = pull.head.sha
+    if sha is None:
+        pull = repo.get_pull(int(pr_num))
+        sha = pull.head.sha
     commit = repo.get_commit(sha)
 
     if status == "success":
@@ -1018,6 +1019,8 @@ def set_rerender_pr_status(repo, pr_num, status, target_url=None):
 def rerender(full_name, pr_num):
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
+    pull = repo.get_pull(int(pr_num))
+    sha = pull.head.sha
 
     inject_app_token_into_feedstock(full_name, repo=repo)
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
@@ -1036,6 +1039,7 @@ def rerender(full_name, pr_num):
             "pr_number": str(pr_num),
             "container_tag": ref,
             "uuid": uid,
+            "sha": sha,
         },
     )
     if running:
@@ -1045,7 +1049,7 @@ def rerender(full_name, pr_num):
         else:
             target_url = None
 
-        set_rerender_pr_status(repo, pr_num, "pending", target_url=target_url)
+        set_rerender_pr_status(repo, pr_num, "pending", target_url=target_url, sha=sha)
 
     return not running
 

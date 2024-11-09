@@ -31,6 +31,11 @@ on:
         description: 'a unique identifier for this run'
         required: true
         type: string
+      sha:
+        description: 'the sha of the commit to run on'
+        required: false
+        type: string
+        default: 'null'
 
 env:
   PY_COLORS: 1
@@ -122,7 +127,8 @@ jobs:
             --repo=${{ inputs.repo }} \
             --pr-number=${{ inputs.pr_number }} \
             --task-data-dir=${{ github.workspace }}/task-data \
-            --requested-version=${{ inputs.requested_version }}
+            --requested-version=${{ inputs.requested_version }} \
+            --sha=${{ inputs.sha }}
 
       - name: upload task data
         id: upload-task-data

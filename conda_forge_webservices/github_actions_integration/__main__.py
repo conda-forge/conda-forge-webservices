@@ -83,7 +83,8 @@ def main_init_task(task, repo, pr_number):
 @click.option("--pr-number", required=True, type=str)
 @click.option("--task-data-dir", required=True, type=str)
 @click.option("--requested-version", required=False, type=str, default=None)
-def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
+@click.option("--sah", required=False, type=str, default=None)
+def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
     setup_logging(level="DEBUG")
 
     LOGGER.info("running task `%s` for conda-forge/%s#%s", task, repo, pr_number)
@@ -106,6 +107,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
         "task": task,
         "repo": repo,
         "pr_number": pr_number,
+        "sha": sha,
         "task_results": {},
     }
 
@@ -274,6 +276,7 @@ def main_finalize_task(task_data_dir):
     repo = task_data["repo"]
     pr_number = task_data["pr_number"]
     task_results = task_data["task_results"]
+    sha_for_status = task_data["sha"]
 
     LOGGER.info("finalizing task `%s` for conda-forge/%s#%s", task, repo, pr_number)
     LOGGER.info("task results:")
@@ -368,7 +371,11 @@ def main_finalize_task(task_data_dir):
                 f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
             )
             set_rerender_pr_status(
-                gh_repo, int(pr_number), status, target_url=target_url
+                gh_repo,
+                int(pr_number),
+                status,
+                target_url=target_url,
+                sha=sha_for_status,
             )
 
             # if the pr was made by the bot, mark it as ready for review
