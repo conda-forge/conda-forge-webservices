@@ -11,6 +11,7 @@ from git import GitCommandError, Repo
 import conda_smithy.lint_recipe
 
 from conda_forge_webservices.tokens import get_gh_client
+from conda_forge_webservices.utils import get_workflow_run_from_uid
 from ._version import __version__
 
 LOGGER = logging.getLogger("conda_forge_webservices.linting")
@@ -27,29 +28,6 @@ class LintInfo(TypedDict):
     message: str
     status: str
     sha: str
-
-
-def _get_workflow_run_from_uid(workflow, uid, ref):
-    for _ in range(10):
-        time.sleep(1)
-        run = _inner_get_workflow_run_from_uid(workflow, uid, ref)
-        if run:
-            return run
-    return None
-
-
-def _inner_get_workflow_run_from_uid(workflow, uid, ref):
-    num_try = 0
-    max_try = 20
-    for run in workflow.get_runs(branch=ref, event="workflow_dispatch"):
-        if uid in run.name:
-            return run
-
-        num_try += 1
-        if num_try > max_try:
-            break
-
-    return None
 
 
 def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
@@ -78,11 +56,12 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
             "pr_number": str(pr_num),
             "container_tag": ref,
             "uuid": uid,
+            "sha": sha,
         },
     )
 
     if running:
-        run = _get_workflow_run_from_uid(workflow, uid, ref)
+        run = get_workflow_run_from_uid(workflow, uid, ref)
         if run:
             target_url = run.html_url
         else:

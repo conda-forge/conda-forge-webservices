@@ -30,6 +30,7 @@ from .linting import (
     get_recipes_for_linting,
 )
 from .version_updating import update_version, update_pr_title
+from conda_forge_webservices.commands import set_rerender_pr_status
 
 
 LOGGER = logging.getLogger(__name__)
@@ -55,7 +56,8 @@ def _pull_docker_image():
 @click.option("--task", required=True, type=str)
 @click.option("--repo", required=True, type=str)
 @click.option("--pr-number", required=True, type=str)
-def main_init_task(task, repo, pr_number):
+@click.option("--sha", required=False, type=str, default=None)
+def main_init_task(task, repo, pr_number, sha):
     logging.basicConfig(level=logging.INFO)
 
     action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
@@ -69,8 +71,11 @@ def main_init_task(task, repo, pr_number):
     elif task == "lint":
         _, gh = create_api_sessions()
         gh_repo = gh.get_repo(f"conda-forge/{repo}")
-        pr = gh_repo.get_pull(int(pr_number))
-        set_pr_status(pr.base.repo, pr.head.sha, "pending", target_url=None)
+        target_url = (
+            f"https://github.com/conda-forge/conda-forge-webservices/"
+            f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
+        )
+        set_pr_status(gh_repo, sha, "pending", target_url=target_url)
     else:
         raise ValueError(f"Task `{task}` is not valid!")
 
@@ -81,7 +86,8 @@ def main_init_task(task, repo, pr_number):
 @click.option("--pr-number", required=True, type=str)
 @click.option("--task-data-dir", required=True, type=str)
 @click.option("--requested-version", required=False, type=str, default=None)
-def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
+@click.option("--sha", required=False, type=str, default=None)
+def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
     setup_logging(level="DEBUG")
 
     LOGGER.info("running task `%s` for conda-forge/%s#%s", task, repo, pr_number)
@@ -100,7 +106,13 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version):
     git_repo.git.switch(f"pull/{pr_number}/head")
     prev_head = git_repo.active_branch.commit.hexsha
 
-    task_data = {"task": task, "repo": repo, "pr_number": pr_number, "task_results": {}}
+    task_data = {
+        "task": task,
+        "repo": repo,
+        "pr_number": pr_number,
+        "sha": sha,
+        "task_results": {},
+    }
 
     if task == "rerender":
         _pull_docker_image()
@@ -267,6 +279,7 @@ def main_finalize_task(task_data_dir):
     repo = task_data["repo"]
     pr_number = task_data["pr_number"]
     task_results = task_data["task_results"]
+    sha_for_status = task_data["sha"]
 
     LOGGER.info("finalizing task `%s` for conda-forge/%s#%s", task, repo, pr_number)
     LOGGER.info("task results:")
@@ -353,6 +366,18 @@ def main_finalize_task(task_data_dir):
                 pr_repo=pr_repo,
                 repo_name=full_repo_name,
                 close_pr_if_no_changes_or_errors=False,
+            )
+            status = "success" if not comment_push_error else "failure"
+            target_url = (
+                f"https://github.com/conda-forge/conda-forge-webservices/"
+                f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
+            )
+            set_rerender_pr_status(
+                gh_repo,
+                int(pr_number),
+                status,
+                target_url=target_url,
+                sha=sha_for_status,
             )
 
             # if the pr was made by the bot, mark it as ready for review
@@ -464,7 +489,7 @@ def main_finalize_task(task_data_dir):
                     gh, gh_repo, pr.number, task_results["lints"], task_results["hints"]
                 )
 
-            set_pr_status(pr.base.repo, pr.head.sha, status, target_url=msg.html_url)
+            set_pr_status(gh_repo, sha_for_status, status, target_url=msg.html_url)
             print(f"Linter status: {status}")
             print(f"Linter message:\n{msg.body}")
 

@@ -22,7 +22,11 @@ from .linting import (
     LINT_VIA_GHA,
 )
 from .update_teams import update_team
-from .utils import ALLOWED_CMD_NON_FEEDSTOCKS, with_action_url
+from .utils import (
+    ALLOWED_CMD_NON_FEEDSTOCKS,
+    with_action_url,
+    get_workflow_run_from_uid,
+)
 from ._version import __version__
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
@@ -986,9 +990,37 @@ def make_rerender_dummy_commit(repo):
     return True
 
 
+def set_rerender_pr_status(repo, pr_num, status, target_url=None, sha=None):
+    if target_url is not None:
+        kwargs = {"target_url": target_url}
+    else:
+        kwargs = {}
+
+    if sha is None:
+        pull = repo.get_pull(int(pr_num))
+        sha = pull.head.sha
+    commit = repo.get_commit(sha)
+
+    if status == "success":
+        msg = "Rerendering successful."
+    elif status == "failure" or status == "error":
+        msg = "Rerendering failed."
+    else:
+        msg = "Rerendering in progress..."
+
+    commit.create_status(
+        status,
+        description=msg,
+        context="conda-forge-rerendering-service",
+        **kwargs,
+    )
+
+
 def rerender(full_name, pr_num):
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
+    pull = repo.get_pull(int(pr_num))
+    sha = pull.head.sha
 
     inject_app_token_into_feedstock(full_name, repo=repo)
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
@@ -1007,8 +1039,17 @@ def rerender(full_name, pr_num):
             "pr_number": str(pr_num),
             "container_tag": ref,
             "uuid": uid,
+            "sha": sha,
         },
     )
+    if running:
+        run = get_workflow_run_from_uid(workflow, uid, ref)
+        if run:
+            target_url = run.html_url
+        else:
+            target_url = None
+
+        set_rerender_pr_status(repo, pr_num, "pending", target_url=target_url, sha=sha)
 
     return not running
 

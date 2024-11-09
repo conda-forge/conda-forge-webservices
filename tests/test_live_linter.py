@@ -5,7 +5,7 @@ import uuid
 import github
 
 import conda_forge_webservices
-from conda_forge_webservices.linting import _get_workflow_run_from_uid
+from conda_forge_webservices.utils import get_workflow_run_from_uid
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 TEST_CASES = [
@@ -95,6 +95,7 @@ def test_linter_pr(pytestconfig):
     for pr_number, _, _ in TEST_CASES:
         uid = uuid.uuid4().hex
         pr = repo.get_pull(pr_number)
+        pr_sha = pr.head.sha
         workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
         workflow_ran = workflow.create_dispatch(
             ref=branch,
@@ -104,17 +105,18 @@ def test_linter_pr(pytestconfig):
                 "pr_number": str(pr_number),
                 "container_tag": conda_forge_webservices.__version__.replace("+", "."),
                 "uuid": uid,
+                "sha": pr_sha,
             },
         )
         assert workflow_ran, f"Workflow did not run for PR {pr_number}!"
-        run = _get_workflow_run_from_uid(workflow, uid, branch)
+        run = get_workflow_run_from_uid(workflow, uid, branch)
         if run:
             target_url = run.html_url
         else:
             target_url = None
         assert target_url is not None
         print(f"target_url for PR {pr_number}: {target_url}", flush=True)
-        set_pr_status(repo, pr.head.sha, "pending", target_url=target_url)
+        set_pr_status(repo, pr_sha, "pending", target_url=target_url)
 
     print("\nsleeping for four minutes to let the linter work...", flush=True)
     tot = 0
