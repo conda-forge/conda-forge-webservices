@@ -103,7 +103,7 @@ def test_linter_pr(pytestconfig):
                 "repo": "conda-forge-webservices",
                 "pr_number": str(pr_number),
                 "container_tag": conda_forge_webservices.__version__.replace("+", "."),
-                "uid": uid,
+                "uuid": uid,
             },
         )
         assert workflow_ran, f"Workflow did not run for PR {pr_number}!"
@@ -112,7 +112,8 @@ def test_linter_pr(pytestconfig):
             target_url = run.html_url
         else:
             target_url = None
-        print(f"target_url: {target_url}", flush=True)
+        assert target_url is not None
+        print(f"target_url for PR {pr_number}: {target_url}", flush=True)
         set_pr_status(repo, pr.head.sha, "pending", target_url=target_url)
 
     print("\nsleeping for four minutes to let the linter work...", flush=True)
