@@ -158,7 +158,7 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
             """,
         )
 
-        mixed = good + dedent_with_escaped_continue(
+        mixed = good + "\n" + dedent_with_escaped_continue(
             """
             I do have some suggestions for making it better though...
 

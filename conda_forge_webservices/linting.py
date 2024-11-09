@@ -30,12 +30,17 @@ class LintInfo(TypedDict):
 
 
 def _get_workflow_run_from_uid(workflow, uid, ref):
-    run = None
-    for _run in workflow.get_runs(branch=ref, event="workflow_dispatch"):
+    num_try = 0
+    max_try = 20
+    for run in workflow.get_runs(branch=ref, event="workflow_dispatch"):
         if uid in run.name:
-            run = _run
+            return run
+
+        num_try += 1
+        if num_try > max_try:
             break
-    return run
+
+    return None
 
 
 def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
