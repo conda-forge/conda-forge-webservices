@@ -5,6 +5,7 @@ import uuid
 import github
 
 import conda_forge_webservices
+from conda_forge_webservices.linting import _set_pr_status, _get_workflow_run_from_uid
 
 TEST_CASES = [
     (
@@ -103,6 +104,18 @@ def test_linter_pr(pytestconfig):
                 "container_tag": conda_forge_webservices.__version__.replace("+", "."),
                 "uid": uid,
             },
+        )
+        run = _get_workflow_run_from_uid(workflow, uid, branch)
+        if run:
+            target_url = run.html_url
+        else:
+            target_url = None
+        _set_pr_status(
+            "conda-forge",
+            "conda-forge-webservices",
+            pr.head.sha,
+            "pending",
+            target_url=target_url,
         )
 
     print("\nsleeping for four minutes to let the linter work...", flush=True)
