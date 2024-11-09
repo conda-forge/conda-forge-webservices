@@ -83,7 +83,8 @@ jobs:
           conda-forge-webservices-init-task \
             --task=${{ inputs.task }} \
             --repo=${{ inputs.repo }} \
-            --pr-number=${{ inputs.pr_number }}
+            --pr-number=${{ inputs.pr_number }} \
+            --sha=${{ inputs.sha }}
         env:
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 

@@ -56,6 +56,7 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
             "pr_number": str(pr_num),
             "container_tag": ref,
             "uuid": uid,
+            "sha": sha,
         },
     )
 
