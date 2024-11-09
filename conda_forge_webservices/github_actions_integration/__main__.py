@@ -31,7 +31,6 @@ from .linting import (
 )
 from .version_updating import update_version, update_pr_title
 from conda_forge_webservices.commands import set_rerender_pr_status
-from conda_forge_webservices.utils import get_workflow_run_from_uid
 
 
 LOGGER = logging.getLogger(__name__)
@@ -83,8 +82,6 @@ def main_init_task(task, repo, pr_number):
 @click.option("--pr-number", required=True, type=str)
 @click.option("--task-data-dir", required=True, type=str)
 @click.option("--requested-version", required=False, type=str, default=None)
-@click.option("--uid", required=True, type=str)
-@click.option("--workflow-ref", required=True, type=str)
 def main_run_task(
     task, repo, pr_number, task_data_dir, requested_version, uid, workflow_ref
 ):
@@ -278,8 +275,6 @@ def main_finalize_task(task_data_dir):
 
     task = task_data["task"]
     repo = task_data["repo"]
-    uid = task_data["uid"]
-    workflow_ref = task_data["workflow_ref"]
     pr_number = task_data["pr_number"]
     task_results = task_data["task_results"]
 
@@ -370,14 +365,10 @@ def main_finalize_task(task_data_dir):
                 close_pr_if_no_changes_or_errors=False,
             )
             status = "success" if not comment_push_error else "failure"
-            workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
-                "webservices-workflow-dispatch.yml"
+            target_url = (
+                f"https://github.com/conda-forge/conda-forge-webservices/"
+                f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
             )
-            run = get_workflow_run_from_uid(workflow, uid, workflow_ref)
-            if run:
-                target_url = run.html_url
-            else:
-                target_url = None
             set_rerender_pr_status(
                 gh_repo, int(pr_number), status, target_url=target_url
             )
