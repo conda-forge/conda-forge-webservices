@@ -491,7 +491,7 @@ def main_finalize_task(task_data_dir):
                     gh, gh_repo, pr.number, task_results["lints"], task_results["hints"]
                 )
 
-            set_pr_status(pr.base.repo, pr.head.sha, status, target_url=msg.html_url)
+            set_pr_status(gh_repo, sha_for_status, status, target_url=msg.html_url)
             print(f"Linter status: {status}")
             print(f"Linter message:\n{msg.body}")
 
