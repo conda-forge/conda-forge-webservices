@@ -163,10 +163,10 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
             + "\n"
             + dedent_with_escaped_continue(
                 """
-            I do have some suggestions for making it better though...
+                I do have some suggestions for making it better though...
 
-            {}
-            """
+                {}
+                """
             ).format("\n".join(messages))
         )
 
