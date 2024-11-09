@@ -83,7 +83,7 @@ def main_init_task(task, repo, pr_number):
 @click.option("--pr-number", required=True, type=str)
 @click.option("--task-data-dir", required=True, type=str)
 @click.option("--requested-version", required=False, type=str, default=None)
-@click.option("--sah", required=False, type=str, default=None)
+@click.option("--sha", required=False, type=str, default=None)
 def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
     setup_logging(level="DEBUG")
 
