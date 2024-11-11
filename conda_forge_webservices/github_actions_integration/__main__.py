@@ -52,34 +52,6 @@ def _pull_docker_image():
         print("::endgroup::", flush=True)
 
 
-@click.command(name="conda-forge-webservices-init-task")
-@click.option("--task", required=True, type=str)
-@click.option("--repo", required=True, type=str)
-@click.option("--pr-number", required=True, type=str)
-@click.option("--sha", required=False, type=str, default=None)
-def main_init_task(task, repo, pr_number, sha):
-    logging.basicConfig(level=logging.INFO)
-
-    action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
-    print(
-        f"::notice title=conda-forge-webservices job information::{action_desc}",
-        flush=True,
-    )
-
-    if task in ["rerender", "version_update"]:
-        pass
-    elif task == "lint":
-        _, gh = create_api_sessions()
-        gh_repo = gh.get_repo(f"conda-forge/{repo}")
-        target_url = (
-            f"https://github.com/conda-forge/conda-forge-webservices/"
-            f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
-        )
-        set_pr_status(gh_repo, sha, "pending", target_url=target_url)
-    else:
-        raise ValueError(f"Task `{task}` is not valid!")
-
-
 @click.command(name="conda-forge-webservices-run-task")
 @click.option("--task", required=True, type=str)
 @click.option("--repo", required=True, type=str)
@@ -90,7 +62,12 @@ def main_init_task(task, repo, pr_number, sha):
 def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
     setup_logging(level="DEBUG")
 
-    LOGGER.info("running task `%s` for conda-forge/%s#%s", task, repo, pr_number)
+    action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
+    LOGGER.info(action_desc)
+    print(
+        f"::notice title=conda-forge-webservices job information::{action_desc}",
+        flush=True,
+    )
 
     feedstock_dir = os.path.join(
         task_data_dir,
