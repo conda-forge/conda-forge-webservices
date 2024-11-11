@@ -62,7 +62,12 @@ def _pull_docker_image():
 def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
     setup_logging(level="DEBUG")
 
-    LOGGER.info("running task `%s` for conda-forge/%s#%s", task, repo, pr_number)
+    action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
+    LOGGER.info(action_desc)
+    print(
+        f"::notice title=conda-forge-webservices job information::{action_desc}",
+        flush=True,
+    )
 
     feedstock_dir = os.path.join(
         task_data_dir,
