@@ -26,7 +26,6 @@ classifiers = [
 [project.scripts]
 update-webservices = "conda_forge_webservices.update_me:main"
 cache-status-data = "conda_forge_webservices.status_monitor:cache_status_data"
-conda-forge-webservices-init-task = "conda_forge_webservices.github_actions_integration.__main__:main_init_task"
 conda-forge-webservices-run-task = "conda_forge_webservices.github_actions_integration.__main__:main_run_task"
 conda-forge-webservices-finalize-task = "conda_forge_webservices.github_actions_integration.__main__:main_finalize_task"
 conda-forge-webservices-automerge = "conda_forge_webservices.github_actions_integration.__main__:main_automerge"
