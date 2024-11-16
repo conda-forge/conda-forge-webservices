@@ -679,15 +679,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 52421574684cca47fdefb5efec3dcab7
-      sha256: 7c206059ec4d42adc7907caf48d688e80e4a125a6224b5a35153956f348d6d20
+      md5: 06a145f3ba1afad63c8bcef37b0ace21
+      sha256: 1698ec6ca04272bb31efb3d8f57aa25ae78d29c824016c1e6bf608cbe90f1d59
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.11.16.06.56.49-hd8ed1ab_0.conda
-    version: 2024.11.16.06.56.49
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.11.16.14.10.20-hd8ed1ab_0.conda
+    version: 2024.11.16.14.10.20
   - category: main
     dependencies:
       attrs: ''
@@ -901,15 +901,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: 3ca6133c5482c4357f98f716a716e7f3
-      sha256: 977c72ae2653085c86afaa5c1bb77f03d49a59f3845113ac55e2b1119f2be3ca
+      md5: db2f7be4c06c5d3ea04ef29d22f21e20
+      sha256: 053dc71390b57606faea48140b0abd99ac7c60da2a45919f9d1c2b04bd9911fa
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.44.5-unix_pyh707e725_0.conda
-    version: 3.44.5
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.44.6-unix_pyh707e725_0.conda
+    version: 3.44.6
   - category: main
     dependencies:
       python: '>=3.8'
