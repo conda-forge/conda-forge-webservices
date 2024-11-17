@@ -169,6 +169,7 @@ def _get_github_statuses(repo, pr):
     oldest_time = None
     status_states = {}
     for status in statuses:
+        print(status.context, status.state)
         if oldest_time is None:
             if status.updated_at.tzinfo is None:
                 oldest_time = datetime.datetime.now() - datetime.timedelta(weeks=10000)
