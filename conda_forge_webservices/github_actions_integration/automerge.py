@@ -169,7 +169,6 @@ def _get_github_statuses(repo, pr):
     oldest_time = None
     status_states = {}
     for status in statuses:
-        print(status.context, status.state)
         if oldest_time is None:
             if status.updated_at.tzinfo is None:
                 oldest_time = datetime.datetime.now() - datetime.timedelta(weeks=10000)
@@ -292,6 +291,12 @@ def _all_statuses_and_checks_ok(status_states, check_states, req_checks_and_stat
 
         final_states[req] = None if not found_state else state
         LOGGER.info("final status: name|state = %s|%s", req, final_states[req])
+
+    if "conda-forge-rerendering-service" in status_states:
+        rerendering = not status_states["conda-forge-rerendering-service"]
+    else:
+        rerendering = False
+    final_states["rerendering done"] = not rerendering
 
     return all(v for v in final_states.values()), final_states
 
