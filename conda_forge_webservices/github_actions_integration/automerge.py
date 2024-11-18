@@ -293,10 +293,9 @@ def _all_statuses_and_checks_ok(status_states, check_states, req_checks_and_stat
         LOGGER.info("final status: name|state = %s|%s", req, final_states[req])
 
     if "conda-forge-rerendering-service" in status_states:
-        rerendering = not status_states["conda-forge-rerendering-service"]
-    else:
-        rerendering = False
-    final_states["rerendering done"] = not rerendering
+        final_states["rerender called"] = status_states[
+            "conda-forge-rerendering-service"
+        ]
 
     return all(v for v in final_states.values()), final_states
 
