@@ -170,7 +170,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
             Hi! This is the friendly automated conda-forge-linting service.
 
             I was trying to look for recipes to lint for you, but couldn't find any.
-            Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
+            Please ping the 'conda-forge/core' team (using the `@` notation in a comment) if you believe this is a bug.
             """)  # noqa
         status = "no recipes"
     elif all_pass and hints_found:
@@ -269,7 +269,7 @@ def compute_lint_message(
                 I was trying to look for recipes to lint for you, but it appears we have a merge conflict.
                 Please try to merge or rebase with the base branch to resolve this conflict.
 
-                Please ping the 'conda-forge/core' team (using the @ notation in a comment) if you believe this is a bug.
+                Please ping the 'conda-forge/core' team (using the `@` notation in a comment) if you believe this is a bug.
                 """)  # noqa
             status = "merge_conflict"
 
