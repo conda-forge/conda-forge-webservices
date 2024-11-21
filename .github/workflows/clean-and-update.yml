@@ -36,6 +36,8 @@ jobs:
             mamba
             conda-forge-tick
             conda-forge-feedstock-ops
+            conda-recipe-manager
+            conda-souschef
 
   clean-and-cache:
     name: clean-and-cache
