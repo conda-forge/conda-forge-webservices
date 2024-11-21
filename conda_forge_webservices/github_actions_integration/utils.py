@@ -108,7 +108,7 @@ def comment_and_push_if_changed(
 
                 I tried to {action} for you but ran into some issues. \\
                 Please check the [output logs]({run_link}) of the \\
-                GitHub actions workflow \\
+                GitHub Actions workflow \\
                 below for more details. You can also ping `conda-forge/core` \\
                 (using the `@` notation) for further assistance{help_message}.
             """)

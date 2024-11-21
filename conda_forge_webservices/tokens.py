@@ -106,7 +106,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
     if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
         sys.stdout.flush()
         print(
-            "running in github actions",
+            "running in GitHub Actions",
             flush=True,
         )
         print(f"::add-mask::{raw_pem}", flush=True)
@@ -157,7 +157,7 @@ def generate_app_token_for_webservices_only(app_id, raw_pem):
             gh_token = integration.get_access_token(installation.id).token
         if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
             sys.stdout.flush()
-            print("made GITHUB token and masking it for github actions", flush=True)
+            print("made GITHUB token and masking it for GitHub Actions", flush=True)
             print(f"::add-mask::{gh_token}", flush=True)
 
     except Exception:
@@ -350,7 +350,7 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo, readonly=False):
     if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
         sys.stdout.flush()
         print(
-            "running in github actions",
+            "running in GitHub Actions",
             flush=True,
         )
         print(f"::add-mask::{raw_pem}", flush=True)
@@ -417,7 +417,7 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo, readonly=False):
 
         if "GITHUB_ACTIONS" in os.environ and os.environ["GITHUB_ACTIONS"] == "true":
             sys.stdout.flush()
-            print("made GITHUB token and masking it for github actions", flush=True)
+            print("made GITHUB token and masking it for GitHub Actions", flush=True)
             print(f"::add-mask::{gh_token}", flush=True)
 
     except Exception:
