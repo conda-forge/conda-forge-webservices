@@ -459,8 +459,8 @@ Common ways to fix this problem include:
   to add a glob pattern that matches the new package name pattern. We use the Python `fnmatch` module syntax.
   Output packages that match these patterns will be automatically registered for your feedstock.
 
-If you have any issues or questions, you can find us on Element in the
-community [channel](https://app.element.io/#/room/#conda-forge:matrix.org) or you can bump us right here.
+If you have any issues or questions, you can find us on Zulip in the
+community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-general) or you can bump us right here.
 """  # noqa
 
     is_all_valid = True
