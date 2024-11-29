@@ -632,15 +632,15 @@ package:
       ripgrep: ''
       tqdm: ''
     hash:
-      md5: bec7647f71147364240bd145a1c62ac4
-      sha256: 24182b48093a3142967a30ff6da202bcf3519844a4f3184ed0bff7cfc5563539
+      md5: a49465c1249f485e96dac4ef44eaef18
+      sha256: 58b8ce8acc2c00835c2512c46917a4738601bbbfdeaa27fdc0cc001a1d5096e9
     manager: conda
     name: conda-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/conda-build-24.11.1-py311h38be061_2.conda
-    version: 24.11.1
+      https://conda.anaconda.org/conda-forge/linux-64/conda-build-24.11.2-py311h38be061_0.conda
+    version: 24.11.2
   - category: main
     dependencies:
       boltons: '>=23.0.0'
@@ -711,15 +711,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 4cf8cad06617a37dd7cad611c8919ff5
-      sha256: 274d388cfff99dded1d6ee61d0bca1955a5c6e5121067baffa8d128e5629893a
+      md5: 6cb2ee2d35244d342e9b802a63370d44
+      sha256: a81049220107890c8312fad5d391f65186330decefab25439aed10b3250ef1bd
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.11.28.20.27.28-hd8ed1ab_0.conda
-    version: 2024.11.28.20.27.28
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.11.29.12.37.53-hd8ed1ab_0.conda
+    version: 2024.11.29.12.37.53
   - category: main
     dependencies:
       attrs: ''
