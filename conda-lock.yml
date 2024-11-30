@@ -632,15 +632,15 @@ package:
       ripgrep: ''
       tqdm: ''
     hash:
-      md5: a49465c1249f485e96dac4ef44eaef18
-      sha256: 58b8ce8acc2c00835c2512c46917a4738601bbbfdeaa27fdc0cc001a1d5096e9
+      md5: bec7647f71147364240bd145a1c62ac4
+      sha256: 24182b48093a3142967a30ff6da202bcf3519844a4f3184ed0bff7cfc5563539
     manager: conda
     name: conda-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/conda-build-24.11.2-py311h38be061_0.conda
-    version: 24.11.2
+      https://conda.anaconda.org/conda-forge/linux-64/conda-build-24.11.1-py311h38be061_2.conda
+    version: 24.11.1
   - category: main
     dependencies:
       boltons: '>=23.0.0'
