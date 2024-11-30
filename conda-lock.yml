@@ -711,15 +711,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: fca9fb149779dca2252ef15f3999581f
-      sha256: 23568e3c5d07097102c4c874f81982a74587a258567600d816c14798b6d138be
+      md5: 42f443564f8bc4a9a7d59f365967d551
+      sha256: 1df87ba97fb7d50e1c8ad6d5166565318766d76043f2142ca89c64a252bd81b3
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.11.29.19.06.25-hd8ed1ab_0.conda
-    version: 2024.11.29.19.06.25
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.11.30.12.23.39-hd8ed1ab_0.conda
+    version: 2024.11.30.12.23.39
   - category: main
     dependencies:
       attrs: ''
@@ -775,15 +775,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: fb183044d5c0910f502033b65dbf21d0
-      sha256: 6e2adee4f5c7dd8c583ce951b8923f57ba85bbda7c903561f3d7cf797c8b4ede
+      md5: 1d58da2a6ecf7cd23d54a28564e126fc
+      sha256: 395c8d02117bbd95747bb4a1f870738ba42873b7272b2dd67e7380cbe0ad9264
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2024.11.163-pyhd8ed1ab_0.conda
-    version: 2024.11.163
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2024.11.167-pyhd8ed1ab_0.conda
+    version: 2024.11.167
   - category: main
     dependencies:
       click: '>=8'
@@ -4704,14 +4704,14 @@ package:
     dependencies:
       python: '>=3.9'
     hash:
-      md5: 3fa1089b4722df3a900135925f4519d9
-      sha256: 354b8a64d4f3311179d85aefc529ca201a36afc1af090d0010c46be7b79f9a47
+      md5: ee8ab0fe4c8dfc5a6319f7f8246022fc
+      sha256: 706f35327a1b433fb57bb99e9fef878e90317fd6ea8cbcd454fb4af1a2e3f035
     manager: conda
     name: tomli
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/tomli-2.1.0-pyhff2d567_0.conda
-    version: 2.1.0
+    url: https://conda.anaconda.org/conda-forge/noarch/tomli-2.2.1-pyhd8ed1ab_0.conda
+    version: 2.2.1
   - category: main
     dependencies:
       python: '>=3.9'
