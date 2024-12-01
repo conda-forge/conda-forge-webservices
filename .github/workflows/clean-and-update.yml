@@ -22,7 +22,7 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: relock
-        uses: beckermr/relock-conda@571d6d5735006079443f1f50ecc7a638a8569a94
+        uses: beckermr/relock-conda@7e9057f62545d3b3a3fc10ccc93cec4d0bd2c5a5
         with:
           github-token: ${{ steps.generate_token.outputs.token }}
           automerge: true
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: setup conda
-        uses: mamba-org/setup-micromamba@617811f69075e3fd3ae68ca64220ad065877f246 # v1
+        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
