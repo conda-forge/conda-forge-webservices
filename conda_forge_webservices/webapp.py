@@ -740,6 +740,14 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
 
 def _dispatch_autotickbot_job(event, uid):
+    if "AUTOTICK_BOT_GH_TOKEN" not in os.environ:
+        LOGGER.info(
+            "    autotick bot job dispatch skipped: event|uid = %s|%s - no token",
+            event,
+            uid,
+        )
+        return
+
     gh = github.Github(auth=github.Auth.Token(os.environ["AUTOTICK_BOT_GH_TOKEN"]))
     repo = gh.get_repo("regro/cf-scripts")
     wf = repo.get_workflow("bot-events.yml")
