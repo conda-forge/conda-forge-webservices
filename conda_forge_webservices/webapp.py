@@ -125,7 +125,12 @@ def print_rate_limiting_info_for_token(token):
 
 
 def print_rate_limiting_info():
-    d = [os.environ["GH_TOKEN"], get_app_token_for_webservices_only()]
+    d = [
+        os.environ["GH_TOKEN"],
+        get_app_token_for_webservices_only(),
+    ]
+    if "AUTOTICK_BOT_GH_TOKEN" in os.environ:
+        d.append(os.environ["AUTOTICK_BOT_GH_TOKEN"])
 
     LOGGER.info("")
     LOGGER.info("GitHub API Rate Limit Info:")
@@ -734,6 +739,111 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         # return
 
 
+def _dispatch_autotickbot_job(event, uid):
+    if "AUTOTICK_BOT_GH_TOKEN" not in os.environ:
+        LOGGER.info(
+            "    autotick bot job dispatch skipped: event|uid = %s|%s - no token",
+            event,
+            uid,
+        )
+        return
+
+    gh = github.Github(auth=github.Auth.Token(os.environ["AUTOTICK_BOT_GH_TOKEN"]))
+    repo = gh.get_repo("regro/cf-scripts")
+    wf = repo.get_workflow("bot-events.yml")
+    running = wf.create_dispatch(
+        "main",
+        inputs={
+            "event": str(event),
+            "uid": str(uid),
+        },
+    )
+    LOGGER.info(
+        "    autotick bot job dispatched: event|uid|running = %s|%s|%s",
+        event,
+        uid,
+        running,
+    )
+
+
+class AutotickBotPayloadHookHandler(tornado.web.RequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        event = headers.get("X-GitHub-Event", None)
+
+        if not valid_request(
+            self.request.body,
+            headers.get("X-Hub-Signature", ""),
+        ):
+            self.set_status(403)
+            self.write_error(403)
+            return
+
+        if event == "ping":
+            self.write("pong")
+            return
+
+        body = tornado.escape.json_decode(self.request.body)
+        if event == "pull_request":
+            head_owner = body["pull_request"]["head"]["repo"]["full_name"]
+
+            if (
+                body["repository"]["full_name"].endswith("-feedstock")
+                and (body["action"] in ["closed", "labeled"])
+                and head_owner.startswith("regro-cf-autotick-bot/")
+            ):
+                LOGGER.info("")
+                LOGGER.info("===================================================")
+                LOGGER.info(
+                    "autotick bot pull_request: %s", body["repository"]["full_name"]
+                )
+                LOGGER.info("===================================================")
+
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool(),
+                    _dispatch_autotickbot_job,
+                    "pr",
+                    body["pull_request"]["id"],
+                )
+
+            return
+        elif event == "push":
+            LOGGER.info("")
+            LOGGER.info("===================================================")
+            LOGGER.info("autotick bot push: %s", body["repository"]["full_name"])
+            LOGGER.info("===================================================")
+
+            repo_name = body["repository"]["name"]
+            owner = body["repository"]["owner"]["login"]
+            ref = body["ref"]
+            commit_msg = (body.get("head_commit", None) or {}).get("message", "")
+
+            # Only do anything if we are working with conda-forge, and a
+            # push to main.
+            if (
+                # this weird thing happens with master to main branch changes maybe?
+                body["after"] != "0000000000000000000000000000000000000000"
+                and owner == "conda-forge"
+                and (ref == "refs/heads/master" or ref == "refs/heads/main")
+                and "[cf admin skip feedstocks]" not in commit_msg
+                and "[cf admin skip]" not in commit_msg
+                and repo_name.endswith("-feedstock")
+            ):
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool(),
+                    _dispatch_autotickbot_job,
+                    "push",
+                    repo_name.split("-feedstock")[0],
+                )
+
+            return
+        else:
+            LOGGER.info(f'Unhandled event "{event}".')
+
+        self.set_status(404)
+        self.write_error(404)
+
+
 def _dispatch_automerge_job(repo, sha):
     gh = get_gh_client()
 
@@ -952,6 +1062,7 @@ def create_webapp():
             (r"/conda-webservice-update/versions", UpdateWebservicesVersionsHandler),
             (r"/feedstock-outputs/validate", OutputsValidationHandler),
             (r"/feedstock-outputs/copy", OutputsCopyHandler),
+            (r"/autotickbot/payload", AutotickBotPayloadHookHandler),
             (r"/status-monitor/payload", StatusMonitorPayloadHookHandler),
             (r"/status-monitor/azure", StatusMonitorAzureHandler),
             (r"/status-monitor/open-gpu-server", StatusMonitorOpenGPUServerHandler),
