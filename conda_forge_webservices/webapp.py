@@ -128,8 +128,9 @@ def print_rate_limiting_info():
     d = [
         os.environ["GH_TOKEN"],
         get_app_token_for_webservices_only(),
-        os.environ["AUTOTICKBOT_GH_TOKEN"],
     ]
+    if "AUTOTICK_BOT_GH_TOKEN" in os.environ:
+        d.append(os.environ["AUTOTICK_BOT_GH_TOKEN"])
 
     LOGGER.info("")
     LOGGER.info("GitHub API Rate Limit Info:")
@@ -739,7 +740,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
 
 
 def _dispatch_autotickbot_job(event, uid):
-    gh = github.Github(auth=github.Auth.Token(os.environ["AUTOTICKBOT_GH_TOKEN"]))
+    gh = github.Github(auth=github.Auth.Token(os.environ["AUTOTICK_BOT_GH_TOKEN"]))
     repo = gh.get_repo("regro/cf-scripts")
     wf = repo.get_workflow("bot-events.yml")
     running = wf.create_dispatch(
