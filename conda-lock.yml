@@ -730,7 +730,7 @@ package:
       conda: ''
       conda-build: '>=3.24.0'
       conda-forge-feedstock-check-solvable: '>=0.8.0'
-      conda-forge-feedstock-ops: '>=0.9.0'
+      conda-forge-feedstock-ops: '>=0.10.2'
       conda-forge-metadata: '>=0.3.0'
       conda-forge-pinning: ''
       conda-libmamba-solver: ''
@@ -775,15 +775,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 1d58da2a6ecf7cd23d54a28564e126fc
-      sha256: 395c8d02117bbd95747bb4a1f870738ba42873b7272b2dd67e7380cbe0ad9264
+      md5: 3d55a5869a20cd1698cbe1f411893860
+      sha256: cdae84d00536b55f5aac3d6caef6908a8edafde172090e673e7d9b67deb6240c
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2024.11.167-pyhd8ed1ab_0.conda
-    version: 2024.11.167
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2024.12.19-pyhd8ed1ab_0.conda
+    version: 2024.12.19
   - category: main
     dependencies:
       click: '>=8'
@@ -3137,15 +3137,15 @@ package:
       qhull: '>=2020.2,<2020.3.0a0'
       tk: '>=8.6.13,<8.7.0a0'
     hash:
-      md5: 2e8401a7780e33e9ca76034d0ed24c3c
-      sha256: 92fd9a8c19130064daba8b95bde172c77cbb6105cd7bc928bb0b1174c4a1faec
+      md5: 22a5583349cc89b5c9159b15746f27e2
+      sha256: d31ebd77324b3ea74fa946043402f3bc59efd39c760835ad5f67b2b9e3c54eac
     manager: conda
     name: matplotlib-base
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.9.2-py311h2b939e6_2.conda
-    version: 3.9.2
+      https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.9.3-py311h2b939e6_0.conda
+    version: 3.9.3
   - category: main
     dependencies:
       python: '>=3.6'
