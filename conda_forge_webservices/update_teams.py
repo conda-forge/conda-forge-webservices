@@ -1,5 +1,6 @@
 import github
 import os
+import re
 import logging
 
 from conda_smithy.github import configure_github_team
@@ -10,6 +11,16 @@ from ruamel.yaml import YAML
 from conda_forge_webservices.tokens import get_gh_client
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
+
+JINJA_PAT = re.compile(r"\{\{([^\{\}]*)\}\}")
+
+
+def _jinja2_repl(match):
+    return "${{" + match.group(1) + "}}"
+
+
+def _filter_jinja2(line):
+    return JINJA_PAT.sub(_jinja2_repl, line)
 
 
 @cache
@@ -52,6 +63,18 @@ def get_recipe_contents(gh_repo):
         return resp.decoded_content.decode("utf-8")
 
 
+def get_recipe_dummy_meta(recipe_content):
+    keep_lines = []
+    skip = 0
+    for line in recipe_content.splitlines():
+        if line.strip().startswith("extra:"):
+            skip += 1
+        if skip > 0:
+            keep_lines.append(_filter_jinja2(line))
+    assert skip == 1, "team update failed due to > 1 'extra:' sections"
+    return DummyMeta("\n".join(keep_lines))
+
+
 def update_team(org_name, repo_name, commit=None):
     if not repo_name.endswith("-feedstock"):
         return
@@ -71,15 +94,7 @@ def update_team(org_name, repo_name, commit=None):
     gh_repo = org.get_repo(repo_name)
 
     recipe_content = get_recipe_contents(gh_repo)
-    keep_lines = []
-    skip = 0
-    for line in recipe_content.splitlines():
-        if line.strip().startswith("extra:"):
-            skip += 1
-        if skip > 0:
-            keep_lines.append(line)
-    assert skip == 1, "team update failed due to > 1 'extra:' sections"
-    meta = DummyMeta("\n".join(keep_lines))
+    meta = get_recipe_dummy_meta(recipe_content)
 
     (
         current_maintainers,
