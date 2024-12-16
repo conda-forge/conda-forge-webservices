@@ -283,25 +283,28 @@ def main_finalize_task(task_data_dir):
             pr_branch = pr.head.ref
             pr_owner = pr.head.repo.owner.login
             pr_repo = pr.head.repo.name
+            if (
+                task_results["patch"] is not None
+                and task_results["commit_message"] is None
+            ):
+                LOGGER.warning(
+                    "The webservices tasks did not provide a commit message "
+                    "but did provide a patch. This is likely an error. "
+                    "Proceeding with a default commit message."
+                )
+                task_results["commit_message"] = "chore: conda-forge-webservices update"
+
+            # always clone just in case we need it
+            feedstock_dir = os.path.join(
+                tmpdir,
+                pr_repo,
+            )
+            git_repo = Repo.clone_from(
+                f"https://github.com/{pr_owner}/{pr_repo}.git",
+                feedstock_dir,
+                branch=pr_branch,
+            )
             if task_results["patch"] is not None:
-                if task_results["commit_message"] is None:
-                    LOGGER.warning(
-                        "The webservices tasks did not provide a commit message "
-                        "but did provide a patch. This is likely an error. "
-                        "Proceeding with a default commit message."
-                    )
-                    task_results["commit_message"] = (
-                        "chore: conda-forge-webservices update"
-                    )
-                feedstock_dir = os.path.join(
-                    tmpdir,
-                    pr_repo,
-                )
-                git_repo = Repo.clone_from(
-                    f"https://github.com/{pr_owner}/{pr_repo}.git",
-                    feedstock_dir,
-                    branch=pr_branch,
-                )
                 patch_file = os.path.join(tmpdir, "rerender-diff.patch")
                 with open(patch_file, "w") as fp:
                     fp.write(task_results["patch"])
