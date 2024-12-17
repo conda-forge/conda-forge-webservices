@@ -390,6 +390,8 @@ def main_finalize_task(task_data_dir):
                 _, pr_title_error = update_pr_title(
                     full_repo_name, int(pr_number), task_results["new_version"]
                 )
+            else:
+                pr_title_error = False
 
             if task_results["version_error"]:
                 action_error = True
