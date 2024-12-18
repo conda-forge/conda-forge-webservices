@@ -130,8 +130,9 @@ jobs:
           ref: ${{ needs.tag-and-release.outputs.new_version }}
 
       - name: build and push to heroku
-        uses: gonuit/heroku-docker-deploy@9ab97585f979857642d66612a2ae4062b3347d53
+        uses: AkhileshNS/heroku-deploy@581dd286c962b6972d427fcf8980f60755c15520
         with:
-          email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: conda-forge
+          usedocker: true
