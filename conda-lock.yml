@@ -669,15 +669,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 77fbb5b4683f138b9fe3eceaff63445d
-      sha256: ec673f035081a1f4a573c1f0db022d38de2ba0ad4a6a085ad7a47f4358f2b31e
+      md5: 01c26a529b96a17a556e501851e6015a
+      sha256: d3273ffc414f385c753557f0ff829fe9d66998ac651c0e077d3ef5a25dd83c29
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.12.17.22.25.12-hd8ed1ab_0.conda
-    version: 2024.12.17.22.25.12
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.12.18.11.57.07-hd8ed1ab_0.conda
+    version: 2024.12.18.11.57.07
   - category: main
     dependencies:
       attrs: ''
@@ -903,15 +903,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: f9c0d60339948d8022b6c6d2d6b7eec1
-      sha256: 786d13c0eff49d8f5317b28b600dff5fcc0dbeaae3f066761a0aba55f0044d78
+      md5: 53b15a7c1288824a43deadda17b6f7b0
+      sha256: 13ab90d3eaf80938a071080406e7934080650fa5cf8118aea4d8e90c03c70236
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.45.0-unix_pyhd81877a_0.conda
-    version: 3.45.0
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.45.1-unix_pyhd81877a_0.conda
+    version: 3.45.1
   - category: main
     dependencies:
       python: '>=3.8'
@@ -3805,17 +3805,17 @@ package:
   - category: main
     dependencies:
       pydantic: '>=2.5.2'
-      python: '>=3.8'
+      python: '>=3.9'
     hash:
-      md5: 9f8a8a6ec5789e1511f88dedcaff9361
-      sha256: 752920e9ebb693478d45fd2e68c25121c80aabbde535a7d17d658e8f119c6c19
+      md5: 93c27a768fb179feaa65b39525da895d
+      sha256: 9d88da86eacd78db64d6557059a501727cb925f5c1b353a14772d967b50a4921
     manager: conda
     name: pydantic-extra-types
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.8.2-pyhd8ed1ab_0.conda
-    version: 2.8.2
+      https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.10.1-pyh3cfb1c2_0.conda
+    version: 2.10.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -4213,15 +4213,15 @@ package:
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 5457225c7ce2cf9bd84ca12a078efde2
-      sha256: 7531a8de06a1c1fcfdb30adefda163d8a3ac66854ac222ef64d4796129a163cb
+      md5: f311a98a792e76fd74f791d00d1fe005
+      sha256: e0a1543209cf5d12e11bedfac81106e07f3a9e4fb81ea765a34b2045d6eb820b
     manager: conda
     name: rapidfuzz
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rapidfuzz-3.10.1-py311hfdbb021_0.conda
-    version: 3.10.1
+      https://conda.anaconda.org/conda-forge/linux-64/rapidfuzz-3.11.0-py311hfdbb021_0.conda
+    version: 3.11.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -4565,16 +4565,15 @@ package:
     version: 8.1.0
   - category: main
     dependencies:
-      python: ''
+      python: '>=3.9'
     hash:
-      md5: e741c12e1b51e1885b1b38f2180ac38f
-      sha256: ee178b08593a87ad377ac5730f31a43c026f5e5dd2cc89be83463abcb3532793
+      md5: 24dccb38ae0c4f2e11a387fb2d4e21cb
+      sha256: 93ea629d7da9e66b6c3bf107c67a5a700bf2aa65568b3ebd3118bf969cdb66aa
     manager: conda
     name: sgmllib3k
     optional: false
     platform: linux-64
-    url:
-      https://conda.anaconda.org/conda-forge/noarch/sgmllib3k-1.0.0-pyh9f0ad1d_0.tar.bz2
+    url: https://conda.anaconda.org/conda-forge/noarch/sgmllib3k-1.0.0-pyhd8ed1ab_1.conda
     version: 1.0.0
   - category: main
     dependencies: {}
@@ -5027,14 +5026,14 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: 0b7cf121375f413a011f39e04fc2f10f
-      sha256: e3fbc6b4fb0a09599fdeb6f6101f8ef5d67870b08feb4d533517cf9cf0e3c674
+      md5: 4ae185c7bfbbd547e607e5da7d54fcbd
+      sha256: 7c3caf54a016adde74f112087672d26511cdb67f2d6fe15b86da4ab6da432527
     manager: conda
     name: uv
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.5.9-h0f3a69f_0.conda
-    version: 0.5.9
+    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.5.10-h0f3a69f_0.conda
+    version: 0.5.10
   - category: main
     dependencies:
       distlib: '>=0.3.7,<1'
