@@ -554,15 +554,15 @@ package:
       truststore: '>=0.8.0'
       zstandard: '>=0.19.0'
     hash:
-      md5: a96ffe80dc7eafe4b7a729c05531cb73
-      sha256: 089612bc705dba5511296cb4e2520e3c32b52fd08aa00a2457e783560bcf97e8
+      md5: feb96c092af4829c3162e27051919bfc
+      sha256: f6cd60ff5009fc4d178782da448816b8fc52e576f097a5628eff469488da6519
     manager: conda
     name: conda
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/conda-24.11.1-py311h38be061_0.conda
-    version: 24.11.1
+      https://conda.anaconda.org/conda-forge/linux-64/conda-24.11.2-py311h38be061_0.conda
+    version: 24.11.2
   - category: main
     dependencies:
       beautifulsoup4: ''
