@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
 
       - name: setup conda
-        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
+        uses: mamba-org/setup-micromamba@068f1ab4b37ed9b3d9f73da7db90a0cda0a48d29 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -41,7 +41,7 @@ jobs:
       - name: generate token
         id: generate_token
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        uses: actions/create-github-app-token@c1a285145b9d317df6ced56c09f525b5c2b6f755 # v1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -94,7 +94,7 @@ jobs:
           fetch-depth: 0
 
       - name: setup conda
-        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
+        uses: mamba-org/setup-micromamba@068f1ab4b37ed9b3d9f73da7db90a0cda0a48d29 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -117,7 +117,7 @@ jobs:
 
       - name: set up docker buildx
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices'
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3
 
       - name: login to docker hub
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices'
@@ -151,7 +151,7 @@ jobs:
 
       - name: setup conda
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
+        uses: mamba-org/setup-micromamba@068f1ab4b37ed9b3d9f73da7db90a0cda0a48d29 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -164,7 +164,7 @@ jobs:
       - name: generate token
         if: ${{ !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        uses: actions/create-github-app-token@c1a285145b9d317df6ced56c09f525b5c2b6f755 # v1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -211,7 +211,7 @@ jobs:
 
       - name: setup conda
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
+        uses: mamba-org/setup-micromamba@068f1ab4b37ed9b3d9f73da7db90a0cda0a48d29 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -224,7 +224,7 @@ jobs:
       - name: generate token
         if: ${{ !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        uses: actions/create-github-app-token@c1a285145b9d317df6ced56c09f525b5c2b6f755 # v1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -275,7 +275,7 @@ jobs:
 
       - name: setup conda
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
+        uses: mamba-org/setup-micromamba@068f1ab4b37ed9b3d9f73da7db90a0cda0a48d29 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -288,7 +288,7 @@ jobs:
       - name: generate token
         if: ${{ !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        uses: actions/create-github-app-token@c1a285145b9d317df6ced56c09f525b5c2b6f755 # v1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -339,7 +339,7 @@ jobs:
 
       - name: setup conda
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
+        uses: mamba-org/setup-micromamba@068f1ab4b37ed9b3d9f73da7db90a0cda0a48d29 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -352,7 +352,7 @@ jobs:
       - name: generate token
         if: ${{ !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        uses: actions/create-github-app-token@c1a285145b9d317df6ced56c09f525b5c2b6f755 # v1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -402,7 +402,7 @@ jobs:
 
       - name: setup conda
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@06375d89d211a1232ef63355742e9e2e564bc7f7 # v1
+        uses: mamba-org/setup-micromamba@068f1ab4b37ed9b3d9f73da7db90a0cda0a48d29 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -415,7 +415,7 @@ jobs:
       - name: generate token
         if: ${{ !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        uses: actions/create-github-app-token@c1a285145b9d317df6ced56c09f525b5c2b6f755 # v1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
