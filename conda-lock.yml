@@ -222,15 +222,15 @@ package:
       python-dateutil: '>=2.1,<3.0.0'
       urllib3: '>=1.25.4,!=2.2.0,<3'
     hash:
-      md5: 170402e75a16f6a5950ee0f01d4e2093
-      sha256: ff80c310557edd3735705b0693490c7b3eec7cf6bdd76def8f06e8f44766a5f0
+      md5: 25492f76df61cf8cf6d0f7c0e6e3a568
+      sha256: 9de5710954290e2f6709771bff1ff0d48866e26617faca83a486d4c5b294c9e0
     manager: conda
     name: botocore
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.89-pyge310_1234567_0.conda
-    version: 1.35.89
+      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.90-pyge310_1234567_0.conda
+    version: 1.35.90
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -670,15 +670,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 65349bbfffefa0130ed324c26fc6fdd3
-      sha256: 2c202455a0b5854a52db64949b44be7d8f6fe2939b881a9be3ef58065d2ef31f
+      md5: 21b4a59133f21becea29ca86eea3b0d4
+      sha256: 415a7b23f4d3b25457715507134aa3df4962bc678bf34d7c0b740bcb6771505d
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2024.12.27.18.01.51-hd8ed1ab_0.conda
-    version: 2024.12.27.18.01.51
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.01.16.12.34-hd8ed1ab_0.conda
+    version: 2025.01.01.16.12.34
   - category: main
     dependencies:
       attrs: ''
@@ -1638,14 +1638,14 @@ package:
       tomli: ''
       tomli-w: ''
     hash:
-      md5: ed33838ff4101f964c7d1fa85a12e616
-      sha256: ba757054a2db5e477b07c5bcb8fcfa1385f8e7ab0f827f37c2977673a9897448
+      md5: 0dcc39e5a77b0f84a63cfe303c5bfea6
+      sha256: 3b0c678f7353f0b6554f3995735e6bb5a513f775a308e8252194f8fd5c26a9b4
     manager: conda
     name: grayskull
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/grayskull-2.7.5-pyhd8ed1ab_0.conda
-    version: 2.7.5
+    url: https://conda.anaconda.org/conda-forge/noarch/grayskull-2.7.6-pyhd8ed1ab_0.conda
+    version: 2.7.6
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -2600,8 +2600,8 @@ package:
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
       fmt: '>=11.0.2,<12.0a0'
-      libarchive: '>=3.7.4,<3.8.0a0'
-      libcurl: '>=8.10.1,<9.0a0'
+      libarchive: '>=3.7.7,<3.8.0a0'
+      libcurl: '>=8.11.1,<9.0a0'
       libgcc: '>=13'
       libsolv: '>=0.7.30,<0.8.0a0'
       libstdcxx: '>=13'
@@ -2611,20 +2611,20 @@ package:
       yaml-cpp: '>=0.8.0,<0.9.0a0'
       zstd: '>=1.5.6,<1.6.0a0'
     hash:
-      md5: 66ddf67874b75a2252cd09ed931fc1e7
-      sha256: 07db691a23ac69e92a516ca52ab92bb2216cb52bafc9374416d92e41033fb40b
+      md5: d6aec145c4f2473c09c2699d74f6dfc0
+      sha256: d08441e7897fc776b8902f953063cf19ba08c249f3ebbad2b4b1c0ef0e180dd5
     manager: conda
     name: libmamba
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-1.5.11-hf72d635_0.conda
-    version: 1.5.11
+    url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-1.5.12-h49b8a8d_0.conda
+    version: 1.5.12
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
       fmt: '>=11.0.2,<12.0a0'
       libgcc: '>=13'
-      libmamba: 1.5.11
+      libmamba: 1.5.12
       libstdcxx: '>=13'
       openssl: '>=3.4.0,<4.0a0'
       pybind11-abi: '4'
@@ -2632,15 +2632,15 @@ package:
       python_abi: 3.11.*
       yaml-cpp: '>=0.8.0,<0.9.0a0'
     hash:
-      md5: 95e86fb659cb22786e9e2101c9b357c0
-      sha256: 103e15236fd3fc474992d7bbb8cbc6b0d99ae44ba2eb2344708ccdd9a725341e
+      md5: 47fb74d72998e00565428ccdcafc97cb
+      sha256: 72a20bc8d921b428fbe3c8aefea13c652e5caba189e4451aa8ab99d3c7694f0e
     manager: conda
     name: libmambapy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/libmambapy-1.5.11-py311h18a8eac_0.conda
-    version: 1.5.11
+      https://conda.anaconda.org/conda-forge/linux-64/libmambapy-1.5.12-py311hb3373dd_0.conda
+    version: 1.5.12
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -3024,20 +3024,20 @@ package:
   - category: main
     dependencies:
       conda: '>=24,<25'
-      libmambapy: 1.5.11
+      libmambapy: 1.5.12
       openssl: '>=3.4.0,<4.0a0'
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: b213d1ff55e8ae1d999a9f5b9669eb20
-      sha256: 6b4466bba505d139d82eee9983a4e1d6ba5832cc485db1d362af6e1f5c2a7e44
+      md5: d681a3fbf59b09439d72955897d7fc76
+      sha256: ab3097fad2db3d29c54cc4672905b89b046fd44f1da1a9d675820dcd008ceeeb
     manager: conda
     name: mamba
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/mamba-1.5.11-py311h3072747_0.conda
-    version: 1.5.11
+      https://conda.anaconda.org/conda-forge/linux-64/mamba-1.5.12-py311h3072747_0.conda
+    version: 1.5.12
   - category: main
     dependencies:
       mdurl: '>=0.1,<1'
@@ -3953,14 +3953,14 @@ package:
     dependencies:
       python: '>=3.9'
     hash:
-      md5: 4c05a2bcf87bb495512374143b57cf28
-      sha256: 09a5484532e24a33649ab612674fd0857bbdcfd6640a79d13a6690fb742a36e1
+      md5: 285e237b8f351e85e7574a2c7bfa6d46
+      sha256: f513fed4001fd228d3bf386269237b4ca6bff732c99ffc11fcbad8529b35407c
     manager: conda
     name: pyparsing
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.0-pyhd8ed1ab_2.conda
-    version: 3.2.0
+    url: https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.1-pyhd8ed1ab_0.conda
+    version: 3.2.1
   - category: main
     dependencies:
       python: '>=3.9'
@@ -4825,15 +4825,15 @@ package:
   - category: main
     dependencies:
       colorama: ''
-      python: '>=3.7'
+      python: '>=3.9'
     hash:
-      md5: 4085c9db273a148e149c03627350e22c
-      sha256: 5673b7104350a6998cb86cccf1d0058217d86950e8d6c927d8530606028edb1d
+      md5: 9efbfdc37242619130ea42b1cc4ed861
+      sha256: 11e2c85468ae9902d24a27137b6b39b4a78099806e551d390e394a8c34b48e40
     manager: conda
     name: tqdm
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_0.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
     version: 4.67.1
   - category: main
     dependencies:
