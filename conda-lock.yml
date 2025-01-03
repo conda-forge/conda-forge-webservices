@@ -222,15 +222,15 @@ package:
       python-dateutil: '>=2.1,<3.0.0'
       urllib3: '>=1.25.4,!=2.2.0,<3'
     hash:
-      md5: 25492f76df61cf8cf6d0f7c0e6e3a568
-      sha256: 9de5710954290e2f6709771bff1ff0d48866e26617faca83a486d4c5b294c9e0
+      md5: 54e45cf55d5a4178b52ddd5d64b631c2
+      sha256: b024a6ee6361e15b06692e950bb0651aba42cd05fea4830a6aac13b483786bdc
     manager: conda
     name: botocore
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.90-pyge310_1234567_0.conda
-    version: 1.35.90
+      https://conda.anaconda.org/conda-forge/noarch/botocore-1.35.91-pyge310_1234567_0.conda
+    version: 1.35.91
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -733,15 +733,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 7861f58b0bf707aa4528a2e69e13156b
-      sha256: 0c0b986c1aff415fedccaefc414261c268f3815297650f770f1703ae8071e6d6
+      md5: de134cb79043efb5afe3af3f7353e7e0
+      sha256: 96a3cbea03c6c4720c3d0cffefb625268aabdeb38b686e915968f908b4841b1a
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2024.12.215-pyhd8ed1ab_0.conda
-    version: 2024.12.215
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.6-pyhd8ed1ab_0.conda
+    version: 2025.1.6
   - category: main
     dependencies:
       click: '>=8'
@@ -1539,14 +1539,14 @@ package:
       python: '>=3.9'
       smmap: '>=3.0.1,<6'
     hash:
-      md5: 9d3a3c39dd982332dab2aac113492013
-      sha256: a5150ca4103c3ded9f7664bd5176cf0a6f3da86886552bfd3d519826518b2a3d
+      md5: 7c14f3706e099f8fcd47af2d494616cc
+      sha256: dbbec21a369872c8ebe23cb9a3b9d63638479ee30face165aa0fccc96e93eec3
     manager: conda
     name: gitdb
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/gitdb-4.0.11-pyhd8ed1ab_1.conda
-    version: 4.0.11
+    url: https://conda.anaconda.org/conda-forge/noarch/gitdb-4.0.12-pyhd8ed1ab_0.conda
+    version: 4.0.12
   - category: main
     dependencies:
       pyjwt: '>=2.3.0'
