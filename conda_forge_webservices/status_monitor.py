@@ -88,15 +88,15 @@ def _reload_cache():
             if slug not in data:
                 continue
             else:
-                _data = data[slug]
+                slug_data = data[slug]
 
-            for repo in _data["repos"]:
-                APP_DATA[slug]["repos"][repo] = _data["repos"][repo]
+            for repo in slug_data["repos"]:
+                APP_DATA[slug]["repos"][repo] = slug_data["repos"][repo]
 
-            for ts in _data["rates"]:
+            for ts in slug_data["rates"]:
                 t = datetime.datetime.fromisoformat(ts).astimezone(pytz.UTC)
                 key = _make_time_key(t)
-                APP_DATA[slug]["rates"][key] = _data["rates"][ts]
+                APP_DATA[slug]["rates"][key] = slug_data["rates"][ts]
 
             print(f"    reloaded {len(APP_DATA[slug]['repos'])} repos", flush=True)
             print(f"    reloaded {len(APP_DATA[slug]['rates'])} rates", flush=True)

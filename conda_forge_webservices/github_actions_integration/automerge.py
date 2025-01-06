@@ -86,16 +86,16 @@ def _get_checks(repo, pr):
     checks = []
     commit = repo.get_commit(pr.head.sha)
     for check in commit.get_check_suites():
-        _check = {}
-        _check["app"] = {"slug": check.app.slug}
-        _check["status"] = check.status
-        _check["conclusion"] = check.conclusion
+        cs_check = {}
+        cs_check["app"] = {"slug": check.app.slug}
+        cs_check["status"] = check.status
+        cs_check["conclusion"] = check.conclusion
         # for gha we check the runs to ensure we have the right check
         if check.status == "completed" and check.app.slug == "github-actions":
-            _check["runs"] = [run.name for run in check.get_check_runs()]
+            cs_check["runs"] = [run.name for run in check.get_check_runs()]
         else:
-            _check["runs"] = None
-        checks.append(_check)
+            cs_check["runs"] = None
+        checks.append(cs_check)
     return checks
 
 
@@ -350,11 +350,11 @@ def _check_pr(
     # If the automerge label is present, then we can proceed as long as no commits
     # have since been added.
     if pr_has_automerge_label:
-        _no_commits = _no_extra_pr_commits(pr)
-        if _no_commits is None:
+        pr_no_commits = _no_extra_pr_commits(pr)
+        if pr_no_commits is None:
             return False, "could not determine if extra commits were made to PR"
         else:
-            if _no_commits:
+            if pr_no_commits:
                 return True, None
             else:
                 pr.remove_from_labels("automerge")
@@ -416,12 +416,12 @@ I considered the following status checks when analyzing this PR:
 """
     for k, v in stats.items():
         if v:
-            _v = "passed"
+            new_v = "passed"
         elif v is None:
-            _v = "pending"
+            new_v = "pending"
         else:
-            _v = "failed"
-        comment = comment + f" - **{k}**: {_v}\n"
+            new_v = "failed"
+        comment = comment + f" - **{k}**: {new_v}\n"
 
     comment = comment + f"\n\nThus the PR was {msg}"
 

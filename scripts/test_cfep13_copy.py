@@ -360,14 +360,14 @@ def test_feedstock_outputs_copy_works():
                 "=========================================================",
                 flush=True,
             )
-            _fname = f"outputs/b/l/a/blah-{uid}.json"
+            output_fname = f"outputs/b/l/a/blah-{uid}.json"
             with tempfile.TemporaryDirectory() as tmpdir:
                 with pushd(tmpdir):
                     _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
 
                     with pushd(os.path.split(OUTPUTS_REPO)[1].replace(".git", "")):
-                        assert os.path.exists(_fname)
-                        with open(_fname) as fp:
+                        assert os.path.exists(output_fname)
+                        with open(output_fname) as fp:
                             data = json.load(fp)
                             assert data["feedstocks"] == ["staged-recipes"]
 

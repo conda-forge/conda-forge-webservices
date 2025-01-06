@@ -56,10 +56,10 @@ class TestAddAutomerge(unittest.TestCase):
                     assert add_bot_automerge(repo)
 
                     with open(cfg_pth) as fp:
-                        _cfg = yaml.load(fp)
+                        am_cfg = yaml.load(fp)
 
                     # make sure automerge is on
-                    assert _cfg["bot"]["automerge"]
+                    assert am_cfg["bot"]["automerge"]
 
                     # make sure of we had keys they are still there
                     if cfg:
@@ -129,10 +129,10 @@ class TestRemoveAutomerge(unittest.TestCase):
                     assert remove_bot_automerge(repo)
 
                     with open(cfg_pth) as fp:
-                        _cfg = yaml.load(fp)
+                        am_cfg = yaml.load(fp)
 
                     # make sure automerge is off
-                    current_automerge_value = _cfg.get("bot", {}).get(
+                    current_automerge_value = am_cfg.get("bot", {}).get(
                         "automerge", False
                     )
                     assert not current_automerge_value
