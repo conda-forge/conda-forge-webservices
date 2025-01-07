@@ -47,11 +47,11 @@ def get_handles(members):
 
 class DummyMeta:
     def __init__(self, meta_yaml):
-        _yml = YAML(typ="safe")
-        _yml.indent(mapping=2, sequence=4, offset=2)
-        _yml.width = 160
-        _yml.allow_duplicate_keys = True
-        self.meta = _yml.load(meta_yaml)
+        parse_yml = YAML(typ="safe")
+        parse_yml.indent(mapping=2, sequence=4, offset=2)
+        parse_yml.width = 160
+        parse_yml.allow_duplicate_keys = True
+        self.meta = parse_yml.load(meta_yaml)
 
 
 def get_recipe_contents(gh_repo):

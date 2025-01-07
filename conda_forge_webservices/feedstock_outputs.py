@@ -53,10 +53,10 @@ def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
 
         now = time.time()
         for td in token_data["tokens"]:
-            _provider = td.get("provider", None)
-            _expires_at = td.get("expires_at", None)
-            if ((_provider is None) or (_provider == provider)) and (
-                (_expires_at is None) or (_expires_at > now)
+            td_provider = td.get("provider", None)
+            td_expires_at = td.get("expires_at", None)
+            if ((td_provider is None) or (td_provider == provider)) and (
+                (td_expires_at is None) or (td_expires_at > now)
             ):
                 salted_token = scrypt.hash(
                     feedstock_token,
@@ -399,14 +399,14 @@ def validate_feedstock_outputs(
     valid_hashes = _is_valid_output_hash(outputs_to_test, hash_type)
 
     for o in outputs_to_test:
-        _errors = []
+        p_errors = []
         if not valid_outputs[o]:
-            _errors.append(f"output {o} not allowed for conda-forge/{project}")
+            p_errors.append(f"output {o} not allowed for conda-forge/{project}")
         if not valid_hashes[o]:
-            _errors.append(f"output {o} does not have a valid md5 checksum")
+            p_errors.append(f"output {o} does not have a valid md5 checksum")
 
-        if len(_errors) > 0:
-            errors.extend(_errors)
+        if len(p_errors) > 0:
+            errors.extend(p_errors)
         else:
             valid[o] = True
 

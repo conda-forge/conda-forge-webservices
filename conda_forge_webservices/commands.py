@@ -586,8 +586,8 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                     )
                     to_close = False
                 else:
-                    _changed_anything = add_user(git_repo, user)
-                    if _changed_anything is None:
+                    added_user = add_user(git_repo, user)
+                    if added_user is None:
                         err_msg = (
                             "the recipe meta.yaml and/or CODEOWNERS file could "
                             "not be found or parsed properly when adding "
@@ -595,7 +595,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                         )
                         to_close = False
                     else:
-                        if not _changed_anything:
+                        if not added_user:
                             err_msg = f"the recipe already has maintainer @{user}"
                             to_close = True
                         else:
@@ -613,7 +613,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                                 "#mfaq-contact-core) to have this PR merged, if the "
                                 "maintainer is unresponsive."
                             )
-                            changed_anything |= _changed_anything
+                            changed_anything |= added_user
 
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)

@@ -128,22 +128,22 @@ def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
 
             linted_recipes.append(fname)
 
-            _lints = lints.get(fname, [])
-            _hints = hints.get(fname, [])
+            fname_lints = lints.get(fname, [])
+            fname_hints = hints.get(fname, [])
 
-            if _lints:
+            if fname_lints:
                 all_pass = False
                 messages.append(
                     "\nFor **{}**:\n\n{}".format(
-                        fname, "\n".join(f" * ❌ {lint}" for lint in _lints)
+                        fname, "\n".join(f" * ❌ {lint}" for lint in fname_lints)
                     )
                 )
-            if _hints:
+            if fname_hints:
                 hints_found = True
                 messages.append(
                     "\nFor **{}**:\n\n{}".format(
                         fname,
-                        "\n".join(f" * ℹ️ {hint}" for hint in _hints),  # noqa: RUF001
+                        "\n".join(f" * ℹ️ {hint}" for hint in fname_hints),  # noqa: RUF001
                     )
                 )
 
