@@ -695,15 +695,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 739d32400b1035ed1d375ec574926c77
-      sha256: 392759e6602adb7638ab5a7a2eda2c1a9252db047ea7a44e14bd2321c0eb745c
+      md5: 326762f10357248f380c4d2fa1682868
+      sha256: aa16d13f7977ca901eb5c8054d5ab1c3395ea70274e714113e91e604d742e92a
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.11.10.43.51-hd8ed1ab_0.conda
-    version: 2025.01.11.10.43.51
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.11.16.15.44-hd8ed1ab_0.conda
+    version: 2025.01.11.16.15.44
   - category: main
     dependencies:
       attrs: ''
@@ -759,15 +759,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 505ac53c75c471dede6119b68ba0d83f
-      sha256: c6e9c1df03a112e469e80a0a318f5bd20dd6e0fbbc7401dd289db5fde0694c54
+      md5: 81ab20fd04bd0bf8805efb4990b39974
+      sha256: f7fddb4fcb9646349b0822d7feca6cb0a29b7e060df37ce20cf311c27723b535
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.39-pyhd8ed1ab_0.conda
-    version: 2025.1.39
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.42-pyhd8ed1ab_0.conda
+    version: 2025.1.42
   - category: main
     dependencies:
       click: '>=8'
@@ -4537,15 +4537,15 @@ package:
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: a5eaf17ff42cbaad9107388402c9542a
-      sha256: 5fcb47293737c8239c09edf2c38789011a6b26286585f5e3b4b562a4b89f553d
+      md5: d295a28b9b897945739417e8ed818f82
+      sha256: a52c01f196a0cd680003c5940a8fa95990a4aafe586edbeb04a09c6d70c2820d
     manager: conda
     name: scipy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/scipy-1.15.0-py311hc1ac118_1.conda
-    version: 1.15.0
+      https://conda.anaconda.org/conda-forge/linux-64/scipy-1.15.1-py311hc1ac118_0.conda
+    version: 1.15.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -5115,14 +5115,14 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: 7586b8a39e14b0d73fd5f0cfdebc8a0c
-      sha256: da94b2a3800f1644b8d490a5bf12da1ed89863b84d853a47eb18d42718b99352
+      md5: d5d97fb9313f4ff7ae3d7e5c98794b5b
+      sha256: 6c42b2eedd779b671f7cb7e74665a0dcf6a12404d546e2095a4aac5d76820cd2
     manager: conda
     name: uv
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.5.16-h0f3a69f_0.conda
-    version: 0.5.16
+    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.5.17-h0f3a69f_0.conda
+    version: 0.5.17
   - category: main
     dependencies:
       distlib: '>=0.3.7,<1'
