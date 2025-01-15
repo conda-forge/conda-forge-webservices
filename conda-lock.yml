@@ -747,6 +747,7 @@ package:
       python-graphviz: ''
       python-rapidjson: ''
       rattler-build: ''
+      rattler-build-conda-compat: '>=1.3.2,<2'
       requests: ''
       ruamel.yaml: ''
       ruamel.yaml.jinja2: ''
@@ -759,15 +760,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 276e52949b21b7f88cf2fb0822feb177
-      sha256: 2d5355f020a83d88a2739310211b91df9f86f937d62ff9c4bc8400ab9f14f2d7
+      md5: c46a3193f3341f56e74aa34ff173bdf3
+      sha256: 52252095348f010af70907d82157e64b469ceff4775f35659abff3e4349e589b
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.48-pyhd8ed1ab_0.conda
-    version: 2025.1.48
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.52-pyhd8ed1ab_0.conda
+    version: 2025.1.52
   - category: main
     dependencies:
       click: '>=8'
