@@ -10,7 +10,7 @@ dependencies:
   - conda-build
   - conda-forge-metadata >=0.9.2
   - conda-forge-pinning
-  - conda-forge-tick >=2024.9.26
+  - conda-forge-tick >=2025.1.51
   - conda-forge-feedstock-ops >=0.10.1  # pin to fix bug in rerenders
   - conda-recipe-manager
   - conda-smithy >=3.34.1  # this pin is for jinja2 sandboxes
