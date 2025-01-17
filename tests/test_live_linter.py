@@ -112,7 +112,8 @@ def _make_empty_commit(pr_num):
             )
             subprocess.run(["gh", "pr", "checkout", f"{pr_num}"], check=True)
             subprocess.run(
-                ["git", "commit", "--allow-empty", "-m", "[ci skip] empty commit"], check=True
+                ["git", "commit", "--allow-empty", "-m", "[ci skip] empty commit"],
+                check=True,
             )
             subprocess.run(["git", "push"], check=True)
 
