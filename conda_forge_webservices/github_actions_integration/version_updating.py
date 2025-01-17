@@ -23,6 +23,7 @@ def update_version(
     import conda_forge_tick.update_recipe
     from conda_forge_tick.feedstock_parser import load_feedstock
     from conda_forge_tick.update_recipe.version import update_version_feedstock_dir
+    from conda_forge_tick.update_recipe import v1_recipe
     from conda_forge_tick.update_upstream_versions import (
         all_version_sources,
         get_latest_version,
@@ -106,7 +107,7 @@ def update_version(
             )
             meta_yaml_path.write_text(new_meta_yaml)
         elif recipe_yaml_path.exists():
-            conda_forge_tick.update_recipe.v1_recipe.update_build_number(
+            v1_recipe.update_build_number(
                 recipe_yaml_path,
                 0,
             )
