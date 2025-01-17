@@ -119,7 +119,9 @@ def update_version(
         return False, True, new_version
 
     try:
-        recipe_path = "recipe/meta.yaml" if schema_version == 0 else "recipe/recipe.yaml"
+        recipe_path = (
+            "recipe/meta.yaml" if schema_version == 0 else "recipe/recipe.yaml"
+        )
         subprocess.run(
             ["git", "add", recipe_path],
             cwd=git_repo.working_dir,
