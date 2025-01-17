@@ -13,18 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-      - name: generate token
-        id: generate_token
-        uses: actions/create-github-app-token@c1a285145b9d317df6ced56c09f525b5c2b6f755 # v1
-        with:
-          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
-          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - name: relock
         uses: beckermr/relock-conda@7dd1c7ebd71d3389ba3dad4864b9fb6c2208a1d9
         with:
-          github-token: ${{ steps.generate_token.outputs.token }}
+          github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
           automerge: true
           skip-if-pr-exists: true
           include-only-packages:
@@ -38,6 +30,8 @@ jobs:
             conda-forge-feedstock-ops
             conda-recipe-manager
             conda-souschef
+            rattler-build
+            rattler-build-conda-compat
 
   clean-and-cache:
     name: clean-and-cache
