@@ -24,21 +24,21 @@ def test_copy_feedstock_outputs_exists(ac_prod, ac_staging, dist_exists, remove)
     dist_exists.side_effect = [True, remove]
 
     outputs = OrderedDict()
-    outputs["noarch/boo-0.1-py_10.tar.bz2"] = "sdasDsa"
+    outputs["noarch/boo-0.1-py_10.conda"] = "sdasDsa"
 
     copied = copy_feedstock_outputs(outputs, "blah")
 
-    assert copied == {"noarch/boo-0.1-py_10.tar.bz2": True}
+    assert copied == {"noarch/boo-0.1-py_10.conda": True}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
 
     dist_exists.assert_any_call(
-        ac_prod.return_value, "conda-forge", "noarch/boo-0.1-py_10.tar.bz2"
+        ac_prod.return_value, "conda-forge", "noarch/boo-0.1-py_10.conda"
     )
 
     dist_exists.assert_any_call(
-        ac_staging.return_value, "cf-staging", "noarch/boo-0.1-py_10.tar.bz2"
+        ac_staging.return_value, "cf-staging", "noarch/boo-0.1-py_10.conda"
     )
 
     if remove:
@@ -47,7 +47,7 @@ def test_copy_feedstock_outputs_exists(ac_prod, ac_staging, dist_exists, remove)
             "cf-staging",
             "boo",
             "0.1",
-            basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe=""),
+            basename=urllib.parse.quote("noarch/boo-0.1-py_10.conda", safe=""),
         )
 
 
@@ -61,11 +61,11 @@ def test_copy_feedstock_outputs_does_no_exist(ac_prod, ac_staging, dist_exists, 
         ac_prod.return_value.copy.side_effect = [BinstarError("error in copy")]
 
     outputs = OrderedDict()
-    outputs["noarch/boo-0.1-py_10.tar.bz2"] = "skldjhasl"
+    outputs["noarch/boo-0.1-py_10.conda"] = "skldjhasl"
 
     copied = copy_feedstock_outputs(outputs, "blah")
 
-    assert copied == {"noarch/boo-0.1-py_10.tar.bz2": not error}
+    assert copied == {"noarch/boo-0.1-py_10.conda": not error}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
@@ -76,7 +76,7 @@ def test_copy_feedstock_outputs_does_no_exist(ac_prod, ac_staging, dist_exists, 
     dist_exists.assert_any_call(
         ac_prod.return_value,
         "conda-forge",
-        "noarch/boo-0.1-py_10.tar.bz2",
+        "noarch/boo-0.1-py_10.conda",
     )
 
     ac_prod.return_value.copy.assert_called_once()
@@ -84,7 +84,7 @@ def test_copy_feedstock_outputs_does_no_exist(ac_prod, ac_staging, dist_exists, 
         "cf-staging",
         "boo",
         "0.1",
-        basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe=""),
+        basename=urllib.parse.quote("noarch/boo-0.1-py_10.conda", safe=""),
         to_owner="conda-forge",
         from_label="blah",
         to_label="blah",
@@ -95,7 +95,7 @@ def test_copy_feedstock_outputs_does_no_exist(ac_prod, ac_staging, dist_exists, 
         dist_exists.assert_any_call(
             ac_staging.return_value,
             "cf-staging",
-            "noarch/boo-0.1-py_10.tar.bz2",
+            "noarch/boo-0.1-py_10.conda",
         )
 
         ac_staging.return_value.remove_dist.assert_called_once()
@@ -103,7 +103,7 @@ def test_copy_feedstock_outputs_does_no_exist(ac_prod, ac_staging, dist_exists, 
             "cf-staging",
             "boo",
             "0.1",
-            basename=urllib.parse.quote("noarch/boo-0.1-py_10.tar.bz2", safe=""),
+            basename=urllib.parse.quote("noarch/boo-0.1-py_10.conda", safe=""),
         )
 
 
@@ -111,43 +111,43 @@ def test_copy_feedstock_outputs_does_no_exist(ac_prod, ac_staging, dist_exists, 
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
 def test_validate_feedstock_outputs_badoutputhash(valid_out, valid_hash):
     valid_out.return_value = {
-        "noarch/a-0.1-py_0.tar.bz2": True,
-        "noarch/b-0.1-py_0.tar.bz2": False,
-        "noarch/c-0.1-py_0.tar.bz2": True,
-        "noarch/d-0.1-py_0.tar.bz2": False,
+        "noarch/a-0.1-py_0.conda": True,
+        "noarch/b-0.1-py_0.conda": False,
+        "noarch/c-0.1-py_0.conda": True,
+        "noarch/d-0.1-py_0.conda": False,
     }
     valid_hash.return_value = {
-        "noarch/a-0.1-py_0.tar.bz2": False,
-        "noarch/b-0.1-py_0.tar.bz2": True,
-        "noarch/c-0.1-py_0.tar.bz2": True,
-        "noarch/d-0.1-py_0.tar.bz2": False,
+        "noarch/a-0.1-py_0.conda": False,
+        "noarch/b-0.1-py_0.conda": True,
+        "noarch/c-0.1-py_0.conda": True,
+        "noarch/d-0.1-py_0.conda": False,
     }
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
         {
-            "noarch/a-0.1-py_0.tar.bz2": "daD",
-            "noarch/b-0.1-py_0.tar.bz2": "safdsa",
-            "noarch/c-0.1-py_0.tar.bz2": "sadSA",
-            "noarch/d-0.1-py_0.tar.bz2": "SAdsa",
+            "noarch/a-0.1-py_0.conda": "daD",
+            "noarch/b-0.1-py_0.conda": "safdsa",
+            "noarch/c-0.1-py_0.conda": "sadSA",
+            "noarch/d-0.1-py_0.conda": "SAdsa",
         },
         "md5",
     )
 
     assert valid == {
-        "noarch/a-0.1-py_0.tar.bz2": False,
-        "noarch/b-0.1-py_0.tar.bz2": False,
-        "noarch/c-0.1-py_0.tar.bz2": True,
-        "noarch/d-0.1-py_0.tar.bz2": False,
+        "noarch/a-0.1-py_0.conda": False,
+        "noarch/b-0.1-py_0.conda": False,
+        "noarch/c-0.1-py_0.conda": True,
+        "noarch/d-0.1-py_0.conda": False,
     }
     assert len(errs) == 4
     assert (
-        "output noarch/b-0.1-py_0.tar.bz2 not allowed for " "conda-forge/bar-feedstock"
+        "output noarch/b-0.1-py_0.conda not allowed for " "conda-forge/bar-feedstock"
     ) in errs
     assert (
-        "output noarch/d-0.1-py_0.tar.bz2 not allowed for " "conda-forge/bar-feedstock"
+        "output noarch/d-0.1-py_0.conda not allowed for " "conda-forge/bar-feedstock"
     ) in errs
-    assert "output noarch/a-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
-    assert "output noarch/d-0.1-py_0.tar.bz2 does not have a valid md5 checksum" in errs
+    assert "output noarch/a-0.1-py_0.conda does not have a valid md5 checksum" in errs
+    assert "output noarch/d-0.1-py_0.conda does not have a valid md5 checksum" in errs
 
 
 @mock.patch("conda_forge_webservices.feedstock_outputs.STAGING", new="conda-forge")
@@ -248,9 +248,9 @@ def test_is_valid_feedstock_output(
     p2f_mock.side_effect = _get_p2f_fun
 
     outputs = [
-        "noarch/bar-0.1-py_0.tar.bz2",
-        "noarch/goo-0.3-py_10.tar.bz2",
-        "noarch/glob-0.2-py_12.tar.bz2",
+        "noarch/bar-0.1-py_0.conda",
+        "noarch/goo-0.3-py_10.conda",
+        "noarch/glob-0.2-py_12.conda",
     ]
 
     valid = _is_valid_feedstock_output(
@@ -261,27 +261,27 @@ def test_is_valid_feedstock_output(
 
     if project in ["foo", "foo-feedstock"]:
         assert valid == {
-            "noarch/bar-0.1-py_0.tar.bz2": True,
-            "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": register,
+            "noarch/bar-0.1-py_0.conda": True,
+            "noarch/goo-0.3-py_10.conda": False,
+            "noarch/glob-0.2-py_12.conda": register,
         }
     elif project == "blah":
         assert valid == {
-            "noarch/bar-0.1-py_0.tar.bz2": True,
-            "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": register,
+            "noarch/bar-0.1-py_0.conda": True,
+            "noarch/goo-0.3-py_10.conda": False,
+            "noarch/glob-0.2-py_12.conda": register,
         }
     elif project == "blarg-feedstock":
         assert valid == {
-            "noarch/bar-0.1-py_0.tar.bz2": False,
-            "noarch/goo-0.3-py_10.tar.bz2": True,
-            "noarch/glob-0.2-py_12.tar.bz2": register,
+            "noarch/bar-0.1-py_0.conda": False,
+            "noarch/goo-0.3-py_10.conda": True,
+            "noarch/glob-0.2-py_12.conda": register,
         }
     elif project == "boo-feedstock":
         assert valid == {
-            "noarch/bar-0.1-py_0.tar.bz2": False,
-            "noarch/goo-0.3-py_10.tar.bz2": False,
-            "noarch/glob-0.2-py_12.tar.bz2": register,
+            "noarch/bar-0.1-py_0.conda": False,
+            "noarch/goo-0.3-py_10.conda": False,
+            "noarch/glob-0.2-py_12.conda": register,
         }
 
     if register:
