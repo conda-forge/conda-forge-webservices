@@ -116,6 +116,8 @@ def _make_empty_commit(pr_num):
             )
             subprocess.run(["git", "push"], check=True)
 
+    time.sleep(2.0)
+
 
 def test_linter_pr(pytestconfig):
     branch = pytestconfig.getoption("branch")
