@@ -27,6 +27,7 @@ dependencies:
   - python =3.11.*
   - pytz
   - pyyaml
+  - rattler-build <0.35.0a0
   - requests
   - ruamel.yaml >=0.16
   - ruamel.yaml.jinja2
