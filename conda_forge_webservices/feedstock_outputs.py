@@ -109,7 +109,7 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
     outputs : list of str
         A list of outputs to copy. These should be the full names with the
         platform directory, version/build info, and file extension (e.g.,
-        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
+        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
     channel : str
         The source and target channel to use. Pass "main" for the default
         channel.
@@ -180,7 +180,7 @@ def _is_valid_output_hash(outputs, hash_type):
     outputs : dict
         A dictionary mapping each output to its md5 hash. The keys should be the
         full names with the platform directory, version/build info, and file extension
-        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
+        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
     hash_type : str
         The hash key to look for. One of sha256 or md5.
 
@@ -276,7 +276,7 @@ def _is_valid_feedstock_output(
     outputs : list of str
         A list of outputs top validate. The list entries should be the
         full names with the platform directory, version/build info, and file extension
-        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
+        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
     register : bool, optional
         If True, attempt to register any outputs that do not exist by pushing
         the proper json blob to `output_repo`. Default is False.
@@ -357,7 +357,7 @@ def validate_feedstock_outputs(
     outputs : dict
         A dictionary mapping each output to its md5 hash. The keys should be the
         full names with the platform directory, version/build info, and file extension
-        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.tar.bz2`).
+        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
     hash_type : str
         The hash key to look for. One of sha256 or md5.
 
@@ -383,7 +383,7 @@ def validate_feedstock_outputs(
             errors.append(
                 f"output '{o}' is not correctly formatted (it must be the fully "
                 "qualified name w/ extension, `noarch/blah-fa31b0-2020.04.13.15"
-                ".54.07-py_0.tar.bz2`)"
+                ".54.07-py_0.conda`)"
             )
 
     outputs_to_test = {o: v for o, v in outputs.items() if correctly_formatted[o]}

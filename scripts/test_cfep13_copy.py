@@ -251,7 +251,7 @@ def test_feedstock_outputs_copy_works():
     print("running conda build")
     print("=========================================================", flush=True)
     _build_recipe(uid)
-    dists = glob.glob("built_dists/noarch/blah-*.tar.bz2")
+    dists = glob.glob("built_dists/noarch/blah-*.conda")
     assert len(dists) == 1
     dists = [os.path.relpath(dist, start="built_dists") for dist in dists]
 

@@ -1,11 +1,13 @@
 import os
+import subprocess
+import tempfile
 import time
 import uuid
 
 import github
 
 import conda_forge_webservices
-from conda_forge_webservices.utils import get_workflow_run_from_uid
+from conda_forge_webservices.utils import get_workflow_run_from_uid, pushd
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 TEST_CASES = [
@@ -86,6 +88,37 @@ TEST_CASES = [
 ]
 
 
+def _make_empty_commit(pr_num):
+    with tempfile.TemporaryDirectory() as tmpdir, pushd(tmpdir):
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "https://github.com/conda-forge/conda-forge-webservices.git",
+            ],
+            check=True,
+        )
+        with pushd("conda-forge-webservices"):
+            subprocess.run(
+                [
+                    "git",
+                    "remote",
+                    "set-url",
+                    "--push",
+                    "origin",
+                    f"https://x-access-token:{os.environ['GH_TOKEN']}@github.com/"
+                    "conda-forge/conda-forge-webservices.git",
+                ]
+            )
+            subprocess.run(["gh", "pr", "checkout", f"{pr_num}"], check=True)
+            subprocess.run(
+                ["git", "commit", "--allow-empty", "-m", "empty commit"], check=True
+            )
+            subprocess.run(["git", "push"], check=True)
+
+    time.sleep(2.0)
+
+
 def test_linter_pr(pytestconfig):
     branch = pytestconfig.getoption("branch")
 
@@ -93,6 +126,8 @@ def test_linter_pr(pytestconfig):
     repo = gh.get_repo("conda-forge/conda-forge-webservices")
 
     for pr_number, _, _ in TEST_CASES:
+        _make_empty_commit(pr_number)
+
         uid = uuid.uuid4().hex
         pr = repo.get_pull(pr_number)
         pr_sha = pr.head.sha
