@@ -82,6 +82,7 @@ def update_version(
         )
         return False, False, new_version
 
+    schema_version = 0
     try:
         updated, errors = update_version_feedstock_dir(
             git_repo.working_dir,
@@ -109,6 +110,7 @@ def update_version(
                 recipe_yaml_path,
                 0,
             )
+            schema_version = 1
         else:
             raise FileNotFoundError("Could not find meta.yaml or recipe.yaml!")
 
@@ -117,8 +119,9 @@ def update_version(
         return False, True, new_version
 
     try:
+        recipe_path = "recipe/meta.yaml" if schema_version == 0 else "recipe/recipe.yaml"
         subprocess.run(
-            ["git", "add", "recipe/meta.yaml"],
+            ["git", "add", recipe_path],
             cwd=git_repo.working_dir,
             check=True,
             env=os.environ,
