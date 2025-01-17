@@ -3,7 +3,7 @@ metadata:
     - url: conda-forge
       used_env_vars: []
   content_hash:
-    linux-64: 69d39ab7c3aea656167ae1f2acaa4d73493c7ab0b4b20f06df7c48148224f766
+    linux-64: e497ea34690428996873022b31d95caddcc80b4c9a96b4201523eaca94b58242
   platforms:
     - linux-64
   sources:
@@ -4303,15 +4303,15 @@ package:
       openssl: '>=3.4.0,<4.0a0'
       patchelf: ''
     hash:
-      md5: abc1b766deb7ad6700e3b5bd581a55a6
-      sha256: 16a99dfcbad143d7083f3085a6e1cc114d409e86fae7066488c713a0853eb528
+      md5: 00f0ee844ee97954cba99ccf8c0b6bf5
+      sha256: 1b7e2a532fc2d7947184e5d39fb46f036c873795828e27546171712dfa5a0119
     manager: conda
     name: rattler-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.35.1-hff40e2b_0.conda
-    version: 0.35.1
+      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.34.1-hbcf9e9b_0.conda
+    version: 0.34.1
   - category: main
     dependencies:
       conda-build: ''
