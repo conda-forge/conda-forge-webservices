@@ -16,7 +16,7 @@ jobs:
       - name: relock
         uses: beckermr/relock-conda@6fa957e59bdb08585bac279b0f829b8f9adc5530
         with:
-          github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
+          github-token: ${{ secrets.CF_ADMIN_FINE_GRAINED_GITHUB_TOKEN }}
           automerge: true
           skip-if-pr-exists: true
           include-only-packages:
