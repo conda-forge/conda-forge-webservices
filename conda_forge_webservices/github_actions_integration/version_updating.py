@@ -2,6 +2,7 @@ import logging
 import os
 import pprint
 import subprocess
+from pathlib import Path
 
 from conda.models.version import VersionOrder
 
@@ -93,22 +94,29 @@ def update_version(
 
         # no container used here since this is a pure text-based operation
         # with a regex
-        with open(os.path.join(git_repo.working_dir, "recipe", "meta.yaml")) as fp:
-            new_meta_yaml = fp.read()
-        new_meta_yaml = conda_forge_tick.update_recipe.update_build_number(
-            new_meta_yaml,
-            0,
-        )
-        with open(os.path.join(git_repo.working_dir, "recipe", "meta.yaml"), "w") as fp:
-            fp.write(new_meta_yaml)
+        workdir = Path(git_repo.working_dir)
+        meta_yaml_path = workdir.joinpath("recipe", "meta.yaml")
+        recipe_yaml_path = workdir.joinpath("recipe", "recipe.yaml")
+        if meta_yaml_path.exists():
+            new_meta_yaml = meta_yaml_path.read_text()
+            new_meta_yaml = conda_forge_tick.update_recipe.update_build_number(
+                new_meta_yaml,
+                0,
+            )
+            meta_yaml_path.write_text(new_meta_yaml)
+        elif recipe_yaml_path.exists():
+            conda_forge_tick.update_recipe.v1_recipe.update_build_number(
+                recipe_yaml_path,
+                0,
+            )
+        else:
+            raise FileNotFoundError("Could not find meta.yaml or recipe.yaml!")
+
     except Exception:
         LOGGER.exception("error while updating the recipe!")
         return False, True, new_version
 
     try:
-        with open(os.path.join(git_repo.working_dir, "recipe", "meta.yaml"), "w") as fp:
-            fp.write(new_meta_yaml)
-
         subprocess.run(
             ["git", "add", "recipe/meta.yaml"],
             cwd=git_repo.working_dir,
