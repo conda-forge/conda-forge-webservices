@@ -98,11 +98,12 @@ def _make_empty_commit(pr_num):
             ],
             check=True,
         )
-        subprocess.run(["gh", "pr", "checkout", f"{pr_num}"], check=True)
-        subprocess.run(
-            ["git", "commit", "--allow-empty", "-m", "empty commit"], check=True
-        )
-        subprocess.run(["git", "push"], check=True)
+        with pushd("conda-forge-webservices"):
+            subprocess.run(["gh", "pr", "checkout", f"{pr_num}"], check=True)
+            subprocess.run(
+                ["git", "commit", "--allow-empty", "-m", "empty commit"], check=True
+            )
+            subprocess.run(["git", "push"], check=True)
 
 
 def test_linter_pr(pytestconfig):
