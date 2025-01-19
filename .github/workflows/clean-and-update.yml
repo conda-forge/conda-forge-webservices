@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: relock
-        uses: beckermr/relock-conda@e7a56dba8c8a8793a04143ae317bd4d0c4e84adc
+        uses: beckermr/relock-conda@5a0465205e3eaaa5e654549104bccc1bbadc6d31
         with:
           github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
           automerge: true
