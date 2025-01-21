@@ -695,15 +695,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 7b8903bee3993ad044975f3df513c639
-      sha256: 96edf4dbe0fa9ecf314853b5e4415e35afc71a0a2399059cd03764b2d057f5bf
+      md5: c2ec16296418a5e555f752ef4db4fce6
+      sha256: 0118fab5c3ce9158860c5ac36803848216af712f8ecb87d8b079ce66559db23e
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.20.14.49.21-hd8ed1ab_0.conda
-    version: 2025.01.20.14.49.21
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.21.10.12.57-hd8ed1ab_0.conda
+    version: 2025.01.21.10.12.57
   - category: main
     dependencies:
       attrs: ''
@@ -796,15 +796,15 @@ package:
       libmambapy: '>=2.0.0'
       python: '>=3.9'
     hash:
-      md5: 940d8b4082cfb7842369421623aa29d7
-      sha256: e320ed0dd819442e39d63012221350ed207836f80c5c292b43bc4191a924fe35
+      md5: 36c2fe2da65a701dc2223fb43ea31e83
+      sha256: fbdb8f51e14847e620649a6ba29069e255d1a72e0ad94f57aad6a2401ad94acd
     manager: conda
     name: conda-libmamba-solver
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-libmamba-solver-24.11.1-pyhd8ed1ab_0.conda
-    version: 24.11.1
+      https://conda.anaconda.org/conda-forge/noarch/conda-libmamba-solver-25.1.0-pyhd8ed1ab_0.conda
+    version: 25.1.0
   - category: main
     dependencies:
       click: '>=8.0'
@@ -4256,14 +4256,14 @@ package:
       python_abi: 3.11.*
       yaml: '>=0.2.5,<0.3.0a0'
     hash:
-      md5: abeb54d40f439b86f75ea57045ab8496
-      sha256: e721e5ff389a7b2135917c04b27391be3d3382e261bb60a369b1620655365c3d
+      md5: 014417753f948da1f70d132b2de573be
+      sha256: d107ad62ed5c62764fba9400f2c423d89adf917d687c7f2e56c3bfed605fb5b3
     manager: conda
     name: pyyaml
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/pyyaml-6.0.2-py311h9ecbd09_1.conda
+      https://conda.anaconda.org/conda-forge/linux-64/pyyaml-6.0.2-py311h2dc5d0c_2.conda
     version: 6.0.2
   - category: main
     dependencies:
