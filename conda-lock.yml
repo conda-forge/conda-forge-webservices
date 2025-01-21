@@ -104,16 +104,16 @@ package:
     version: 1.4.4
   - category: main
     dependencies:
-      python: '>=3.6'
+      python: '>=3.9'
     hash:
-      md5: 192278292e20704f663b9c766909d67b
-      sha256: cef4062ea91f07a961a808801d6b34a163632150037f4bd28232310ff0301cd7
+      md5: 845b38297fca2f2d18a29748e2ece7fa
+      sha256: eb68e1ce9e9a148168a4b1e257a8feebffdb0664b557bb526a1e4853f2d2fc00
     manager: conda
     name: archspec
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/archspec-0.2.3-pyhd8ed1ab_0.conda
-    version: 0.2.3
+    url: https://conda.anaconda.org/conda-forge/noarch/archspec-0.2.5-pyhd8ed1ab_0.conda
+    version: 0.2.5
   - category: main
     dependencies:
       libgcc-ng: '>=12'
@@ -695,15 +695,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: bb8d05134fe35768d6e4ab5d4fd003f8
-      sha256: 10d0491b35b3d244473f0c34e5e8e7fc3ddb38bec281dce803227c229d825a94
+      md5: 7b8903bee3993ad044975f3df513c639
+      sha256: 96edf4dbe0fa9ecf314853b5e4415e35afc71a0a2399059cd03764b2d057f5bf
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.19.06.29.07-hd8ed1ab_0.conda
-    version: 2025.01.19.06.29.07
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.20.14.49.21-hd8ed1ab_0.conda
+    version: 2025.01.20.14.49.21
   - category: main
     dependencies:
       attrs: ''
@@ -1925,15 +1925,15 @@ package:
       python: '>=3.9'
       zipp: '>=0.5'
     hash:
-      md5: 315607a3030ad5d5227e76e0733798ff
-      sha256: 13766b88fc5b23581530d3a0287c0c58ad82f60401afefab283bf158d2be55a9
+      md5: f4b39bf00c69f56ac01e020ebfac066c
+      sha256: 598951ebdb23e25e4cec4bbff0ae369cec65ead80b50bc08b441d8e54de5cf03
     manager: conda
     name: importlib-metadata
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.5.0-pyha770c72_1.conda
-    version: 8.5.0
+      https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.6.1-pyha770c72_0.conda
+    version: 8.6.1
   - category: main
     dependencies:
       python: '>=3.9'
@@ -3335,15 +3335,15 @@ package:
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 54a2d01ec2cfc01644f17d25978b0ecf
-      sha256: effedc59ede8fa025df3a1e14d876e03e6686d808d8b5da1e9a34e780d8f1a65
+      md5: 15059981f9cc9b79fff94cc17264356e
+      sha256: 5048ba2c0b2cf5f481926297689185110b43764e288cda6a680cb94eb5aeb1a4
     manager: conda
     name: numpy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/numpy-2.2.1-py311hf916aec_0.conda
-    version: 2.2.1
+      https://conda.anaconda.org/conda-forge/linux-64/numpy-2.2.2-py311h5d046bc_0.conda
+    version: 2.2.2
   - category: main
     dependencies:
       blinker: ''
@@ -4303,15 +4303,15 @@ package:
       openssl: '>=3.4.0,<4.0a0'
       patchelf: ''
     hash:
-      md5: 29f06ae1462d61c549fa9a6c95acb603
-      sha256: 1f27e637587899ef2e699acc29c51db5c193b70f00eadcc78e37418409aadae0
+      md5: c926bc2b91cdb32687e9a9f5909a4aa9
+      sha256: 0c8c82fd3cf13e69f5c600767b7ba60db38c4cdea0cbad66fdb624ada52a7f27
     manager: conda
     name: rattler-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.35.5-hff40e2b_0.conda
-    version: 0.35.5
+      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.35.6-hff40e2b_0.conda
+    version: 0.35.6
   - category: main
     dependencies:
       conda-build: ''
