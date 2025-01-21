@@ -154,12 +154,12 @@ def test_linter_pr(pytestconfig):
         print(f"target_url for PR {pr_number}: {target_url}", flush=True)
         set_pr_status(repo, pr_sha, "pending", target_url=target_url)
 
-    print("\nsleeping for four minutes to let the linter work...", flush=True)
+    print("\nsleeping for five minutes to let the linter work...", flush=True)
     tot = 0
-    while tot < 240:
+    while tot < 300:
         time.sleep(10)
         tot += 10
-        print(f"    slept {tot} seconds out of 240", flush=True)
+        print(f"    slept {tot} seconds out of 300", flush=True)
 
     for pr_number, expected_status, expected_msgs in TEST_CASES:
         pr = repo.get_pull(pr_number)
