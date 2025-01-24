@@ -9,6 +9,7 @@ from functools import cache
 
 from ruamel.yaml import YAML
 from conda_forge_webservices.tokens import get_gh_client
+from conda_forge_webservices.utils import _test_and_raise_besides_file_not_exists
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
@@ -58,7 +59,8 @@ def get_recipe_contents(gh_repo):
     try:
         resp = gh_repo.get_contents("recipe/meta.yaml")
         return resp.decoded_content.decode("utf-8")
-    except github.UnknownObjectException:
+    except github.GithubException as e:
+        _test_and_raise_besides_file_not_exists(e)
         resp = gh_repo.get_contents("recipe/recipe.yaml")
         return resp.decoded_content.decode("utf-8")
 

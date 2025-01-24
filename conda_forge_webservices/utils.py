@@ -4,6 +4,8 @@ import time
 import tempfile
 from contextlib import contextmanager
 
+import github
+
 ALLOWED_CMD_NON_FEEDSTOCKS = ["staged-recipes", "admin-requests"]
 
 
@@ -72,3 +74,11 @@ def _inner_get_workflow_run_from_uid(workflow, uid, ref):
             break
 
     return None
+
+
+def _test_and_raise_besides_file_not_exists(e: github.GithubException):
+    if isinstance(e, github.UnknownObjectException):
+        return
+    if e.status == 404 and "No object found" in e.data["message"]:
+        return
+    raise e
