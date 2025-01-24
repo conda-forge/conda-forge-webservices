@@ -23,7 +23,7 @@ from conda_forge_metadata.feedstock_outputs import (
 from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
 import binstar_client.errors
 
-from .utils import parse_conda_pkg
+from .utils import parse_conda_pkg, _test_and_raise_besides_file_not_exists
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     get_gh_client,
@@ -224,7 +224,8 @@ def _add_feedstock_output(
     repo = gh.get_repo("conda-forge/feedstock-outputs")
     try:
         contents = repo.get_contents(_get_sharded_path(pkg_name))
-    except github.UnknownObjectException:
+    except github.GithubException as e:
+        _test_and_raise_besides_file_not_exists(e)
         contents = None
 
     if contents is None:

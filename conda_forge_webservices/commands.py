@@ -26,6 +26,7 @@ from .utils import (
     ALLOWED_CMD_NON_FEEDSTOCKS,
     with_action_url,
     get_workflow_run_from_uid,
+    _test_and_raise_besides_file_not_exists,
 )
 from ._version import __version__
 from conda_forge_webservices.tokens import (
@@ -449,7 +450,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
         # make the fork if it does not exist
         try:
             forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
-        except github.UnknownObjectException:
+        except github.GithubException as e:
+            _test_and_raise_besides_file_not_exists(e)
+
             forked_user_gh.create_fork(gh.get_repo(f"{org_name}/{repo_name}"))
             # we have to wait since the call above is async
             for i in range(NUM_GH_API_TRIES):
