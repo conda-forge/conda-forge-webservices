@@ -132,14 +132,14 @@ package:
     dependencies:
       python: '>=3.9'
     hash:
-      md5: 356927ace43302bf6f5926e2a58dae6a
-      sha256: 750186af694a7130eaf7119fbb56db0d2326d8995ad5b8eae23c622b85fea29a
+      md5: 2cc3f588512f04f3a0c64b4e9bedc02d
+      sha256: 1f267886522dfb9ae4e5ebbc3135b5eb13cff27bdbfe8d881a4d893459166ab4
     manager: conda
     name: attrs
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/attrs-24.3.0-pyh71513ae_0.conda
-    version: 24.3.0
+    url: https://conda.anaconda.org/conda-forge/noarch/attrs-25.1.0-pyh71513ae_0.conda
+    version: 25.1.0
   - category: main
     dependencies:
       python: '>=3.9'
@@ -760,15 +760,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: d53c4468872489f91d0c4525d4614dd6
-      sha256: 03c2650fba42b3b474bf09ad8cd017b9afeb39ff4bd35d8f968cc385ecd1e119
+      md5: 7e14f52cfdb37713f26f4a7be1652dda
+      sha256: cbd739f93f8ba0ef560c7132de08b5c90ecce24201a89021936fbb668efd44ae
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.93-pyhd8ed1ab_0.conda
-    version: 2025.1.93
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.96-pyhd8ed1ab_0.conda
+    version: 2025.1.96
   - category: main
     dependencies:
       click: '>=8'
