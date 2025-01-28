@@ -695,15 +695,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: b2c2df05d4ce455ad425c13871c8357e
-      sha256: 7814b2109aabcd93f6e4be41264aab9c9de684d64665b4e72d6bbe849c6df8f5
+      md5: a8478ede78061e7ccabc0978f341c0e4
+      sha256: 4d5ebc7cbb6ad82495983acacaa6441f30b721a46a9a056212b9a6ae7d9813bf
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.26.22.16.39-hd8ed1ab_0.conda
-    version: 2025.01.26.22.16.39
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.27.22.18.09-hd8ed1ab_0.conda
+    version: 2025.01.27.22.18.09
   - category: main
     dependencies:
       attrs: ''
@@ -760,15 +760,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: fad14a24c53945dd2c7211d26da5aa7f
-      sha256: d1a12548c99c58038762dc33cc026b258dde00826cb2b6bbf1b3e44996d91b9b
+      md5: cee53d258c23dff03f4f2a09b9d7ab36
+      sha256: b6246c899006100f70953f5581e08b594d08471c56c84c4ca6dd987b0ed64553
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.100-pyhd8ed1ab_0.conda
-    version: 2025.1.100
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.106-pyhd8ed1ab_0.conda
+    version: 2025.1.106
   - category: main
     dependencies:
       click: '>=8'
@@ -1134,15 +1134,15 @@ package:
       python: '>=3.9'
       wrapt: <2,>=1.10
     hash:
-      md5: eaef2e94d5bd76f758545d172c1fda67
-      sha256: a20ebf2c9b02a6eb32412ceb5c4cffaae49417db7e75414a76417538293a9402
+      md5: 0cef44b1754ae4d6924ac0eef6b9fdbe
+      sha256: d614bcff10696f1efc714df07651b50bf3808401fcc03814309ecec242cc8870
     manager: conda
     name: deprecated
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.15-pyhd8ed1ab_1.conda
-    version: 1.2.15
+      https://conda.anaconda.org/conda-forge/noarch/deprecated-1.2.18-pyhd8ed1ab_0.conda
+    version: 1.2.18
   - category: main
     dependencies:
       python: '>=3.9'
@@ -4012,15 +4012,16 @@ package:
       botocore: '>=1.12.54'
       python: '>=3.9'
       typing-extensions: '>=4'
+      typing_extensions: '>=4'
     hash:
-      md5: 48d6f8cd09038343cdc7a776cbe06540
-      sha256: 573aa767ac0bcbc6c213aa8a5b6581750cba580a7fb5ce0779a909925084e5cb
+      md5: 39faa6fea40e7c91f005f238e51e548b
+      sha256: c4847e835a53b3d148a466d1a620adb3d6a8b9ee68c78e7958ec089415834e9a
     manager: conda
     name: pynamodb
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/pynamodb-6.0.1-pyhd8ed1ab_1.conda
-    version: 6.0.1
+    url: https://conda.anaconda.org/conda-forge/noarch/pynamodb-6.0.2-pyhd8ed1ab_0.conda
+    version: 6.0.2
   - category: main
     dependencies:
       python: '>=3.9'
