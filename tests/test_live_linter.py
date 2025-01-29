@@ -10,6 +10,9 @@ import conda_forge_webservices
 from conda_forge_webservices.utils import get_workflow_run_from_uid, pushd
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
+
+WAIT_TIME = 450
+
 TEST_CASES = [
     (
         733,
@@ -154,12 +157,12 @@ def test_linter_pr(pytestconfig):
         print(f"target_url for PR {pr_number}: {target_url}", flush=True)
         set_pr_status(repo, pr_sha, "pending", target_url=target_url)
 
-    print("\nsleeping for five minutes to let the linter work...", flush=True)
+    print(f"\nsleeping for {WAIT_TIME/60:0.1f} minutes to let the linter work...", flush=True)
     tot = 0
-    while tot < 300:
-        time.sleep(10)
-        tot += 10
-        print(f"    slept {tot} seconds out of 300", flush=True)
+    while tot < WAIT_TIME:
+        time.sleep(15)
+        tot += 15
+        print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
 
     for pr_number, expected_status, expected_msgs in TEST_CASES:
         pr = repo.get_pull(pr_number)
