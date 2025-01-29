@@ -36,6 +36,20 @@ package:
     version: '4.5'
   - category: main
     dependencies:
+      cpython: ''
+      python-gil: ''
+    hash:
+      md5: 72bdca5fa72b5b89fc8a86d2e98793f0
+      sha256: aeee03ce021e13648c82414358616cc3edad15101ef354cae9a2d4ba3ba7a5e4
+    manager: conda
+    name: _python_abi3_support
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_1.conda
+    version: '1.0'
+  - category: main
+    dependencies:
       conda-package-handling: '>=1.7.3'
       defusedxml: '>=0.7.1'
       nbformat: '>=4.4.0'
@@ -695,15 +709,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 3cf2b96ffd0a3cf692bd93f1b81faf35
-      sha256: 5842fe6de8a31132bdcc6ed4fc274da14ef6965658f0ce41c11c92cfdc85ffe8
+      md5: 9d50140a49d6f1ac4ed377ad9bc04e76
+      sha256: 46ca6bdc83edf5934bdc3ac9320ac9934804e6bcbeee75a506c29655d1a4af3e
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.28.04.06.09-hd8ed1ab_0.conda
-    version: 2025.01.28.04.06.09
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.28.22.50.30-hd8ed1ab_0.conda
+    version: 2025.01.28.22.50.30
   - category: main
     dependencies:
       attrs: ''
@@ -987,6 +1001,20 @@ package:
     url:
       https://conda.anaconda.org/conda-forge/linux-64/cpp-expected-1.1.0-hf52228f_0.conda
     version: 1.1.0
+  - category: main
+    dependencies:
+      python: 3.11.11.*
+      python_abi: '*'
+    hash:
+      md5: 6aab9c45010dc5ed92215f89cdafa201
+      sha256: b9bb4486ba7b81d7264e92f346c9fa2d4a6c9678c28b33fb5d1652ecc7f82e26
+    manager: conda
+    name: cpython
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/cpython-3.11.11-py311hd8ed1ab_1.conda
+    version: 3.11.11
   - category: main
     dependencies:
       python: '>=3.9,<4.0'
@@ -1426,15 +1454,15 @@ package:
       python_abi: 3.11.*
       unicodedata2: '>=15.1.0'
     hash:
-      md5: 0f78e44a302c6df16338d5bbcd98de51
-      sha256: eb894bdeec6cf249ca003d21575355f79374b04fadab0baf9dfe57b4cc8453b7
+      md5: 3d7c1d5d3573d10c85c630b22fc1a7ba
+      sha256: 42815732b75721273deea630feb334504c45fa96639bf9038475338edfaac4ff
     manager: conda
     name: fonttools
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.55.6-py311h2dc5d0c_0.conda
-    version: 4.55.6
+      https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.55.7-py311h2dc5d0c_0.conda
+    version: 4.55.7
   - category: main
     dependencies:
       libgcc-ng: '>=12'
@@ -3774,19 +3802,19 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
+      _python_abi3_support: 1.*
       libgcc: '>=13'
       openssl: '>=3.4.0,<4.0a0'
-      python: '>=3.11,<3.12.0a0'
-      python_abi: 3.11.*
+      python: '>=3.9'
     hash:
-      md5: 84f806c0ec39d5cd2463b9105ea6d6e7
-      sha256: b994a1f257153362c2dec07bb11751311f99cf71c1ea78515aa5552f11cb2631
+      md5: 4b91855f6c2c3074957532479fcd31dd
+      sha256: bbfcbfad4411174fc307993cffe549e277216e97f2cd3c37536a6223f81b00f1
     manager: conda
     name: py-rattler
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/py-rattler-0.9.0-py311hafd3f86_0.conda
+      https://conda.anaconda.org/conda-forge/linux-64/py-rattler-0.9.0-py39hdb7aac3_1.conda
     version: 0.9.0
   - category: main
     dependencies: {}
@@ -4155,6 +4183,20 @@ package:
     version: 2.21.1
   - category: main
     dependencies:
+      cpython: 3.11.11.*
+      python_abi: '*'
+    hash:
+      md5: 722c326143926c6225b4e039459e1096
+      sha256: 91711abec804a1a7e4c63787cc5d5360dbcc1355a9c0608ecbdd8bf4c0b426ab
+    manager: conda
+    name: python-gil
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/python-gil-3.11.11-hd8ed1ab_1.conda
+    version: 3.11.11
+  - category: main
+    dependencies:
       graphviz: '>=2.46.1'
       python: '>=3.9'
     hash:
@@ -4304,15 +4346,15 @@ package:
       openssl: '>=3.4.0,<4.0a0'
       patchelf: ''
     hash:
-      md5: c926bc2b91cdb32687e9a9f5909a4aa9
-      sha256: 0c8c82fd3cf13e69f5c600767b7ba60db38c4cdea0cbad66fdb624ada52a7f27
+      md5: 4dff31b8352470c70864a0a9a760591c
+      sha256: a391fdffb14c0c43f2ec3cb770e510fca43f748e219cefa68dc8cda3f1f6f698
     manager: conda
     name: rattler-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.35.6-hff40e2b_0.conda
-    version: 0.35.6
+      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.35.7-hff40e2b_0.conda
+    version: 0.35.7
   - category: main
     dependencies:
       conda-build: ''
