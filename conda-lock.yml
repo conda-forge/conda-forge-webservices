@@ -618,7 +618,7 @@ package:
       menuinst: '>=2'
       packaging: ''
       patch: '>=2.6'
-      patchelf: ''
+      patchelf: <0.18
       pkginfo: ''
       psutil: ''
       py-lief: <0.15
@@ -631,14 +631,14 @@ package:
       ripgrep: ''
       tqdm: ''
     hash:
-      md5: fb65790f486c12b49e68e6845c33c97f
-      sha256: db5d8f1fe038dbb95c007f1785649de9f2878ed084d834e759823e1018d35db2
+      md5: 042b21e5544f72b2aa122018fda0b13a
+      sha256: 0d0c0abfce707348fd3513d1a1bfd62b836fc9e0272bea320442cb5d25dccd56
     manager: conda
     name: conda-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.1.1-py311h38be061_2.conda
+      https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.1.1-py311h38be061_3.conda
     version: 25.1.1
   - category: main
     dependencies:
@@ -709,15 +709,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: a5ce74af0be1131db78f26eb635e7685
-      sha256: baef7cee216603e02f41cf33064ab80d914f94ce244982e270263816eeb681fd
+      md5: 876002386ff448568d2acd8ef5b6bfef
+      sha256: 60f27b3eb39e4c041f638635e5bc8a4375f41c47ca276a45b8fd3f33de9dc735
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.01.31.17.27.30-hd8ed1ab_0.conda
-    version: 2025.01.31.17.27.30
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.02.01.03.32.47-hd8ed1ab_0.conda
+    version: 2025.02.01.03.32.47
   - category: main
     dependencies:
       attrs: ''
@@ -774,15 +774,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 9fcf041e2f8e144171c1e2c6c754f7f5
-      sha256: 59eb343794a00d13e6f86dc200b18629cb5c0dc0b8ebf8e170a28e92bfa02491
+      md5: 67cf58974a0d2e624abfa362394e9026
+      sha256: aa8d8c9541161ca3bbc9452c6c8a0c8b1903b0d0b3b59f22fa728710a5603aa7
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.1.118-pyhd8ed1ab_0.conda
-    version: 2025.1.118
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.2.1-pyhd8ed1ab_0.conda
+    version: 2025.2.1
   - category: main
     dependencies:
       click: '>=8'
