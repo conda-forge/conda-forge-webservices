@@ -40,7 +40,7 @@ from conda_forge_webservices.feedstock_outputs import (
 )
 
 OUTPUTS_REPO = (
-    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/" "feedstock-outputs.git"
+    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 )
 
 try:

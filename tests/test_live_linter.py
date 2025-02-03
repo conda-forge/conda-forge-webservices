@@ -33,8 +33,7 @@ TEST_CASES = [
         523,
         "failure",
         [
-            "I was trying to look for recipes to lint for "
-            "you, but couldn't find any.",
+            "I was trying to look for recipes to lint for you, but couldn't find any.",
         ],
     ),
     (

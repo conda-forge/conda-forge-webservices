@@ -141,10 +141,10 @@ def test_validate_feedstock_outputs_badoutputhash(valid_out, valid_hash):
     }
     assert len(errs) == 4
     assert (
-        "output noarch/b-0.1-py_0.conda not allowed for " "conda-forge/bar-feedstock"
+        "output noarch/b-0.1-py_0.conda not allowed for conda-forge/bar-feedstock"
     ) in errs
     assert (
-        "output noarch/d-0.1-py_0.conda not allowed for " "conda-forge/bar-feedstock"
+        "output noarch/d-0.1-py_0.conda not allowed for conda-forge/bar-feedstock"
     ) in errs
     assert "output noarch/a-0.1-py_0.conda does not have a valid md5 checksum" in errs
     assert "output noarch/d-0.1-py_0.conda does not have a valid md5 checksum" in errs

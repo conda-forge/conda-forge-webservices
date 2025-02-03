@@ -293,8 +293,6 @@ def pr_detailed_comment(
             except Exception as _git_try_err:
                 if _git_try_num == NUM_GIT_CLONE_TRIES - 1:
                     raise _git_try_err
-                else:
-                    pass
             else:
                 break
 

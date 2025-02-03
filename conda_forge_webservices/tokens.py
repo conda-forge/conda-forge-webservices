@@ -405,9 +405,9 @@ def generate_app_token_for_feedstock(app_id, raw_pem, repo, readonly=False):
             )
 
             assert gh_token_data.permissions == permissions, gh_token_data.permissions
-            assert (
-                gh_token_data.repository_selection == "selected"
-            ), gh_token_data.repository_selection
+            assert gh_token_data.repository_selection == "selected", (
+                gh_token_data.repository_selection
+            )
             returned_repos = set(
                 rp["name"] for rp in gh_token_data.raw_data["repositories"]
             )
