@@ -22,7 +22,7 @@ import pytest
 from conda_forge_webservices.utils import pushd, with_action_url
 
 OUTPUTS_REPO = (
-    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge" "/feedstock-outputs.git"
+    "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
 )
 
 try:

@@ -515,8 +515,7 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
     if issue is None:
         if git_sha is not None:
             issue = repo.create_issue(
-                "[warning] failed package validation "
-                f"and/or copy for commit {git_sha}",
+                f"[warning] failed package validation and/or copy for commit {git_sha}",
                 body=message,
             )
         else:
