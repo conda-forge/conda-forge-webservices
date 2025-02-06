@@ -201,10 +201,13 @@ def test_linter_pr(pytestconfig):
             status.state,
             expected_status,
             comment.body,
-            f"status is not expected statusfor PR #{pr_number}: see {target_urls[pr_number]}",
+            "status is not expected status "
+            f"for PR #{pr_number}: see "
+            f"{target_urls[pr_number]}",
         )
 
         for expected_msg in expected_msgs:
             assert expected_msg in comment.body, (
-                f"expected message missing for PR #{pr_number}: see {target_urls[pr_number]}"
+                "expected message missing for PR "
+                f"#{pr_number}: see {target_urls[pr_number]}"
             )
