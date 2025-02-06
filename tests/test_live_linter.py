@@ -180,7 +180,9 @@ def test_linter_pr(pytestconfig):
                 status = _status
                 break
 
-        assert status is not None, f"status is None for PR #{pr_number}: see {target_urls[pr_number]}"
+        assert status is not None, (
+            f"status is None for PR #{pr_number}: see {target_urls[pr_number]}"
+        )
 
         comment = None
         for _comment in pr.get_issue_comments():
@@ -190,14 +192,19 @@ def test_linter_pr(pytestconfig):
             ):
                 comment = _comment
 
-        assert comment is not None, f"comment is None for PR #{pr_number}: see {target_urls[pr_number]}"
+        assert comment is not None, (
+            f"comment is None for PR #{pr_number}: see {target_urls[pr_number]}"
+        )
 
         assert status.state == expected_status, (
             pr_number,
             status.state,
             expected_status,
             comment.body,
-        f"status is not expected statusfor PR #{pr_number}: see {target_urls[pr_number]}")
+            f"status is not expected statusfor PR #{pr_number}: see {target_urls[pr_number]}",
+        )
 
         for expected_msg in expected_msgs:
-            assert expected_msg in comment.body, f"expected message missing for PR #{pr_number}: see {target_urls[pr_number]}"
+            assert expected_msg in comment.body, (
+                f"expected message missing for PR #{pr_number}: see {target_urls[pr_number]}"
+            )
