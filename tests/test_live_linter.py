@@ -11,7 +11,7 @@ from conda_forge_webservices.utils import get_workflow_run_from_uid, pushd
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 
-WAIT_TIME = 450
+WAIT_TIME = 600
 
 TEST_CASES = [
     (
@@ -128,6 +128,7 @@ def test_linter_pr(pytestconfig):
     gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     repo = gh.get_repo("conda-forge/conda-forge-webservices")
 
+    target_urls = {}
     for pr_number, _, _ in TEST_CASES:
         _make_empty_commit(pr_number)
 
@@ -152,7 +153,8 @@ def test_linter_pr(pytestconfig):
             target_url = run.html_url
         else:
             target_url = None
-        assert target_url is not None
+        assert target_url is not None, f"target url is None for PR #{pr_number}"
+        target_urls[pr_number] = target_url
         print(f"target_url for PR {pr_number}: {target_url}", flush=True)
         set_pr_status(repo, pr_sha, "pending", target_url=target_url)
 
@@ -162,11 +164,13 @@ def test_linter_pr(pytestconfig):
     )
     tot = 0
     while tot < WAIT_TIME:
-        time.sleep(15)
-        tot += 15
+        time.sleep(30)
+        tot += 30
         print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
 
     for pr_number, expected_status, expected_msgs in TEST_CASES:
+        print(f"checking pr {pr_number}...", flush=True)
+
         pr = repo.get_pull(pr_number)
         commit = repo.get_commit(pr.head.sha)
 
@@ -176,7 +180,9 @@ def test_linter_pr(pytestconfig):
                 status = _status
                 break
 
-        assert status is not None
+        assert status is not None, (
+            f"status is None for PR #{pr_number}: see {target_urls[pr_number]}"
+        )
 
         comment = None
         for _comment in pr.get_issue_comments():
@@ -186,14 +192,22 @@ def test_linter_pr(pytestconfig):
             ):
                 comment = _comment
 
-        assert comment is not None
+        assert comment is not None, (
+            f"comment is None for PR #{pr_number}: see {target_urls[pr_number]}"
+        )
 
         assert status.state == expected_status, (
             pr_number,
             status.state,
             expected_status,
             comment.body,
+            "status is not expected status "
+            f"for PR #{pr_number}: see "
+            f"{target_urls[pr_number]}",
         )
 
         for expected_msg in expected_msgs:
-            assert expected_msg in comment.body
+            assert expected_msg in comment.body, (
+                "expected message missing for PR "
+                f"#{pr_number}: see {target_urls[pr_number]}"
+            )
