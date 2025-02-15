@@ -761,15 +761,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 796230be2f0bfa4d34b2ac5bb93e09ca
-      sha256: 1d6bb032f993b7dfe16011f30ee899439ac6551e1d6ce3b93aac0fe031709faa
+      md5: 7adee6e5e4a09f10423812bb730d8e12
+      sha256: 0eb979b8dc15a22a0c6e80cabd7e29c649e047c0078e8b26679f05805ac3f92f
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.02.14.16.16.27-hd8ed1ab_0.conda
-    version: 2025.02.14.16.16.27
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.02.15.02.01.29-hd8ed1ab_0.conda
+    version: 2025.02.15.02.01.29
   - category: main
     dependencies:
       attrs: ''
@@ -826,15 +826,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: bddfa6200e65a37b3f3bad3cafac7a4a
-      sha256: cef6d166a9119fc52fbb3f99d226a2c7dde18a8bb5ae544290a117f8e9f5f1a8
+      md5: 6c97e89d35d4fb38f768f8b24a2a6e06
+      sha256: 9c81480ffac0bd4458370f2640ed440c134582ab63b8d3e5eb782b5c32786951
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.2.42-pyhd8ed1ab_0.conda
-    version: 2025.2.42
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.2.45-pyhd8ed1ab_0.conda
+    version: 2025.2.45
   - category: main
     dependencies:
       click: '>=8'
@@ -5354,14 +5354,14 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: 89107da06555de77e67fef5f3ba266e8
-      sha256: 25b829940e334b547ce84859f8f14ab5c2ca38eae5238d2d1e4f7198827b0cd0
+      md5: fa780df8f99c4690309c95fdf08cba4a
+      sha256: 4b3c3029181aba1ef2fdd6110776e306ebb50e15ef2f70e87f8f7c4d98e9e831
     manager: conda
     name: uv
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.5.31-h0f3a69f_0.conda
-    version: 0.5.31
+    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.6.0-h0f3a69f_0.conda
+    version: 0.6.0
   - category: main
     dependencies:
       distlib: '>=0.3.7,<1'
