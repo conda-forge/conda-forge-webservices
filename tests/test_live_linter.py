@@ -11,7 +11,7 @@ from conda_forge_webservices.utils import get_workflow_run_from_uid, pushd
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 
-WAIT_TIME = 600
+WAIT_TIME = 720
 
 TEST_CASES = [
     (
@@ -122,6 +122,71 @@ def _make_empty_commit(pr_num):
     time.sleep(2.0)
 
 
+def _linter_is_ok(repo, target_urls, verbose=False):
+    for pr_number, expected_status, expected_msgs in TEST_CASES:
+        if verbose:
+            print(f"checking pr {pr_number}...", flush=True)
+
+        pr = repo.get_pull(pr_number)
+        commit = repo.get_commit(pr.head.sha)
+
+        status = None
+        for _status in commit.get_statuses():
+            if _status.context == "conda-forge-linter":
+                status = _status
+                break
+
+        if verbose:
+            assert status is not None, (
+                f"status is None for PR #{pr_number}: see {target_urls[pr_number]}"
+            )
+        else:
+            if status is None:
+                return False
+
+        comment = None
+        for _comment in pr.get_issue_comments():
+            if (
+                "Hi! This is the friendly automated conda-forge-linting service."
+                in _comment.body
+            ):
+                comment = _comment
+
+        if verbose:
+            assert comment is not None, (
+                f"comment is None for PR #{pr_number}: see {target_urls[pr_number]}"
+            )
+        else:
+            if comment is None:
+                return False
+
+        if verbose:
+            assert status.state == expected_status, (
+                pr_number,
+                status.state,
+                expected_status,
+                comment.body,
+                "status is not expected status "
+                f"for PR #{pr_number}: see "
+                f"{target_urls[pr_number]}",
+            )
+        else:
+            if status.state != expected_status:
+                return False
+
+        for expected_msg in expected_msgs:
+            if verbose:
+                assert expected_msg in comment.body, (
+                    "expected message missing for PR "
+                    f"#{pr_number}: see {target_urls[pr_number]}"
+                )
+            else:
+                if expected_msg not in comment.body:
+                    return False
+
+    return True
+
+
 def test_linter_pr(pytestconfig):
     branch = pytestconfig.getoption("branch")
 
@@ -167,47 +232,8 @@ def test_linter_pr(pytestconfig):
         time.sleep(30)
         tot += 30
         print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
-
-    for pr_number, expected_status, expected_msgs in TEST_CASES:
-        print(f"checking pr {pr_number}...", flush=True)
-
-        pr = repo.get_pull(pr_number)
-        commit = repo.get_commit(pr.head.sha)
-
-        status = None
-        for _status in commit.get_statuses():
-            if _status.context == "conda-forge-linter":
-                status = _status
+        if tot % 30 == 0 and tot > 0:
+            if _linter_is_ok(repo, target_urls, verbose=False):
                 break
 
-        assert status is not None, (
-            f"status is None for PR #{pr_number}: see {target_urls[pr_number]}"
-        )
-
-        comment = None
-        for _comment in pr.get_issue_comments():
-            if (
-                "Hi! This is the friendly automated conda-forge-linting service."
-                in _comment.body
-            ):
-                comment = _comment
-
-        assert comment is not None, (
-            f"comment is None for PR #{pr_number}: see {target_urls[pr_number]}"
-        )
-
-        assert status.state == expected_status, (
-            pr_number,
-            status.state,
-            expected_status,
-            comment.body,
-            "status is not expected status "
-            f"for PR #{pr_number}: see "
-            f"{target_urls[pr_number]}",
-        )
-
-        for expected_msg in expected_msgs:
-            assert expected_msg in comment.body, (
-                "expected message missing for PR "
-                f"#{pr_number}: see {target_urls[pr_number]}"
-            )
+    assert _linter_is_ok(repo, target_urls, verbose=True)
