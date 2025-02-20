@@ -17,6 +17,7 @@ REPO = f"{REPO_OWNER}/{REPO_NAME}"
 BRANCH = "version-update-live-test"
 PR_NUM = 483
 GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
+WAIT_TIME = 300  # seconds
 
 
 def _set_pr_draft():
@@ -122,6 +123,57 @@ def _pr_title(new=None):
     return old
 
 
+def _version_update_is_ok(version, verbose=False):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pushd(tmpdir):
+            if verbose:
+                print("cloning...", flush=True)
+            subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    f"https://github.com/{REPO}.git",
+                ],
+                check=True,
+            )
+
+            with pushd(REPO_NAME):
+                if verbose:
+                    print("checkout branch...", flush=True)
+                subprocess.run(
+                    ["git", "checkout", BRANCH],
+                    check=True,
+                )
+
+                if verbose:
+                    print("checking the git history", flush=True)
+                c = subprocess.run(
+                    ["git", "log", "--pretty=oneline", "-n", "1"],
+                    capture_output=True,
+                    check=True,
+                )
+                output = c.stdout.decode("utf-8")
+                if verbose:
+                    print("    last commit:", output.strip(), flush=True)
+                if not ("Re-" in output or "ENH:" in output):
+                    return False
+
+    if version:
+        if _pr_title() != f"ENH: update package version to {version}":
+            return False
+    else:
+        if "ENH: update package version to " not in _pr_title():
+            return False
+
+    repo = GH.get_repo(REPO)
+    pr = repo.get_pull(PR_NUM)
+
+    if pr.draft:
+        return False
+
+    return True
+
+
 def _run_test(branch, version):
     print("sending workflow dispatch event to version updater...", flush=True)
     uid = uuid.uuid4().hex
@@ -139,53 +191,21 @@ def _run_test(branch, version):
         },
     )
 
-    print("sleeping for four minutes to let the version update happen...", flush=True)
+    print(
+        f"sleeping for {WAIT_TIME} seconds to let the version update happen...",
+        flush=True,
+    )
     tot = 0
-    while tot < 240:
+    while tot < WAIT_TIME:
         time.sleep(10)
         tot += 10
-        print(f"    slept {tot} seconds out of 240", flush=True)
+        print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
+        if tot % 30 == 0 and tot > 0:
+            if _version_update_is_ok(version):
+                break
 
     print("checking repo for the version update...", flush=True)
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with pushd(tmpdir):
-            print("cloning...", flush=True)
-            subprocess.run(
-                [
-                    "git",
-                    "clone",
-                    f"https://github.com/{REPO}.git",
-                ],
-                check=True,
-            )
-
-            with pushd(REPO_NAME):
-                print("checkout branch...", flush=True)
-                subprocess.run(
-                    ["git", "checkout", BRANCH],
-                    check=True,
-                )
-
-                print("checking the git history", flush=True)
-                c = subprocess.run(
-                    ["git", "log", "--pretty=oneline", "-n", "1"],
-                    capture_output=True,
-                    check=True,
-                )
-                output = c.stdout.decode("utf-8")
-                print("    last commit:", output.strip(), flush=True)
-                assert "Re-" in output or "ENH:" in output
-
-    if version:
-        assert _pr_title() == f"ENH: update package version to {version}"
-    else:
-        assert "ENH: update package version to " in _pr_title()
-
-    repo = GH.get_repo(REPO)
-    pr = repo.get_pull(PR_NUM)
-
-    assert not pr.draft
-
+    assert _version_update_is_ok(version, verbose=True)
     print("tests passed!", flush=True)
 
 

@@ -11,7 +11,7 @@ from conda_forge_webservices.utils import get_workflow_run_from_uid, pushd
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 
-WAIT_TIME = 600
+WAIT_TIME = 720
 
 TEST_CASES = [
     (

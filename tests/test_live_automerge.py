@@ -11,6 +11,8 @@ TEST_BASE_BRANCH = "automerge-live-test-base-branch"
 TEST_HEAD_BRANCH = f"automerge-live-test-head-branch-h{uuid.uuid4().hex[:6]}"
 DEBUG = False
 
+WAIT_TIME = 720  # seconds
+
 
 def _run_git_cmd(*args):
     subprocess.run(["git", *list(args)], check=True)
@@ -92,10 +94,10 @@ def test_live_automerge(pytestconfig):
                     print("waiting for the PR to be merged...", flush=True)
                     tot = 0
                     merged = False
-                    while tot < 600:
+                    while tot < WAIT_TIME:
                         time.sleep(10)
                         tot += 10
-                        print(f"    slept {tot} seconds out of 600", flush=True)
+                        print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
                         if tot % 30 == 0:
                             if pr.is_merged():
                                 print("PR was merged!", flush=True)

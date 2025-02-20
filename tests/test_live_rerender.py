@@ -12,6 +12,57 @@ from conda_forge_webservices.commands import set_rerender_pr_status
 
 from conftest import _merge_main_to_branch
 
+WAIT_TIME = 600  # seconds
+
+
+def _rerender_is_ok(verbose=False):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with pushd(tmpdir):
+            if verbose:
+                print("cloning...", flush=True)
+            subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    "https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock.git",
+                ],
+                check=True,
+            )
+
+            with pushd("cf-autotick-bot-test-package-feedstock"):
+                if verbose:
+                    print("checkout branch...", flush=True)
+                subprocess.run(
+                    ["git", "checkout", "rerender-live-test"],
+                    check=True,
+                )
+
+                if verbose:
+                    print("checking the git history...", flush=True)
+                c = subprocess.run(
+                    ["git", "log", "--pretty=oneline", "-n", "1"],
+                    capture_output=True,
+                    check=True,
+                )
+                output = c.stdout.decode("utf-8")
+                if verbose:
+                    print("    last commit:", output.strip(), flush=True)
+                if "MNT:" not in output:
+                    return False
+
+                if verbose:
+                    print("checking rerender undid workflow edits...", flush=True)
+                if os.path.exists(".github/workflows/automerge.yml"):
+                    with open(".github/workflows/automerge.yml") as fp:
+                        lines = fp.readlines()
+                    if any(
+                        line.startswith("# test line for rerender edits")
+                        for line in lines
+                    ):
+                        return False
+
+    return True
+
 
 def _run_test(branch):
     pr_number = 445
@@ -50,52 +101,18 @@ def _run_test(branch):
         sha=pr_sha,
     )
 
-    print("sleeping for four minutes to let the rerender happen...", flush=True)
+    print(f"sleeping for {WAIT_TIME} seconds to let the rerender happen...", flush=True)
     tot = 0
-    while tot < 240:
+    while tot < WAIT_TIME:
         time.sleep(10)
         tot += 10
-        print(f"    slept {tot} seconds out of 240", flush=True)
+        print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
+        if tot % 30 == 0 and tot > 0:
+            if _rerender_is_ok():
+                break
 
     print("checking repo for the rerender...", flush=True)
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with pushd(tmpdir):
-            print("cloning...", flush=True)
-            subprocess.run(
-                [
-                    "git",
-                    "clone",
-                    "https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock.git",
-                ],
-                check=True,
-            )
-
-            with pushd("cf-autotick-bot-test-package-feedstock"):
-                print("checkout branch...", flush=True)
-                subprocess.run(
-                    ["git", "checkout", "rerender-live-test"],
-                    check=True,
-                )
-
-                print("checking the git history...", flush=True)
-                c = subprocess.run(
-                    ["git", "log", "--pretty=oneline", "-n", "1"],
-                    capture_output=True,
-                    check=True,
-                )
-                output = c.stdout.decode("utf-8")
-                print("    last commit:", output.strip(), flush=True)
-                assert "MNT:" in output
-
-                print("checking rerender undid workflow edits...", flush=True)
-                if os.path.exists(".github/workflows/automerge.yml"):
-                    with open(".github/workflows/automerge.yml") as fp:
-                        lines = fp.readlines()
-                    assert not any(
-                        line.startswith("# test line for rerender edits")
-                        for line in lines
-                    )
-
+    assert _rerender_is_ok(verbose=True)
     print("tests passed!")
 
 
