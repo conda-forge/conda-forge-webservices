@@ -12,6 +12,8 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 
       - name: relock
         uses: beckermr/relock-conda@4704897260d9a832681c8b94f14206e9f9adf1ba
