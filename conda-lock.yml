@@ -760,15 +760,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: ad15bc670c3e95245d74ca37cab17d74
-      sha256: 12946e09c65962cc3b61829b44663bf307ecd25708ed5010f2e188f470523a27
+      md5: fc27ea4c3de58ae05a586328bc4ea1f2
+      sha256: 6bc095f02b5cc575676bcae55f192f203a6850271bef99db0c76fdcaaec749c7
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.02.24.23.20.01-hd8ed1ab_0.conda
-    version: 2025.02.24.23.20.01
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.02.25.13.14.53-hd8ed1ab_0.conda
+    version: 2025.02.25.13.14.53
   - category: main
     dependencies:
       attrs: ''
@@ -825,15 +825,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 2eb4181fae3f8b7f79b798f2612851aa
-      sha256: 790f9bb9689e90323432b480eb850ddac6154259824d9e1f614e0749e401071e
+      md5: 5a0b05ee29955105d49d67a66d640f61
+      sha256: 6789d7eab6511259b354d460f283df2d7746910ebc88dc3dec28ac708c072ce6
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.2.74-pyhd8ed1ab_0.conda
-    version: 2025.2.74
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.2.78-pyhd8ed1ab_0.conda
+    version: 2025.2.78
   - category: main
     dependencies:
       click: '>=8'
