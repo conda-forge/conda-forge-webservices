@@ -800,6 +800,7 @@ package:
       msgpack-python: ''
       networkx: '!=2.8.1'
       numpy: ''
+      orjson: ''
       packaging: ''
       psutil: ''
       pydantic: ''
@@ -810,7 +811,6 @@ package:
       python: '>=3.11'
       python-dateutil: ''
       python-graphviz: ''
-      python-rapidjson: ''
       rattler-build: '>=0.35.4'
       rattler-build-conda-compat: '>=1.3.2,<2'
       requests: ''
@@ -825,15 +825,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: b7f902228156721b3d6312992cc1a876
-      sha256: 3fd2c49f970078149cf12c410e5fcbc7905f787b302f0a027da2503b1934dadd
+      md5: d4d9270a0fd06c95c7f9e0b03e53f242
+      sha256: 0c7c823bb8aed5839b1e45ecfaaa978cc70cb7fcda008adb06122056f9a84be3
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.2.90-pyhd8ed1ab_0.conda
-    version: 2025.2.90
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.2.92-pyhd8ed1ab_0.conda
+    version: 2025.2.92
   - category: main
     dependencies:
       click: '>=8'
@@ -3592,6 +3592,22 @@ package:
     platform: linux-64
     url: https://conda.anaconda.org/conda-forge/noarch/oras-py-0.1.14-pyhd8ed1ab_0.conda
     version: 0.1.14
+  - category: main
+    dependencies:
+      __glibc: '>=2.17,<3.0.a0'
+      libgcc: '>=13'
+      python: '>=3.11,<3.12.0a0'
+      python_abi: 3.11.*
+    hash:
+      md5: 19615e39755eac6975671b8a679f7088
+      sha256: 2626f5c211749d1e5632c81d92313677e0c537f1376f397432976379db2dabc4
+    manager: conda
+    name: orjson
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/linux-64/orjson-3.10.15-py311h9e33e62_0.conda
+    version: 3.10.15
   - category: main
     dependencies:
       python: '>=3.8'
