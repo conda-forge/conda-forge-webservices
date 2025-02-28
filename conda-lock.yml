@@ -996,15 +996,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: bbf567b8a7fee2acd8ea20e14fea3625
-      sha256: c3b63785056ff0a01982e5b91f2aa0d69392324df310995176255d6235d0eb92
+      md5: 62f823c0f9a0128fcae2c36f3f58d8d4
+      sha256: bcad989d2cc3ee93c9c47cf8d1ff4738f7f9eafcd7e3cd41a02b9cd04e2d0daa
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.45.4-unix_pyhd81877a_0.conda
-    version: 3.45.4
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.46.0-unix_pyhd81877a_0.conda
+    version: 3.46.0
   - category: main
     dependencies:
       python: '>=3.8'
@@ -4537,17 +4537,18 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
+      libgcc: '>=13'
       openssl: '>=3.4.1,<4.0a0'
       patchelf: ''
     hash:
-      md5: d00e723ca0f57a95f2bd70b92e16a8fb
-      sha256: e46e6fd77dd2954a7b88c7a58953b1337831aa4ca74b13c924c16612bf918ab5
+      md5: 9355cf40830f01d09a7259dcd447f4f5
+      sha256: 77c79601690789f9d5b8df8cc24cd6173c81b966417daccd34ff28d0ac32764a
     manager: conda
     name: rattler-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.37.0-h042aca4_0.conda
+      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.37.0-h159367c_1.conda
     version: 0.37.0
   - category: main
     dependencies:
