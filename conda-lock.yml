@@ -996,15 +996,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: 62f823c0f9a0128fcae2c36f3f58d8d4
-      sha256: bcad989d2cc3ee93c9c47cf8d1ff4738f7f9eafcd7e3cd41a02b9cd04e2d0daa
+      md5: 9439782e9618439b9e7daf693f8c0dec
+      sha256: ec953407e6d1fed67a3bac83e0be530a908d3910bab1078322496a59b68b59a6
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.46.0-unix_pyhd81877a_0.conda
-    version: 3.46.0
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.46.1-unix_pyhd81877a_0.conda
+    version: 3.46.1
   - category: main
     dependencies:
       python: '>=3.8'
