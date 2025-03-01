@@ -16,7 +16,7 @@ jobs:
           token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 
       - name: relock
-        uses: beckermr/relock-conda@4704897260d9a832681c8b94f14206e9f9adf1ba
+        uses: beckermr/relock-conda@1187b776400478c5ff35d4cf423da23a80bbdd4c
         with:
           github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
           automerge: true
@@ -58,7 +58,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        uses: actions/create-github-app-token@136412a57a7081aa63c935a2cc2918f76c34f514
+        uses: actions/create-github-app-token@0d564482f06ca65fa9e77e2510873638c82206f2
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
