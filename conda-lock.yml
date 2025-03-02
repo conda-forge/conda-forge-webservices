@@ -3,7 +3,7 @@ metadata:
     - url: conda-forge
       used_env_vars: []
   content_hash:
-    linux-64: 8d7aff4081080845dff6e0bef67fb3ed7937c8f4d7c88c73fcad507b5e3d0c67
+    linux-64: 4477f9c4eb0ae4623adaa3c3d8ce7e123370cd3e6011d0035556c46778089835
   platforms:
     - linux-64
   sources:
@@ -1360,6 +1360,18 @@ package:
     url:
       https://conda.anaconda.org/conda-forge/noarch/exceptiongroup-1.2.2-pyhd8ed1ab_1.conda
     version: 1.2.2
+  - category: main
+    dependencies:
+      python: '>=3.9'
+    hash:
+      md5: a71efeae2c160f6789900ba2631a2c90
+      sha256: 9abc6c128cd40733e9b24284d0462e084d4aff6afe614f0754aa8533ebe505e4
+    manager: conda
+    name: execnet
+    optional: false
+    platform: linux-64
+    url: https://conda.anaconda.org/conda-forge/noarch/execnet-2.1.1-pyhd8ed1ab_1.conda
+    version: 2.1.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -4313,6 +4325,21 @@ package:
     platform: linux-64
     url: https://conda.anaconda.org/conda-forge/noarch/pytest-8.3.4-pyhd8ed1ab_1.conda
     version: 8.3.4
+  - category: main
+    dependencies:
+      execnet: '>=2.1'
+      pytest: '>=7.0.0'
+      python: '>=3.9'
+    hash:
+      md5: 59aad4fb37cabc0bacc73cf344612ddd
+      sha256: fb35da93084d653b86918c200abb2f0b88aceb3b0526c6aaa21b844f565ae237
+    manager: conda
+    name: pytest-xdist
+    optional: false
+    platform: linux-64
+    url:
+      https://conda.anaconda.org/conda-forge/noarch/pytest-xdist-3.6.1-pyhd8ed1ab_1.conda
+    version: 3.6.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
