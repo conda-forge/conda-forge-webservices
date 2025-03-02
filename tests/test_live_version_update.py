@@ -6,10 +6,11 @@ import uuid
 
 import github
 import requests
-from conftest import _merge_main_to_branch
+from flaky import flaky
 
 import conda_forge_webservices
 from conda_forge_webservices.utils import pushd
+from conftest import _merge_main_to_branch
 
 REPO_OWNER = "conda-forge"
 REPO_NAME = "cf-autotick-bot-test-package-feedstock"
@@ -239,11 +240,13 @@ def _run_test_try_finally(branch, version):
                     _set_pr_not_draft()
 
 
+@flaky
 def test_live_version_update_with_finding_version(pytestconfig):
     branch = pytestconfig.getoption("branch")
     _run_test_try_finally(branch, None)
 
 
+@flaky
 def test_live_version_update_with_input_version(pytestconfig):
     branch = pytestconfig.getoption("branch")
     _run_test_try_finally(branch, "0.14")

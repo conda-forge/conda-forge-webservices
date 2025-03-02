@@ -7,9 +7,10 @@ import uuid
 
 import conda_forge_webservices
 import github
+from flaky import flaky
+
 from conda_forge_webservices.utils import pushd, get_workflow_run_from_uid
 from conda_forge_webservices.commands import set_rerender_pr_status
-
 from conftest import _merge_main_to_branch
 
 WAIT_TIME = 600  # seconds
@@ -116,6 +117,7 @@ def _run_test(branch):
     print("tests passed!")
 
 
+@flaky
 def test_live_rerender(pytestconfig):
     branch = pytestconfig.getoption("branch")
 

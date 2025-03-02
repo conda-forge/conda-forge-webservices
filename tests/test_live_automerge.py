@@ -6,6 +6,7 @@ import uuid
 
 import github
 from conda_forge_webservices.utils import pushd
+from flaky import flaky
 
 TEST_BASE_BRANCH = "automerge-live-test-base-branch"
 TEST_HEAD_BRANCH = f"automerge-live-test-head-branch-h{uuid.uuid4().hex[:6]}"
@@ -18,6 +19,7 @@ def _run_git_cmd(*args):
     subprocess.run(["git", *list(args)], check=True)
 
 
+@flaky
 def test_live_automerge(pytestconfig):
     branch = pytestconfig.getoption("branch")
 

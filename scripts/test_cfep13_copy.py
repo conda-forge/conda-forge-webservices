@@ -32,6 +32,7 @@ from binstar_client import BinstarError
 import binstar_client.errors
 
 import pytest
+from flaky import flaky
 
 from conda_forge_webservices.utils import pushd, with_action_url
 from conda_forge_webservices.feedstock_outputs import (
@@ -244,6 +245,7 @@ def _dist_exists(ac, channel, dist):
 
 
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
+@flaky
 def test_feedstock_outputs_copy_works():
     uid = uuid.uuid4().hex[0:6]
 

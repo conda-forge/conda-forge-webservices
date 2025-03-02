@@ -319,7 +319,7 @@ jobs:
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
           cd tests
-          pytest -vvs --branch=${branch} test_live_linter.py
+          pytest -n 4 -vvs --branch=${branch} test_live_linter.py
         env:
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 
