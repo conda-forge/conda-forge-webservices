@@ -5,13 +5,15 @@ import time
 import uuid
 
 import github
+import pytest
+from flaky import flaky
 
 import conda_forge_webservices
 from conda_forge_webservices.utils import get_workflow_run_from_uid, pushd
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 
-WAIT_TIME = 720
+WAIT_TIME = 300
 
 TEST_CASES = [
     (
@@ -122,8 +124,11 @@ def _make_empty_commit(pr_num):
     time.sleep(2.0)
 
 
-def _linter_is_ok(repo, target_urls, verbose=False):
+def _linter_is_ok(repo, target_urls, target_pr_number, verbose=False):
     for pr_number, expected_status, expected_msgs in TEST_CASES:
+        if pr_number == target_pr_number:
+            continue
+
         if verbose:
             print(f"checking pr {pr_number}...", flush=True)
 
@@ -187,7 +192,9 @@ def _linter_is_ok(repo, target_urls, verbose=False):
     return True
 
 
-def test_linter_pr(pytestconfig):
+@pytest.mark.parametrize("target_pr_number", [tc[0] for tc in TEST_CASES])
+@flaky
+def test_linter_pr(target_pr_number, pytestconfig):
     branch = pytestconfig.getoption("branch")
 
     gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
@@ -195,6 +202,9 @@ def test_linter_pr(pytestconfig):
 
     target_urls = {}
     for pr_number, _, _ in TEST_CASES:
+        if pr_number == target_pr_number:
+            continue
+
         _make_empty_commit(pr_number)
 
         uid = uuid.uuid4().hex
@@ -233,7 +243,7 @@ def test_linter_pr(pytestconfig):
         tot += 30
         print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
         if tot % 30 == 0 and tot > 0:
-            if _linter_is_ok(repo, target_urls, verbose=False):
+            if _linter_is_ok(repo, target_urls, target_pr_number, verbose=False):
                 break
 
-    assert _linter_is_ok(repo, target_urls, verbose=True)
+    assert _linter_is_ok(repo, target_urls, target_pr_number, verbose=True)
