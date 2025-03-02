@@ -126,7 +126,7 @@ def _make_empty_commit(pr_num):
 
 def _linter_is_ok(repo, target_urls, target_pr_number, verbose=False):
     for pr_number, expected_status, expected_msgs in TEST_CASES:
-        if pr_number == target_pr_number:
+        if pr_number != target_pr_number:
             continue
 
         if verbose:
@@ -202,7 +202,7 @@ def test_linter_pr(target_pr_number, pytestconfig):
 
     target_urls = {}
     for pr_number, _, _ in TEST_CASES:
-        if pr_number == target_pr_number:
+        if pr_number != target_pr_number:
             continue
 
         _make_empty_commit(pr_number)
