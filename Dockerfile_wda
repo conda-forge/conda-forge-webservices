@@ -4,7 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 USER root
 
 # make sure the install below is not cached by docker
-ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cache
+# ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cache
+ADD https://worldtimeapi.org/api/timezone/Etc/UTC /opt/docker/etc/gibberish-to-bust-docker-image-cache
 
 COPY conda-lock.yml /tmp/conda-lock.yml
 
