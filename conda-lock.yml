@@ -780,15 +780,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 3b6d674eab3da4369c1b3e25d64c5352
-      sha256: 435192eec673e89ea9599051e523d9b9b391ca0557775970a387314477f6bb0d
+      md5: 4acd2d7adc8f718f8cca4d0ba33fb0ad
+      sha256: c18600a3e3be0670fb34a5d34b5070609a1ef02590fe9a76b641b120cf9b03ee
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.03.09.19.15.19-hd8ed1ab_0.conda
-    version: 2025.03.09.19.15.19
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.03.10.13.38.04-hd8ed1ab_0.conda
+    version: 2025.03.10.13.38.04
   - category: main
     dependencies:
       attrs: ''
@@ -1016,15 +1016,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: 9439782e9618439b9e7daf693f8c0dec
-      sha256: ec953407e6d1fed67a3bac83e0be530a908d3910bab1078322496a59b68b59a6
+      md5: 5f9eb31961ff155520094c1672febdc7
+      sha256: fbd6dcffdc1f07925cc191e3578b6997f09df7be377892c8b2d8a39b9b42224a
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.46.1-unix_pyhd81877a_0.conda
-    version: 3.46.1
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.47.0-unix_pyhd81877a_0.conda
+    version: 3.47.0
   - category: main
     dependencies:
       python: '>=3.8'
@@ -1437,15 +1437,15 @@ package:
       packaging: '>=20'
       python: '>=3.9'
     hash:
-      md5: 032625a4889c7e725c2370b4493fb85c
-      sha256: d53d4029ea66149791563898ae02a98cf45d07b00e5eae01fd23b8a599c0cd0e
+      md5: f2bfd30939d15a4669f7c775db0a847f
+      sha256: 7f45aa734807a89af4b027975b2ce034fb1cfc63a98bc4fce2865a11099d7739
     manager: conda
     name: findpython
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/findpython-0.6.2-pyhff2d567_1.conda
-    version: 0.6.2
+      https://conda.anaconda.org/conda-forge/noarch/findpython-0.6.3-pyhff2d567_0.conda
+    version: 0.6.3
   - category: main
     dependencies:
       python: '>=3.9'
