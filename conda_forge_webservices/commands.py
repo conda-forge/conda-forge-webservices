@@ -605,6 +605,13 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                             pr_title = f"[ci skip] adding user @{user}"
                             to_close = ADD_USER.search(title)
                             extra_msg = (
+                                "\n\nWPlease note that we no longer recommend this as the "  # noqa
+                                "as the way to add new contributors to a feedstock. "  # noqa
+                                "To aid with vetting new end users and maintainers, we "  # noqa
+                                "recommend that you make a PR that fixes the recipe in a "  # noqa
+                                "meaningful way and then ask the existing maintainers to "  # noqa
+                                "review it. Near the end of the review process, you may ask " # noqa
+                                "to be added as a maintainer. "  # noqa
                                 "\n\nMerge this PR to add the user. Please do not rerender "  # noqa
                                 "this PR or change it in any way. It has `[ci skip]` in "  # noqa
                                 "the commit message to avoid pushing a new build and so "  # noqa
