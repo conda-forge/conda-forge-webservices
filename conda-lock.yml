@@ -780,15 +780,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: c7317a93a782c199a57df6ab398bd477
-      sha256: c60412b025cf491d55e9dd876f83b6626c012fc0389c4d8bb3d143af194e6dee
+      md5: 0fd2d32bd523878b7492a9e4c4b9f9a8
+      sha256: 10ff646bf0c064d692d02e7af025e72ce65146104a85fb675e2c92d50be0b4d7
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.03.11.22.23.18-hd8ed1ab_0.conda
-    version: 2025.03.11.22.23.18
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.03.12.11.34.20-hd8ed1ab_0.conda
+    version: 2025.03.12.11.34.20
   - category: main
     dependencies:
       attrs: ''
@@ -1461,17 +1461,17 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      libgcc: '>=13'
-      libstdcxx: '>=13'
+      libgcc-ng: '>=12'
+      libstdcxx-ng: '>=12'
     hash:
-      md5: 0ca14d8e641eceedd59cb09c1588dae7
-      sha256: 3ddbecf8f36a0d1e05ceecb190748c52092a5a1e14e00f166b6fedb1b5ea0feb
+      md5: 995f7e13598497691c1dc476d889bc04
+      sha256: c620e2ab084948985ae9b8848d841f603e8055655513340e04b6cf129099b5ca
     manager: conda
     name: fmt
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/fmt-11.1.4-h07f6e7f_0.conda
-    version: 11.1.4
+    url: https://conda.anaconda.org/conda-forge/linux-64/fmt-11.0.2-h434a139_0.conda
+    version: 11.0.2
   - category: main
     dependencies: {}
     hash:
@@ -2824,7 +2824,7 @@ package:
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
       cpp-expected: '>=1.1.0,<1.2.0a0'
-      fmt: '>=11.1.4,<12.0a0'
+      fmt: '>=11.0.2,<12.0a0'
       libarchive: '>=3.7.7,<3.8.0a0'
       libcurl: '>=8.12.1,<9.0a0'
       libgcc: '>=13'
@@ -2839,20 +2839,20 @@ package:
       yaml-cpp: '>=0.8.0,<0.9.0a0'
       zstd: '>=1.5.6,<1.6.0a0'
     hash:
-      md5: 736726be0392e35e9c042d8ee00bafe9
-      sha256: 2b98fcc76709c5f0bc6caefd656cd158e28888524ea43e863db2693f44ad1585
+      md5: f5f36927132b16674cb513ab081f12fb
+      sha256: f84a328f03bfe5059be8b7319135e9b6506fe15a06b748467ae8e0a4cd1a1fd3
     manager: conda
     name: libmamba
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.0.5-h326b718_2.conda
-    version: 2.0.5
+    url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.0.7-h326b718_1.conda
+    version: 2.0.7
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      fmt: '>=11.1.4,<12.0a0'
+      fmt: '>=11.0.2,<12.0a0'
       libgcc: '>=13'
-      libmamba: 2.0.5
+      libmamba: 2.0.7
       libstdcxx: '>=13'
       openssl: '>=3.4.1,<4.0a0'
       pybind11-abi: '4'
@@ -2861,15 +2861,15 @@ package:
       yaml-cpp: '>=0.8.0,<0.9.0a0'
       zstd: '>=1.5.6,<1.6.0a0'
     hash:
-      md5: 7cb4de4cd88d80ae36a7360d422de803
-      sha256: 9cd8c273e1272c0f90a0d08112723189b43d2806e0884d7c86e09f89ff89bcdf
+      md5: ceb15e04f6bc3ea29ce8ed68fd158357
+      sha256: d2756925d010092f108e8e5baf734c0d667099d97f68c6fee88d8e4908a6c548
     manager: conda
     name: libmambapy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.0.5-py311hfeb0635_2.conda
-    version: 2.0.5
+      https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.0.7-py311h1409cdf_1.conda
+    version: 2.0.7
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -3273,19 +3273,19 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      libmamba: 2.0.5
+      libmamba: 2.0.7
       reproc: '>=14.2,<15.0a0'
       reproc-cpp: '>=14.2,<15.0a0'
       zstd: '>=1.5.6,<1.6.0a0'
     hash:
-      md5: 784a03b56520173c858826cc76a14899
-      sha256: ed7b321e6611874470e00f8df8f1ccde7a941e45a91e717df4616bb6fc7b730f
+      md5: 0d72eafc9166481b7fa60f60fa0fc958
+      sha256: cef7a8ea0a79acdcd21c2482b2d02ffb36a38892b8763e70b1e749341251dd29
     manager: conda
     name: mamba
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.0.5-h17bb787_2.conda
-    version: 2.0.5
+    url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.0.7-h1487362_1.conda
+    version: 2.0.7
   - category: main
     dependencies:
       mdurl: '>=0.1,<1'
