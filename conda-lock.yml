@@ -843,15 +843,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 8b7b14db3162dbaff32d2188da91b86a
-      sha256: 99ac3d3a7984a2b64d011e18221be4422d42235578904e9b1c9f2202c210d2f8
+      md5: 67d2d71c1f175a2585852dc965832e5a
+      sha256: 4e5624d73f92263931302843b8b70196d74f569fd2f061d2b3e53820a5c68585
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.3.59-pyhd8ed1ab_0.conda
-    version: 2025.3.59
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.3.60-pyhd8ed1ab_0.conda
+    version: 2025.3.60
   - category: main
     dependencies:
       click: '>=8'
