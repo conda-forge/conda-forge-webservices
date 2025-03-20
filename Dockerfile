@@ -40,7 +40,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # bust the docker cache so that we always rerun the installs below
 # ADD https://loripsum.net/api /opt/docker/etc/gibberish
-ADD https://worldtimeapi.org/api/timezone/Etc/UTC /opt/docker/etc/gibberish
+# ADD https://worldtimeapi.org/api/timezone/Etc/UTC /opt/docker/etc/gibberish
+ADD http://www.randomnumberapi.com/api/v1.0/randomnumber /opt/docker/etc/gibberish
 
 # Install conda
 COPY conda-lock.yml /
