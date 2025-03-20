@@ -6,7 +6,7 @@ USER root
 # make sure the install below is not cached by docker
 # ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cache
 # ADD https://worldtimeapi.org/api/timezone/Etc/UTC /opt/docker/etc/gibberish-to-bust-docker-image-cache
-ADD http://www.randomnumberapi.com/api/v1.0/randomnumber /opt/docker/etc/gibberish-to-bust-docker-image-cache
+ADD https://www.randomnumberapi.com/api/v1.0/randomnumber?min=1&max=100000&count=5 /opt/docker/etc/gibberish-to-bust-docker-image-cache
 
 COPY conda-lock.yml /tmp/conda-lock.yml
 
