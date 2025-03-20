@@ -79,7 +79,6 @@ RUN echo "**** install dev packages ****" && \
     mkdir -p "$CONDA_DIR/locks" && \
     chmod 777 "$CONDA_DIR/locks"
 
-    
 COPY entrypoint /opt/docker/bin/entrypoint
 RUN mkdir -p conda_forge_webservices
 COPY / conda_forge_webservices/
@@ -88,7 +87,7 @@ RUN echo "**** install conda-forge-webservices ****" && \
     source /opt/conda/etc/profile.d/conda.sh && \
     conda activate webservices && \
     pip install --no-deps --no-build-isolation -e .
-    
+
 USER conda
 
 CMD ["/opt/conda/bin/tini", \
