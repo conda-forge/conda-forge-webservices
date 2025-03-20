@@ -74,7 +74,10 @@ RUN echo "**** install dev packages ****" && \
     \
     echo "**** finalize ****" && \
     mkdir -p "$CONDA_DIR/locks" && \
-    chmod 777 "$CONDA_DIR/locks"
+    chmod 777 "$CONDA_DIR/locks" && \
+    useradd -ms /bin/bash conda
+
+USER conda
 
 COPY entrypoint /opt/docker/bin/entrypoint
 RUN mkdir -p conda_forge_webservices
