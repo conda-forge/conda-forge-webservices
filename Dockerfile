@@ -72,20 +72,24 @@ RUN echo "**** install dev packages ****" && \
     conda clean --all --force-pkgs-dirs --yes && \
     find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
     \
+    echo "**** add conda user ****" && \
+    addgroup -S condagroup && \
+    adduser -S conda -G condagroup && \
     echo "**** finalize ****" && \
     mkdir -p "$CONDA_DIR/locks" && \
-    chmod 777 "$CONDA_DIR/locks" && \
-    useradd -ms /bin/bash conda
+    chmod 777 "$CONDA_DIR/locks"
 
-USER conda
-
+    
 COPY entrypoint /opt/docker/bin/entrypoint
 RUN mkdir -p conda_forge_webservices
 COPY / conda_forge_webservices/
-RUN cd conda_forge_webservices && \
+RUN echo "**** install conda-forge-webservices ****" && \
+    cd conda_forge_webservices && \
     source /opt/conda/etc/profile.d/conda.sh && \
     conda activate webservices && \
     pip install --no-deps --no-build-isolation -e .
+    
+USER conda
 
 CMD ["/opt/conda/bin/tini", \
      "--", \
