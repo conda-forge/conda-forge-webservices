@@ -825,6 +825,7 @@ package:
       psutil: ''
       pydantic: ''
       pydantic-extra-types: ''
+      pydantic-settings: ''
       pygithub: ''
       pymongo: ''
       pynamodb: ''
@@ -845,15 +846,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 58d62d8d8a0be4771d5d024d10200d8e
-      sha256: 32825422a4b86e5637eda6826114b7d955fdf8e4cb2e7057b8ae3eacaee33e4a
+      md5: b24b579a8775158668aa17f6c28255a1
+      sha256: 150c70d136f0766e9a8cbe104b65b30e24537881ead8c6b1ae4c4d05f2940933
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.3.125-pyhd8ed1ab_0.conda
-    version: 2025.3.125
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.3.127-pyhd8ed1ab_0.conda
+    version: 2025.3.127
   - category: main
     dependencies:
       click: '>=8'
@@ -5039,14 +5040,14 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: af4b9f314b8a74dfe1c8382983657df6
-      sha256: 3ab932dbdd8aa3d7eca917c0b2f883879826ea92ac7abaea5c1734c095edbe9b
+      md5: e44f468c1b8db8fe3f38a12ee286e13c
+      sha256: 496a8fbed1dd3f4bd2b2b955fedb1e172282de86a2b01d5fce834a0a08e9b254
     manager: conda
     name: spdlog
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/spdlog-1.15.1-h10b92b3_1.conda
-    version: 1.15.1
+    url: https://conda.anaconda.org/conda-forge/linux-64/spdlog-1.15.2-h10b92b3_0.conda
+    version: 1.15.2
   - category: main
     dependencies:
       python: '>=3.9'
