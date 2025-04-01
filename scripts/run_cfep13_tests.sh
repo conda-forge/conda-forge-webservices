@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 echo "blah-not-a-token" > ~/.conda-smithy/anaconda.token
+chmod 600 ~/.conda-smithy/anaconda.token
 
 python scripts/delete_staged_recipes_token.py
 echo "waiting for github to remove the token..."
