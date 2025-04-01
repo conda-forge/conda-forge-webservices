@@ -450,6 +450,7 @@ Below we have put some information about the failure to help you debug it.
 
 Common ways to fix this problem include:
 
+- First check the [conda-forge status page](https://conda-forge.org/status/) for any infrastructure outages.
 - Retry the package build and upload by pushing an empty commit to the feedstock.
 - Rerender the feedstock in a PR from a fork of the feedstock and merge.
 - Request a feedstock token reset via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#reset-your-feedstock-token).
