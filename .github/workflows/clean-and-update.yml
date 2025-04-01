@@ -69,7 +69,9 @@ jobs:
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
           git config --global pull.rebase false
-          mkdir -p ~/.conda-smithy/ && echo $GH_TOKEN > ~/.conda-smithy/github.token
+          mkdir -p ~/.conda-smithy/
+          echo $GH_TOKEN > ~/.conda-smithy/github.token
+          chmod 600 ~/.conda-smithy/github.token
           pip install --no-deps --no-build-isolation -e .
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
