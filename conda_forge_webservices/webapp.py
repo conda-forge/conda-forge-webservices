@@ -29,9 +29,9 @@ from conda_forge_webservices._version import __version__
 from conda_forge_webservices.update_me import WEBSERVICE_PKGS
 from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
-    copy_feedstock_outputs,
     is_valid_feedstock_token,
     comment_on_outputs_copy,
+    relabel_feedstock_outputs,
 )
 from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
 from conda_forge_webservices import status_monitor
@@ -531,11 +531,15 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
-def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error, hash_type):
+def _do_copy(
+    feedstock, outputs, channel, git_sha, comment_on_error, hash_type, staging_label
+):
     valid, errors = validate_feedstock_outputs(
         feedstock,
         outputs,
         hash_type,
+        channel,
+        staging_label,
     )
 
     outputs_to_copy = {}
@@ -544,10 +548,11 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error, hash_type):
             outputs_to_copy[o] = outputs[o]
 
     if outputs_to_copy:
-        copied = copy_feedstock_outputs(
-            outputs_to_copy,
+        copied = relabel_feedstock_outputs(
+            outputs,
+            staging_label,
             channel,
-            delete=False,
+            remove_src_label=True,
         )
 
         # send for github releases copy
@@ -671,6 +676,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             self.set_status(403)
             self.write_error(403)
         else:
+            staging_label = "cf-staging-do-not-use-h" + uuid.uuid4().hex
             (
                 valid,
                 errors,
@@ -684,6 +690,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 git_sha,
                 comment_on_error,
                 hash_type,
+                staging_label,
             )
 
             if not all(v for v in copied.values()):

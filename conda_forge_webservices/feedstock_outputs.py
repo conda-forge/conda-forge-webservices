@@ -101,6 +101,120 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
+def _delete_dist(ac, channel, dist):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError:
+        return False
+
+    try:
+        ac.remove_dist(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )
+    except BinstarError:
+        return False
+
+    return True
+
+
+def _add_label_dist(ac, channel, dist, label):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError:
+        return False
+
+    try:
+        ac.add_channel(
+            label,
+            channel,
+            package=name,
+            version=version,
+            filename=urllib.parse.quote(dist, safe=""),
+        )
+    except BinstarError:
+        return False
+
+    return True
+
+
+def _remove_label_dist(ac, channel, dist, label):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError:
+        return False
+
+    try:
+        ac.remove_channel(
+            label,
+            channel,
+            package=name,
+            version=version,
+            filename=urllib.parse.quote(dist, safe=""),
+        )
+    except BinstarError:
+        return False
+
+    return True
+
+
+def _copy_dist_if_not_exists(
+    ac_src,
+    channel_src,
+    label_src,
+    dist,
+    ac_dest,
+    channel_dest,
+    label_dest,
+    update_metadata=False,
+    replace_metadata=False,
+):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError:
+        return False
+
+    if _dist_exists(ac_dest, channel_dest, dist):
+        return True
+    else:
+        try:
+            ac_dest.copy(
+                channel_src,
+                name,
+                version,
+                basename=urllib.parse.quote(dist, safe=""),
+                to_owner=channel_dest,
+                from_label=label_src,
+                to_label=label_dest,
+                update=update_metadata,
+                replace=replace_metadata,
+            )
+        except BinstarError:
+            return False
+
+    return True
+
+
+def _is_dist_hash_valid(ac, channel, dist, hash_type, hash_value):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError:
+        return False
+
+    try:
+        data = ac.distribution(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )
+        return hmac.compare_digest(data[hash_type], hash_value)
+    except BinstarError:
+        return False
+
+
 def copy_feedstock_outputs(outputs, channel, delete=True):
     """Copy outputs from one chanel to another.
 
@@ -172,7 +286,49 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
     return copied
 
 
-def _is_valid_output_hash(outputs, hash_type):
+def relabel_feedstock_outputs(outputs, src_label, dest_label, remove_src_label=True):
+    """Relabel outputs on a conda channel.
+
+    Parameters
+    ----------
+    outputs : list of str
+        A list of outputs to relabel. These should be the full names with the
+        platform directory, version/build info, and file extension (e.g.,
+        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
+    src_label : str
+        The source label for the packages on the channel.
+    dest_label : str
+        the destination label for the packages on the channel.
+    remove_src_label : bool, optional
+        If True, remove the source label from the artifacts. Default is True.
+
+    Returns
+    -------
+    relabeled : dict
+        A dict keyed on the output name with True if the relabel worked and False
+        otherwise.
+    """
+    ac_prod = _get_ac_api_prod()
+
+    relabeled = dict.fromkeys(outputs, False)
+
+    for dist in outputs:
+        if _add_label_dist(ac_prod, PROD, dist, dest_label):
+            relabeled[dist] = True
+            LOGGER.info("    relabeled: %s", dist)
+        else:
+            LOGGER.info("    did not relabel: %s", dist)
+
+        if remove_src_label and relabeled[dist]:
+            if _remove_label_dist(ac_prod, PROD, dist, src_label):
+                LOGGER.info("    removed label: %s", dist)
+            else:
+                LOGGER.info("    did not remove label: %s", dist)
+
+    return relabeled
+
+
+def _is_valid_output_hash(outputs, hash_type, channel, staging_label):
     """Test if a set of outputs have valid hashes on the staging channel.
 
     Parameters
@@ -183,6 +339,10 @@ def _is_valid_output_hash(outputs, hash_type):
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
     hash_type : str
         The hash key to look for. One of sha256 or md5.
+    channel : str
+        The source label for the packages on the staging channel.
+    staging_label : str
+        The label to use for staging the dists to the prod channel.
 
     Returns
     -------
@@ -190,28 +350,53 @@ def _is_valid_output_hash(outputs, hash_type):
         A dict keyed on full output names with True if it is valid and False
         otherwise.
     """
-    ac = get_server_api()
+    ac_prod = _get_ac_api_prod()
+    ac_staging = _get_ac_api_staging()
 
     valid = dict.fromkeys(outputs, False)
 
-    for dist, hashsum in outputs.items():
-        try:
-            _, name, version, _ = parse_conda_pkg(dist)
-        except RuntimeError:
-            continue
-
-        try:
-            data = ac.distribution(
-                STAGING,
-                name,
-                version,
-                basename=urllib.parse.quote(dist, safe=""),
-            )
-            valid[dist] = hmac.compare_digest(data[hash_type], hashsum)
-            LOGGER.info("    did hash comp: %s", dist)
-        except BinstarError:
-            LOGGER.info("    did not do hash comp: %s", dist)
-            pass
+    try:
+        for dist, hashsum in outputs.items():
+            try:
+                if _is_dist_hash_valid(
+                    ac_staging, STAGING, dist, hash_type, hashsum
+                ) and _copy_dist_if_not_exists(
+                    ac_staging,
+                    STAGING,
+                    channel,
+                    dist,
+                    ac_prod,
+                    PROD,
+                    staging_label,
+                    update_metadata=False,
+                    replace_metadata=False,
+                ):
+                    valid[dist] = _is_dist_hash_valid(
+                        ac_prod,
+                        PROD,
+                        dist,
+                        hash_type,
+                        hashsum,
+                    )
+                    LOGGER.info("    did hash comp: %s", dist)
+                else:
+                    LOGGER.info(
+                        "    did not do hash comp due to failed staging copy: %s",
+                        dist,
+                    )
+            except BinstarError:
+                LOGGER.info("    did not do hash comp: %s", dist)
+                pass
+    finally:
+        for dist, v in valid.items():
+            if not v and _dist_exists(ac_prod, PROD, dist):
+                if _delete_dist(ac_prod, PROD, dist):
+                    LOGGER.info("    invalid dist hash - deleted from prod: %s", dist)
+                else:
+                    LOGGER.info(
+                        "    invalid dist hash - could not delete from prod: %s",
+                        dist,
+                    )
 
     return valid
 
@@ -348,6 +533,8 @@ def validate_feedstock_outputs(
     project,
     outputs,
     hash_type,
+    channel,
+    staging_label,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -361,6 +548,10 @@ def validate_feedstock_outputs(
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
     hash_type : str
         The hash key to look for. One of sha256 or md5.
+    channel : str
+        The source label for the packages on the staging channel.
+    staging_label : str
+        The label to use for the staging dists to the prod channel.
 
     Returns
     -------
@@ -397,7 +588,9 @@ def validate_feedstock_outputs(
         register=feedstock_outputs_config().get("auto_register_all", False),
     )
 
-    valid_hashes = _is_valid_output_hash(outputs_to_test, hash_type)
+    valid_hashes = _is_valid_output_hash(
+        outputs_to_test, hash_type, channel, staging_label
+    )
 
     for o in outputs_to_test:
         p_errors = []
