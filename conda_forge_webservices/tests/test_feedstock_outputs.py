@@ -1,4 +1,6 @@
 import json
+import os
+import uuid
 from unittest import mock
 from collections import OrderedDict
 import urllib.parse
@@ -9,8 +11,9 @@ import pytest
 from binstar_client import BinstarError
 
 from conda_forge_webservices.feedstock_outputs import (
+    _get_ac_api_prod,
+    _is_dist_hash_valid,
     _is_valid_feedstock_output,
-    _is_valid_output_hash,
     copy_feedstock_outputs,
     validate_feedstock_outputs,
 )
@@ -131,6 +134,8 @@ def test_validate_feedstock_outputs_badoutputhash(valid_out, valid_hash):
             "noarch/d-0.1-py_0.conda": "SAdsa",
         },
         "md5",
+        "main",
+        "cf-staging-do-not-use-h" + uuid.uuid4().hex,
     )
 
     assert valid == {
@@ -150,36 +155,41 @@ def test_validate_feedstock_outputs_badoutputhash(valid_out, valid_hash):
     assert "output noarch/d-0.1-py_0.conda does not have a valid md5 checksum" in errs
 
 
-@mock.patch("conda_forge_webservices.feedstock_outputs.STAGING", new="conda-forge")
-def test_is_valid_output_hash():
-    outputs = {
-        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar.bz2": (
-            "7382171fb4c13dbedf98e0bd9b60f165"
+@pytest.mark.skipif(
+    "PROD_BINSTAR_TOKEN" not in os.environ, reason="PROD_BINSTAR_TOKEN not set"
+)
+@pytest.mark.parametrize(
+    "dist,hash_value,res",
+    [
+        (
+            "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar.bz2",
+            "7382171fb4c13dbedf98e0bd9b60f165",
+            True,
         ),
         # bad hash
-        "osx-64/python-3.8.2-hdc38147_4_cpython.tar.bz2": (
-            "7382171fb4c13dbedf98e0bd9b60f165"
+        (
+            "osx-64/python-3.8.2-hdc38147_4_cpython.tar.bz2",
+            "7382171fb4c13dbedf98e0bd9b60f165",
+            False,
         ),
         # not a package
-        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar": (
-            "7382171fb4c13dbedf98e0bd9b60f165"
+        (
+            "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar",
+            "7382171fb4c13dbedf98e0bd9b60f165",
+            False,
         ),
         # bad metadata
-        "linux-64/python-3.7-h3f687_4_cpython.tar.bz2": (
-            "2f347da4a40715a5228412e56fb035d8"
+        (
+            "linux-64/python-3.7-h3f687_4_cpython.tar.bz2",
+            "2f347da4a40715a5228412e56fb035d8",
+            False,
         ),
-    }
+    ],
+)
+def test_is_dist_hash_valid(dist, hash_value, res):
+    ac_prod = _get_ac_api_prod()
 
-    valid = _is_valid_output_hash(outputs, "md5")
-    assert valid == {
-        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar.bz2": True,
-        # bad hash
-        "osx-64/python-3.8.2-hdc38147_4_cpython.tar.bz2": False,
-        # not a package
-        "linux-64/python-3.8.2-h9d8adfe_4_cpython.tar": False,
-        # bad metadata
-        "linux-64/python-3.7-h3f687_4_cpython.tar.bz2": False,
-    }
+    assert _is_dist_hash_valid(ac_prod, "conda-forge", dist, "md5", hash_value) == res
 
 
 @pytest.mark.parametrize("register", [True, False])

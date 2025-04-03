@@ -45,7 +45,7 @@ def pytest_runtest_logreport(report):
         message = report.longrepr.reprcrash.message
         if any([t in message for t in TOKENS]) and MISSING_TOKENS:
             report.wasxfail = "no tokens - {}".format(" ".join(message.splitlines()))
-            report.outcome = "no tokens"
+            report.outcome = "skipped"
 
     yield report
 
