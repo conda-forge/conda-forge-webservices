@@ -15,6 +15,7 @@ from conda_forge_webservices.feedstock_outputs import (
     _is_dist_hash_valid,
     _is_valid_feedstock_output,
     copy_feedstock_outputs,
+    relabel_feedstock_outputs,
     validate_feedstock_outputs,
 )
 
@@ -298,3 +299,52 @@ def test_is_valid_feedstock_output(
         assert afs_mock.called_once_with(project.replace("-feedstock", ""), "glob")
     else:
         afs_mock.assert_not_called()
+
+
+@pytest.mark.parametrize("error", [True, False])
+@pytest.mark.parametrize("remove_src_label", [True, False])
+@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
+def test_relabel_feedstock_outputs(
+    ac_prod,
+    remove_src_label,
+    error,
+):
+    if error:
+        ac_prod.return_value.add_channel.side_effect = BinstarError("error in add")
+
+    outputs = ["noarch/boo-0.1-py_10.conda"]
+
+    relabeled = relabel_feedstock_outputs(
+        outputs,
+        "foo",
+        "bar",
+        remove_src_label=remove_src_label,
+    )
+
+    assert relabeled == {"noarch/boo-0.1-py_10.conda": not error}
+
+    ac_prod.assert_called_once()
+
+    print(ac_prod.return_value.add_channel.call_args_list)
+    print(ac_prod.return_value.remove_channel.call_args_list)
+
+    ac_prod.return_value.add_channel.assert_called_once()
+    ac_prod.return_value.add_channel.assert_any_call(
+        "bar",
+        "conda-forge",
+        package="boo",
+        version="0.1",
+        filename=urllib.parse.quote("noarch/boo-0.1-py_10.conda", safe=""),
+    )
+
+    if remove_src_label and not error:
+        ac_prod.return_value.remove_channel.assert_called_once()
+        ac_prod.return_value.remove_channel.assert_any_call(
+            "foo",
+            "conda-forge",
+            package="boo",
+            version="0.1",
+            filename=urllib.parse.quote("noarch/boo-0.1-py_10.conda", safe=""),
+        )
+    else:
+        ac_prod.return_value.remove_channel.assert_not_called()
