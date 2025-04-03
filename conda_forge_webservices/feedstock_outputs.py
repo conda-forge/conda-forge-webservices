@@ -101,25 +101,6 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
-def _delete_dist(ac, channel, dist):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError:
-        return False
-
-    try:
-        ac.remove_dist(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        )
-    except BinstarError:
-        return False
-
-    return True
-
-
 def _add_label_dist(ac, channel, dist, label):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
