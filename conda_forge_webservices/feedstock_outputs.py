@@ -633,6 +633,15 @@ def validate_feedstock_outputs(
     """
     valid = dict.fromkeys(outputs, False)
 
+    if dest_label == staging_label:
+        LOGGER.critical(
+            "    destination label must be different "
+            "from staging label: dest=%s staging=%s",
+            dest_label,
+            staging_label,
+        )
+        return valid, ["destination label must be different from staging label"]
+
     errors = []
 
     # first ensure that the outputs are correctly formatted
