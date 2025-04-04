@@ -171,7 +171,6 @@ def _remove_label_dist(ac, channel, dist, label):
 
 
 def _copy_dist_if_not_exists(
-    ac_src,
     channel_src,
     label_src,
     dist,
@@ -245,7 +244,42 @@ def _is_dist_hash_valid(ac, channel, dist, hash_type, hash_value):
         return False
 
 
-def copy_feedstock_outputs(outputs, channel, delete=True):
+def _dist_has_label_exclusively(ac, channel, dist, label):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+    try:
+        labels = ac.distribution(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )["labels"]
+
+        if labels == [label]:
+            return True
+        else:
+            LOGGER.info(
+                "    dist %s has labels %s, not only %s",
+                dist,
+                labels,
+                label,
+            )
+            return False
+    except binstar_client.errors.NotFound:
+        return False
+
+
+def _copy_feedstock_outputs_from_staging_to_prod(
+    outputs, src_label, dest_label, delete=True
+):
     """Copy outputs from one chanel to another.
 
     Parameters
@@ -254,9 +288,10 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
         A list of outputs to copy. These should be the full names with the
         platform directory, version/build info, and file extension (e.g.,
         `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
-    channel : str
-        The source and target channel to use. Pass "main" for the default
-        channel.
+    src_label : str
+        The source label for the packages on the STAGING channel.
+    dest_label : str
+        The destination label for the packages on the PROD channel.
     delete : bool, optional
         If True, delete the artifact from STAGING if the copy is successful.
         Default is True.
@@ -283,28 +318,20 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
             )
             continue
 
-        # if we already have it, then we mark it copied
-        # this matches the old behavior where outputs are never
-        # replaced once pushed
-        if _dist_exists(ac_prod, PROD, dist):
-            copied[dist] = True
-        else:
-            try:
-                ac_prod.copy(
-                    STAGING,
-                    name,
-                    version,
-                    basename=urllib.parse.quote(dist, safe=""),
-                    to_owner=PROD,
-                    from_label=channel,
-                    to_label=channel,
-                    update=True,
-                )
-                copied[dist] = True
-                LOGGER.info("    copied: %s", dist)
-            except BinstarError as e:
-                LOGGER.info("    did not copy: %s (%s)", dist, exc_info=e)
-                pass
+        try:
+            copied[dist] = _copy_dist_if_not_exists(
+                STAGING,
+                src_label,
+                dist,
+                ac_prod,
+                PROD,
+                dest_label,
+                update_metadata=False,
+                replace_metadata=False,
+            )
+        except BinstarError as e:
+            LOGGER.info("    did not copy: %s", dist, exc_info=e)
+            pass
 
         if copied[dist] and _dist_exists(ac_staging, STAGING, dist) and delete:
             try:
@@ -318,6 +345,7 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
             except BinstarError as e:
                 LOGGER.info("    could not remove: %s", dist, exc_info=e)
                 pass
+
     return copied
 
 
@@ -351,19 +379,19 @@ def relabel_feedstock_outputs(outputs, src_label, dest_label, remove_src_label=T
         if _add_label_dist(ac_prod, PROD, dist, dest_label):
             relabeled[dist] = True
             LOGGER.info("    relabeled: %s", dist)
+
+            if remove_src_label:
+                if _remove_label_dist(ac_prod, PROD, dist, src_label):
+                    LOGGER.info("    removed label: %s", dist)
+                else:
+                    LOGGER.info("    did not remove label: %s", dist)
         else:
             LOGGER.info("    did not relabel: %s", dist)
-
-        if remove_src_label and relabeled[dist]:
-            if _remove_label_dist(ac_prod, PROD, dist, src_label):
-                LOGGER.info("    removed label: %s", dist)
-            else:
-                LOGGER.info("    did not remove label: %s", dist)
 
     return relabeled
 
 
-def _is_valid_output_hash(outputs, hash_type, channel, staging_label):
+def _is_valid_output_hash(outputs, hash_type, channel, label):
     """Test if a set of outputs have valid hashes on the staging channel.
 
     Parameters
@@ -375,9 +403,11 @@ def _is_valid_output_hash(outputs, hash_type, channel, staging_label):
     hash_type : str
         The hash key to look for. One of sha256 or md5.
     channel : str
-        The source label for the packages on the staging channel.
-    staging_label : str
-        The label to use for staging the dists to the prod channel.
+        The channel to check the hashes on. Should be one of
+        `cf-staging` or `conda-forge`.
+    label : str
+        The label for the packages to validate. The packages must have this label and
+        only this labvel to be considered valid.
 
     Returns
     -------
@@ -385,48 +415,39 @@ def _is_valid_output_hash(outputs, hash_type, channel, staging_label):
         A dict keyed on full output names with True if it is valid and False
         otherwise.
     """
-    ac_prod = _get_ac_api_prod()
-    ac_staging = _get_ac_api_staging()
-
     valid = dict.fromkeys(outputs, False)
+
+    if channel == PROD:
+        ac = _get_ac_api_prod()
+    elif channel == STAGING:
+        ac = _get_ac_api_staging()
+    else:
+        LOGGER.critical(
+            "    channel must be one of conda-forge or cf-staging: %s", channel
+        )
+        return valid
 
     for dist, hashsum in outputs.items():
         try:
-            if _dist_exists(ac_prod, PROD, dist):
+            if not _dist_exists(ac, channel, dist):
                 LOGGER.info(
-                    "    already exists in hash validation - assuming invalid: %s",
-                    dist,
-                )
-                valid[dist] = False
-                continue
-
-            if not _is_dist_hash_valid(ac_staging, STAGING, dist, hash_type, hashsum):
-                LOGGER.info(
-                    "    did not do hash comp due to invalid hash on cf-staging: %s",
+                    "    did not do hash comp due to dist not existing: %s",
                     dist,
                 )
                 continue
 
-            if not _copy_dist_if_not_exists(
-                ac_staging,
-                STAGING,
-                channel,
-                dist,
-                ac_prod,
-                PROD,
-                staging_label,
-                update_metadata=False,
-                replace_metadata=False,
-            ):
+            if not _dist_has_label_exclusively(ac, channel, dist, label):
                 LOGGER.info(
-                    "    did not do hash comp due to failed staging copy: %s",
+                    "    did not do hash comp due to dist"
+                    " not having only the label %s: %s",
+                    label,
                     dist,
                 )
                 continue
 
             valid[dist] = _is_dist_hash_valid(
-                ac_prod,
-                PROD,
+                ac,
+                channel,
                 dist,
                 hash_type,
                 hashsum,
@@ -581,7 +602,7 @@ def validate_feedstock_outputs(
     project,
     outputs,
     hash_type,
-    channel,
+    dest_label,
     staging_label,
 ):
     """Validate feedstock outputs on the staging channel.
@@ -596,8 +617,9 @@ def validate_feedstock_outputs(
         (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
     hash_type : str
         The hash key to look for. One of sha256 or md5.
-    channel : str
-        The source label for the packages on the staging channel.
+    dest_label : str
+        The destination label for the packages. The packages must also have
+        this label on the staging channel `cf-staging`.
     staging_label : str
         The label to use for the staging dists to the prod channel.
 
@@ -613,6 +635,9 @@ def validate_feedstock_outputs(
 
     errors = []
 
+    # first ensure that the outputs are correctly formatted
+    # do not pass any incorrectly formatted outputs to the
+    # rest of the functions
     correctly_formatted = {}
     for o in outputs:
         try:
@@ -625,9 +650,10 @@ def validate_feedstock_outputs(
                 "qualified name w/ extension, `noarch/blah-fa31b0-2020.04.13.15"
                 ".54.07-py_0.conda`)"
             )
-
     outputs_to_test = {o: v for o, v in outputs.items() if correctly_formatted[o]}
 
+    # next ensure the outputs are valid for the feedstock
+    # again do not pass any invalid outputs to the rest of the functions
     valid_outputs = _is_valid_feedstock_output(
         project,
         outputs_to_test,
@@ -635,22 +661,55 @@ def validate_feedstock_outputs(
         # conda-forge/feedstock-outputs
         register=feedstock_outputs_config().get("auto_register_all", False),
     )
-
-    valid_hashes = _is_valid_output_hash(
-        outputs_to_test, hash_type, channel, staging_label
-    )
-
     for o in outputs_to_test:
-        p_errors = []
         if not valid_outputs[o]:
-            p_errors.append(f"output {o} not allowed for conda-forge/{project}")
-        if not valid_hashes[o]:
-            p_errors.append(f"output {o} does not have a valid md5 checksum")
+            errors.append(f"output {o} not allowed for conda-forge/{project}")
+    outputs_to_test = {o: v for o, v in outputs_to_test.items() if valid_outputs[o]}
 
-        if len(p_errors) > 0:
-            errors.extend(p_errors)
-        else:
+    # next ensure the outputs have valid hashes on the staging channel
+    # again do not pass any invalid outputs to the rest of the functions
+    valid_hashes_staging = _is_valid_output_hash(
+        outputs_to_test, hash_type, STAGING, dest_label
+    )
+    for o in outputs_to_test:
+        if not valid_hashes_staging[o]:
+            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
+    outputs_to_test = {
+        o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
+    }
+
+    # next copy outputs to the production channel under the staging label
+    # again do not pass any invalid outputs to the rest of the functions
+    copied = _copy_feedstock_outputs_from_staging_to_prod(
+        outputs_to_test, dest_label, staging_label, delete=True
+    )
+    for o in outputs_to_test:
+        if not copied[o]:
+            errors.append(
+                f"output {o} did not copy to {PROD} under staging label {staging_label}"
+            )
+    outputs_to_test = {o: v for o, v in outputs_to_test.items() if copied[o]}
+
+    # finally validate the hashes on the production channel
+    valid_hashes_prod = _is_valid_output_hash(
+        outputs_to_test, hash_type, PROD, staging_label
+    )
+    for o in outputs_to_test:
+        if not valid_hashes_prod[o]:
+            errors.append(f"output {o} does not have a valid checksum on {PROD}")
+
+    # combine all validations
+    for o in outputs:
+        if (
+            correctly_formatted.get(o)
+            and valid_outputs.get(o)
+            and valid_hashes_staging.get(o)
+            and copied.get(o)
+            and valid_hashes_prod.get(o)
+        ):
             valid[o] = True
+        else:
+            valid[o] = False
 
     return valid, errors
 
@@ -694,13 +753,13 @@ Common ways to fix this problem include:
 - First check the [conda-forge status page](https://conda-forge.org/status/) for any infrastructure outages.
 - Retry the package build and upload by pushing an empty commit to the feedstock.
 - Rerender the feedstock in a PR from a fork of the feedstock and merge.
-- Request a feedstock token reset via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#reset-your-feedstock-token).
 - Request that any new packages be added to the allowed outputs for the feedstock
   via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#add-a-package-output-to-a-feedstock).
 - In rare cases, the package name may change regularly in a well defined way (e.g., `libllvm18`, `libllvm19`, etc.).
   In this case, you can use our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#add-a-package-output-to-a-feedstock)
   to add a glob pattern that matches the new package name pattern. We use the Python `fnmatch` module syntax.
   Output packages that match these patterns will be automatically registered for your feedstock.
+- Request a feedstock token reset via our [admin-requests repo](https://github.com/conda-forge/admin-requests?tab=readme-ov-file#reset-your-feedstock-token).
 
 If you have any issues or questions, you can find us on Zulip in the
 community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-general) or you can bump us right here.

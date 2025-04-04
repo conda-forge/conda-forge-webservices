@@ -532,13 +532,13 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
 
 
 def _do_copy(
-    feedstock, outputs, channel, git_sha, comment_on_error, hash_type, staging_label
+    feedstock, outputs, dest_label, git_sha, comment_on_error, hash_type, staging_label
 ):
     valid, errors = validate_feedstock_outputs(
         feedstock,
         outputs,
         hash_type,
-        channel,
+        dest_label,
         staging_label,
     )
 
@@ -551,48 +551,9 @@ def _do_copy(
         copied = relabel_feedstock_outputs(
             outputs,
             staging_label,
-            channel,
+            dest_label,
             remove_src_label=True,
         )
-
-        # send for github releases copy
-        # if False:
-        #     try:
-        #         gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
-        #         repo = gh.get_repo("conda-forge/repodata-shards")
-        #         for dist in copied:
-        #             if not copied[dist]:
-        #                 continue
-        #
-        #             _subdir, _pkg = os.path.split(dist)
-        #
-        #             if channel == "main":
-        #                 _url = f"https://conda.anaconda.org/cf-staging/{dist}"
-        #             else:
-        #                 _url = (
-        #                     "https://conda.anaconda.org/cf-staging/label/"
-        #                     + f"{channel}/{dist}"
-        #                 )
-        #
-        #             repo.create_repository_dispatch(
-        #                 "release",
-        #                 {
-        #                     "artifact_url": _url,
-        #                     "md5": outputs_to_copy[dist],
-        #                     "subdir": _subdir,
-        #                     "package": _pkg,
-        #                     "url": _url,
-        #                     "feedstock": feedstock,
-        #                     "label": channel,
-        #                     "git_sha": git_sha,
-        #                     "comment_on_error": comment_on_error,
-        #                 }
-        #             )
-        #             LOGGER.info("    artifact %s sent for copy", dist)
-        #     except Exception as e:
-        #         LOGGER.info(
-        #             "    repo dispatch for artifact copy failed: %s", repr(e)
-        #         )
     else:
         copied = {}
 
@@ -613,7 +574,12 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         data = tornado.escape.json_decode(self.request.body)
         feedstock = data.get("feedstock", None)
         outputs = data.get("outputs", None)
-        channel = data.get("channel", None)
+        # the anaconda-client calls labels (e.g., "main") "channels" internally
+        # we did adopt that nomenclature in the API here, but that was a mistake
+        # looking back on it. We have kept the API name, but internally in the code
+        # we will use "channel" to mean a channel (e.g., conda-forge) and "label"
+        # to mean a label (e.g., "main", "borken", etc.)
+        label = data.get("channel", None)
         git_sha = data.get("git_sha", None)
         hash_type = data.get("hash_type", "md5")
         provider = data.get("provider", None)
@@ -648,14 +614,14 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         if (
             (not feedstock_exists)
             or outputs is None
-            or channel is None
+            or label is None
             or (not valid_token)
             or hash_type not in ["md5", "sha256"]
         ):
             LOGGER.warning(f"    invalid outputs copy request for {feedstock}!")
             LOGGER.warning(f"    feedstock exists: {feedstock_exists}")
             LOGGER.warning(f"    outputs: {outputs}")
-            LOGGER.warning(f"    channel: {channel}")
+            LOGGER.warning(f"    label: {label}")
             LOGGER.warning(f"    valid token: {valid_token}")
             LOGGER.warning(f"    hash type: {hash_type}")
             LOGGER.warning(f"    provider: {provider}")
@@ -663,8 +629,8 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
             err_msgs = []
             if outputs is None:
                 err_msgs.append("no outputs data sent for copy")
-            if channel is None:
-                err_msgs.append("no channel sent for copy")
+            if label is None:
+                err_msgs.append("no label sent for copy")
             if not valid_token:
                 err_msgs.append("invalid feedstock token")
             if hash_type not in ["md5", "sha256"]:
@@ -686,7 +652,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
                 _do_copy,
                 feedstock,
                 outputs,
-                channel,
+                label,
                 git_sha,
                 comment_on_error,
                 hash_type,
@@ -714,7 +680,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         #         _worker_pool(),
         #         copy_feedstock_outputs,
         #         outputs,
-        #         channel,
+        #         dest_label,
         #     )
         #
         #     if not all(v for v in copied.values()):
