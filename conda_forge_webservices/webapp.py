@@ -578,7 +578,7 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         # we did adopt that nomenclature in the API here, but that was a mistake
         # looking back on it. We have kept the API name, but internally in the code
         # we will use "channel" to mean a channel (e.g., conda-forge) and "label"
-        # to mean a label (e.g., "main", "borken", etc.)
+        # to mean a label (e.g., "main", "broken", etc.)
         label = data.get("channel", None)
         git_sha = data.get("git_sha", None)
         hash_type = data.get("hash_type", "md5")
