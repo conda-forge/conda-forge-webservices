@@ -86,7 +86,12 @@ def _get_ac_api_staging():
 def _dist_exists(ac, channel, dist):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError:
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
         return False
 
     try:
@@ -104,7 +109,13 @@ def _dist_exists(ac, channel, dist):
 def _add_label_dist(ac, channel, dist, label):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError:
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for adding label %s: %s",
+            label,
+            dist,
+            exc_info=e,
+        )
         return False
 
     try:
@@ -115,7 +126,13 @@ def _add_label_dist(ac, channel, dist, label):
             version=version,
             filename=urllib.parse.quote(dist, safe=""),
         )
-    except BinstarError:
+    except BinstarError as e:
+        LOGGER.critical(
+            "    could not add label %s: %s",
+            label,
+            dist,
+            exc_info=e,
+        )
         return False
 
     return True
@@ -124,7 +141,13 @@ def _add_label_dist(ac, channel, dist, label):
 def _remove_label_dist(ac, channel, dist, label):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError:
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for removing label %s: %s",
+            label,
+            dist,
+            exc_info=e,
+        )
         return False
 
     try:
@@ -135,7 +158,13 @@ def _remove_label_dist(ac, channel, dist, label):
             version=version,
             filename=urllib.parse.quote(dist, safe=""),
         )
-    except BinstarError:
+    except BinstarError as e:
+        LOGGER.critical(
+            "    could not remove label %s: %s",
+            label,
+            dist,
+            exc_info=e,
+        )
         return False
 
     return True
@@ -154,7 +183,12 @@ def _copy_dist_if_not_exists(
 ):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError:
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for copy: %s",
+            dist,
+            exc_info=e,
+        )
         return False
 
     if _dist_exists(ac_dest, channel_dest, dist):
@@ -172,7 +206,12 @@ def _copy_dist_if_not_exists(
                 update=update_metadata,
                 replace=replace_metadata,
             )
-        except BinstarError:
+        except BinstarError as e:
+            LOGGER.critical(
+                "    could not copy dist: %s",
+                dist,
+                exc_info=e,
+            )
             return False
 
     return True
@@ -181,7 +220,12 @@ def _copy_dist_if_not_exists(
 def _is_dist_hash_valid(ac, channel, dist, hash_type, hash_value):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError:
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for hash check: %s",
+            dist,
+            exc_info=e,
+        )
         return False
 
     try:
@@ -192,7 +236,12 @@ def _is_dist_hash_valid(ac, channel, dist, hash_type, hash_value):
             basename=urllib.parse.quote(dist, safe=""),
         )
         return hmac.compare_digest(data[hash_type], hash_value)
-    except BinstarError:
+    except BinstarError as e:
+        LOGGER.critical(
+            "    could not get dist info for hash check: %s",
+            dist,
+            exc_info=e,
+        )
         return False
 
 
@@ -226,7 +275,12 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
     for dist in outputs:
         try:
             _, name, version, _ = parse_conda_pkg(dist)
-        except RuntimeError:
+        except RuntimeError as e:
+            LOGGER.critical(
+                "    could not parse dist for copy: %s",
+                dist,
+                exc_info=e,
+            )
             continue
 
         # if we already have it, then we mark it copied
@@ -249,7 +303,7 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
                 copied[dist] = True
                 LOGGER.info("    copied: %s", dist)
             except BinstarError as e:
-                LOGGER.info("    did not copy: %s (%s)", dist, repr(e))
+                LOGGER.info("    did not copy: %s (%s)", dist, exc_info=e)
                 pass
 
         if copied[dist] and _dist_exists(ac_staging, STAGING, dist) and delete:
@@ -261,8 +315,8 @@ def copy_feedstock_outputs(outputs, channel, delete=True):
                     basename=urllib.parse.quote(dist, safe=""),
                 )
                 LOGGER.info("    removed: %s", dist)
-            except BinstarError:
-                LOGGER.info("    could not remove: %s", dist)
+            except BinstarError as e:
+                LOGGER.info("    could not remove: %s", dist, exc_info=e)
                 pass
     return copied
 
@@ -374,8 +428,8 @@ def _is_valid_output_hash(outputs, hash_type, channel, staging_label):
                 hashsum,
             )
             LOGGER.info("    did hash comp: %s", dist)
-        except BinstarError:
-            LOGGER.info("    did not do hash comp: %s", dist)
+        except BinstarError as e:
+            LOGGER.info("    did not do hash comp: %s", dist, exc_info=e)
             pass
 
     return valid
@@ -467,7 +521,12 @@ def _is_valid_feedstock_output(
     for dist in outputs:
         try:
             _, o, _, _ = parse_conda_pkg(dist)
-        except RuntimeError:
+        except RuntimeError as e:
+            LOGGER.critical(
+                "    could not parse dist for output validation: %s",
+                dist,
+                exc_info=e,
+            )
             continue
         unique_names.add(o)
 
@@ -501,7 +560,12 @@ def _is_valid_feedstock_output(
     for dist in outputs:
         try:
             _, o, _, _ = parse_conda_pkg(dist)
-        except RuntimeError:
+        except RuntimeError as e:
+            LOGGER.critical(
+                "    could not parse dist for output validation: %s",
+                dist,
+                exc_info=e,
+            )
             continue
 
         valid[dist] = unique_names_valid[o]
