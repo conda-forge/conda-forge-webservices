@@ -337,38 +337,43 @@ def _is_valid_output_hash(outputs, hash_type, channel, staging_label):
     valid = dict.fromkeys(outputs, False)
 
     for dist, hashsum in outputs.items():
-        if _dist_exists(ac_prod, PROD, dist):
-            valid[dist] = True
-            LOGGER.info("    already in prod: %s", dist)
-            continue
-
         try:
-            if _is_dist_hash_valid(
-                ac_staging, STAGING, dist, hash_type, hashsum
-            ) and _copy_dist_if_not_exists(
-                ac_staging,
-                STAGING,
-                channel,
-                dist,
-                ac_prod,
-                PROD,
-                staging_label,
-                update_metadata=False,
-                replace_metadata=False,
-            ):
-                valid[dist] = _is_dist_hash_valid(
+            if not _dist_exists(ac_prod, PROD, dist):
+                if not _is_dist_hash_valid(
+                    ac_staging, STAGING, dist, hash_type, hashsum
+                ):
+                    LOGGER.info(
+                        "    did not do hash comp due to "
+                        "invalid hash on cf-staging: %s",
+                        dist,
+                    )
+                    continue
+
+                if not _copy_dist_if_not_exists(
+                    ac_staging,
+                    STAGING,
+                    channel,
+                    dist,
                     ac_prod,
                     PROD,
-                    dist,
-                    hash_type,
-                    hashsum,
-                )
-                LOGGER.info("    did hash comp: %s", dist)
-            else:
-                LOGGER.info(
-                    "    did not do hash comp due to failed staging copy: %s",
-                    dist,
-                )
+                    staging_label,
+                    update_metadata=False,
+                    replace_metadata=False,
+                ):
+                    LOGGER.info(
+                        "    did not do hash comp due to failed staging copy: %s",
+                        dist,
+                    )
+                    continue
+
+            valid[dist] = _is_dist_hash_valid(
+                ac_prod,
+                PROD,
+                dist,
+                hash_type,
+                hashsum,
+            )
+            LOGGER.info("    did hash comp: %s", dist)
         except BinstarError:
             LOGGER.info("    did not do hash comp: %s", dist)
             pass
