@@ -392,6 +392,8 @@ def test_relabel_feedstock_outputs(
 
     outputs = ["noarch/boo-0.1-py_10.conda"]
 
+    ac_prod.return_value.distribution.return_value = {"labels": ["foo"]}
+
     relabeled = relabel_feedstock_outputs(
         outputs,
         "foo",

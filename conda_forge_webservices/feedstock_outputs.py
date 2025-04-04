@@ -106,6 +106,30 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
+def _dist_has_label(ac, channel, dist, label):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+    try:
+        labels = ac.distribution(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )["labels"]
+
+        return label in labels
+    except binstar_client.errors.NotFound:
+        return False
+
+
 def _add_label_dist(ac, channel, dist, label):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
@@ -118,22 +142,25 @@ def _add_label_dist(ac, channel, dist, label):
         )
         return False
 
-    try:
-        ac.add_channel(
-            label,
-            channel,
-            package=name,
-            version=version,
-            filename=urllib.parse.quote(dist, safe=""),
-        )
-    except BinstarError as e:
-        LOGGER.critical(
-            "    could not add label %s: %s",
-            label,
-            dist,
-            exc_info=e,
-        )
-        return False
+    if _dist_has_label(ac, channel, dist, label):
+        return True
+    else:
+        try:
+            ac.add_channel(
+                label,
+                channel,
+                package=name,
+                version=version,
+                filename=urllib.parse.quote(dist, safe=""),
+            )
+        except BinstarError as e:
+            LOGGER.critical(
+                "    could not add label %s: %s",
+                label,
+                dist,
+                exc_info=e,
+            )
+            return False
 
     return True
 
@@ -150,22 +177,28 @@ def _remove_label_dist(ac, channel, dist, label):
         )
         return False
 
-    try:
-        ac.remove_channel(
-            label,
-            channel,
-            package=name,
-            version=version,
-            filename=urllib.parse.quote(dist, safe=""),
-        )
-    except BinstarError as e:
-        LOGGER.critical(
-            "    could not remove label %s: %s",
-            label,
-            dist,
-            exc_info=e,
-        )
-        return False
+    if not _dist_has_label(ac, channel, dist, label):
+        return True
+    else:
+        try:
+            ac.remove_channel(
+                label,
+                channel,
+                package=name,
+                version=version,
+                filename=urllib.parse.quote(dist, safe=""),
+            )
+        except BinstarError as e:
+            LOGGER.critical(
+                "    could not remove label %s: %s",
+                label,
+                dist,
+                exc_info=e,
+            )
+            if _dist_has_label(ac, channel, dist, label):
+                return False
+            else:
+                return True
 
     return True
 
