@@ -194,7 +194,7 @@ def _linter_is_ok(repo, target_urls, target_pr_number, verbose=False):
 
 @pytest.mark.parametrize("target_pr_number", [tc[0] for tc in TEST_CASES])
 @flaky
-def test_linter_pr(target_pr_number, pytestconfig):
+def test_linter_pr(target_pr_number, pytestconfig, skip_if_no_tokens):
     branch = pytestconfig.getoption("branch")
 
     gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))

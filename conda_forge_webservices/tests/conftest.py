@@ -9,6 +9,9 @@ TOKENS = [
     "CF_WEBSERVICES_TOKEN",
     "CF_WEBSERVICES_FEEDSTOCK_APP_ID",
     "CF_WEBSERVICES_FEEDSTOCK_PRIVATE_KEY",
+    "GH_TOKEN",
+    "PROD_BINSTAR_TOKEN",
+    "STAGING_BINSTAR_TOKEN",
 ]
 MISSING_TOKENS = any(token not in os.environ for token in TOKENS)
 
@@ -45,7 +48,7 @@ def pytest_runtest_logreport(report):
         message = report.longrepr.reprcrash.message
         if any([t in message for t in TOKENS]) and MISSING_TOKENS:
             report.wasxfail = "no tokens - {}".format(" ".join(message.splitlines()))
-            report.outcome = "no tokens"
+            report.outcome = "skipped"
 
     yield report
 

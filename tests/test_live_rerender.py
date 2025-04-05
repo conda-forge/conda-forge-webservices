@@ -118,7 +118,7 @@ def _run_test(branch):
 
 
 @flaky
-def test_live_rerender(pytestconfig):
+def test_live_rerender(pytestconfig, skip_if_no_tokens):
     branch = pytestconfig.getoption("branch")
 
     print("\nmaking an edit to the head ref...", flush=True)

@@ -20,7 +20,7 @@ def _run_git_cmd(*args):
 
 
 @flaky
-def test_live_automerge(pytestconfig):
+def test_live_automerge(pytestconfig, skip_if_no_tokens):
     branch = pytestconfig.getoption("branch")
 
     print("making an edit to the head ref...", flush=True)
