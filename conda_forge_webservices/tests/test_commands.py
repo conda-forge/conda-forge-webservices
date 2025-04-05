@@ -48,26 +48,11 @@ def set_dummy_gh_token():
         del os.environ["GH_TOKEN"]
 
 
-@mock.patch("conda_forge_webservices.commands.add_bot_rerun_label")
-@mock.patch("conda_forge_webservices.commands.rerender")
-@mock.patch("conda_forge_webservices.commands.make_noarch")
-@mock.patch("conda_forge_webservices.commands.relint")
-@mock.patch("conda_forge_webservices.commands.update_team")
-@mock.patch("conda_forge_webservices.commands.get_gh_client")
-@mock.patch("conda_forge_webservices.commands.Repo")
-def test_pr_command_triggers(
-    repo,
-    gh,
-    update_team,
-    relint,
-    make_noarch,
-    rerender,
-    add_bot_rerun_label,
-    set_dummy_gh_token,
-):
-    commands = [
+@pytest.mark.parametrize(
+    "command,on_sr,should,should_not",
+    [
         (
-            rerender,
+            "rerender",
             False,
             [
                 "@conda-forge-admin, please rerender",
@@ -90,7 +75,7 @@ def test_pr_command_triggers(
             ],
         ),
         (
-            make_noarch,
+            "make_noarch",
             False,
             [
                 "@conda-forge-admin, please add noarch python",
@@ -116,7 +101,7 @@ def test_pr_command_triggers(
             ],
         ),
         (
-            relint,
+            "relint",
             True,
             [
                 "@conda-forge-admin, please lint",
@@ -131,7 +116,7 @@ def test_pr_command_triggers(
             ],
         ),
         (
-            add_bot_rerun_label,
+            "add_bot_rerun_label",
             False,
             [
                 "@conda-forge-admin, please rerun the bot",
@@ -149,30 +134,179 @@ def test_pr_command_triggers(
                 "rerun bot, @conda-forge-admin",
             ],
         ),
-    ]
+    ],
+)
+@mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
+@mock.patch("conda_forge_webservices.commands.add_bot_rerun_label")
+@mock.patch("conda_forge_webservices.commands.rerender")
+@mock.patch("conda_forge_webservices.commands.make_noarch")
+@mock.patch("conda_forge_webservices.commands.relint")
+@mock.patch("conda_forge_webservices.commands.update_team")
+@mock.patch("conda_forge_webservices.commands.get_gh_client")
+@mock.patch("conda_forge_webservices.commands.Repo")
+def test_pr_command_triggers(
+    repo,
+    gh,
+    update_team,
+    relint,
+    make_noarch,
+    rerender,
+    add_bot_rerun_label,
+    get_app_token_for_webservices_only,
+    command,
+    on_sr,
+    should,
+    should_not,
+):
+    if command == "add_bot_rerun_label":
+        command = add_bot_rerun_label
+    elif command == "rerender":
+        command = rerender
+    elif command == "make_noarch":
+        command = make_noarch
+    elif command == "relint":
+        command = relint
+    else:
+        raise ValueError(f"Unknown command: {command}")
 
-    for command, on_sr, should, should_not in commands:
-        for msg in should:
-            command.reset_mock()
-            print(msg, end=" " * 30 + "\r")
-            pr_detailed_comment(msg)
+    for msg in should:
+        command.reset_mock()
+        print(msg, end=" " * 30 + "\r")
+        pr_detailed_comment(msg)
+        command.assert_called()
+
+        command.reset_mock()
+        print(msg, end=" " * 30 + "\r")
+        pr_detailed_comment(msg, repo_name="staged-recipes")
+        if on_sr:
             command.assert_called()
-
-            command.reset_mock()
-            print(msg, end=" " * 30 + "\r")
-            pr_detailed_comment(msg, repo_name="staged-recipes")
-            if on_sr:
-                command.assert_called()
-            else:
-                command.assert_not_called()
-
-        for msg in should_not:
-            command.reset_mock()
-            print(msg, end=" " * 30 + "\r")
-            pr_detailed_comment(msg)
+        else:
             command.assert_not_called()
 
+    for msg in should_not:
+        command.reset_mock()
+        print(msg, end=" " * 30 + "\r")
+        pr_detailed_comment(msg)
+        command.assert_not_called()
 
+
+@pytest.mark.parametrize(
+    "command,should,should_not",
+    [
+        (
+            "add_bot_automerge",
+            [
+                "@conda-forge-admin, please add bot automerge",
+                "@conda-forge-admin, add bot automerge",
+                "@conda-forge-admin: PLEASE ADD BOT AUTOMERGE",
+                "@conda-forge-admin: ADD BOT AUTOMERGE",
+                "something something. @conda-forge-admin: please add bot automerge",
+                "something something. @conda-forge-admin: add bot automerge",
+            ],
+            [
+                "@conda-forge admin is pretty cool. please add bot automerge for me?",
+                "@conda-forge admin is pretty cool. add bot automerge for me?",
+                "@conda-forge-admin, go ahead and add bot automerge for me",
+                "please add bot automerge, @conda-forge-admin",
+                "add bot automerge, @conda-forge-admin",
+            ],
+        ),
+        (
+            "rerender",
+            [
+                "@conda-forge-admin, please rerender",
+                "@conda-forge-admin, rerender",
+                "@conda-forge-admin, please re-render",
+                "@conda-forge-admin, re-render",
+                "@conda-forge-admin: PLEASE RERENDER",
+                "@conda-forge-admin: RERENDER",
+                "something something. @conda-forge-admin: please re-render",
+                "something something. @conda-forge-admin: re-render",
+            ],
+            [
+                "@conda-forge admin is pretty cool. please rerender for me?",
+                "@conda-forge admin is pretty cool. rerender for me?",
+                "@conda-forge-admin, go ahead and rerender for me",
+                "please re-render, @conda-forge-admin",
+                "re-render, @conda-forge-admin",
+                "@conda-forge-linter, please lint",
+                "@conda-forge-linter, lint",
+            ],
+        ),
+        (
+            "update_version",
+            [
+                "@conda-forge-admin, please update version",
+                "@conda-forge-admin, update version",
+                "@conda-forge-admin: PLEASE UPDATE VERSION",
+                "@conda-forge-admin: UPDATE VERSION",
+                "something something. @conda-forge-admin: please update version",
+                "something something. @conda-forge-admin: update version",
+            ],
+            [
+                "@conda-forge admin is pretty cool. please update version for me?",
+                "@conda-forge admin is pretty cool. update version for me?",
+                "@conda-forge-admin, go ahead and update version for me",
+                "please update version, @conda-forge-admin",
+                "update version, @conda-forge-admin",
+                "@conda-forge-linter, please lint",
+                "@conda-forge-linter, lint",
+            ],
+        ),
+        (
+            "make_noarch",
+            [
+                "@conda-forge-admin, please add noarch python",
+                "@conda-forge-admin, add noarch python",
+                "@conda-forge-admin, please make `noarch: python`",
+                "@conda-forge-admin, make `noarch: python`",
+                "@conda-forge-admin please add `noarch python`",
+                "@conda-forge-admin add `noarch python`",
+                "hey @conda-forge-admin : please make noarch: python",
+                "hey @conda-forge-admin : make noarch: python",
+            ],
+            [
+                "@conda-forge-linter, please lint",
+                "@conda-forge-linter, lint",
+                "sure wish @conda-forge-admin would please add noarch python",
+                "sure wish @conda-forge-admin would add noarch python",
+            ],
+        ),
+        (
+            "update_team",
+            [
+                "@conda-forge-admin: please update team",
+                "@conda-forge-admin: update team",
+                "@conda-forge-admin, please update the team",
+                "@conda-forge-admin, update the team",
+                "@conda-forge-admin, please refresh team",
+                "@conda-forge-admin, refresh team",
+            ],
+            [
+                "@conda-forge-admin please make noarch: python",
+                "@conda-forge-admin make noarch: python",
+                "@conda-forge-linter, please lint. and can someone refresh the team?",
+                "@conda-forge-linter, lint. and can someone refresh the team?",
+            ],
+        ),
+        (
+            "add_user",
+            [
+                "@conda-forge-admin, please add user @blah",
+                "@conda-forge-admin, add user @blah",
+                "something something. @conda-forge-admin: please add user @blah",
+            ],
+            [
+                "@conda-forge admin is pretty cool. please add user @blah",
+                "@conda-forge admin is pretty cool. rerun add user @blah?",
+                "@conda-forge-admin, go ahead and rerun add user @blah?",
+                "please add user @blah, @conda-forge-admin",
+                "add user @blah, @conda-forge-admin",
+            ],
+        ),
+    ],
+)
+@mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
 @mock.patch("conda_forge_webservices.commands.update_version")
 @mock.patch("conda_forge_webservices.commands.add_user")
 @mock.patch("conda_forge_webservices.commands.make_rerender_dummy_commit")
@@ -196,186 +330,91 @@ def test_issue_command_triggers(
     rerender_dummy_commit,
     add_user,
     update_version,
+    get_app_token_for_webservices_only,
+    command,
+    should,
+    should_not,
     set_dummy_gh_token,
 ):
     add_user.return_value = True
 
-    commands = [
-        (
-            add_bot_automerge,
-            [
-                "@conda-forge-admin, please add bot automerge",
-                "@conda-forge-admin, add bot automerge",
-                "@conda-forge-admin: PLEASE ADD BOT AUTOMERGE",
-                "@conda-forge-admin: ADD BOT AUTOMERGE",
-                "something something. @conda-forge-admin: please add bot automerge",
-                "something something. @conda-forge-admin: add bot automerge",
-            ],
-            [
-                "@conda-forge admin is pretty cool. please add bot automerge for me?",
-                "@conda-forge admin is pretty cool. add bot automerge for me?",
-                "@conda-forge-admin, go ahead and add bot automerge for me",
-                "please add bot automerge, @conda-forge-admin",
-                "add bot automerge, @conda-forge-admin",
-            ],
-        ),
-        (
-            rerender,
-            [
-                "@conda-forge-admin, please rerender",
-                "@conda-forge-admin, rerender",
-                "@conda-forge-admin, please re-render",
-                "@conda-forge-admin, re-render",
-                "@conda-forge-admin: PLEASE RERENDER",
-                "@conda-forge-admin: RERENDER",
-                "something something. @conda-forge-admin: please re-render",
-                "something something. @conda-forge-admin: re-render",
-            ],
-            [
-                "@conda-forge admin is pretty cool. please rerender for me?",
-                "@conda-forge admin is pretty cool. rerender for me?",
-                "@conda-forge-admin, go ahead and rerender for me",
-                "please re-render, @conda-forge-admin",
-                "re-render, @conda-forge-admin",
-                "@conda-forge-linter, please lint",
-                "@conda-forge-linter, lint",
-            ],
-        ),
-        (
-            update_version,
-            [
-                "@conda-forge-admin, please update version",
-                "@conda-forge-admin, update version",
-                "@conda-forge-admin: PLEASE UPDATE VERSION",
-                "@conda-forge-admin: UPDATE VERSION",
-                "something something. @conda-forge-admin: please update version",
-                "something something. @conda-forge-admin: update version",
-            ],
-            [
-                "@conda-forge admin is pretty cool. please update version for me?",
-                "@conda-forge admin is pretty cool. update version for me?",
-                "@conda-forge-admin, go ahead and update version for me",
-                "please update version, @conda-forge-admin",
-                "update version, @conda-forge-admin",
-                "@conda-forge-linter, please lint",
-                "@conda-forge-linter, lint",
-            ],
-        ),
-        (
-            make_noarch,
-            [
-                "@conda-forge-admin, please add noarch python",
-                "@conda-forge-admin, add noarch python",
-                "@conda-forge-admin, please make `noarch: python`",
-                "@conda-forge-admin, make `noarch: python`",
-                "@conda-forge-admin please add `noarch python`",
-                "@conda-forge-admin add `noarch python`",
-                "hey @conda-forge-admin : please make noarch: python",
-                "hey @conda-forge-admin : make noarch: python",
-            ],
-            [
-                "@conda-forge-linter, please lint",
-                "@conda-forge-linter, lint",
-                "sure wish @conda-forge-admin would please add noarch python",
-                "sure wish @conda-forge-admin would add noarch python",
-            ],
-        ),
-        (
-            update_team,
-            [
-                "@conda-forge-admin: please update team",
-                "@conda-forge-admin: update team",
-                "@conda-forge-admin, please update the team",
-                "@conda-forge-admin, update the team",
-                "@conda-forge-admin, please refresh team",
-                "@conda-forge-admin, refresh team",
-            ],
-            [
-                "@conda-forge-admin please make noarch: python",
-                "@conda-forge-admin make noarch: python",
-                "@conda-forge-linter, please lint. and can someone refresh the team?",
-                "@conda-forge-linter, lint. and can someone refresh the team?",
-            ],
-        ),
-        (
-            add_user,
-            [
-                "@conda-forge-admin, please add user @blah",
-                "@conda-forge-admin, add user @blah",
-                "something something. @conda-forge-admin: please add user @blah",
-            ],
-            [
-                "@conda-forge admin is pretty cool. please add user @blah",
-                "@conda-forge admin is pretty cool. rerun add user @blah?",
-                "@conda-forge-admin, go ahead and rerun add user @blah?",
-                "please add user @blah, @conda-forge-admin",
-                "add user @blah, @conda-forge-admin",
-            ],
-        ),
-    ]
+    if command == "add_bot_automerge":
+        command = add_bot_automerge
+    elif command == "rerender":
+        command = rerender
+    elif command == "update_version":
+        command = update_version
+    elif command == "make_noarch":
+        command = make_noarch
+    elif command == "update_team":
+        command = update_team
+    elif command == "add_user":
+        command = add_user
+    else:
+        raise ValueError(f"Unknown command: {command}")
 
-    for command, should, should_not in commands:
-        issue = gh_app.return_value.get_repo.return_value.get_issue.return_value
-        repo = gh.return_value.get_repo.return_value
-        gh.return_value.get_repo.return_value.default_branch = "main"
-        for msg in should:
-            print(msg, end=" " * 30 + "\r")
+    issue = gh_app.return_value.get_repo.return_value.get_issue.return_value
+    repo = gh.return_value.get_repo.return_value
+    gh.return_value.get_repo.return_value.default_branch = "main"
+    for msg in should:
+        print(msg, end=" " * 30 + "\r")
 
-            rerender_dummy_commit.reset_mock()
-            rerender_dummy_commit.return_value = True
-            command.reset_mock()
-            issue.reset_mock()
-            issue_comment(title="hi", comment=msg)
-            command.assert_called()
-            issue.edit.assert_not_called()
-            if command in (rerender, make_noarch, update_version):
-                rerender_dummy_commit.assert_called()
-            else:
-                rerender_dummy_commit.assert_not_called()
-            if command is add_user:
-                command.assert_called_with(git_repo.clone_from.return_value, "blah")
-
-            rerender_dummy_commit.reset_mock()
-            rerender_dummy_commit.return_value = True
-            command.reset_mock()
-            issue.reset_mock()
-            issue_comment(title=msg, comment=None)
-            command.assert_called()
-            if command in (
-                rerender,
-                make_noarch,
-                add_bot_automerge,
-                add_user,
-                update_version,
-            ):
-                assert "Fixes #" in repo.create_pull.call_args.kwargs["body"]
-            else:
-                issue.edit.assert_called_with(state="closed")
-            if command in (rerender, make_noarch, update_version):
-                rerender_dummy_commit.assert_called()
-            else:
-                rerender_dummy_commit.assert_not_called()
-            if command is add_user:
-                command.assert_called_with(git_repo.clone_from.return_value, "blah")
-
-            rerender_dummy_commit.reset_mock()
-            rerender_dummy_commit.return_value = True
-            command.reset_mock()
-            print(msg, end=" " * 30 + "\r")
-            issue_comment(msg, msg, repo_name="staged-recipes")
-            command.assert_not_called()
+        rerender_dummy_commit.reset_mock()
+        rerender_dummy_commit.return_value = True
+        command.reset_mock()
+        issue.reset_mock()
+        issue_comment(title="hi", comment=msg)
+        command.assert_called()
+        issue.edit.assert_not_called()
+        if command in (rerender, make_noarch, update_version):
+            rerender_dummy_commit.assert_called()
+        else:
             rerender_dummy_commit.assert_not_called()
+        if command is add_user:
+            command.assert_called_with(git_repo.clone_from.return_value, "blah")
 
-        for msg in should_not:
-            print(msg, end=" " * 30 + "\r")
+        rerender_dummy_commit.reset_mock()
+        rerender_dummy_commit.return_value = True
+        command.reset_mock()
+        issue.reset_mock()
+        issue_comment(title=msg, comment=None)
+        command.assert_called()
+        if command in (
+            rerender,
+            make_noarch,
+            add_bot_automerge,
+            add_user,
+            update_version,
+        ):
+            assert "Fixes #" in repo.create_pull.call_args.kwargs["body"]
+        else:
+            issue.edit.assert_called_with(state="closed")
+        if command in (rerender, make_noarch, update_version):
+            rerender_dummy_commit.assert_called()
+        else:
+            rerender_dummy_commit.assert_not_called()
+        if command is add_user:
+            command.assert_called_with(git_repo.clone_from.return_value, "blah")
 
-            command.reset_mock()
-            issue.reset_mock()
-            issue_comment(title="hi", comment=msg)
-            command.assert_not_called()
-            issue.edit.assert_not_called()
+        rerender_dummy_commit.reset_mock()
+        rerender_dummy_commit.return_value = True
+        command.reset_mock()
+        print(msg, end=" " * 30 + "\r")
+        issue_comment(msg, msg, repo_name="staged-recipes")
+        command.assert_not_called()
+        rerender_dummy_commit.assert_not_called()
+
+    for msg in should_not:
+        print(msg, end=" " * 30 + "\r")
+
+        command.reset_mock()
+        issue.reset_mock()
+        issue_comment(title="hi", comment=msg)
+        command.assert_not_called()
+        issue.edit.assert_not_called()
 
 
+@mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
 @mock.patch("conda_forge_webservices.commands.rerender")
 @mock.patch("conda_forge_webservices.commands.make_noarch")
 @mock.patch("conda_forge_webservices.commands.relint")
@@ -389,7 +428,7 @@ def test_rerender_failure(
     relint,
     make_noarch,
     rerender,
-    set_dummy_gh_token,
+    get_app_token_for_webservices_only,
 ):
     rerender.side_effect = RequestException
 
@@ -451,7 +490,20 @@ def test_update_version_failure(
     )
 
 
-def test_find_reactable_comment(skip_if_no_tokens):
+@pytest.mark.parametrize(
+    "number,comment_id,review_id",
+    [
+        (5, -1, None),  # PR description
+        (5, 2178557279, None),  # Normal PR comment
+        (5, None, 2128210901),  # Submitted review
+        (5, None, 1646160070),  # Comment in a submitted review
+        (5, None, 1646411494),  # Reply in a review comment
+        (5, None, 1646163741),  # Single comment review
+        (4, -1, None),  # Issue description
+        (4, 2178549014, None),  # Issue comment
+    ],
+)
+def test_find_reactable_comment(number, comment_id, review_id):
     """
     In this PR there are several comments that we could have reacted to:
     https://github.com/conda-forge/conda-pypi-feedstock/pull/5
@@ -479,15 +531,5 @@ def test_find_reactable_comment(skip_if_no_tokens):
     """
     gh = github.Github()
     repo = gh.get_repo("conda-forge/conda-pypi-feedstock")
-    for number, comment_id, review_id in (
-        (5, -1, None),  # PR description
-        (5, 2178557279, None),  # Normal PR comment
-        (5, None, 2128210901),  # Submitted review
-        (5, None, 1646160070),  # Comment in a submitted review
-        (5, None, 1646411494),  # Reply in a review comment
-        (5, None, 1646163741),  # Single comment review
-        (4, -1, None),  # Issue description
-        (4, 2178549014, None),  # Issue comment
-    ):
-        comment = _find_reactable_comment(repo, number, comment_id, review_id)
-        assert hasattr(comment, "create_reaction")
+    comment = _find_reactable_comment(repo, number, comment_id, review_id)
+    assert hasattr(comment, "create_reaction")
