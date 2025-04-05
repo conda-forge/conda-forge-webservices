@@ -41,16 +41,16 @@ def pytest_report_teststatus(report, config):
         return report.outcome, "-", "no tokens"
 
 
-# @pytest.hookimpl(hookwrapper=True)
-# def pytest_runtest_logreport(report):
-#     if report.when == "call" and report.failed:
-#         # Ok, so we have a failure, let's see if it a failure we expect
-#         message = report.longrepr.reprcrash.message
-#         if any([t in message for t in TOKENS]) and MISSING_TOKENS:
-#             report.wasxfail = "no tokens - {}".format(" ".join(message.splitlines()))
-#             report.outcome = "skipped"
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_logreport(report):
+    if report.when == "call" and report.failed:
+        # Ok, so we have a failure, let's see if it a failure we expect
+        message = report.longrepr.reprcrash.message
+        if any([t in message for t in TOKENS]) and MISSING_TOKENS:
+            report.wasxfail = "no tokens - {}".format(" ".join(message.splitlines()))
+            report.outcome = "skipped"
 
-#     yield report
+    yield report
 
 
 @pytest.fixture
