@@ -26,6 +26,7 @@ import shutil
 import urllib
 import time
 import tqdm
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import requests
 from binstar_client import BinstarError
@@ -244,6 +245,28 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
+def _post_copy_request(headers, json_data):
+    r = requests.post(
+        "http://127.0.0.1:5000/feedstock-outputs/copy",
+        headers=headers,
+        json=json_data,
+    )
+    return r
+
+
+def _post_and_check_copy_requests(headers, json_data):
+    n_try = 10
+    futs = []
+    with ProcessPoolExecutor(max_workers=n_try) as exc:
+        for i in range(1, n_try):
+            futs.append(exc.submit(_post_copy_request, headers, json_data))
+
+    for fut in as_completed(futs):
+        r = fut.result()
+        assert r.status_code == 200
+        print("    response:", pprint.pformat(r.json()))
+
+
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
 @flaky
 def test_feedstock_outputs_copy_works():
@@ -329,13 +352,7 @@ def test_feedstock_outputs_copy_works():
             }
             if hash_type is not None:
                 json_data["hash_type"] = hash_type
-            r = requests.post(
-                "http://127.0.0.1:5000/feedstock-outputs/copy",
-                headers=headers,
-                json=json_data,
-            )
-            assert r.status_code == 200
-            print("    response:", pprint.pformat(r.json()))
+            _post_and_check_copy_requests(headers, json_data)
 
             print("\n=========================================================")
             print("sleeping for 10 seconds for copy")

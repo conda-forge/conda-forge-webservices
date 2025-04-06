@@ -539,6 +539,16 @@ def _add_feedstock_output(
             )
 
 
+def _run_with_backoff(func, *args, n_try=10):
+    for i in range(n_try):
+        try:
+            return func(*args)
+        except Exception as e:
+            if i == n_try - 1:
+                raise e
+            time.sleep(1.5**i)
+
+
 def _is_valid_feedstock_output(
     project,
     outputs,
@@ -613,7 +623,11 @@ def _is_valid_feedstock_output(
                 headers={"Authorization": f"Bearer {gh_token}"},
             )
             if r.status_code == 404:
-                _add_feedstock_output(feedstock, un)
+                _run_with_backoff(
+                    _add_feedstock_output,
+                    feedstock,
+                    un,
+                )
 
     for dist in outputs:
         try:
