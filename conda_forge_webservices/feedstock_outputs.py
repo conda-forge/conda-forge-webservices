@@ -216,16 +216,6 @@ def _is_valid_output_hash(outputs, hash_type):
     return valid
 
 
-def _run_with_backoff(func, *args, n_try=10):
-    for i in range(n_try):
-        try:
-            return func(*args)
-        except Exception as e:
-            if i == n_try - 1:
-                raise e
-            time.sleep(1.5**i)
-
-
 def _add_feedstock_output(
     feedstock: str,
     pkg_name: str,
@@ -240,8 +230,7 @@ def _add_feedstock_output(
 
     if contents is None:
         data = {"feedstocks": [feedstock]}
-        _run_with_backoff(
-            repo.create_file,
+        repo.create_file(
             _get_sharded_path(pkg_name),
             f"[cf admin skip] ***NO_CI*** add output {pkg_name} for "
             f"conda-forge/{feedstock}-feedstock",
@@ -255,8 +244,7 @@ def _add_feedstock_output(
         data = json.loads(contents.decoded_content.decode("utf-8"))
         if feedstock not in data["feedstocks"]:
             data["feedstocks"].append(feedstock)
-            _run_with_backoff(
-                repo.update_file,
+            repo.update_file(
                 contents.path,
                 f"[cf admin skip] ***NO_CI*** add output {pkg_name} "
                 f"for conda-forge/{feedstock}-feedstock",
@@ -272,6 +260,16 @@ def _add_feedstock_output(
                 f"    output {pkg_name} already exists for feedstock "
                 f"conda-forge/{feedstock}-feedstock"
             )
+
+
+def _run_with_backoff(func, *args, n_try=10):
+    for i in range(n_try):
+        try:
+            return func(*args)
+        except Exception as e:
+            if i == n_try - 1:
+                raise e
+            time.sleep(1.5**i)
 
 
 def _is_valid_feedstock_output(
@@ -343,7 +341,11 @@ def _is_valid_feedstock_output(
                 headers={"Authorization": f"Bearer {gh_token}"},
             )
             if r.status_code == 404:
-                _add_feedstock_output(feedstock, un)
+                _run_with_backoff(
+                    _add_feedstock_output,
+                    feedstock,
+                    un,
+                )
 
     for dist in outputs:
         try:
