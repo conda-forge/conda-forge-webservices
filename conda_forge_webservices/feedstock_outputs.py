@@ -216,6 +216,16 @@ def _is_valid_output_hash(outputs, hash_type):
     return valid
 
 
+def _run_with_backoff(func, *args, n_try=10):
+    for i in range(n_try):
+        try:
+            return func(*args)
+        except Exception as e:
+            if i == n_try - 1:
+                raise e
+            time.sleep(1.5**i)
+
+
 def _add_feedstock_output(
     feedstock: str,
     pkg_name: str,
@@ -230,7 +240,8 @@ def _add_feedstock_output(
 
     if contents is None:
         data = {"feedstocks": [feedstock]}
-        repo.create_file(
+        _run_with_backoff(
+            repo.create_file,
             _get_sharded_path(pkg_name),
             f"[cf admin skip] ***NO_CI*** add output {pkg_name} for "
             f"conda-forge/{feedstock}-feedstock",
@@ -244,7 +255,8 @@ def _add_feedstock_output(
         data = json.loads(contents.decoded_content.decode("utf-8"))
         if feedstock not in data["feedstocks"]:
             data["feedstocks"].append(feedstock)
-            repo.update_file(
+            _run_with_backoff(
+                repo.update_file,
                 contents.path,
                 f"[cf admin skip] ***NO_CI*** add output {pkg_name} "
                 f"for conda-forge/{feedstock}-feedstock",
