@@ -531,6 +531,40 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
+def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_value):
+    import hmac
+    import urllib.parse
+
+    import binstar_client
+    from conda_forge_webservices.feedstock_outputs import _get_ac_api_prod, PROD
+    from conda_forge_tick.utils import parse_conda_pkg
+
+    ac = _get_ac_api_prod()
+
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+    try:
+        data = ac.distribution(
+            PROD,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )
+        return (dest_label in data["labels"]) and hmac.compare_digest(
+            data[hash_type], hash_value
+        )
+    except binstar_client.errors.NotFound:
+        return False
+
+
 def _do_copy(
     feedstock, outputs, dest_label, git_sha, comment_on_error, hash_type, staging_label
 ):
@@ -549,7 +583,7 @@ def _do_copy(
 
     if outputs_to_copy:
         copied = relabel_feedstock_outputs(
-            outputs,
+            outputs_to_copy,
             staging_label,
             dest_label,
             remove_src_label=True,
@@ -559,6 +593,19 @@ def _do_copy(
 
     for o in outputs:
         if o not in copied:
+            copied[o] = False
+
+    # we cover some race conditions here
+    # if it happens that an output is marked invalid
+    # due to multiple uploads producing different staging labels
+    # on prod, then it may exist on prod with the correct label and hash
+    # if that happens, we call it ok here
+    for o, hash_value in outputs.items():
+        if _dist_exists_on_prod_with_label_and_hash(
+            o, dest_label, hash_type, hash_value
+        ):
+            copied[o] = True
+        else:
             copied[o] = False
 
     if not all(copied[o] for o in outputs) and comment_on_error:
