@@ -531,6 +531,58 @@ class OutputsValidationHandler(tornado.web.RequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
+def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_value):
+    import hmac
+    import urllib.parse
+
+    import binstar_client
+    from conda_forge_webservices.feedstock_outputs import _get_ac_api_prod, PROD
+    from conda_forge_tick.utils import parse_conda_pkg
+
+    ac = _get_ac_api_prod()
+
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+    try:
+        data = ac.distribution(
+            PROD,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )
+        return (dest_label in data["labels"]) and hmac.compare_digest(
+            data[hash_type], hash_value
+        )
+    except binstar_client.errors.NotFound:
+        return False
+
+
+def _comment_on_core_notes(dist, channel):
+    comment = (
+        f"The package `{dist}` was either not found on conda-forge/label/{channel} "
+        "after a copy or was found but with the incorrect hash. Please investigate "
+        f"this potential security issue."
+    )
+
+    gh = get_gh_client()
+    repo = gh.get_repo("conda-forge/core-notes")
+    repo.create_issue(
+        title=(
+            f"important/security: invalid output `{dist}` was potentially copied "
+            f"to conda-forge/label/{channel}"
+        ),
+        body=comment,
+    )
+
+
 def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error, hash_type):
     valid, errors = validate_feedstock_outputs(
         feedstock,
@@ -594,6 +646,17 @@ def _do_copy(feedstock, outputs, channel, git_sha, comment_on_error, hash_type):
     for o in outputs:
         if o not in copied:
             copied[o] = False
+
+    for o in outputs:
+        if copied[o] and not _dist_exists_on_prod_with_label_and_hash(
+            o, channel, hash_type, outputs[o]
+        ):
+            copied[o] = False
+            errors.append(
+                f"package {o} not found on conda-forge/label/{channel} "
+                "with correct hash"
+            )
+            _comment_on_core_notes(o, channel)
 
     if not all(copied[o] for o in outputs) and comment_on_error:
         comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied)
