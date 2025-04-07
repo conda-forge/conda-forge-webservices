@@ -123,7 +123,7 @@ def _dist_has_label(ac, channel, dist, label):
             name,
             version,
             basename=urllib.parse.quote(dist, safe=""),
-        )["labels"]
+        ).get("labels", ())
 
         return label in labels
     except binstar_client.errors.NotFound:
