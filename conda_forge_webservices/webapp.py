@@ -574,9 +574,14 @@ def _comment_on_core_notes(dist, channel):
 
     gh = get_gh_client()
     repo = gh.get_repo("conda-forge/core-notes")
+    for issue in repo.get_issues(state="open"):
+        if f"`{dist}`" in issue.title:
+            issue.create_comment(comment)
+            return
+
     repo.create_issue(
         title=(
-            f"important/security: invalid output `{dist}` was potentially copied "
+            f"important/security: package `{dist}` bad copy operation "
             f"to conda-forge/label/{channel}"
         ),
         body=comment,
