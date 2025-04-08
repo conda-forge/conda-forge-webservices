@@ -17,6 +17,8 @@ from github import (
 )
 from github.InstallationAuthorization import InstallationAuthorization
 
+from conda_forge_webservices.utils import log_title_and_message_at_level
+
 LOGGER = logging.getLogger("conda_forge_webservices.tokens")
 
 FEEDSTOCK_TOKEN_RESET_TIMES: dict[str, Any] = {}
@@ -62,26 +64,23 @@ def get_app_token_for_webservices_only():
                     auth=Auth.Token(token)
                 ).rate_limiting_resettime
             except Exception:
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("app token did not generate proper reset time")
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title="app token did not generate proper reset time",
+                )
                 token = None
         else:
-            LOGGER.info("")
-            LOGGER.info("===================================================")
-            LOGGER.info("app token could not be made")
-            LOGGER.info("===================================================")
+            log_title_and_message_at_level(
+                level="info",
+                title="app token could not be made",
+            )
 
         APP_TOKEN = token
     else:
-        LOGGER.info("")
-        LOGGER.info("===================================================")
-        LOGGER.info(
-            "app token exists - timeout %sm",
-            (APP_TOKEN_RESET_TIME - now) / 60,
+        log_title_and_message_at_level(
+            level="info",
+            title=f"app token exists - timeout {(APP_TOKEN_RESET_TIME - now) / 60}m",
         )
-        LOGGER.info("===================================================")
 
     assert APP_TOKEN is not None, "app token is None!"
 
@@ -241,22 +240,19 @@ def _inject_app_token_into_feedstock(full_name, repo=None, readonly=False):
                 reset_times_dict[repo_name] = Github(
                     auth=Auth.Token(token)
                 ).rate_limiting_resettime
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info(
-                    "injected app token for repo %s - timeout %sm",
-                    repo_name,
-                    (reset_times_dict[repo_name] - now) / 60,
+                log_title_and_message_at_level(
+                    level="info",
+                    title=(
+                        f"injected app token for repo {repo_name} - "
+                        f"timeout {(reset_times_dict[repo_name] - now) / 60}m"
+                    ),
                 )
-                LOGGER.info("===================================================")
                 worked = True
             except Exception:
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info(
-                    "app token could not be pushed to secrets for %s", repo_name
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"app token could not be pushed to secrets for {repo_name}",
                 )
-                LOGGER.info("===================================================")
                 worked = False
 
             return worked
@@ -267,14 +263,13 @@ def _inject_app_token_into_feedstock(full_name, repo=None, readonly=False):
             LOGGER.info("===================================================")
             return False
     else:
-        LOGGER.info("")
-        LOGGER.info("===================================================")
-        LOGGER.info(
-            "app token exists for repo %s - timeout %sm",
-            repo_name,
-            (reset_times_dict[repo_name] - now) / 60,
+        log_title_and_message_at_level(
+            level="info",
+            title=(
+                f"app token exists for repo {repo_name} "
+                f"- timeout {(reset_times_dict[repo_name] - now) / 60}m"
+            ),
         )
-        LOGGER.info("===================================================")
         return True
 
 

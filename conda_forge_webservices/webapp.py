@@ -34,7 +34,10 @@ from conda_forge_webservices.feedstock_outputs import (
     comment_on_outputs_copy,
     relabel_feedstock_outputs,
 )
-from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
+from conda_forge_webservices.utils import (
+    ALLOWED_CMD_NON_FEEDSTOCKS,
+    log_title_and_message_at_level,
+)
 from conda_forge_webservices import status_monitor
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
@@ -98,17 +101,6 @@ def get_commit_message(full_name, commit):
     )
 
 
-def _log_title_and_message_at_level(*, level, title, msg=None):
-    func = getattr(LOGGER, level)
-    total_msg = f"""
-===================================================
-{title}
-==================================================="""
-    if msg is not None:
-        total_msg += f"\n{msg}"
-    func(total_msg)
-
-
 def _get_rate_limiting_info_for_token(token):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
@@ -147,7 +139,7 @@ def print_rate_limiting_info():
     for k in d:
         msg.append(_get_rate_limiting_info_for_token(k))
     msg = "\n".join(msg)
-    _log_title_and_message_at_level(
+    log_title_and_message_at_level(
         level="info",
         title="GitHub API Rate Limit Info",
         msg=msg,
@@ -269,7 +261,7 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             # Only do anything if we are working with conda-forge,
             # and an open PR.
             if is_open and owner == "conda-forge" and not stale:
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"linting: {body['repository']['full_name']}",
                 )
@@ -343,7 +335,7 @@ class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
                 and "[cf admin skip]" not in commit_msg
                 and repo_name.endswith("-feedstock")
             ):
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"feedstocks service: {body['repository']['full_name']}",
                 )
@@ -396,7 +388,7 @@ class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
                 and "[cf admin skip teams]" not in commit_msg
                 and "[cf admin skip]" not in commit_msg
             ):
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"update teams: {body['repository']['full_name']}",
                 )
@@ -473,7 +465,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                 review_id = body["comment"]["id"]
 
             if comment:
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"PR command: {body['repository']['full_name']}",
                 )
@@ -515,7 +507,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
             if pull_request and action != "deleted":
                 comment = body["comment"]["body"]
                 comment_id = body["comment"]["id"]
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"PR command: {body['repository']['full_name']}",
                 )
@@ -546,7 +538,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment = body["issue"]["body"]
                     comment_id = -1  # will react to issue/PR description #issue_num
 
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"issue command: {body['repository']['full_name']}",
                 )
@@ -718,7 +710,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         #     self.set_status(403)
         #     self.write_error(403)
 
-        _log_title_and_message_at_level(
+        log_title_and_message_at_level(
             level="info",
             title=f"copy started for outputs for feedstock '{feedstock}'",
         )
@@ -749,7 +741,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             or (not valid_token)
             or hash_type not in ["md5", "sha256"]
         ):
-            _log_title_and_message_at_level(
+            log_title_and_message_at_level(
                 level="warning",
                 title=f"invalid outputs copy request for feedstock '{feedstock}'",
                 msg=f"""    feedstock exists: {feedstock_exists}"
@@ -798,7 +790,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
 
-            _log_title_and_message_at_level(
+            log_title_and_message_at_level(
                 level="info",
                 title=f"copy finished for outputs for feedstock '{feedstock}'",
                 msg=f"""    feedstock exists: {feedstock_exists}
@@ -905,7 +897,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and (body["action"] in ["closed", "labeled"])
                 and head_owner.startswith("regro-cf-autotick-bot/")
             ):
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"autotick bot PR: {body['repository']['full_name']}",
                 )
@@ -919,7 +911,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event == "push":
-            _log_title_and_message_at_level(
+            log_title_and_message_at_level(
                 level="info",
                 title=f"autotick bot push: {body['repository']['full_name']}",
             )
@@ -1018,7 +1010,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
         body = tornado.escape.json_decode(self.request.body)
         if event == "check_run":
-            _log_title_and_message_at_level(
+            log_title_and_message_at_level(
                 level="info",
                 title=f"check run: {body['repository']['full_name']}",
             )
@@ -1032,7 +1024,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
 
-            _log_title_and_message_at_level(
+            log_title_and_message_at_level(
                 level="info",
                 title=f"check suite: {body['repository']['full_name']}",
             )
@@ -1049,7 +1041,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event == "status":
-            _log_title_and_message_at_level(
+            log_title_and_message_at_level(
                 level="info",
                 title=f"status: {body['repository']['full_name']}",
             )
@@ -1068,7 +1060,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event in ["pull_request", "pull_request_review"]:
-            _log_title_and_message_at_level(
+            log_title_and_message_at_level(
                 level="info",
                 title=(
                     "pull request/pull request review: "
@@ -1145,7 +1137,7 @@ class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
             feedstock = data.get("feedstock", None)
 
             if feedstock is not None:
-                _log_title_and_message_at_level(
+                log_title_and_message_at_level(
                     level="info",
                     title=f"update teams endpoint: conda-forge/{feedstock}",
                 )
@@ -1191,7 +1183,7 @@ def create_webapp():
 
 async def _cache_data():
     if "CF_WEBSERVICES_TEST" not in os.environ:
-        _log_title_and_message_at_level(
+        log_title_and_message_at_level(
             level="info",
             title="caching status data",
         )
