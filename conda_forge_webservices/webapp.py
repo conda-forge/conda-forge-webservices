@@ -744,7 +744,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             log_title_and_message_at_level(
                 level="warning",
                 title=f"invalid outputs copy request for feedstock '{feedstock}'",
-                msg=f"""    feedstock exists: {feedstock_exists}"
+                msg=f"""    feedstock exists: {feedstock_exists}
     outputs: {outputs}
     label: {label}
     valid token: {valid_token}
