@@ -160,7 +160,7 @@ def _add_label_dist(ac, channel, dist, label, src_label):
                 from_label=src_label,
                 to_label=label,
                 update=False,
-                replace=False,
+                replace=True,
             )
         except BinstarError as e:
             LOGGER.critical(
