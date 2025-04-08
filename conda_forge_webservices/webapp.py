@@ -11,6 +11,7 @@ import hashlib
 import uuid
 import json
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from http.client import responses
 import atexit
 
 # import functools
@@ -151,7 +152,31 @@ def valid_request(body, signature):
     return hmac.compare_digest(their_hash, our_hash)
 
 
-class LintingHookHandler(tornado.web.RequestHandler):
+class WriteErrorAsJSONRequestHandler(tornado.web.RequestHandler):
+    def write_error(self, status_code: int, **kwargs) -> None:
+        """APIHandler errors are JSON, not human pages"""
+        self.set_header("Content-Type", "application/json")
+        message = responses.get(status_code, "Unknown HTTP Error")
+        reply: dict[str, str | None] = {
+            "message": message,
+        }
+        exc_info = kwargs.get("exc_info")
+        if exc_info:
+            e = exc_info[1]
+            if isinstance(e, tornado.web.HTTPError):
+                reply["message"] = e.log_message or message
+                reply["reason"] = e.reason
+            else:
+                reply["message"] = "Unhandled error"
+                reply["reason"] = None
+                # backward-compatibility: traceback field is present,
+                # but always empty
+                reply["traceback"] = ""
+        self.log.warning("wrote error: %r", reply["message"], exc_info=True)
+        self.finish(json.dumps(reply))
+
+
+class LintingHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
         event = headers.get("X-GitHub-Event", None)
@@ -233,7 +258,7 @@ class LintingHookHandler(tornado.web.RequestHandler):
             self.write_error(404)
 
 
-class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
+class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
         event = headers.get("X-GitHub-Event", None)
@@ -285,7 +310,7 @@ class UpdateFeedstockHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
-class UpdateTeamHookHandler(tornado.web.RequestHandler):
+class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
         event = headers.get("X-GitHub-Event", None)
@@ -340,7 +365,7 @@ class UpdateTeamHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
-class CommandHookHandler(tornado.web.RequestHandler):
+class CommandHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         """
         See https://docs.github.com/en/webhooks/webhook-events-and-payloads
@@ -510,7 +535,7 @@ def _get_current_versions():
     return vers
 
 
-class UpdateWebservicesVersionsHandler(tornado.web.RequestHandler):
+class UpdateWebservicesVersionsHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.write(json.dumps(_get_current_versions()))
 
@@ -523,7 +548,7 @@ def _repo_exists(feedstock):
         return True
 
 
-class OutputsValidationHandler(tornado.web.RequestHandler):
+class OutputsValidationHandler(WriteErrorAsJSONRequestHandler):
     """This is a stub that we keep around so that old CI jobs still work
     if they have not bveen rerendered. We should remove it eventually."""
 
@@ -614,7 +639,7 @@ def _do_copy(
     return valid, errors, copied
 
 
-class OutputsCopyHandler(tornado.web.RequestHandler):
+class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
         feedstock_token = headers.get("FEEDSTOCK_TOKEN", None)
@@ -794,7 +819,7 @@ def _dispatch_autotickbot_job(event, uid):
     )
 
 
-class AutotickBotPayloadHookHandler(tornado.web.RequestHandler):
+class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
         event = headers.get("X-GitHub-Event", None)
@@ -916,7 +941,7 @@ def _dispatch_automerge_job(repo, sha):
         )
 
 
-class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
+class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
         event = headers.get("X-GitHub-Event", None)
@@ -1007,48 +1032,48 @@ class StatusMonitorPayloadHookHandler(tornado.web.RequestHandler):
         self.write_error(404)
 
 
-class StatusMonitorAzureHandler(tornado.web.RequestHandler):
+class StatusMonitorAzureHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
         self.write(status_monitor.get_azure_status())
 
 
-class StatusMonitorOpenGPUServerHandler(tornado.web.RequestHandler):
+class StatusMonitorOpenGPUServerHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
         self.write(status_monitor.get_open_gpu_server_status())
 
 
-class StatusMonitorDockerHandler(tornado.web.RequestHandler):
+class StatusMonitorDockerHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
         self.write(status_monitor.get_docker_status())
 
 
-class StatusMonitorDBHandler(tornado.web.RequestHandler):
+class StatusMonitorDBHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
         self.write(status_monitor.dump_report_data())
 
 
-class StatusMonitorReportHandler(tornado.web.RequestHandler):
+class StatusMonitorReportHandler(WriteErrorAsJSONRequestHandler):
     async def get(self, name):
         self.add_header("Access-Control-Allow-Origin", "*")
         self.write(status_monitor.dump_report_data(name=name))
 
 
-class StatusMonitorHandler(tornado.web.RequestHandler):
+class StatusMonitorHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.write(status_monitor.render_status_index())
 
 
-class AliveHandler(tornado.web.RequestHandler):
+class AliveHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
         self.write(json.dumps({"status": "operational"}))
 
 
-class UpdateTeamsEndpointHandler(tornado.web.RequestHandler):
+class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
         true_token = os.environ["CF_WEBSERVICES_TOKEN"].encode("utf-8")
