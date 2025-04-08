@@ -537,7 +537,7 @@ def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_v
 
     import binstar_client
     from conda_forge_webservices.feedstock_outputs import _get_ac_api_prod, PROD
-    from conda_forge_tick.utils import parse_conda_pkg
+    from conda_forge_webservices.utils import parse_conda_pkg
 
     ac = _get_ac_api_prod()
 
