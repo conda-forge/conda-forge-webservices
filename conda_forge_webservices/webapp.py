@@ -616,6 +616,11 @@ class OutputsCopyHandler(tornado.web.RequestHandler):
         # so we keep that here
         comment_on_error = data.get("comment_on_error", git_sha is not None)
 
+        if feedstock not in ["staged-recipes", "cf-autotick-bot-test-package-feedstock"]:
+            self.set_status(403)
+            self.write_error(403)
+            
+        
         LOGGER.info("")
         LOGGER.info("===================================================")
         LOGGER.info(f"copy outputs for feedstock '{feedstock}'")
