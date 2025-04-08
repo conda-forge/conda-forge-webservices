@@ -258,7 +258,7 @@ def _post_and_check_copy_requests(headers, json_data):
     n_try = 1
     futs = []
     with ProcessPoolExecutor(max_workers=n_try) as exc:
-        for i in range(1, n_try):
+        for i in range(n_try):
             futs.append(exc.submit(_post_copy_request, headers, json_data))
 
     for fut in as_completed(futs):
