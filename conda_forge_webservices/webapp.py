@@ -558,7 +558,7 @@ def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_v
             version,
             basename=urllib.parse.quote(dist, safe=""),
         )
-        return (dest_label in data["labels"]) and hmac.compare_digest(
+        return (dest_label in data.get("labels", ())) and hmac.compare_digest(
             data[hash_type], hash_value
         )
     except binstar_client.errors.NotFound:
