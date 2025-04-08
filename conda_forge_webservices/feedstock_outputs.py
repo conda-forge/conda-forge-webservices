@@ -388,9 +388,11 @@ def _copy_feedstock_outputs_from_staging_to_prod(
                     version,
                     basename=urllib.parse.quote(dist, safe=""),
                 )
-                LOGGER.info("    removed: %s", dist)
+                LOGGER.info("    removed from %s: %s", STAGING, dist)
             except BinstarError as e:
-                LOGGER.info("    could not remove: %s", dist, exc_info=e)
+                LOGGER.info(
+                    "    could not remove from %s: %s", STAGING, dist, exc_info=e
+                )
                 pass
 
     return copied
