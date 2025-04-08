@@ -584,6 +584,7 @@ def _comment_on_core_notes(dist, label):
             f"to conda-forge/label/{label}"
         ),
         body=comment,
+        labels=["security"],
     )
 
 
