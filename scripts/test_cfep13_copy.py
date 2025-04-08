@@ -397,13 +397,13 @@ def test_feedstock_outputs_copy_works():
                 "=========================================================",
                 flush=True,
             )
-            for dist in outputs:
-                if _dist_exists(ac_staging, "cf-staging", dist):
-                    if _remove_dist(ac_staging, "cf-staging", dist):
-                        print(f"cf-staging: removed {dist}")
-                if _dist_exists(ac_prod, "conda-forge", dist):
-                    if _remove_dist(ac_prod, "conda-forge", dist):
-                        print(f"cond-forge: removed {dist}")
+            # for dist in outputs:
+            #     if _dist_exists(ac_staging, "cf-staging", dist):
+            #         if _remove_dist(ac_staging, "cf-staging", dist):
+            #             print(f"cf-staging: removed {dist}")
+            #     if _dist_exists(ac_prod, "conda-forge", dist):
+            #         if _remove_dist(ac_prod, "conda-forge", dist):
+            #             print(f"cond-forge: removed {dist}")
 
             _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/blah-{uid}.json")
             print(" ")
