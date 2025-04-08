@@ -568,8 +568,7 @@ def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_v
 def _comment_on_core_notes(dist, label):
     comment = (
         f"The package `{dist}` was either not found on conda-forge/label/{label} "
-        "after a copy or was found but with the incorrect hash. Please investigate "
-        f"this potential security issue."
+        "after a copy or was found but with the incorrect hash. Please investigate!"
     )
 
     gh = get_gh_client()
