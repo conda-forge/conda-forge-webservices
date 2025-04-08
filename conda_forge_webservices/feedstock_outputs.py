@@ -724,6 +724,18 @@ def validate_feedstock_outputs(
             )
     outputs_to_test = {o: v for o, v in outputs.items() if correctly_formatted[o]}
 
+    # next ensure the outputs have valid hashes on the staging channel
+    # again do not pass any invalid outputs to the rest of the functions
+    valid_hashes_staging = _is_valid_output_hash(
+        outputs_to_test, hash_type, STAGING, dest_label
+    )
+    for o in outputs_to_test:
+        if not valid_hashes_staging[o]:
+            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
+    outputs_to_test = {
+        o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
+    }
+
     # next ensure the outputs are valid for the feedstock
     # again do not pass any invalid outputs to the rest of the functions
     valid_outputs = _is_valid_feedstock_output(
@@ -737,18 +749,6 @@ def validate_feedstock_outputs(
         if not valid_outputs[o]:
             errors.append(f"output {o} not allowed for conda-forge/{project}")
     outputs_to_test = {o: v for o, v in outputs_to_test.items() if valid_outputs[o]}
-
-    # next ensure the outputs have valid hashes on the staging channel
-    # again do not pass any invalid outputs to the rest of the functions
-    valid_hashes_staging = _is_valid_output_hash(
-        outputs_to_test, hash_type, STAGING, dest_label
-    )
-    for o in outputs_to_test:
-        if not valid_hashes_staging[o]:
-            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
-    outputs_to_test = {
-        o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
-    }
 
     # next copy outputs to the production channel under the staging label
     # again do not pass any invalid outputs to the rest of the functions
