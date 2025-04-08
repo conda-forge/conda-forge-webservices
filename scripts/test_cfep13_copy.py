@@ -302,7 +302,7 @@ def _post_copy_request(headers, json_data):
     return r
 
 
-def _post_and_check_copy_requests(headers, json_data):
+def _post_and_check_copy_requests(headers, json_data, should_fail):
     n_try = 1
     futs = []
     with ProcessPoolExecutor(max_workers=n_try) as exc:
@@ -311,7 +311,10 @@ def _post_and_check_copy_requests(headers, json_data):
 
     for fut in as_completed(futs):
         r = fut.result()
-        assert r.status_code == 200
+        if should_fail:
+            assert r.status_code == 403
+        else:
+            assert r.status_code == 200
         print("    response:", pprint.pformat(r.json()))
 
 
