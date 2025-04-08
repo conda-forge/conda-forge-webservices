@@ -135,7 +135,7 @@ def _dist_has_label(ac, channel, dist, label):
         return False
 
 
-def _add_label_dist(ac, channel, dist, label):
+def _add_label_dist(ac, channel, dist, label, src_label):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
     except RuntimeError as e:
@@ -151,12 +151,16 @@ def _add_label_dist(ac, channel, dist, label):
         return True
     else:
         try:
-            ac.add_channel(
-                label,
+            ac.copy(
                 channel,
-                package=name,
-                version=version,
-                filename=urllib.parse.quote(dist, safe=""),
+                name,
+                version,
+                basename=urllib.parse.quote(dist, safe=""),
+                to_owner=channel,
+                from_label=src_label,
+                to_label=label,
+                update=False,
+                replace=True,
             )
         except BinstarError as e:
             LOGGER.critical(
@@ -299,9 +303,9 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
             name,
             version,
             basename=urllib.parse.quote(dist, safe=""),
-        ).get("labels", ())
+        ).get("labels", [])
 
-        if labels == (label,):
+        if set(labels) == set([label]):
             return True
         else:
             LOGGER.info(
@@ -384,9 +388,11 @@ def _copy_feedstock_outputs_from_staging_to_prod(
                     version,
                     basename=urllib.parse.quote(dist, safe=""),
                 )
-                LOGGER.info("    removed: %s", dist)
+                LOGGER.info("    removed from %s: %s", STAGING, dist)
             except BinstarError as e:
-                LOGGER.info("    could not remove: %s", dist, exc_info=e)
+                LOGGER.info(
+                    "    could not remove from %s: %s", STAGING, dist, exc_info=e
+                )
                 pass
 
     return copied
@@ -419,7 +425,7 @@ def relabel_feedstock_outputs(outputs, src_label, dest_label, remove_src_label=T
     relabeled = dict.fromkeys(outputs, False)
 
     for dist in outputs:
-        if _add_label_dist(ac_prod, PROD, dist, dest_label):
+        if _add_label_dist(ac_prod, PROD, dist, dest_label, src_label):
             relabeled[dist] = True
             LOGGER.info("    relabeled: %s", dist)
 
@@ -718,6 +724,18 @@ def validate_feedstock_outputs(
             )
     outputs_to_test = {o: v for o, v in outputs.items() if correctly_formatted[o]}
 
+    # next ensure the outputs have valid hashes on the staging channel
+    # again do not pass any invalid outputs to the rest of the functions
+    valid_hashes_staging = _is_valid_output_hash(
+        outputs_to_test, hash_type, STAGING, dest_label
+    )
+    for o in outputs_to_test:
+        if not valid_hashes_staging[o]:
+            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
+    outputs_to_test = {
+        o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
+    }
+
     # next ensure the outputs are valid for the feedstock
     # again do not pass any invalid outputs to the rest of the functions
     valid_outputs = _is_valid_feedstock_output(
@@ -731,18 +749,6 @@ def validate_feedstock_outputs(
         if not valid_outputs[o]:
             errors.append(f"output {o} not allowed for conda-forge/{project}")
     outputs_to_test = {o: v for o, v in outputs_to_test.items() if valid_outputs[o]}
-
-    # next ensure the outputs have valid hashes on the staging channel
-    # again do not pass any invalid outputs to the rest of the functions
-    valid_hashes_staging = _is_valid_output_hash(
-        outputs_to_test, hash_type, STAGING, dest_label
-    )
-    for o in outputs_to_test:
-        if not valid_hashes_staging[o]:
-            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
-    outputs_to_test = {
-        o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
-    }
 
     # next copy outputs to the production channel under the staging label
     # again do not pass any invalid outputs to the rest of the functions
