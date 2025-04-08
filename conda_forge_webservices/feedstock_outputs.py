@@ -301,7 +301,7 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
             basename=urllib.parse.quote(dist, safe=""),
         ).get("labels", [])
 
-        if labels == [label]:
+        if set(labels) == set([label]):
             return True
         else:
             LOGGER.info(
