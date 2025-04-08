@@ -126,7 +126,12 @@ def _dist_has_label(ac, channel, dist, label):
         ).get("labels", ())
 
         return label in labels
-    except binstar_client.errors.NotFound:
+    except binstar_client.errors.NotFound as e:
+        LOGGER.critical(
+            "    could not get dist info for label check: %s",
+            dist,
+            exc_info=e,
+        )
         return False
 
 
@@ -294,9 +299,9 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
             name,
             version,
             basename=urllib.parse.quote(dist, safe=""),
-        )["labels"]
+        ).get("labels", ())
 
-        if labels == [label]:
+        if labels == (label,):
             return True
         else:
             LOGGER.info(
@@ -306,7 +311,12 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
                 label,
             )
             return False
-    except binstar_client.errors.NotFound:
+    except binstar_client.errors.NotFound as e:
+        LOGGER.critical(
+            "    could not get dist info for label check: %s",
+            dist,
+            exc_info=e,
+        )
         return False
 
 
