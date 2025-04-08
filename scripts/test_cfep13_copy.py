@@ -23,6 +23,7 @@ import hashlib
 import pprint
 import contextlib
 import shutil
+import random
 import urllib
 import time
 import tqdm
@@ -283,127 +284,143 @@ def test_feedstock_outputs_copy_works():
     ac_prod = _get_ac_api_prod()
     ac_staging = _get_ac_api_staging()
 
-    for hash_type in [None, "md5", "sha256"]:
-        print("\n=========================================================")
-        print("computing dist info")
-        print("=========================================================", flush=True)
-        outputs = {}
-        for dist in dists:
-            outputs.update(_compute_local_info(dist, "built_dists", hash_type or "md5"))
-
-        print("outputs:", pprint.pformat(outputs))
-
-        try:
+    for should_fail in [False, True]:
+        for hash_type in [None, "md5", "sha256"]:
             print("\n=========================================================")
-            print("uploading to cf-staging")
+            print("computing dist info")
             print(
-                "=========================================================",
-                flush=True,
+                "=========================================================", flush=True
             )
-            with _get_temp_token(os.environ["STAGING_BINSTAR_TOKEN"]) as fn:
-                for output in outputs:
-                    pth = os.path.join("built_dists", output)
-                    subprocess.run(
-                        " ".join(
-                            [
-                                "anaconda",
-                                "--quiet",
-                                "-t",
-                                fn,
-                                "upload",
-                                pth,
-                                "--user=cf-staging",
-                                "--channel=main",
-                            ]
-                        ),
-                        check=True,
-                        shell=True,
-                    )
+            outputs = {}
+            for dist in dists:
+                hash_value = _compute_local_info(
+                    dist, "built_dists", hash_type or "md5"
+                )
+                if should_fail:  # scramble the hash
+                    hash_value = "".join(random.shuffle(list(hash_value)))
+                outputs.update(hash_value)
 
-            print("\n=========================================================")
-            print("sleeping for 10 seconds")
-            print(
-                "=========================================================",
-                flush=True,
-            )
-            for _ in tqdm.trange(10):
-                time.sleep(1)
+            print("outputs:", pprint.pformat(outputs))
 
-            print("\n=========================================================")
-            print("checking that dists exist on staging")
-            print(
-                "=========================================================",
-                flush=True,
-            )
-            for dist in outputs:
-                assert _dist_exists(ac_staging, "cf-staging", dist)
-                print(f"    cf-staging: dist {dist} exists")
+            try:
+                print("\n=========================================================")
+                print("uploading to cf-staging")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                with _get_temp_token(os.environ["STAGING_BINSTAR_TOKEN"]) as fn:
+                    for output in outputs:
+                        pth = os.path.join("built_dists", output)
+                        subprocess.run(
+                            " ".join(
+                                [
+                                    "anaconda",
+                                    "--quiet",
+                                    "-t",
+                                    fn,
+                                    "upload",
+                                    pth,
+                                    "--user=cf-staging",
+                                    "--channel=main",
+                                ]
+                            ),
+                            check=True,
+                            shell=True,
+                        )
 
-            print("\n=========================================================")
-            print("making copy call to admin server")
-            print(
-                "=========================================================",
-                flush=True,
-            )
-            json_data = {
-                "feedstock": "staged-recipes",
-                "outputs": outputs,
-                "channel": "main",
-            }
-            if hash_type is not None:
-                json_data["hash_type"] = hash_type
-            _post_and_check_copy_requests(headers, json_data)
+                print("\n=========================================================")
+                print("sleeping for 10 seconds")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                for _ in tqdm.trange(10):
+                    time.sleep(1)
 
-            print("\n=========================================================")
-            print("sleeping for 10 seconds for copy")
-            print(
-                "=========================================================",
-                flush=True,
-            )
-            for _ in tqdm.trange(10):
-                time.sleep(1)
+                print("\n=========================================================")
+                print("checking that dists exist on staging")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                for dist in outputs:
+                    assert _dist_exists(ac_staging, "cf-staging", dist)
+                    print(f"    cf-staging: dist {dist} exists")
 
-            print("\n=========================================================")
-            print("checking that dists exist on prod")
-            print(
-                "=========================================================",
-                flush=True,
-            )
-            for dist in outputs:
-                assert _dist_exists(ac_prod, "conda-forge", dist)
-                print(f"    conda-forge: dist {dist} exists")
+                print("\n=========================================================")
+                print("making copy call to admin server")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                json_data = {
+                    "feedstock": "staged-recipes",
+                    "outputs": outputs,
+                    "channel": "main",
+                }
+                if hash_type is not None:
+                    json_data["hash_type"] = hash_type
+                _post_and_check_copy_requests(headers, json_data, should_fail)
 
-            print("\n=========================================================")
-            print("checking the new outputs")
-            print(
-                "=========================================================",
-                flush=True,
-            )
-            output_fname = f"outputs/b/l/a/blah-{uid}.json"
-            with tempfile.TemporaryDirectory() as tmpdir:
-                with pushd(tmpdir):
-                    _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
+                print("\n=========================================================")
+                print("sleeping for 10 seconds for copy")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                for _ in tqdm.trange(10):
+                    time.sleep(1)
 
-                    with pushd(os.path.split(OUTPUTS_REPO)[1].replace(".git", "")):
-                        assert os.path.exists(output_fname)
-                        with open(output_fname) as fp:
-                            data = json.load(fp)
-                            assert data["feedstocks"] == ["staged-recipes"]
+                print("\n=========================================================")
+                print("checking that dists exist on prod")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                for dist in outputs:
+                    de = _dist_exists(ac_prod, "conda-forge", dist)
+                    if should_fail:
+                        assert not de
+                        print(f"    conda-forge: dist {dist} does not exist")
+                    else:
+                        assert de
+                        print(f"    conda-forge: dist {dist} exists")
 
-        finally:
-            print("\n=========================================================")
-            print("cleaning up repos and dists")
-            print(
-                "=========================================================",
-                flush=True,
-            )
-            for dist in outputs:
-                if _dist_exists(ac_staging, "cf-staging", dist):
-                    if _remove_dist(ac_staging, "cf-staging", dist):
-                        print(f"cf-staging: removed {dist}")
-                if _dist_exists(ac_prod, "conda-forge", dist):
-                    if _remove_dist(ac_prod, "conda-forge", dist):
-                        print(f"cond-forge: removed {dist}")
+                print("\n=========================================================")
+                print("checking the new outputs")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                output_fname = f"outputs/b/l/a/blah-{uid}.json"
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    with pushd(tmpdir):
+                        _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
 
-            _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/blah-{uid}.json")
-            print(" ")
+                        with pushd(os.path.split(OUTPUTS_REPO)[1].replace(".git", "")):
+                            if should_fail:
+                                assert not os.path.exists(output_fname)
+                            else:
+                                assert os.path.exists(output_fname)
+                                with open(output_fname) as fp:
+                                    data = json.load(fp)
+                                    assert data["feedstocks"] == ["staged-recipes"]
+
+            finally:
+                print("\n=========================================================")
+                print("cleaning up repos and dists")
+                print(
+                    "=========================================================",
+                    flush=True,
+                )
+                for dist in outputs:
+                    if _dist_exists(ac_staging, "cf-staging", dist):
+                        if _remove_dist(ac_staging, "cf-staging", dist):
+                            print(f"cf-staging: removed {dist}")
+                    if _dist_exists(ac_prod, "conda-forge", dist):
+                        if _remove_dist(ac_prod, "conda-forge", dist):
+                            print(f"cond-forge: removed {dist}")
+
+                _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/blah-{uid}.json")
+                print(" ")
