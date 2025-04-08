@@ -77,10 +77,11 @@ def get_app_token_for_webservices_only():
 
         APP_TOKEN = token
     else:
-        log_title_and_message_at_level(
-            level="info",
-            title=f"app token exists - timeout {(APP_TOKEN_RESET_TIME - now) / 60}m",
-        )
+        pass
+        # log_title_and_message_at_level(
+        #     level="info",
+        #     title=f"app token exists - timeout {(APP_TOKEN_RESET_TIME - now) / 60}m",
+        # )
 
     assert APP_TOKEN is not None, "app token is None!"
 
