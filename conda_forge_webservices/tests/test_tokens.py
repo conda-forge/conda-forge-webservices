@@ -1,3 +1,4 @@
+import hmac
 import os
 import tempfile
 import subprocess
@@ -53,7 +54,7 @@ def test_github_app_tokens_for_webservices_cache():
     token = get_app_token_for_webservices_only()
     assert token is not None
     token_again = get_app_token_for_webservices_only()
-    assert token_again == token
+    assert hmac.compare_digest(token_again, token)
 
 
 @pytest.mark.parametrize(

@@ -246,6 +246,53 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
+def _upload_to_staging(ac_staging, outputs):
+    print("\n=========================================================")
+    print("uploading to cf-staging")
+    print(
+        "=========================================================",
+        flush=True,
+    )
+    with _get_temp_token(os.environ["STAGING_BINSTAR_TOKEN"]) as fn:
+        for output in outputs:
+            pth = os.path.join("built_dists", output)
+            subprocess.run(
+                " ".join(
+                    [
+                        "anaconda",
+                        "--quiet",
+                        "-t",
+                        fn,
+                        "upload",
+                        pth,
+                        "--user=cf-staging",
+                        "--channel=main",
+                    ]
+                ),
+                check=True,
+                shell=True,
+            )
+
+    print("\n=========================================================")
+    print("sleeping for 10 seconds")
+    print(
+        "=========================================================",
+        flush=True,
+    )
+    for _ in tqdm.trange(10):
+        time.sleep(1)
+
+    print("\n=========================================================")
+    print("checking that dists exist on staging")
+    print(
+        "=========================================================",
+        flush=True,
+    )
+    for dist in outputs:
+        assert _dist_exists(ac_staging, "cf-staging", dist)
+        print(f"    cf-staging: dist {dist} exists")
+
+
 def _post_copy_request(headers, json_data):
     r = requests.post(
         "http://127.0.0.1:5000/feedstock-outputs/copy",
@@ -266,6 +313,32 @@ def _post_and_check_copy_requests(headers, json_data):
         r = fut.result()
         assert r.status_code == 200
         print("    response:", pprint.pformat(r.json()))
+
+
+def _attempt_copy_prod(outputs, hash_type, should_fail):
+    print("\n=========================================================")
+    print("making copy call to admin server")
+    print(
+        "=========================================================",
+        flush=True,
+    )
+    json_data = {
+        "feedstock": "staged-recipes",
+        "outputs": outputs,
+        "channel": "main",
+    }
+    if hash_type is not None:
+        json_data["hash_type"] = hash_type
+    _post_and_check_copy_requests(headers, json_data, should_fail)
+
+    print("\n=========================================================")
+    print("sleeping for 10 seconds for copy")
+    print(
+        "=========================================================",
+        flush=True,
+    )
+    for _ in tqdm.trange(10):
+        time.sleep(1)
 
 
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
@@ -303,74 +376,8 @@ def test_feedstock_outputs_copy_works():
             print("outputs:", pprint.pformat(outputs))
 
             try:
-                print("\n=========================================================")
-                print("uploading to cf-staging")
-                print(
-                    "=========================================================",
-                    flush=True,
-                )
-                with _get_temp_token(os.environ["STAGING_BINSTAR_TOKEN"]) as fn:
-                    for output in outputs:
-                        pth = os.path.join("built_dists", output)
-                        subprocess.run(
-                            " ".join(
-                                [
-                                    "anaconda",
-                                    "--quiet",
-                                    "-t",
-                                    fn,
-                                    "upload",
-                                    pth,
-                                    "--user=cf-staging",
-                                    "--channel=main",
-                                ]
-                            ),
-                            check=True,
-                            shell=True,
-                        )
-
-                print("\n=========================================================")
-                print("sleeping for 10 seconds")
-                print(
-                    "=========================================================",
-                    flush=True,
-                )
-                for _ in tqdm.trange(10):
-                    time.sleep(1)
-
-                print("\n=========================================================")
-                print("checking that dists exist on staging")
-                print(
-                    "=========================================================",
-                    flush=True,
-                )
-                for dist in outputs:
-                    assert _dist_exists(ac_staging, "cf-staging", dist)
-                    print(f"    cf-staging: dist {dist} exists")
-
-                print("\n=========================================================")
-                print("making copy call to admin server")
-                print(
-                    "=========================================================",
-                    flush=True,
-                )
-                json_data = {
-                    "feedstock": "staged-recipes",
-                    "outputs": outputs,
-                    "channel": "main",
-                }
-                if hash_type is not None:
-                    json_data["hash_type"] = hash_type
-                _post_and_check_copy_requests(headers, json_data, should_fail)
-
-                print("\n=========================================================")
-                print("sleeping for 10 seconds for copy")
-                print(
-                    "=========================================================",
-                    flush=True,
-                )
-                for _ in tqdm.trange(10):
-                    time.sleep(1)
+                _upload_to_staging(ac_staging, outputs)
+                _attempt_copy_prod(outputs, hash_type, should_fail)
 
                 print("\n=========================================================")
                 print("checking that dists exist on prod")
