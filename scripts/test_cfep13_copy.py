@@ -23,7 +23,7 @@ import hashlib
 import pprint
 import contextlib
 import shutil
-import random
+import secrets
 import urllib
 import time
 import tqdm
@@ -41,6 +41,8 @@ from conda_forge_webservices.feedstock_outputs import (
     _get_ac_api_prod,
     _get_ac_api_staging,
 )
+
+RNG = secrets.SystemRandom()
 
 OUTPUTS_REPO = (
     "https://x-access-token:${GH_TOKEN}@github.com/conda-forge/feedstock-outputs.git"
@@ -373,7 +375,9 @@ def test_feedstock_outputs_copy_works():
                     dist, "built_dists", hash_type or "md5"
                 )
                 if should_fail:  # scramble the hash
-                    hash_value = "".join(random.shuffle(list(hash_value)))
+                    hash_value = list(hash_value)
+                    RNG.shuffle(hash_value)
+                    hash_value = "".join(hash_value)
                 outputs.update(hash_value)
 
             print("outputs:", pprint.pformat(outputs))
