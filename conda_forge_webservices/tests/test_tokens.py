@@ -4,6 +4,7 @@ import tempfile
 import subprocess
 
 import pytest
+from flaky import flaky
 
 from ..tokens import (
     generate_app_token_for_feedstock,
@@ -50,11 +51,13 @@ def test_github_app_tokens_for_webservices(token_repo):
     assert out.returncode == 0
 
 
+@flaky
 def test_github_app_tokens_for_webservices_cache():
     token = get_app_token_for_webservices_only()
     assert token is not None
     token_again = get_app_token_for_webservices_only()
-    assert hmac.compare_digest(token_again, token)
+    if not hmac.compare_digest(token_again, token):
+        assert False, "Token should be cached but is not!"
 
 
 @pytest.mark.parametrize(

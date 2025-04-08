@@ -373,12 +373,12 @@ def test_feedstock_outputs_copy_works():
             for dist in dists:
                 hash_value = _compute_local_info(
                     dist, "built_dists", hash_type or "md5"
-                )
+                )[dist]
                 if should_fail:  # scramble the hash
                     hash_value = list(hash_value)
                     RNG.shuffle(hash_value)
                     hash_value = "".join(hash_value)
-                outputs.update(hash_value)
+                outputs[dist] = hash_value
 
             print("outputs:", pprint.pformat(outputs))
 
