@@ -903,7 +903,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 )
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _thread_pool(),
                     _dispatch_autotickbot_job,
                     "pr",
                     body["pull_request"]["id"],
@@ -933,7 +933,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and repo_name.endswith("-feedstock")
             ):
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _thread_pool(),
                     _dispatch_autotickbot_job,
                     "push",
                     repo_name.split("-feedstock")[0],
@@ -1033,7 +1033,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 "full_name"
             ].endswith("-feedstock"):
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _thread_pool(),
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["check_suite"]["head_sha"],
@@ -1052,7 +1052,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             if body["repository"]["full_name"].endswith("-feedstock"):
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _thread_pool(),
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["sha"],
@@ -1070,7 +1070,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             if body["repository"]["full_name"].endswith("-feedstock"):
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _thread_pool(),
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
