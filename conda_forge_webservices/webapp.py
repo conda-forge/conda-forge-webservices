@@ -34,7 +34,10 @@ from conda_forge_webservices.feedstock_outputs import (
     comment_on_outputs_copy,
     relabel_feedstock_outputs,
 )
-from conda_forge_webservices.utils import ALLOWED_CMD_NON_FEEDSTOCKS
+from conda_forge_webservices.utils import (
+    ALLOWED_CMD_NON_FEEDSTOCKS,
+    log_title_and_message_at_level,
+)
 from conda_forge_webservices import status_monitor
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
@@ -98,7 +101,7 @@ def get_commit_message(full_name, commit):
     )
 
 
-def print_rate_limiting_info_for_token(token):
+def _get_rate_limiting_info_for_token(token):
     # Compute some info about our GitHub API Rate Limit.
     # Note that it doesn't count against our limit to
     # get this info. So, we should be doing this regularly
@@ -120,9 +123,8 @@ def print_rate_limiting_info_for_token(token):
     gh_api_reset_time = gh.get_rate_limit().core.reset
     gh_api_reset_time -= datetime.now(timezone.utc)
     msg = f"{user} - remaining {gh_api_remaining} out of {gh_api_total}."
-    LOGGER.info(
-        "github api requests: %s - %s", msg, f"Will reset in {gh_api_reset_time}."
-    )
+    msg = f"github api requests: {msg} - Will reset in {gh_api_reset_time}."
+    return msg
 
 
 def print_rate_limiting_info():
@@ -133,11 +135,15 @@ def print_rate_limiting_info():
     if "AUTOTICK_BOT_GH_TOKEN" in os.environ:
         d.append(os.environ["AUTOTICK_BOT_GH_TOKEN"])
 
-    LOGGER.info("")
-    LOGGER.info("GitHub API Rate Limit Info:")
+    msg = []
     for k in d:
-        print_rate_limiting_info_for_token(k)
-    LOGGER.info("")
+        msg.append(_get_rate_limiting_info_for_token(k))
+    msg = "\n".join(msg)
+    log_title_and_message_at_level(
+        level="info",
+        title="GitHub API Rate Limit Info",
+        msg=msg,
+    )
 
 
 def valid_request(body, signature):
@@ -153,6 +159,44 @@ def valid_request(body, signature):
 
 
 class WriteErrorAsJSONRequestHandler(tornado.web.RequestHandler):
+    """The write_error method below was pulled from jupyter under
+    the license below.
+
+    https://github.com/jupyter-server/jupyter_server/blob/132cf044cc969fb70063666919b4d9ad3349c5d1/jupyter_server/base/handlers.py#L756-L776
+
+    BSD 3-Clause License
+
+    - Copyright (c) 2001-2015, IPython Development Team
+    - Copyright (c) 2015-, Jupyter Development Team
+
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    1. Redistributions of source code must retain the above copyright notice, this
+    list of conditions and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+    3. Neither the name of the copyright holder nor the names of its
+    contributors may be used to endorse or promote products derived from
+    this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    """
+
     def write_error(self, status_code: int, **kwargs) -> None:
         """APIHandler errors are JSON, not human pages"""
         self.set_header("Content-Type", "application/json")
@@ -217,10 +261,10 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             # Only do anything if we are working with conda-forge,
             # and an open PR.
             if is_open and owner == "conda-forge" and not stale:
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("linting: %s", body["repository"]["full_name"])
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"linting: {body['repository']['full_name']}",
+                )
 
                 if linting.LINT_VIA_GHA:
                     linting.lint_via_github_actions(
@@ -291,10 +335,10 @@ class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
                 and "[cf admin skip]" not in commit_msg
                 and repo_name.endswith("-feedstock")
             ):
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("feedstocks service: %s", body["repository"]["full_name"])
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"feedstocks service: {body['repository']['full_name']}",
+                )
                 handled = await tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool(),
                     feedstocks_service.handle_feedstock_event,
@@ -344,10 +388,10 @@ class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
                 and "[cf admin skip teams]" not in commit_msg
                 and "[cf admin skip]" not in commit_msg
             ):
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("updating team: %s", body["repository"]["full_name"])
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"update teams: {body['repository']['full_name']}",
+                )
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),  # always threads due to expensive lru_cache
                     update_teams.update_team,
@@ -421,10 +465,10 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                 review_id = body["comment"]["id"]
 
             if comment:
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("PR command: %s", body["repository"]["full_name"])
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"PR command: {body['repository']['full_name']}",
+                )
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool(),
@@ -463,10 +507,10 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
             if pull_request and action != "deleted":
                 comment = body["comment"]["body"]
                 comment_id = body["comment"]["id"]
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("PR command: %s", body["repository"]["full_name"])
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"PR command: {body['repository']['full_name']}",
+                )
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool(),
@@ -494,10 +538,10 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment = body["issue"]["body"]
                     comment_id = -1  # will react to issue/PR description #issue_num
 
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("issue command: %s", body["repository"]["full_name"])
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"issue command: {body['repository']['full_name']}",
+                )
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool(),
@@ -666,10 +710,10 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         #     self.set_status(403)
         #     self.write_error(403)
 
-        LOGGER.info("")
-        LOGGER.info("===================================================")
-        LOGGER.info(f"copy outputs for feedstock '{feedstock}'")
-        LOGGER.info("===================================================")
+        log_title_and_message_at_level(
+            level="info",
+            title=f"copy started for outputs for feedstock '{feedstock}'",
+        )
 
         if feedstock is not None and len(feedstock) > 0:
             feedstock_exists = _repo_exists(feedstock)
@@ -697,14 +741,17 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             or (not valid_token)
             or hash_type not in ["md5", "sha256"]
         ):
-            LOGGER.warning(f"    invalid outputs copy request for {feedstock}!")
-            LOGGER.warning(f"    feedstock exists: {feedstock_exists}")
-            LOGGER.warning(f"    outputs: {outputs}")
-            LOGGER.warning(f"    label: {label}")
-            LOGGER.warning(f"    valid token: {valid_token}")
-            LOGGER.warning(f"    hash type: {hash_type}")
-            LOGGER.warning(f"    provider: {provider}")
-
+            log_title_and_message_at_level(
+                level="warning",
+                title=f"invalid outputs copy request for feedstock '{feedstock}'",
+                msg=f"""    feedstock exists: {feedstock_exists}
+    outputs: {outputs}
+    label: {label}
+    valid token: {valid_token}
+    hash type: {hash_type}
+    provider: {provider}
+""",
+            )
             err_msgs = []
             if outputs is None:
                 err_msgs.append("no outputs data sent for copy")
@@ -743,10 +790,16 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
 
             self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
 
-            LOGGER.info("    errors: %s", errors)
-            LOGGER.info("    valid: %s", valid)
-            LOGGER.info("    copied: %s", copied)
-            LOGGER.info(f"    provider: {provider}")
+            log_title_and_message_at_level(
+                level="info",
+                title=f"copy finished for outputs for feedstock '{feedstock}'",
+                msg=f"""    feedstock exists: {feedstock_exists}
+    errors: {errors}
+    valid: {valid}
+    copied: {copied}
+    provider: {provider}
+""",
+            )
 
         print_rate_limiting_info()
 
@@ -844,12 +897,10 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and (body["action"] in ["closed", "labeled"])
                 and head_owner.startswith("regro-cf-autotick-bot/")
             ):
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info(
-                    "autotick bot pull_request: %s", body["repository"]["full_name"]
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"autotick bot PR: {body['repository']['full_name']}",
                 )
-                LOGGER.info("===================================================")
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool(),
@@ -860,10 +911,10 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event == "push":
-            LOGGER.info("")
-            LOGGER.info("===================================================")
-            LOGGER.info("autotick bot push: %s", body["repository"]["full_name"])
-            LOGGER.info("===================================================")
+            log_title_and_message_at_level(
+                level="info",
+                title=f"autotick bot push: {body['repository']['full_name']}",
+            )
 
             repo_name = body["repository"]["name"]
             owner = body["repository"]["owner"]["login"]
@@ -959,10 +1010,10 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
         body = tornado.escape.json_decode(self.request.body)
         if event == "check_run":
-            LOGGER.info("")
-            LOGGER.info("===================================================")
-            LOGGER.info("check run: %s", body["repository"]["full_name"])
-            LOGGER.info("===================================================")
+            log_title_and_message_at_level(
+                level="info",
+                title=f"check run: {body['repository']['full_name']}",
+            )
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
             async with STATUS_DATA_LOCK:
@@ -973,10 +1024,10 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
 
-            LOGGER.info("")
-            LOGGER.info("===================================================")
-            LOGGER.info("check suite: %s", body["repository"]["full_name"])
-            LOGGER.info("===================================================")
+            log_title_and_message_at_level(
+                level="info",
+                title=f"check suite: {body['repository']['full_name']}",
+            )
 
             if body["action"] == "completed" and body["repository"][
                 "full_name"
@@ -990,10 +1041,10 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event == "status":
-            LOGGER.info("")
-            LOGGER.info("===================================================")
-            LOGGER.info("status: %s", body["repository"]["full_name"])
-            LOGGER.info("===================================================")
+            log_title_and_message_at_level(
+                level="info",
+                title=f"status: {body['repository']['full_name']}",
+            )
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
             async with STATUS_DATA_LOCK:
@@ -1009,12 +1060,13 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event in ["pull_request", "pull_request_review"]:
-            LOGGER.info("")
-            LOGGER.info("===================================================")
-            LOGGER.info(
-                "pull request/pull request review: %s", body["repository"]["full_name"]
+            log_title_and_message_at_level(
+                level="info",
+                title=(
+                    "pull request/pull request review: "
+                    f"{body['repository']['full_name']}"
+                ),
             )
-            LOGGER.info("===================================================")
 
             if body["repository"]["full_name"].endswith("-feedstock"):
                 await tornado.ioloop.IOLoop.current().run_in_executor(
@@ -1085,10 +1137,11 @@ class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
             feedstock = data.get("feedstock", None)
 
             if feedstock is not None:
-                LOGGER.info("")
-                LOGGER.info("===================================================")
-                LOGGER.info("updating team endpoint: %s", f"conda-forge/{feedstock}")
-                LOGGER.info("===================================================")
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"update teams endpoint: conda-forge/{feedstock}",
+                )
+
                 await tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),  # always threads due to expensive lru_cache
                     update_teams.update_team,
@@ -1130,10 +1183,10 @@ def create_webapp():
 
 async def _cache_data():
     if "CF_WEBSERVICES_TEST" not in os.environ:
-        LOGGER.info("")
-        LOGGER.info("===================================================")
-        LOGGER.info("caching status data")
-        LOGGER.info("===================================================")
+        log_title_and_message_at_level(
+            level="info",
+            title="caching status data",
+        )
         async with STATUS_DATA_LOCK:
             await tornado.ioloop.IOLoop.current().run_in_executor(
                 _thread_pool(),
