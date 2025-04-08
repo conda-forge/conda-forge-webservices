@@ -299,9 +299,9 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
             name,
             version,
             basename=urllib.parse.quote(dist, safe=""),
-        ).get("labels", ())
+        ).get("labels", [])
 
-        if labels == (label,):
+        if labels == [label]:
             return True
         else:
             LOGGER.info(
