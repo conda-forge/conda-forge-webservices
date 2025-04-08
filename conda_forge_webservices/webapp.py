@@ -172,7 +172,6 @@ class WriteErrorAsJSONRequestHandler(tornado.web.RequestHandler):
                 # backward-compatibility: traceback field is present,
                 # but always empty
                 reply["traceback"] = ""
-        self.log.warning("wrote error: %r", reply["message"], exc_info=True)
         self.finish(json.dumps(reply))
 
 
