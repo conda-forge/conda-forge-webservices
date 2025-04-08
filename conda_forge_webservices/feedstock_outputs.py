@@ -135,7 +135,7 @@ def _dist_has_label(ac, channel, dist, label):
         return False
 
 
-def _add_label_dist(ac, channel, dist, label):
+def _add_label_dist(ac, channel, dist, label, src_label):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
     except RuntimeError as e:
@@ -151,12 +151,16 @@ def _add_label_dist(ac, channel, dist, label):
         return True
     else:
         try:
-            ac.add_channel(
-                label,
+            ac.copy(
                 channel,
-                package=name,
-                version=version,
-                filename=urllib.parse.quote(dist, safe=""),
+                name,
+                version,
+                basename=urllib.parse.quote(dist, safe=""),
+                to_owner=channel,
+                from_label=src_label,
+                to_label=label,
+                update=False,
+                replace=False,
             )
         except BinstarError as e:
             LOGGER.critical(
@@ -419,7 +423,7 @@ def relabel_feedstock_outputs(outputs, src_label, dest_label, remove_src_label=T
     relabeled = dict.fromkeys(outputs, False)
 
     for dist in outputs:
-        if _add_label_dist(ac_prod, PROD, dist, dest_label):
+        if _add_label_dist(ac_prod, PROD, dist, dest_label, src_label):
             relabeled[dist] = True
             LOGGER.info("    relabeled: %s", dist)
 
