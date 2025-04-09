@@ -841,9 +841,6 @@ def stage_dist_to_prod_for_relabeling(
     copied = copied[dist]
     if not copied:
         yield False
-
-        # attempt to delete from staging
-        _remove_dist(_get_ac_api_staging(), STAGING, dist)
     else:
         valid_hashes_prod = _is_valid_output_hash(
             outputs_to_test, hash_type, PROD, staging_label
