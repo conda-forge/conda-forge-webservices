@@ -84,14 +84,14 @@ def _worker_pool(kind):
                 # needed for mocks in testing
                 COPYLOCK = threading.Lock()
                 UPLOAD_POOL = ThreadPoolExecutor(
-                    max_workers=2,
+                    max_workers=4,
                     initializer=_init_upload_pool_processes,
                     initargs=(COPYLOCK,),
                 )
             else:
                 COPYLOCK = multiprocessing.Lock()
                 UPLOAD_POOL = ProcessPoolExecutor(
-                    max_workers=2,
+                    max_workers=4,
                     initializer=_init_upload_pool_processes,
                     initargs=(COPYLOCK,),
                 )
