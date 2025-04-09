@@ -1,4 +1,5 @@
 import os
+import threading
 import subprocess
 import asyncio
 import tornado.escape
@@ -34,7 +35,6 @@ from conda_forge_webservices.feedstock_outputs import (
     comment_on_outputs_copy,
     relabel_feedstock_outputs,
     stage_dist_to_prod_for_relabeling,
-    KeyedLock,
     STAGING_LABEL,
 )
 from conda_forge_webservices.utils import (
@@ -636,7 +636,7 @@ def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_v
         return False
 
 
-COPYLOCK = KeyedLock()
+COPYLOCK = threading.Lock()
 
 
 def _do_copy(

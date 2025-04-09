@@ -3,7 +3,6 @@ This module registers and validates feedstock outputs.
 """
 
 import contextlib
-import threading
 import os
 import json
 import hmac
@@ -970,38 +969,3 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
         if issue.state == "closed":
             issue.edit(state="open")
         issue.create_comment(message)
-
-
-class KeyedLock:
-    _lock = threading.Lock()
-    _local_data = threading.local()
-
-    def __init__(self):
-        self._locks = {}
-
-    def acquire(self, key):
-        with self._lock:
-            if key not in self._locks:
-                self._locks[key] = threading.Lock()
-            lock = self._locks[key]
-        lock.acquire()
-
-    def release(self, key):
-        with self._lock:
-            if key in self._locks:
-                lock = self._locks[key]
-                lock.release()
-                if not lock.locked():
-                    del self._locks[key]
-
-    def __call__(self, key):
-        self._local_data.key = key
-        return self
-
-    def __enter__(self):
-        self.acquire(self._local_data.key)
-        return self
-
-    def __exit__(self, *args):
-        self.release(self._local_data.key)
-        self._local_data.key = None
