@@ -1,4 +1,5 @@
 import functools
+import time
 import os
 import multiprocessing
 import threading
@@ -674,6 +675,7 @@ def _do_copy(
     comment_on_error,
     hash_type,
     staging_label,
+    start_time,
 ):
     dist_already_exists = {}
     for dist, hash_value in outputs.items():
@@ -741,7 +743,7 @@ def _do_copy(
     if not all(copied[o] for o in outputs) and comment_on_error:
         comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied)
 
-    return valid, errors, copied
+    return valid, errors, copied, time.time() - start_time
 
 
 class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
@@ -835,6 +837,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 valid,
                 errors,
                 copied,
+                run_time,
             ) = await tornado.ioloop.IOLoop.current().run_in_executor(
                 _worker_pool("upload"),
                 _do_copy,
@@ -845,12 +848,22 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 comment_on_error,
                 hash_type,
                 staging_label,
+                time.time(),
             )
 
             if not all(v for v in copied.values()):
                 self.set_status(403)
 
-            self.write(json.dumps({"errors": errors, "valid": valid, "copied": copied}))
+            self.write(
+                json.dumps(
+                    {
+                        "errors": errors,
+                        "valid": valid,
+                        "copied": copied,
+                        "run_time": run_time,
+                    }
+                )
+            )
 
             log_title_and_message_at_level(
                 level="info",
@@ -860,6 +873,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
     valid: {valid}
     copied: {copied}
     provider: {provider}
+    run time: {run_time} (s)
 """,
             )
 
