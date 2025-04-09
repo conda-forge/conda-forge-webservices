@@ -690,6 +690,12 @@ def _do_copy(
             o, dest_label, hash_type, hash_value
         ):
             copied[o] = True
+            valid[o] = True
+            errors = [
+                err
+                for err in errors
+                if o not in err
+            ]
         else:
             copied[o] = False
 

@@ -772,7 +772,10 @@ def validate_feedstock_outputs(
     )
     for o in outputs_to_test:
         if not valid_hashes_staging[o]:
-            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
+            errors.append(
+                f"output {o} does not have a valid checksum or "
+                f"correct label on {STAGING}"
+            )
     outputs_to_test = {
         o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
     }
