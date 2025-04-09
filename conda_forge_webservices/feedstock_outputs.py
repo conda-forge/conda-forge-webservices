@@ -7,6 +7,7 @@ import os
 import json
 import hmac
 import urllib.parse
+import functools
 import logging
 import base64
 import time
@@ -74,14 +75,23 @@ def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
     return False
 
 
+def _get_ac_api_with_timeout(token, timeout=2):
+    # see https://stackoverflow.com/a/59317604/1745538
+    ac = get_server_api(token=token)
+    ac.session.request = functools.partial(ac.session.request, timeout=timeout)
+    return ac
+
+
+@functools.lru_cache(maxsize=1)
 def _get_ac_api_prod():
     """wrap this a function so we can more easily mock it when testing"""
-    return get_server_api(token=os.environ["PROD_BINSTAR_TOKEN"])
+    return _get_ac_api_with_timeout(token=os.environ["PROD_BINSTAR_TOKEN"])
 
 
+@functools.lru_cache(maxsize=1)
 def _get_ac_api_staging():
     """wrap this a function so we can more easily mock it when testing"""
-    return get_server_api(token=os.environ["STAGING_BINSTAR_TOKEN"])
+    return _get_ac_api_with_timeout(token=os.environ["STAGING_BINSTAR_TOKEN"])
 
 
 def _dist_exists(ac, channel, dist):
