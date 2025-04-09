@@ -141,9 +141,6 @@ class TestBucketHandler(TestHandlerBase):
     @mock.patch("conda_forge_webservices.commands.issue_comment", return_value=None)
     @mock.patch("conda_forge_webservices.commands.add_reaction", return_value=None)
     @mock.patch("conda_forge_webservices.update_teams.update_team", return_value=None)
-    @mock.patch(
-        "conda_forge_webservices.webapp.print_rate_limiting_info", return_value=None
-    )
     def test_accept_repos(self, *methods):
         for hook, accepted_repos, accepted_events in [
             (
@@ -242,10 +239,6 @@ class TestBucketHandler(TestHandlerBase):
     )
     @mock.patch(
         "conda_forge_webservices.update_teams.update_team",
-        return_value=None,
-    )
-    @mock.patch(
-        "conda_forge_webservices.webapp.print_rate_limiting_info",
         return_value=None,
     )
     def test_skip_commits(self, *args):
