@@ -35,6 +35,7 @@ LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
+STAGING_LABEL = "cf-staging-do-not-use"
 
 
 def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
@@ -315,6 +316,43 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
                 dist,
                 labels,
                 label,
+            )
+            return False
+    except binstar_client.errors.NotFound as e:
+        LOGGER.critical(
+            "    could not get dist info for label check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+
+def _dist_has_only_staging_labels(ac, channel, dist):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+    try:
+        labels = ac.distribution(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        ).get("labels", [])
+
+        if all(label.startswith(STAGING_LABEL) for label in labels):
+            return True
+        else:
+            LOGGER.info(
+                "    dist %s has labels %s, not all of which are staging labels",
+                dist,
+                labels,
             )
             return False
     except binstar_client.errors.NotFound as e:
@@ -814,7 +852,7 @@ def stage_dist_to_prod_for_relabeling(
 
         # attempt to delete from prod if not relabeled
         ac_prod = _get_ac_api_prod()
-        if _dist_has_label_exclusively(ac_prod, PROD, dist, staging_label):
+        if _dist_has_only_staging_labels(ac_prod, PROD, dist):
             _remove_dist(ac_prod, PROD, dist)
 
 

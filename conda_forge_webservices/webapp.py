@@ -35,6 +35,7 @@ from conda_forge_webservices.feedstock_outputs import (
     relabel_feedstock_outputs,
     stage_dist_to_prod_for_relabeling,
     KeyedLock,
+    STAGING_LABEL,
 )
 from conda_forge_webservices.utils import (
     ALLOWED_CMD_NON_FEEDSTOCKS,
@@ -784,7 +785,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             self.set_status(403)
             self.write_error(403)
         else:
-            staging_label = "cf-staging-do-not-use-h" + uuid.uuid4().hex
+            staging_label = STAGING_LABEL + "-h" + uuid.uuid4().hex
             (
                 valid,
                 errors,
