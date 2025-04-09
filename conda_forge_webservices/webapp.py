@@ -33,6 +33,8 @@ from conda_forge_webservices.feedstock_outputs import (
     is_valid_feedstock_token,
     comment_on_outputs_copy,
     relabel_feedstock_outputs,
+    stage_dist_to_prod_for_relabeling,
+    KeyedLock,
 )
 from conda_forge_webservices.utils import (
     ALLOWED_CMD_NON_FEEDSTOCKS,
@@ -79,7 +81,7 @@ THREAD_POOL = None
 def _thread_pool():
     global THREAD_POOL
     if THREAD_POOL is None:
-        THREAD_POOL = ThreadPoolExecutor(max_workers=2)
+        THREAD_POOL = ThreadPoolExecutor(max_workers=4)
     return THREAD_POOL
 
 
@@ -633,6 +635,9 @@ def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_v
         return False
 
 
+COPYLOCK = KeyedLock()
+
+
 def _do_copy(
     feedstock, outputs, dest_label, git_sha, comment_on_error, hash_type, staging_label
 ):
@@ -641,7 +646,6 @@ def _do_copy(
         outputs,
         hash_type,
         dest_label,
-        staging_label,
     )
 
     outputs_to_copy = {}
@@ -649,15 +653,27 @@ def _do_copy(
         if valid[o]:
             outputs_to_copy[o] = outputs[o]
 
+    copied = {}
     if outputs_to_copy:
-        copied = relabel_feedstock_outputs(
-            outputs_to_copy,
-            staging_label,
-            dest_label,
-            remove_src_label=True,
-        )
-    else:
-        copied = {}
+        for dist, hash_value in outputs_to_copy.items():
+            with COPYLOCK(dist):
+                with stage_dist_to_prod_for_relabeling(
+                    dist, dest_label, staging_label, hash_type, hash_value
+                ) as staged:
+                    if staged:
+                        dist_copied = relabel_feedstock_outputs(
+                            {dist: hash_value},
+                            staging_label,
+                            dest_label,
+                            remove_src_label=True,
+                        )
+                        copied.update(dist_copied)
+                    else:
+                        valid[dist] = False
+                        errors.append(
+                            f"failed to stage {dist} to "
+                            f"conda-forge/label/{staging_label} for copying"
+                        )
 
     for o in outputs:
         if o not in copied:
@@ -774,7 +790,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 errors,
                 copied,
             ) = await tornado.ioloop.IOLoop.current().run_in_executor(
-                _worker_pool(),
+                _thread_pool(),
                 _do_copy,
                 feedstock,
                 outputs,
