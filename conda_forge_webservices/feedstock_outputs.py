@@ -994,9 +994,12 @@ class KeyedLock:
                 if not lock.locked():
                     del self._locks[key]
 
-    def __enter__(self, key):
-        self.acquire(key)
+    def __call__(self, key):
         self._local_data.key = key
+        return self
+
+    def __enter__(self):
+        self.acquire(self._local_data.key)
         return self
 
     def __exit__(self, *args):
