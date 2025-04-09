@@ -670,6 +670,7 @@ def validate_feedstock_outputs(
     outputs,
     hash_type,
     dest_label,
+    # staging_label,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -686,6 +687,8 @@ def validate_feedstock_outputs(
     dest_label : str
         The destination label for the packages. The packages must also have
         this label on the staging channel `cf-staging`.
+    # staging_label : str
+    #     The label to use for the staging dists to the prod channel.
 
     Returns
     -------
@@ -696,6 +699,15 @@ def validate_feedstock_outputs(
         A list of any errors encountered.
     """
     valid = dict.fromkeys(outputs, False)
+
+    # if dest_label == staging_label:
+    #     LOGGER.critical(
+    #         "    destination label must be different "
+    #         "from staging label: dest=%s staging=%s",
+    #         dest_label,
+    #         staging_label,
+    #     )
+    #     return valid, ["destination label must be different from staging label"]
 
     errors = []
 
