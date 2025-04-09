@@ -13,6 +13,7 @@ import base64
 import time
 
 import requests
+import requests.exceptions
 import scrypt
 import github
 
@@ -113,7 +114,7 @@ def _dist_exists(ac, channel, dist):
             basename=urllib.parse.quote(dist, safe=""),
         )
         return True
-    except BinstarError:
+    except (BinstarError, requests.exceptions.ReadTimeout):
         return False
 
 
@@ -137,7 +138,7 @@ def _dist_has_label(ac, channel, dist, label):
         ).get("labels", ())
 
         return label in labels
-    except BinstarError as e:
+    except (BinstarError, requests.exceptions.ReadTimeout) as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
@@ -173,7 +174,7 @@ def _add_label_dist(ac, channel, dist, label, src_label):
                 update=False,
                 replace=True,
             )
-        except BinstarError as e:
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
             LOGGER.critical(
                 "    could not add label %s: %s",
                 label,
@@ -208,7 +209,7 @@ def _remove_label_dist(ac, channel, dist, label):
                 version=version,
                 filename=urllib.parse.quote(dist, safe=""),
             )
-        except BinstarError as e:
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
             LOGGER.critical(
                 "    could not remove label %s: %s",
                 label,
@@ -258,7 +259,7 @@ def _copy_dist_if_not_exists(
                 update=update_metadata,
                 replace=replace_metadata,
             )
-        except BinstarError as e:
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
             LOGGER.critical(
                 "    could not copy dist: %s",
                 dist,
@@ -288,7 +289,7 @@ def _is_dist_hash_valid(ac, channel, dist, hash_type, hash_value):
             basename=urllib.parse.quote(dist, safe=""),
         )
         return hmac.compare_digest(data[hash_type], hash_value)
-    except BinstarError as e:
+    except (BinstarError, requests.exceptions.ReadTimeout) as e:
         LOGGER.critical(
             "    could not get dist info for hash check: %s",
             dist,
@@ -326,7 +327,7 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
                 label,
             )
             return False
-    except BinstarError as e:
+    except (BinstarError, requests.exceptions.ReadTimeout) as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
@@ -363,7 +364,7 @@ def _dist_has_only_staging_labels(ac, channel, dist):
                 labels,
             )
             return False
-    except BinstarError as e:
+    except (BinstarError, requests.exceptions.ReadTimeout) as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
@@ -391,7 +392,7 @@ def _remove_dist(ac, channel, dist):
             basename=urllib.parse.quote(dist, safe=""),
         )
         LOGGER.info("    removed from %s: %s", channel, dist)
-    except BinstarError as e:
+    except (BinstarError, requests.exceptions.ReadTimeout) as e:
         LOGGER.info("    could not remove from %s: %s", channel, dist, exc_info=e)
         pass
 
@@ -438,7 +439,7 @@ def _copy_feedstock_outputs_from_staging_to_prod(
                 update_metadata=False,
                 replace_metadata=False,
             )
-        except BinstarError as e:
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
             LOGGER.info("    did not copy: %s", dist, exc_info=e)
             pass
 
@@ -552,7 +553,7 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
                 hashsum,
             )
             LOGGER.info("    did hash comp: %s", dist)
-        except BinstarError as e:
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
             LOGGER.info("    did not do hash comp: %s", dist, exc_info=e)
             pass
 
