@@ -215,7 +215,14 @@ def pr_detailed_comment(
 
                         Have a great day!
                         """)  # noqa
-                pull.create_issue_comment(message)
+                try:
+                    pull.create_issue_comment(message)
+                except github.GithubException:
+                    LOGGER.info(
+                        "PR from branch warning failure for "
+                        "repo {pull.head.repo.full_name}",
+                    )
+                return
 
     if RESTART_CI.search(comment):
         gh = get_gh_client()
