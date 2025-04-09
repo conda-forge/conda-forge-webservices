@@ -1293,13 +1293,13 @@ def main():
 
     pcb = tornado.ioloop.PeriodicCallback(
         lambda: asyncio.create_task(_cache_data()),
-        status_monitor.TIME_INTERVAL * 1000,
+        status_monitor.TIME_INTERVAL * 1000,  # in ms
     )
     pcb.start()
 
     ptk = tornado.ioloop.PeriodicCallback(
         lambda: asyncio.create_task(_print_token_info()),
-        60 * 5,  # five minutes
+        60 * 5 * 1000,  # five minutes in ms
     )
     ptk.start()
 
