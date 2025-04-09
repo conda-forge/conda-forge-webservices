@@ -2,6 +2,7 @@
 This module registers and validates feedstock outputs.
 """
 
+import contextlib
 import os
 import json
 import hmac
@@ -21,7 +22,6 @@ from conda_forge_metadata.feedstock_outputs import (
     feedstock_outputs_config,
 )
 from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
-import binstar_client.errors
 
 from .utils import parse_conda_pkg, _test_and_raise_besides_file_not_exists
 from conda_forge_webservices.tokens import (
@@ -33,6 +33,7 @@ LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
 PROD = "conda-forge"
+STAGING_LABEL = "cf-staging-do-not-use"
 
 
 def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
@@ -102,7 +103,7 @@ def _dist_exists(ac, channel, dist):
             basename=urllib.parse.quote(dist, safe=""),
         )
         return True
-    except binstar_client.errors.NotFound:
+    except BinstarError:
         return False
 
 
@@ -126,7 +127,7 @@ def _dist_has_label(ac, channel, dist, label):
         ).get("labels", ())
 
         return label in labels
-    except binstar_client.errors.NotFound as e:
+    except BinstarError as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
@@ -315,13 +316,74 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
                 label,
             )
             return False
-    except binstar_client.errors.NotFound as e:
+    except BinstarError as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
             exc_info=e,
         )
         return False
+
+
+def _dist_has_only_staging_labels(ac, channel, dist):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+    try:
+        labels = ac.distribution(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        ).get("labels", [])
+
+        if all(label.startswith(STAGING_LABEL) for label in labels):
+            return True
+        else:
+            LOGGER.info(
+                "    dist %s has labels %s, not all of which are staging labels",
+                dist,
+                labels,
+            )
+            return False
+    except BinstarError as e:
+        LOGGER.critical(
+            "    could not get dist info for label check: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+
+def _remove_dist(ac, channel, dist):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for removing: %s",
+            dist,
+            exc_info=e,
+        )
+        return False
+
+    try:
+        ac.remove_dist(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )
+        LOGGER.info("    removed from %s: %s", channel, dist)
+    except BinstarError as e:
+        LOGGER.info("    could not remove from %s: %s", channel, dist, exc_info=e)
+        pass
 
 
 def _copy_feedstock_outputs_from_staging_to_prod(
@@ -356,16 +418,6 @@ def _copy_feedstock_outputs_from_staging_to_prod(
 
     for dist in outputs:
         try:
-            _, name, version, _ = parse_conda_pkg(dist)
-        except RuntimeError as e:
-            LOGGER.critical(
-                "    could not parse dist for copy: %s",
-                dist,
-                exc_info=e,
-            )
-            continue
-
-        try:
             copied[dist] = _copy_dist_if_not_exists(
                 STAGING,
                 src_label,
@@ -381,19 +433,7 @@ def _copy_feedstock_outputs_from_staging_to_prod(
             pass
 
         if copied[dist] and _dist_exists(ac_staging, STAGING, dist) and delete:
-            try:
-                ac_staging.remove_dist(
-                    STAGING,
-                    name,
-                    version,
-                    basename=urllib.parse.quote(dist, safe=""),
-                )
-                LOGGER.info("    removed from %s: %s", STAGING, dist)
-            except BinstarError as e:
-                LOGGER.info(
-                    "    could not remove from %s: %s", STAGING, dist, exc_info=e
-                )
-                pass
+            _remove_dist(ac_staging, STAGING, dist)
 
     return copied
 
@@ -666,7 +706,7 @@ def validate_feedstock_outputs(
     outputs,
     hash_type,
     dest_label,
-    staging_label,
+    # staging_label,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -683,8 +723,8 @@ def validate_feedstock_outputs(
     dest_label : str
         The destination label for the packages. The packages must also have
         this label on the staging channel `cf-staging`.
-    staging_label : str
-        The label to use for the staging dists to the prod channel.
+    # staging_label : str
+    #     The label to use for the staging dists to the prod channel.
 
     Returns
     -------
@@ -696,14 +736,14 @@ def validate_feedstock_outputs(
     """
     valid = dict.fromkeys(outputs, False)
 
-    if dest_label == staging_label:
-        LOGGER.critical(
-            "    destination label must be different "
-            "from staging label: dest=%s staging=%s",
-            dest_label,
-            staging_label,
-        )
-        return valid, ["destination label must be different from staging label"]
+    # if dest_label == staging_label:
+    #     LOGGER.critical(
+    #         "    destination label must be different "
+    #         "from staging label: dest=%s staging=%s",
+    #         dest_label,
+    #         staging_label,
+    #     )
+    #     return valid, ["destination label must be different from staging label"]
 
     errors = []
 
@@ -731,7 +771,10 @@ def validate_feedstock_outputs(
     )
     for o in outputs_to_test:
         if not valid_hashes_staging[o]:
-            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
+            errors.append(
+                f"output {o} does not have a valid checksum or "
+                f"correct label on {STAGING}"
+            )
     outputs_to_test = {
         o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
     }
@@ -748,27 +791,28 @@ def validate_feedstock_outputs(
     for o in outputs_to_test:
         if not valid_outputs[o]:
             errors.append(f"output {o} not allowed for conda-forge/{project}")
-    outputs_to_test = {o: v for o, v in outputs_to_test.items() if valid_outputs[o]}
+    # outputs_to_test = {o: v for o, v in outputs_to_test.items() if valid_outputs[o]}
 
-    # next copy outputs to the production channel under the staging label
-    # again do not pass any invalid outputs to the rest of the functions
-    copied = _copy_feedstock_outputs_from_staging_to_prod(
-        outputs_to_test, dest_label, staging_label, delete=True
-    )
-    for o in outputs_to_test:
-        if not copied[o]:
-            errors.append(
-                f"output {o} did not copy to {PROD} under staging label {staging_label}"
-            )
-    outputs_to_test = {o: v for o, v in outputs_to_test.items() if copied[o]}
+    # # next copy outputs to the production channel under the staging label
+    # # again do not pass any invalid outputs to the rest of the functions
+    # copied = _copy_feedstock_outputs_from_staging_to_prod(
+    #     outputs_to_test, dest_label, staging_label, delete=True
+    # )
+    # for o in outputs_to_test:
+    #     if not copied[o]:
+    #         errors.append(
+    #             f"output {o} did not copy to {PROD} under "
+    #             f"staging label {staging_label}"
+    #         )
+    # outputs_to_test = {o: v for o, v in outputs_to_test.items() if copied[o]}
 
-    # finally validate the hashes on the production channel
-    valid_hashes_prod = _is_valid_output_hash(
-        outputs_to_test, hash_type, PROD, staging_label
-    )
-    for o in outputs_to_test:
-        if not valid_hashes_prod[o]:
-            errors.append(f"output {o} does not have a valid checksum on {PROD}")
+    # # finally validate the hashes on the production channel
+    # valid_hashes_prod = _is_valid_output_hash(
+    #     outputs_to_test, hash_type, PROD, staging_label
+    # )
+    # for o in outputs_to_test:
+    #     if not valid_hashes_prod[o]:
+    #         errors.append(f"output {o} does not have a valid checksum on {PROD}")
 
     # combine all validations
     for o in outputs:
@@ -776,14 +820,38 @@ def validate_feedstock_outputs(
             correctly_formatted.get(o)
             and valid_outputs.get(o)
             and valid_hashes_staging.get(o)
-            and copied.get(o)
-            and valid_hashes_prod.get(o)
+            # and copied.get(o)
+            # and valid_hashes_prod.get(o)
         ):
             valid[o] = True
         else:
             valid[o] = False
 
     return valid, errors
+
+
+@contextlib.contextmanager
+def stage_dist_to_prod_for_relabeling(
+    dist, dest_label, staging_label, hash_type, hash_value
+):
+    outputs_to_test = {dist: hash_value}
+    copied = _copy_feedstock_outputs_from_staging_to_prod(
+        outputs_to_test, dest_label, staging_label, delete=True
+    )
+    copied = copied[dist]
+    if not copied:
+        yield False
+    else:
+        valid_hashes_prod = _is_valid_output_hash(
+            outputs_to_test, hash_type, PROD, staging_label
+        )
+        valid_hashes_prod = valid_hashes_prod[dist]
+        yield valid_hashes_prod
+
+        # attempt to delete from prod if not relabeled
+        ac_prod = _get_ac_api_prod()
+        if _dist_has_only_staging_labels(ac_prod, PROD, dist):
+            _remove_dist(ac_prod, PROD, dist)
 
 
 def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):

@@ -120,11 +120,11 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
             ac_staging.return_value.remove_dist.assert_not_called()
 
 
-@pytest.mark.parametrize("same_label", [True, False])
+@pytest.mark.parametrize("same_label", [False])  # add True if change func back
 @pytest.mark.parametrize("valid_output", [True, False])
-@pytest.mark.parametrize("valid_copy", [True, False])
+@pytest.mark.parametrize("valid_copy", [True])  # add False if change func back
 @pytest.mark.parametrize("valid_staging_hash", [True, False])
-@pytest.mark.parametrize("valid_prod_hash", [True, False])
+@pytest.mark.parametrize("valid_prod_hash", [True])  # add False if change func back
 @mock.patch(
     "conda_forge_webservices.feedstock_outputs._copy_feedstock_outputs_from_staging_to_prod"
 )
@@ -151,12 +151,14 @@ def test_validate_feedstock_outputs_badoutputhash(
         },
         {
             "noarch/a-0.1-py_0.conda": valid_prod_hash,
-            "noarch/b-0.1-py_0.conda": not valid_prod_hash,
+            # change to not valid_prod_hash if change func back
+            "noarch/b-0.1-py_0.conda": valid_prod_hash,
         },
     ]
     copy_fo.return_value = {
         "noarch/a-0.1-py_0.conda": valid_copy,
-        "noarch/b-0.1-py_0.conda": not valid_copy,
+        # change to not valid_copy if change func back
+        "noarch/b-0.1-py_0.conda": valid_copy,
     }
     staging_label = "cf-staging-do-not-use-h" + uuid.uuid4().hex
     valid, errs = validate_feedstock_outputs(
@@ -166,8 +168,9 @@ def test_validate_feedstock_outputs_badoutputhash(
             "noarch/b-0.1-py_0.conda": "safdsa",
         },
         "md5",
-        "main",
-        staging_label if not same_label else "main",
+        staging_label,
+        # "main",
+        # staging_label if not same_label else "main",
     )
 
     assert valid == {
@@ -178,8 +181,10 @@ def test_validate_feedstock_outputs_badoutputhash(
         and (not same_label),
         "noarch/b-0.1-py_0.conda": (not valid_output)
         and (not valid_staging_hash)
-        and (not valid_copy)
-        and (not valid_prod_hash)
+        # change to not valid_copy if change func back
+        and (valid_copy)
+        # change to not valid_prod_hash if change func back
+        and (valid_prod_hash)
         and (not same_label),
     }
 
@@ -188,11 +193,11 @@ def test_validate_feedstock_outputs_badoutputhash(
     else:
         valid_staging_hash_a_err = (
             "output noarch/a-0.1-py_0.conda does not "
-            "have a valid checksum on cf-staging"
+            "have a valid checksum or correct label on cf-staging"
         ) in errs
         valid_staging_hash_b_err = (
             "output noarch/b-0.1-py_0.conda does not "
-            "have a valid checksum on cf-staging"
+            "have a valid checksum or correct label on cf-staging"
         ) in errs
         assert valid_staging_hash_a_err is not valid_staging_hash
         assert valid_staging_hash_b_err is valid_staging_hash
@@ -208,31 +213,31 @@ def test_validate_feedstock_outputs_badoutputhash(
         if not valid_staging_hash:
             assert valid_output_b_err is valid_output
 
-        valid_copy_a_err = (
-            "output noarch/a-0.1-py_0.conda did not copy to "
-            f"conda-forge under staging label {staging_label}"
-        ) in errs
-        valid_copy_b_err = (
-            "output noarch/b-0.1-py_0.conda did not copy to "
-            f"conda-forge under staging label {staging_label}"
-        ) in errs
-        if valid_output and valid_staging_hash:
-            assert valid_copy_a_err is not valid_copy
-        if (not valid_output) and (not valid_staging_hash):
-            assert valid_copy_b_err is valid_copy
+        # valid_copy_a_err = (
+        #     "output noarch/a-0.1-py_0.conda did not copy to "
+        #     f"conda-forge under staging label {staging_label}"
+        # ) in errs
+        # valid_copy_b_err = (
+        #     "output noarch/b-0.1-py_0.conda did not copy to "
+        #     f"conda-forge under staging label {staging_label}"
+        # ) in errs
+        # if valid_output and valid_staging_hash:
+        #     assert valid_copy_a_err is not valid_copy
+        # if (not valid_output) and (not valid_staging_hash):
+        #     assert valid_copy_b_err is valid_copy
 
-        valid_prod_hash_a_err = (
-            "output noarch/a-0.1-py_0.conda does not "
-            "have a valid checksum on conda-forge"
-        ) in errs
-        valid_prod_hash_b_err = (
-            "output noarch/b-0.1-py_0.conda does not "
-            "have a valid checksum on conda-forge"
-        ) in errs
-        if valid_output and valid_staging_hash and valid_copy:
-            assert valid_prod_hash_a_err is not valid_prod_hash
-        if (not valid_output) and (not valid_staging_hash) and (not valid_copy):
-            assert valid_prod_hash_b_err is valid_prod_hash
+        # valid_prod_hash_a_err = (
+        #     "output noarch/a-0.1-py_0.conda does not "
+        #     "have a valid checksum or correct label on conda-forge"
+        # ) in errs
+        # valid_prod_hash_b_err = (
+        #     "output noarch/b-0.1-py_0.conda does not "
+        #     "have a valid checksum or correct label on conda-forge"
+        # ) in errs
+        # if valid_output and valid_staging_hash and valid_copy:
+        #     assert valid_prod_hash_a_err is not valid_prod_hash
+        # if (not valid_output) and (not valid_staging_hash) and (not valid_copy):
+        #     assert valid_prod_hash_b_err is valid_prod_hash
 
 
 @pytest.mark.skipif(

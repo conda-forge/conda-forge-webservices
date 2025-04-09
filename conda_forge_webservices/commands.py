@@ -205,7 +205,10 @@ def pr_detailed_comment(
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         pull = repo.get_pull(int(pr_num))
         if pull.head.repo.full_name.split("/")[0] == "conda-forge":
-            if "upload_on_branch" not in _get_conda_forge_yml(org_name, repo_name):
+            if (
+                "upload_on_branch" not in _get_conda_forge_yml(org_name, repo_name)
+                and repo_name != "cf-autotick-bot-test-package-feedstock"
+            ):
                 message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
@@ -218,9 +221,9 @@ def pr_detailed_comment(
                 try:
                     pull.create_issue_comment(message)
                 except github.GithubException:
-                    LOGGER.info(
+                    LOGGER.warning(
                         "PR from branch warning failure for "
-                        "repo {pull.head.repo.full_name}",
+                        f"repo {pull.head.repo.full_name}",
                     )
                 return
 
