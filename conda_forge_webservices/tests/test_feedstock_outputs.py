@@ -193,11 +193,11 @@ def test_validate_feedstock_outputs_badoutputhash(
     else:
         valid_staging_hash_a_err = (
             "output noarch/a-0.1-py_0.conda does not "
-            "have a valid checksum on cf-staging"
+            "have a valid checksum or correct label on cf-staging"
         ) in errs
         valid_staging_hash_b_err = (
             "output noarch/b-0.1-py_0.conda does not "
-            "have a valid checksum on cf-staging"
+            "have a valid checksum or correct label on cf-staging"
         ) in errs
         assert valid_staging_hash_a_err is not valid_staging_hash
         assert valid_staging_hash_b_err is valid_staging_hash
@@ -228,11 +228,11 @@ def test_validate_feedstock_outputs_badoutputhash(
 
         # valid_prod_hash_a_err = (
         #     "output noarch/a-0.1-py_0.conda does not "
-        #     "have a valid checksum on conda-forge"
+        #     "have a valid checksum or correct label on conda-forge"
         # ) in errs
         # valid_prod_hash_b_err = (
         #     "output noarch/b-0.1-py_0.conda does not "
-        #     "have a valid checksum on conda-forge"
+        #     "have a valid checksum or correct label on conda-forge"
         # ) in errs
         # if valid_output and valid_staging_hash and valid_copy:
         #     assert valid_prod_hash_a_err is not valid_prod_hash
