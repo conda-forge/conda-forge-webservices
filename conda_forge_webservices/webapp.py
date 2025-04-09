@@ -165,7 +165,7 @@ def _get_rate_limiting_info_for_token(token):
     return msg
 
 
-def print_rate_limiting_info():
+def _print_rate_limiting_info():
     d = [
         os.environ["GH_TOKEN"],
         get_app_token_for_webservices_only(),
@@ -332,7 +332,6 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                             lint_info,
                             target_url=msg.html_url,
                         )
-            print_rate_limiting_info()
         else:
             LOGGER.info(f'Unhandled event "{event}".')
             self.set_status(404)
@@ -437,7 +436,6 @@ class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
                     repo_name,
                     commit,
                 )
-                print_rate_limiting_info()
                 return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
@@ -521,7 +519,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment_id,
                     review_id,
                 )
-                print_rate_limiting_info()
                 return
 
         elif event == "issue_comment" or event == "issues":
@@ -559,7 +556,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment,
                     comment_id,
                 )
-                print_rate_limiting_info()
                 return
 
             if not pull_request and action in [
@@ -591,7 +587,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment,
                     comment_id,
                 )
-                print_rate_limiting_info()
                 return
 
         else:
@@ -865,8 +860,6 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
     provider: {provider}
 """,
             )
-
-        print_rate_limiting_info()
 
         return
 
@@ -1210,7 +1203,6 @@ class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
                     feedstock,
                     None,
                 )
-                print_rate_limiting_info()
                 return
 
         self.set_status(404)
@@ -1255,6 +1247,13 @@ async def _cache_data():
             )
 
 
+async def _print_token_info():
+    await tornado.ioloop.IOLoop.current().run_in_executor(
+        _thread_pool(),
+        _print_rate_limiting_info,
+    )
+
+
 def main():
     # start logging and reset the log format to make it a bit easier to read
     tornado.log.enable_pretty_logging()
@@ -1295,6 +1294,12 @@ def main():
         status_monitor.TIME_INTERVAL * 1000,
     )
     pcb.start()
+
+    ptk = tornado.ioloop.PeriodicCallback(
+        lambda: asyncio.create_task(_print_token_info()),
+        60 * 5,  # five minutes
+    )
+    ptk.start()
 
     tornado.ioloop.IOLoop.instance().start()
 
