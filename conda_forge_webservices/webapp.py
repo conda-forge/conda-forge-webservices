@@ -691,11 +691,7 @@ def _do_copy(
         ):
             copied[o] = True
             valid[o] = True
-            errors = [
-                err
-                for err in errors
-                if o not in err
-            ]
+            errors = [err for err in errors if o not in err]
         else:
             copied[o] = False
 
