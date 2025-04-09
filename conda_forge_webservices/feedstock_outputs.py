@@ -22,7 +22,6 @@ from conda_forge_metadata.feedstock_outputs import (
     feedstock_outputs_config,
 )
 from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
-import binstar_client.errors
 
 from .utils import parse_conda_pkg, _test_and_raise_besides_file_not_exists
 from conda_forge_webservices.tokens import (
@@ -104,7 +103,7 @@ def _dist_exists(ac, channel, dist):
             basename=urllib.parse.quote(dist, safe=""),
         )
         return True
-    except binstar_client.errors.NotFound:
+    except BinstarError:
         return False
 
 
@@ -128,7 +127,7 @@ def _dist_has_label(ac, channel, dist, label):
         ).get("labels", ())
 
         return label in labels
-    except binstar_client.errors.NotFound as e:
+    except BinstarError as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
@@ -317,7 +316,7 @@ def _dist_has_label_exclusively(ac, channel, dist, label):
                 label,
             )
             return False
-    except binstar_client.errors.NotFound as e:
+    except BinstarError as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
@@ -354,7 +353,7 @@ def _dist_has_only_staging_labels(ac, channel, dist):
                 labels,
             )
             return False
-    except binstar_client.errors.NotFound as e:
+    except BinstarError as e:
         LOGGER.critical(
             "    could not get dist info for label check: %s",
             dist,
