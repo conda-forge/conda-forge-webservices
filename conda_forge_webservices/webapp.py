@@ -657,7 +657,7 @@ def _do_copy(
     copied = {}
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
-            with COPYLOCK(dist):
+            with COPYLOCK:
                 with stage_dist_to_prod_for_relabeling(
                     dist, dest_label, staging_label, hash_type, hash_value
                 ) as staged:
