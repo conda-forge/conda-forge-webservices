@@ -729,7 +729,9 @@ def _do_copy(
     # on prod, then it may exist on prod with the correct label and hash
     # if that happens, we call it ok here
     for o, hash_value in outputs.items():
-        if dist_already_exists[dist]:
+        if dist_already_exists[dist] or _dist_exists_on_prod_with_label_and_hash(
+            dist, dest_label, hash_type, hash_value
+        ):
             copied[o] = True
             valid[o] = True
             errors = [err for err in errors if o not in err]
