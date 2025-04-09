@@ -680,28 +680,29 @@ def _do_copy(
     hash_type,
     staging_label,
 ):
+    dist_already_exists = {}
+    for dist, hash_value in outputs.items():
+        if _dist_exists_on_prod_with_label_and_hash(
+            dist, dest_label, hash_type, hash_value
+        ):
+            dist_already_exists[dist] = True
+        else:
+            dist_already_exists[dist] = False
+
+    outputs_to_copy = {k: v for k, v in outputs.items() if not dist_already_exists[k]}
+
     valid, errors = validate_feedstock_outputs(
         feedstock,
-        outputs,
+        outputs_to_copy,
         hash_type,
         dest_label,
     )
 
-    outputs_to_copy = {}
-    for o in valid:
-        if valid[o]:
-            outputs_to_copy[o] = outputs[o]
+    outputs_to_copy = {k: v for k, v in outputs_to_copy.items() if valid[k]}
 
-    dist_already_exists = {}
     copied = {}
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
-            if _dist_exists_on_prod_with_label_and_hash(
-                dist, dest_label, hash_type, hash_value
-            ):
-                dist_already_exists[dist] = True
-                continue
-
             with COPYLOCK:
                 with stage_dist_to_prod_for_relabeling(
                     dist, dest_label, staging_label, hash_type, hash_value
@@ -724,6 +725,8 @@ def _do_copy(
     for o in outputs:
         if o not in copied:
             copied[o] = False
+        if o not in valid:
+            valid[o] = False
 
     # we cover some race conditions here
     # if it happens that an output is marked invalid
@@ -731,9 +734,7 @@ def _do_copy(
     # on prod, then it may exist on prod with the correct label and hash
     # if that happens, we call it ok here
     for o, hash_value in outputs.items():
-        if dist_already_exists[dist] or _dist_exists_on_prod_with_label_and_hash(
-            o, dest_label, hash_type, hash_value
-        ):
+        if dist_already_exists[dist]:
             copied[o] = True
             valid[o] = True
             errors = [err for err in errors if o not in err]
