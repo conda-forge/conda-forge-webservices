@@ -1,6 +1,7 @@
 import functools
 import os
 import multiprocessing
+import threading
 import subprocess
 import asyncio
 import tornado.escape
@@ -55,12 +56,19 @@ STATUS_DATA_LOCK = tornado.locks.Lock()
 LOGGER = logging.getLogger("conda_forge_webservices")
 
 COMMAND_POOL = None
+COPYLOCK = None
 UPLOAD_POOL = None
+
+
+def _init_upload_pool_processes(lock):
+    global COPYLOCK
+    COPYLOCK = lock
 
 
 def _worker_pool(kind):
     global COMMAND_POOL
     global UPLOAD_POOL
+    global COPYLOCK
 
     if kind == "command":
         if COMMAND_POOL is None:
@@ -74,9 +82,19 @@ def _worker_pool(kind):
         if UPLOAD_POOL is None:
             if "PYTEST_CURRENT_TEST" in os.environ:
                 # needed for mocks in testing
-                UPLOAD_POOL = ThreadPoolExecutor(max_workers=2)
+                COPYLOCK = threading.Lock()
+                UPLOAD_POOL = ThreadPoolExecutor(
+                    max_workers=2,
+                    initializer=_init_upload_pool_processes,
+                    initargs=(COPYLOCK,),
+                )
             else:
-                UPLOAD_POOL = ProcessPoolExecutor(max_workers=2)
+                COPYLOCK = multiprocessing.Lock()
+                UPLOAD_POOL = ProcessPoolExecutor(
+                    max_workers=2,
+                    initializer=_init_upload_pool_processes,
+                    initargs=(COPYLOCK,),
+                )
         return UPLOAD_POOL
     else:
         raise ValueError(f"Unknown pool kind: {kind}")
@@ -653,9 +671,6 @@ def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_v
         return False
 
 
-COPYLOCK = multiprocessing.Lock()
-
-
 def _do_copy(
     feedstock,
     outputs,
@@ -664,7 +679,6 @@ def _do_copy(
     comment_on_error,
     hash_type,
     staging_label,
-    copylock,
 ):
     valid, errors = validate_feedstock_outputs(
         feedstock,
@@ -681,7 +695,7 @@ def _do_copy(
     copied = {}
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
-            with copylock:
+            with COPYLOCK:
                 with stage_dist_to_prod_for_relabeling(
                     dist, dest_label, staging_label, hash_type, hash_value
                 ) as staged:
@@ -826,7 +840,6 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 comment_on_error,
                 hash_type,
                 staging_label,
-                COPYLOCK,
             )
 
             if not all(v for v in copied.values()):
