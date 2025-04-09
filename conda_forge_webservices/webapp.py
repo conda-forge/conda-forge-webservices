@@ -1,5 +1,6 @@
+import functools
 import os
-import threading
+import multiprocessing
 import subprocess
 import asyncio
 import tornado.escape
@@ -53,27 +54,43 @@ STATUS_DATA_LOCK = tornado.locks.Lock()
 
 LOGGER = logging.getLogger("conda_forge_webservices")
 
-POOL = None
+COMMAND_POOL = None
+UPLOAD_POOL = None
 
 
-def _worker_pool():
-    global POOL
-    if POOL is None:
-        if "PYTEST_CURRENT_TEST" in os.environ:
-            # needed for mocks in testing
-            POOL = ThreadPoolExecutor(max_workers=2)
-        else:
-            POOL = ProcessPoolExecutor(max_workers=2)
-    return POOL
+def _worker_pool(kind):
+    global COMMAND_POOL
+    global UPLOAD_POOL
+
+    if kind == "command":
+        if COMMAND_POOL is None:
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                # needed for mocks in testing
+                COMMAND_POOL = ThreadPoolExecutor(max_workers=2)
+            else:
+                COMMAND_POOL = ProcessPoolExecutor(max_workers=2)
+        return COMMAND_POOL
+    elif kind == "upload":
+        if UPLOAD_POOL is None:
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                # needed for mocks in testing
+                UPLOAD_POOL = ThreadPoolExecutor(max_workers=2)
+            else:
+                UPLOAD_POOL = ProcessPoolExecutor(max_workers=2)
+        return UPLOAD_POOL
+    else:
+        raise ValueError(f"Unknown pool kind: {kind}")
 
 
-def _shutdown_worker_pool():
-    global POOL
-    if POOL is not None:
-        POOL.shutdown(wait=False)
+def _shutdown_worker_pools():
+    global COMMAND_POOL
+    global UPLOAD_POOL
+    for pool in [COMMAND_POOL, UPLOAD_POOL]:
+        if pool is not None:
+            pool.shutdown(wait=False)
 
 
-atexit.register(_shutdown_worker_pool)
+atexit.register(_shutdown_worker_pools)
 
 
 THREAD_POOL = None
@@ -276,7 +293,7 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                     )
                 else:
                     lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
-                        _worker_pool(),
+                        _worker_pool("command"),
                         linting.compute_lint_message,
                         owner,
                         repo_name,
@@ -343,7 +360,7 @@ class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
                     title=f"feedstocks service: {body['repository']['full_name']}",
                 )
                 handled = await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _worker_pool("command"),
                     feedstocks_service.handle_feedstock_event,
                     owner,
                     repo_name,
@@ -474,7 +491,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                 )
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _worker_pool("command"),
                     commands.pr_detailed_comment,
                     owner,
                     repo_name,
@@ -516,7 +533,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                 )
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _worker_pool("command"),
                     commands.pr_comment,
                     owner,
                     repo_name,
@@ -547,7 +564,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                 )
 
                 await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool(),
+                    _worker_pool("command"),
                     commands.issue_comment,
                     owner,
                     repo_name,
@@ -636,11 +653,18 @@ def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_v
         return False
 
 
-COPYLOCK = threading.Lock()
+COPYLOCK = multiprocessing.Lock()
 
 
 def _do_copy(
-    feedstock, outputs, dest_label, git_sha, comment_on_error, hash_type, staging_label
+    feedstock,
+    outputs,
+    dest_label,
+    git_sha,
+    comment_on_error,
+    hash_type,
+    staging_label,
+    copylock,
 ):
     valid, errors = validate_feedstock_outputs(
         feedstock,
@@ -657,7 +681,7 @@ def _do_copy(
     copied = {}
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
-            with COPYLOCK:
+            with copylock:
                 with stage_dist_to_prod_for_relabeling(
                     dist, dest_label, staging_label, hash_type, hash_value
                 ) as staged:
@@ -793,7 +817,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 errors,
                 copied,
             ) = await tornado.ioloop.IOLoop.current().run_in_executor(
-                _thread_pool(),
+                _worker_pool("upload"),
                 _do_copy,
                 feedstock,
                 outputs,
@@ -802,6 +826,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 comment_on_error,
                 hash_type,
                 staging_label,
+                COPYLOCK,
             )
 
             if not all(v for v in copied.values()):
@@ -828,7 +853,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         # not used but can be to turn it all off if we need to
         # if outputs is not None and channel is not None:
         #     copied = await tornado.ioloop.IOLoop.current().run_in_executor(
-        #         _worker_pool(),
+        #         _worker_pool("upload"),
         #         copy_feedstock_outputs,
         #         outputs,
         #         dest_label,
@@ -863,8 +888,19 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         # return
 
 
-def _dispatch_autotickbot_job(event, uid):
+@functools.lru_cache(maxsize=1)
+def _cached_bot_workflow():
     if "AUTOTICK_BOT_GH_TOKEN" not in os.environ:
+        return None
+
+    gh = github.Github(auth=github.Auth.Token(os.environ["AUTOTICK_BOT_GH_TOKEN"]))
+    repo = gh.get_repo("regro/cf-scripts")
+    return repo.get_workflow("bot-events.yml")
+
+
+def _dispatch_autotickbot_job(event, uid):
+    wf = _cached_bot_workflow()
+    if wf is None:
         LOGGER.info(
             "    autotick bot job dispatch skipped: event|uid = %s|%s - no token",
             event,
@@ -872,9 +908,6 @@ def _dispatch_autotickbot_job(event, uid):
         )
         return
 
-    gh = github.Github(auth=github.Auth.Token(os.environ["AUTOTICK_BOT_GH_TOKEN"]))
-    repo = gh.get_repo("regro/cf-scripts")
-    wf = repo.get_workflow("bot-events.yml")
     running = wf.create_dispatch(
         "main",
         inputs={
@@ -920,14 +953,10 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                     level="info",
                     title=f"autotick bot PR: {body['repository']['full_name']}",
                 )
-
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    _dispatch_autotickbot_job,
+                _dispatch_autotickbot_job(
                     "pr",
                     body["pull_request"]["id"],
                 )
-
             return
         elif event == "push":
             log_title_and_message_at_level(
@@ -951,9 +980,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and "[cf admin skip]" not in commit_msg
                 and repo_name.endswith("-feedstock")
             ):
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    _dispatch_autotickbot_job,
+                _dispatch_autotickbot_job(
                     "push",
                     repo_name.split("-feedstock")[0],
                 )
@@ -1051,9 +1078,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             if body["action"] == "completed" and body["repository"][
                 "full_name"
             ].endswith("-feedstock"):
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    _dispatch_automerge_job,
+                _dispatch_automerge_job(
                     body["repository"]["name"],
                     body["check_suite"]["head_sha"],
                 )
@@ -1070,9 +1095,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 status_monitor.update_data_status(body)
 
             if body["repository"]["full_name"].endswith("-feedstock"):
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    _dispatch_automerge_job,
+                _dispatch_automerge_job(
                     body["repository"]["name"],
                     body["sha"],
                 )
@@ -1088,9 +1111,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             )
 
             if body["repository"]["full_name"].endswith("-feedstock"):
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    _dispatch_automerge_job,
+                _dispatch_automerge_job(
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
                 )
