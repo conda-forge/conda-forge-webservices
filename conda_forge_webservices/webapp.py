@@ -692,9 +692,16 @@ def _do_copy(
         if valid[o]:
             outputs_to_copy[o] = outputs[o]
 
+    dist_already_exists = {}
     copied = {}
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
+            if _dist_exists_on_prod_with_label_and_hash(
+                dist, dest_label, hash_type, hash_value
+            ):
+                dist_already_exists[dist] = True
+                continue
+
             with COPYLOCK:
                 with stage_dist_to_prod_for_relabeling(
                     dist, dest_label, staging_label, hash_type, hash_value
@@ -724,7 +731,7 @@ def _do_copy(
     # on prod, then it may exist on prod with the correct label and hash
     # if that happens, we call it ok here
     for o, hash_value in outputs.items():
-        if _dist_exists_on_prod_with_label_and_hash(
+        if dist_already_exists[dist] or _dist_exists_on_prod_with_label_and_hash(
             o, dest_label, hash_type, hash_value
         ):
             copied[o] = True
