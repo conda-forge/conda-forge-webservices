@@ -33,6 +33,7 @@ from conda_forge_webservices.tokens import (
 LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
+PRE_STAGING = "cf-pre-staging"
 PROD = "conda-forge"
 STAGING_LABEL = "cf-staging-do-not-use"
 
@@ -92,6 +93,12 @@ def _get_ac_api_prod():
 def _get_ac_api_staging():
     """wrap this a function so we can more easily mock it when testing"""
     return _get_ac_api_with_timeout(token=os.environ["STAGING_BINSTAR_TOKEN"])
+
+
+@functools.lru_cache(maxsize=1)
+def _get_ac_api_pre_staging():
+    """wrap this a function so we can more easily mock it when testing"""
+    return _get_ac_api_with_timeout(token=os.environ["PRE_STAGING_BINSTAR_TOKEN"])
 
 
 def _get_dist(ac, channel, dist):
@@ -293,6 +300,74 @@ def _remove_dist(ac, channel, dist):
         pass
 
 
+def _copy_feedstock_outputs_between_channels(
+    *,
+    outputs,
+    src_ac,
+    src_channel,
+    src_label,
+    dest_ac,
+    dest_channel,
+    dest_label,
+    delete=True,
+    update_metadata=False,
+    replace_metadata=False,
+):
+    """Copy outputs from one chanel to another.
+
+    Parameters
+    ----------
+    outputs : list of str
+        A list of outputs to copy. These should be the full names with the
+        platform directory, version/build info, and file extension (e.g.,
+        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
+    src_ac : Binstar
+        The Binstar API client for the source channel.
+    src_channel : str
+        The source channel for the packages on the src channel.
+    src_label : str
+        The source label for the packages on the src channel.
+    dest_ac : Binstar
+        The Binstar API client for the destination channel.
+    dest_channel : str
+        The destination channel for the packages on the dest channel.
+    dest_label : str
+        The destination label for the packages on the dest channel.
+    delete : bool, optional
+        If True, delete the artifact from src if the copy is successful.
+        Default is True.
+
+    Returns
+    -------
+    copied : dict
+        A dict keyed on the output name with True if the copy worked and False
+        otherwise.
+    """
+
+    copied = dict.fromkeys(outputs, False)
+
+    for dist in outputs:
+        try:
+            copied[dist] = _copy_dist_if_not_exists(
+                src_channel,
+                src_label,
+                dist,
+                dest_ac,
+                dest_channel,
+                dest_label,
+                update_metadata=update_metadata,
+                replace_metadata=replace_metadata,
+            )
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
+            LOGGER.info("    did not copy: %s", dist, exc_info=e)
+            pass
+
+        if copied[dist] and delete:
+            _remove_dist(src_ac, src_channel, dist)
+
+    return copied
+
+
 def _copy_feedstock_outputs_from_staging_to_prod(
     outputs, src_label, dest_label, delete=True
 ):
@@ -321,28 +396,16 @@ def _copy_feedstock_outputs_from_staging_to_prod(
     ac_prod = _get_ac_api_prod()
     ac_staging = _get_ac_api_staging()
 
-    copied = dict.fromkeys(outputs, False)
-
-    for dist in outputs:
-        try:
-            copied[dist] = _copy_dist_if_not_exists(
-                STAGING,
-                src_label,
-                dist,
-                ac_prod,
-                PROD,
-                dest_label,
-                update_metadata=False,
-                replace_metadata=False,
-            )
-        except (BinstarError, requests.exceptions.ReadTimeout) as e:
-            LOGGER.info("    did not copy: %s", dist, exc_info=e)
-            pass
-
-        if copied[dist] and delete:
-            _remove_dist(ac_staging, STAGING, dist)
-
-    return copied
+    return _copy_feedstock_outputs_between_channels(
+        outputs=outputs,
+        src_ac=ac_staging,
+        src_channel=STAGING,
+        src_label=src_label,
+        dest_ac=ac_prod,
+        dest_channel=PROD,
+        dest_label=dest_label,
+        delete=delete,
+    )
 
 
 def relabel_feedstock_outputs(outputs, src_label, dest_label, remove_src_label=True):
@@ -417,6 +480,8 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
         ac = _get_ac_api_prod()
     elif channel == STAGING:
         ac = _get_ac_api_staging()
+    elif channel == PRE_STAGING:
+        ac = _get_ac_api_pre_staging()
     else:
         LOGGER.critical(
             "    channel must be one of conda-forge or cf-staging: %s", channel
@@ -773,6 +838,66 @@ def stage_dist_to_prod_and_relabel(
             _remove_dist(ac_prod, PROD, dist)
 
     return copied and relabeled, errors
+
+
+def stage_dist_to_prestage_and_possibly_copy_to_prod(
+    dist, dest_label, hash_type, hash_value
+):
+    ac_staging = _get_ac_api_staging()
+    ac_pre_staging = _get_ac_api_pre_staging()
+    ac_prod = _get_ac_api_prod()
+    outputs_to_copy = {dist: hash_value}
+    pre_copied = False
+    copied = False
+    errors = []
+    try:
+        # first copy to pre-staging
+        pre_copied = _copy_feedstock_outputs_between_channels(
+            outputs=outputs_to_copy,
+            src_ac=ac_staging,
+            src_channel=STAGING,
+            src_label=dest_label,
+            dest_ac=ac_pre_staging,
+            dest_channel=PRE_STAGING,
+            dest_label=dest_label,
+            delete=True,
+            update_metadata=True,
+            replace_metadata=False,
+        )[dist]
+
+        if pre_copied:
+            # check the hash
+            valid_hash_prod = _is_valid_output_hash(
+                outputs_to_copy, hash_type, PRE_STAGING, dest_label
+            )[dist]
+
+            # relabel if the hash is valid
+            if valid_hash_prod:
+                copied = _copy_feedstock_outputs_between_channels(
+                    outputs=outputs_to_copy,
+                    src_ac=ac_pre_staging,
+                    src_channel=PRE_STAGING,
+                    src_label=dest_label,
+                    dest_ac=ac_prod,
+                    dest_channel=PROD,
+                    dest_label=dest_label,
+                    delete=True,
+                    update_metadata=True,
+                    replace_metadata=False,
+                )
+            else:
+                errors.append(
+                    f"output {dist} does not have a valid checksum "
+                    f"and staging label on {PROD}"
+                )
+        else:
+            errors.append(f"output {dist} did not copy to {PRE_STAGING}")
+    finally:
+        # remove the dist if it was copied and not relabeled
+        if _dist_exists(ac_pre_staging, PRE_STAGING, dist):
+            _remove_dist(ac_pre_staging, PRE_STAGING, dist)
+
+    return pre_copied and copied, errors
 
 
 def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
