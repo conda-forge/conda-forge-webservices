@@ -306,7 +306,7 @@ def _post_and_check_copy_requests(headers, json_data, should_fail):
             r = fut.result()
             results.append(r.status_code == 200)
             rmsg = yaml.dump(r.json(), default_flow_style=False, indent=2)
-            print(f"    response:\n{rmsg}", flush=True)
+            print(f"\n>>> copy API response:\n{rmsg}\n", flush=True)
 
     if should_fail:
         assert all([not res for res in results])
