@@ -281,8 +281,10 @@ def test_validate_feedstock_outputs_badoutputhash(
 def test_get_dist(dist, hash_value, res):
     ac_prod = _get_ac_api_prod()
     data = _get_dist(ac_prod, "conda-forge", dist)
-    assert data is not None
-    assert hmac.compare_digest(data["md5"], hash_value) is res
+    if data is None:
+        assert res is False
+    else:
+        assert hmac.compare_digest(data["md5"], hash_value) is res
 
 
 @pytest.mark.parametrize("register", [True, False])
