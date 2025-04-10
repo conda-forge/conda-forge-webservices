@@ -35,24 +35,27 @@ def test_copy_feedstock_outputs_from_staging_to_prod_exists(
     src_label = "foo"
     dest_label = "bar"
 
-    dist_exists.side_effect = [True, remove]
+    dist_exists.return_value = True
 
     outputs = OrderedDict()
     outputs[dist] = "sdasDsa"
 
     copied = _copy_feedstock_outputs_from_staging_to_prod(
-        outputs, src_label, dest_label, delete=True
+        outputs,
+        src_label,
+        dest_label,
+        delete=remove,
     )
 
     assert copied == {dist: True}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
+    dist_exists.assert_called_once()
     dist_exists.assert_any_call(ac_prod.return_value, "conda-forge", dist)
     ac_prod.return_value.copy.assert_not_called()
 
     if remove:
-        dist_exists.assert_any_call(ac_staging.return_value, "cf-staging", dist)
         ac_staging.return_value.remove_dist.assert_called_once()
         ac_staging.return_value.remove_dist.assert_any_call(
             "cf-staging",
@@ -86,13 +89,17 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
     outputs[dist] = "sdasDsa"
 
     copied = _copy_feedstock_outputs_from_staging_to_prod(
-        outputs, src_label, dest_label, delete=True
+        outputs,
+        src_label,
+        dest_label,
+        delete=remove,
     )
 
     assert copied == {dist: not error}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
+    dist_exists.assert_called_once()
     dist_exists.assert_any_call(ac_prod.return_value, "conda-forge", dist)
     ac_prod.return_value.copy.assert_any_call(
         "cf-staging",
@@ -109,7 +116,6 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
 
     if not error:
         if remove:
-            dist_exists.assert_any_call(ac_staging.return_value, "cf-staging", dist)
             ac_staging.return_value.remove_dist.assert_called_once()
             ac_staging.return_value.remove_dist.assert_any_call(
                 "cf-staging",
