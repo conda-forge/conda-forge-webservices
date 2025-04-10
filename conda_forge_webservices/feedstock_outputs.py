@@ -2,7 +2,6 @@
 This module registers and validates feedstock outputs.
 """
 
-import contextlib
 import os
 import json
 import hmac
@@ -733,28 +732,47 @@ def validate_feedstock_outputs(
     return valid, errors
 
 
-@contextlib.contextmanager
-def stage_dist_to_prod_for_relabeling(
+def stage_dist_to_prod_and_relabel(
     dist, dest_label, staging_label, hash_type, hash_value
 ):
-    outputs_to_test = {dist: hash_value}
-    copied = _copy_feedstock_outputs_from_staging_to_prod(
-        outputs_to_test, dest_label, staging_label, delete=True
-    )
-    copied = copied[dist]
-    if not copied:
-        yield False
-    else:
-        valid_hashes_prod = _is_valid_output_hash(
-            outputs_to_test, hash_type, PROD, staging_label
-        )
-        valid_hashes_prod = valid_hashes_prod[dist]
-        yield valid_hashes_prod
-
-        # attempt to delete from prod if not relabeled
-        ac_prod = _get_ac_api_prod()
+    ac_prod = _get_ac_api_prod()
+    outputs_to_copy = {dist: hash_value}
+    copied = False
+    relabeled = False
+    errors = []
+    try:
+        # remove any failed copies
         if _dist_has_only_staging_labels(ac_prod, PROD, dist):
             _remove_dist(ac_prod, PROD, dist)
+
+        # copy to the staging label
+        copied = _copy_feedstock_outputs_from_staging_to_prod(
+            outputs_to_copy, dest_label, staging_label, delete=True
+        )[dist]
+        if copied:
+            # check the hash
+            valid_hash_prod = _is_valid_output_hash(
+                outputs_to_copy, hash_type, PROD, staging_label
+            )[dist]
+
+            # relabel if the hash is valid
+            if valid_hash_prod:
+                relabeled = relabel_feedstock_outputs(
+                    [dist], staging_label, dest_label, remove_src_label=True
+                )[dist]
+            else:
+                errors.append(
+                    f"output {dist} does not have a valid checksum "
+                    f"and staging label on {PROD}"
+                )
+        else:
+            errors.append(f"output {dist} did not copy to {PROD} under staging label")
+    finally:
+        # remove the dist if it was copied and not relabeled
+        if _dist_has_only_staging_labels(ac_prod, PROD, dist):
+            _remove_dist(ac_prod, PROD, dist)
+
+    return copied and relabeled, errors
 
 
 def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):

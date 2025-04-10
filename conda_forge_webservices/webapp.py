@@ -36,8 +36,7 @@ from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
     is_valid_feedstock_token,
     comment_on_outputs_copy,
-    relabel_feedstock_outputs,
-    stage_dist_to_prod_for_relabeling,
+    stage_dist_to_prod_and_relabel,
     STAGING_LABEL,
 )
 from conda_forge_webservices.utils import (
@@ -677,68 +676,37 @@ def _do_copy(
     staging_label,
     start_time,
 ):
-    dist_already_exists = {}
-    for dist, hash_value in outputs.items():
-        if _dist_exists_on_prod_with_label_and_hash(
-            dist, dest_label, hash_type, hash_value
-        ):
-            dist_already_exists[dist] = True
-        else:
-            dist_already_exists[dist] = False
-
-    outputs_to_copy = {k: v for k, v in outputs.items() if not dist_already_exists[k]}
-
     valid, errors = validate_feedstock_outputs(
         feedstock,
-        outputs_to_copy,
+        outputs,
         hash_type,
         dest_label,
     )
 
-    outputs_to_copy = {k: v for k, v in outputs_to_copy.items() if valid[k]}
+    outputs_to_copy = {k: v for k, v in outputs.items() if valid[k]}
 
     copied = {}
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
             with COPYLOCK:
-                with stage_dist_to_prod_for_relabeling(
+                dist_copied, dist_errors = stage_dist_to_prod_and_relabel(
                     dist, dest_label, staging_label, hash_type, hash_value
-                ) as staged:
-                    if staged:
-                        dist_copied = relabel_feedstock_outputs(
-                            {dist: hash_value},
-                            staging_label,
-                            dest_label,
-                            remove_src_label=True,
-                        )
-                        copied.update(dist_copied)
-                    else:
-                        valid[dist] = False
-                        errors.append(
-                            f"failed to stage {dist} to "
-                            f"conda-forge/label/{staging_label} for copying"
-                        )
+                )
+                errors.extend(dist_errors)
+                copied[dist] = dist_copied
+                if not dist_copied:
+                    valid[dist] = False
+                    errors.append(
+                        f"failed to stage {dist} to "
+                        f"conda-forge/label/{staging_label} and "
+                        f"relabel to conda-forge/label/{dest_label}"
+                    )
 
     for o in outputs:
         if o not in copied:
             copied[o] = False
         if o not in valid:
             valid[o] = False
-
-    # we cover some race conditions here
-    # if it happens that an output is marked invalid
-    # due to multiple uploads producing different staging labels
-    # on prod, then it may exist on prod with the correct label and hash
-    # if that happens, we call it ok here
-    for o, hash_value in outputs.items():
-        if dist_already_exists[dist] or _dist_exists_on_prod_with_label_and_hash(
-            dist, dest_label, hash_type, hash_value
-        ):
-            copied[o] = True
-            valid[o] = True
-            errors = [err for err in errors if o not in err]
-        else:
-            copied[o] = False
 
     if not all(copied[o] for o in outputs) and comment_on_error:
         comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied)
