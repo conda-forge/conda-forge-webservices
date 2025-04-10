@@ -305,7 +305,7 @@ def _post_and_check_copy_requests(headers, json_data, should_fail):
         for fut in as_completed(futs):
             r = fut.result()
             results.append(r.status_code == 200)
-            rmsg = yaml.dumps(r.json(), default_flow_style=False, indent=2)
+            rmsg = yaml.dump(r.json(), default_flow_style=False, indent=2)
             print(f"    response:\n{rmsg}", flush=True)
 
     if should_fail:
@@ -357,7 +357,7 @@ def test_feedstock_outputs_copy_works():
                     hash_value = "".join(hash_value)
                 outputs[dist] = hash_value
 
-            omsg = yaml.dumps(outputs, default_flow_style=False, indent=2)
+            omsg = yaml.dump(outputs, default_flow_style=False, indent=2)
             print(f"outputs:\n{omsg}", flush=True)
 
             try:
