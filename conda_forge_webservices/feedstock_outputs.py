@@ -884,7 +884,7 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
                     delete=True,
                     update_metadata=True,
                     replace_metadata=False,
-                )
+                )[dist]
             else:
                 errors.append(
                     f"output {dist} does not have a valid checksum "
