@@ -1,4 +1,5 @@
 import json
+import hmac
 import os
 import uuid
 from unittest import mock
@@ -13,7 +14,7 @@ from binstar_client import BinstarError
 from conda_forge_webservices.feedstock_outputs import (
     _copy_feedstock_outputs_from_staging_to_prod,
     _get_ac_api_prod,
-    _is_dist_hash_valid,
+    _get_dist,
     _is_valid_feedstock_output,
     relabel_feedstock_outputs,
     validate_feedstock_outputs,
@@ -34,24 +35,27 @@ def test_copy_feedstock_outputs_from_staging_to_prod_exists(
     src_label = "foo"
     dest_label = "bar"
 
-    dist_exists.side_effect = [True, remove]
+    dist_exists.return_value = True
 
     outputs = OrderedDict()
     outputs[dist] = "sdasDsa"
 
     copied = _copy_feedstock_outputs_from_staging_to_prod(
-        outputs, src_label, dest_label, delete=True
+        outputs,
+        src_label,
+        dest_label,
+        delete=remove,
     )
 
     assert copied == {dist: True}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
+    dist_exists.assert_called_once()
     dist_exists.assert_any_call(ac_prod.return_value, "conda-forge", dist)
     ac_prod.return_value.copy.assert_not_called()
 
     if remove:
-        dist_exists.assert_any_call(ac_staging.return_value, "cf-staging", dist)
         ac_staging.return_value.remove_dist.assert_called_once()
         ac_staging.return_value.remove_dist.assert_any_call(
             "cf-staging",
@@ -85,13 +89,17 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
     outputs[dist] = "sdasDsa"
 
     copied = _copy_feedstock_outputs_from_staging_to_prod(
-        outputs, src_label, dest_label, delete=True
+        outputs,
+        src_label,
+        dest_label,
+        delete=remove,
     )
 
     assert copied == {dist: not error}
 
     ac_prod.assert_called_once()
     ac_staging.assert_called_once()
+    dist_exists.assert_called_once()
     dist_exists.assert_any_call(ac_prod.return_value, "conda-forge", dist)
     ac_prod.return_value.copy.assert_any_call(
         "cf-staging",
@@ -108,7 +116,6 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
 
     if not error:
         if remove:
-            dist_exists.assert_any_call(ac_staging.return_value, "cf-staging", dist)
             ac_staging.return_value.remove_dist.assert_called_once()
             ac_staging.return_value.remove_dist.assert_any_call(
                 "cf-staging",
@@ -271,10 +278,13 @@ def test_validate_feedstock_outputs_badoutputhash(
         ),
     ],
 )
-def test_is_dist_hash_valid(dist, hash_value, res):
+def test_get_dist(dist, hash_value, res):
     ac_prod = _get_ac_api_prod()
-
-    assert _is_dist_hash_valid(ac_prod, "conda-forge", dist, "md5", hash_value) == res
+    data = _get_dist(ac_prod, "conda-forge", dist)
+    if data is None:
+        assert res is False
+    else:
+        assert hmac.compare_digest(data["md5"], hash_value) is res
 
 
 @pytest.mark.parametrize("register", [True, False])
