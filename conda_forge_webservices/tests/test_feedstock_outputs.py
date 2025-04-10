@@ -1,4 +1,5 @@
 import json
+import hmac
 import os
 import uuid
 from unittest import mock
@@ -13,7 +14,7 @@ from binstar_client import BinstarError
 from conda_forge_webservices.feedstock_outputs import (
     _copy_feedstock_outputs_from_staging_to_prod,
     _get_ac_api_prod,
-    _is_dist_hash_valid,
+    _get_dist,
     _is_valid_feedstock_output,
     relabel_feedstock_outputs,
     validate_feedstock_outputs,
@@ -271,10 +272,11 @@ def test_validate_feedstock_outputs_badoutputhash(
         ),
     ],
 )
-def test_is_dist_hash_valid(dist, hash_value, res):
+def test_get_dist(dist, hash_value, res):
     ac_prod = _get_ac_api_prod()
-
-    assert _is_dist_hash_valid(ac_prod, "conda-forge", dist, "md5", hash_value) == res
+    data = _get_dist(ac_prod, "conda-forge", dist)
+    assert data is not None
+    assert hmac.compare_digest(data["md5"], hash_value) is res
 
 
 @pytest.mark.parametrize("register", [True, False])

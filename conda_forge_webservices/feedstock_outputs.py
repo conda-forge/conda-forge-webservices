@@ -76,7 +76,7 @@ def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
     return False
 
 
-def _get_ac_api_with_timeout(token, timeout=5):
+def _get_ac_api_with_timeout(token, timeout=10):
     # see https://stackoverflow.com/a/59317604/1745538
     ac = get_server_api(token=token)
     ac.session.request = functools.partial(ac.session.request, timeout=timeout)
@@ -95,7 +95,7 @@ def _get_ac_api_staging():
     return _get_ac_api_with_timeout(token=os.environ["STAGING_BINSTAR_TOKEN"])
 
 
-def _dist_exists(ac, channel, dist):
+def _get_dist(ac, channel, dist):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
     except RuntimeError as e:
@@ -104,47 +104,33 @@ def _dist_exists(ac, channel, dist):
             dist,
             exc_info=e,
         )
-        return False
+        return None
 
     try:
-        ac.distribution(
+        data = ac.distribution(
             channel,
             name,
             version,
             basename=urllib.parse.quote(dist, safe=""),
         )
-        return True
+        return data
     except (BinstarError, requests.exceptions.ReadTimeout):
+        return None
+
+
+def _dist_exists(ac, channel, dist):
+    if _get_dist(ac, channel, dist) is not None:
+        return True
+    else:
         return False
 
 
 def _dist_has_label(ac, channel, dist, label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for existence check: %s",
-            dist,
-            exc_info=e,
-        )
+    data = _get_dist(ac, channel, dist)
+    if data is None:
         return False
-
-    try:
-        labels = ac.distribution(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        ).get("labels", ())
-
-        return label in labels
-    except (BinstarError, requests.exceptions.ReadTimeout) as e:
-        LOGGER.critical(
-            "    could not get dist info for label check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
+    else:
+        return label in data.get("labels", [])
 
 
 def _add_label_dist(ac, channel, dist, label, src_label):
@@ -216,10 +202,7 @@ def _remove_label_dist(ac, channel, dist, label):
                 dist,
                 exc_info=e,
             )
-            if _dist_has_label(ac, channel, dist, label):
-                return False
-            else:
-                return True
+            return False
 
     return True
 
@@ -270,91 +253,12 @@ def _copy_dist_if_not_exists(
     return True
 
 
-def _is_dist_hash_valid(ac, channel, dist, hash_type, hash_value):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for hash check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    try:
-        data = ac.distribution(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        )
-        return hmac.compare_digest(data[hash_type], hash_value)
-    except (BinstarError, requests.exceptions.ReadTimeout) as e:
-        LOGGER.critical(
-            "    could not get dist info for hash check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-
-def _dist_has_label_exclusively(ac, channel, dist, label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for existence check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    try:
-        labels = ac.distribution(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        ).get("labels", [])
-
-        if set(labels) == set([label]):
-            return True
-        else:
-            LOGGER.info(
-                "    dist %s has labels %s, not only %s",
-                dist,
-                labels,
-                label,
-            )
-            return False
-    except (BinstarError, requests.exceptions.ReadTimeout) as e:
-        LOGGER.critical(
-            "    could not get dist info for label check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-
 def _dist_has_only_staging_labels(ac, channel, dist):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for existence check: %s",
-            dist,
-            exc_info=e,
-        )
+    data = _get_dist(ac, channel, dist)
+    if data is None:
         return False
-
-    try:
-        labels = ac.distribution(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        ).get("labels", [])
-
+    else:
+        labels = data.get("labels", [])
         if all(label.startswith(STAGING_LABEL) for label in labels):
             return True
         else:
@@ -364,13 +268,6 @@ def _dist_has_only_staging_labels(ac, channel, dist):
                 labels,
             )
             return False
-    except (BinstarError, requests.exceptions.ReadTimeout) as e:
-        LOGGER.critical(
-            "    could not get dist info for label check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
 
 
 def _remove_dist(ac, channel, dist):
@@ -443,7 +340,7 @@ def _copy_feedstock_outputs_from_staging_to_prod(
             LOGGER.info("    did not copy: %s", dist, exc_info=e)
             pass
 
-        if copied[dist] and _dist_exists(ac_staging, STAGING, dist) and delete:
+        if copied[dist] and delete:
             _remove_dist(ac_staging, STAGING, dist)
 
     return copied
@@ -529,14 +426,15 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
 
     for dist, hashsum in outputs.items():
         try:
-            if not _dist_exists(ac, channel, dist):
+            data = _get_dist(ac, channel, dist)
+            if data is None:
                 LOGGER.info(
                     "    did not do hash comp due to dist not existing: %s",
                     dist,
                 )
                 continue
 
-            if not _dist_has_label_exclusively(ac, channel, dist, label):
+            if set(data.get("labels", [])) != set([label]):
                 LOGGER.info(
                     "    did not do hash comp due to dist"
                     " not having only the label %s: %s",
@@ -545,13 +443,7 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
                 )
                 continue
 
-            valid[dist] = _is_dist_hash_valid(
-                ac,
-                channel,
-                dist,
-                hash_type,
-                hashsum,
-            )
+            valid[dist] = hmac.compare_digest(data[hash_type], hashsum)
             LOGGER.info("    did hash comp: %s", dist)
         except (BinstarError, requests.exceptions.ReadTimeout) as e:
             LOGGER.info("    did not do hash comp: %s", dist, exc_info=e)
