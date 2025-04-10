@@ -867,12 +867,12 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
 
         if pre_copied:
             # check the hash
-            valid_hash_prod = _is_valid_output_hash(
+            valid_hash_pre_staging = _is_valid_output_hash(
                 outputs_to_copy, hash_type, PRE_STAGING, dest_label
             )[dist]
 
-            # relabel if the hash is valid
-            if valid_hash_prod:
+            # copy to prod if the hash is valid
+            if valid_hash_pre_staging:
                 copied = _copy_feedstock_outputs_between_channels(
                     outputs=outputs_to_copy,
                     src_ac=ac_pre_staging,
@@ -893,9 +893,8 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
         else:
             errors.append(f"output {dist} did not copy to {PRE_STAGING}")
     finally:
-        # remove the dist if it was copied and not relabeled
-        if _dist_exists(ac_pre_staging, PRE_STAGING, dist):
-            _remove_dist(ac_pre_staging, PRE_STAGING, dist)
+        # always remove the dist from pre-staging
+        _remove_dist(ac_pre_staging, PRE_STAGING, dist)
 
     return pre_copied and copied, errors
 
