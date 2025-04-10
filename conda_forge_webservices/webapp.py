@@ -36,7 +36,7 @@ from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
     is_valid_feedstock_token,
     comment_on_outputs_copy,
-    stage_dist_to_prod_and_relabel,
+    stage_dist_to_prestage_and_possibly_copy_to_prod,
     STAGING_LABEL,
 )
 from conda_forge_webservices.utils import (
@@ -689,8 +689,11 @@ def _do_copy(
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
             with COPYLOCK:
-                dist_copied, dist_errors = stage_dist_to_prod_and_relabel(
-                    dist, dest_label, staging_label, hash_type, hash_value
+                (
+                    dist_copied,
+                    dist_errors,
+                ) = stage_dist_to_prestage_and_possibly_copy_to_prod(
+                    dist, dest_label, hash_type, hash_value
                 )
                 errors.extend(dist_errors)
                 copied[dist] = dist_copied
@@ -698,8 +701,7 @@ def _do_copy(
                     valid[dist] = False
                     errors.append(
                         f"failed to stage {dist} to "
-                        f"conda-forge/label/{staging_label} and "
-                        f"relabel to conda-forge/label/{dest_label}"
+                        f"cf-pre-staging and then copy to conda-forge"
                     )
 
     for o in outputs:
