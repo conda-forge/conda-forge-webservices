@@ -769,7 +769,7 @@ def stage_dist_to_prod_and_relabel(
             errors.append(f"output {dist} did not copy to {PROD} under staging label")
     finally:
         # remove the dist if it was copied and not relabeled
-        if copied and not relabeled:
+        if _dist_has_only_staging_labels(ac_prod, PROD, dist):
             _remove_dist(ac_prod, PROD, dist)
 
     return copied and relabeled, errors
