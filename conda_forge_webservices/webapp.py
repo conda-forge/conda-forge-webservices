@@ -91,7 +91,7 @@ def _worker_pool(kind):
             else:
                 COPYLOCK = multiprocessing.Lock()
                 UPLOAD_POOL = ProcessPoolExecutor(
-                    max_workers=4,
+                    max_workers=2,
                     initializer=_init_upload_pool_processes,
                     initargs=(COPYLOCK,),
                 )
