@@ -36,8 +36,7 @@ from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
     is_valid_feedstock_token,
     comment_on_outputs_copy,
-    relabel_feedstock_outputs,
-    stage_dist_to_prod_for_relabeling,
+    stage_dist_to_prod_and_relabel,
     STAGING_LABEL,
 )
 from conda_forge_webservices.utils import (
@@ -690,23 +689,18 @@ def _do_copy(
     if outputs_to_copy:
         for dist, hash_value in outputs_to_copy.items():
             with COPYLOCK:
-                with stage_dist_to_prod_for_relabeling(
+                dist_copied, dist_errors = stage_dist_to_prod_and_relabel(
                     dist, dest_label, staging_label, hash_type, hash_value
-                ) as staged:
-                    if staged:
-                        dist_copied = relabel_feedstock_outputs(
-                            {dist: hash_value},
-                            staging_label,
-                            dest_label,
-                            remove_src_label=True,
-                        )
-                        copied.update(dist_copied)
-                    else:
-                        valid[dist] = False
-                        errors.append(
-                            f"failed to stage {dist} to "
-                            f"conda-forge/label/{staging_label} for copying"
-                        )
+                )
+                errors.extend(dist_errors)
+                copied[dist] = dist_copied
+                if not dist_copied:
+                    valid[dist] = False
+                    errors.append(
+                        f"failed to stage {dist} to "
+                        f"conda-forge/label/{staging_label} and "
+                        f"relabel to conda-forge/label/{dest_label}"
+                    )
 
     for o in outputs:
         if o not in copied:
