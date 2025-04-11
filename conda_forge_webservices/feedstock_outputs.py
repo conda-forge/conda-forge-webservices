@@ -16,6 +16,7 @@ import requests.exceptions
 import scrypt
 import github
 
+import binstar_client.errors
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
 from conda_forge_metadata.feedstock_outputs import (
@@ -276,7 +277,7 @@ def _dist_has_only_staging_labels(ac, channel, dist):
             return False
 
 
-def _remove_dist(ac, channel, dist):
+def _remove_dist(ac, channel, dist, force=False):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
     except RuntimeError as e:
@@ -296,7 +297,10 @@ def _remove_dist(ac, channel, dist):
         )
         LOGGER.info("    removed from %s: %s", channel, dist)
     except (BinstarError, requests.exceptions.ReadTimeout) as e:
-        LOGGER.info("    could not remove from %s: %s", channel, dist, exc_info=e)
+        if force and isinstance(e, binstar_client.errors.NotFound):
+            pass
+        else:
+            LOGGER.info("    could not remove from %s: %s", channel, dist, exc_info=e)
         pass
 
 
@@ -894,7 +898,7 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
             errors.append(f"output {dist} did not copy to {PRE_STAGING}")
     finally:
         # always remove the dist from pre-staging
-        _remove_dist(ac_pre_staging, PRE_STAGING, dist)
+        _remove_dist(ac_pre_staging, PRE_STAGING, dist, force=True)
 
     return pre_copied and copied, errors
 
