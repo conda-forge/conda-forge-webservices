@@ -76,10 +76,10 @@ def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
     return False
 
 
-def _get_ac_api_with_timeout(token, timeout=10):
+def _get_ac_api_with_timeout(token):
     # see https://stackoverflow.com/a/59317604/1745538
     ac = get_server_api(token=token)
-    ac.session.request = functools.partial(ac.session.request, timeout=timeout)
+    ac.session.request = functools.partial(ac.session.request, timeout=120)
     return ac
 
 
