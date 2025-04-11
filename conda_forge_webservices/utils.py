@@ -92,6 +92,6 @@ def log_title_and_message_at_level(*, level, title, msg=None):
 ===================================================
 >>> {title}"""
     if msg is not None:
-        total_msg += f"\n{msg}"
+        total_msg += f"\n{msg.rstrip()}"
     total_msg += "\n==================================================="
     func(total_msg)
