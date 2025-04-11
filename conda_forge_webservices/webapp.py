@@ -950,11 +950,6 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 )
             return
         elif event == "push":
-            log_title_and_message_at_level(
-                level="info",
-                title=f"autotick bot push: {body['repository']['full_name']}",
-            )
-
             repo_name = body["repository"]["name"]
             owner = body["repository"]["owner"]["login"]
             ref = body["ref"]
