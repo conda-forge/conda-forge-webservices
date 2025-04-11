@@ -18,11 +18,11 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from http.client import responses
 import atexit
 
-# import functools
 import logging
 
 import requests
 import github
+import yaml
 from datetime import datetime, timezone
 
 import conda_forge_webservices
@@ -775,16 +775,18 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             or (not valid_token)
             or hash_type not in ["md5", "sha256"]
         ):
+            data = {
+                "feedstock_exists": feedstock_exists,
+                "valid_token": valid_token,
+                "outputs": outputs,
+                "label": label,
+                "hash_type": hash_type,
+                "provider": provider,
+            }
             log_title_and_message_at_level(
                 level="warning",
                 title=f"invalid outputs copy request for feedstock '{feedstock}'",
-                msg=f"""    feedstock exists: {feedstock_exists}
-    outputs: {outputs}
-    label: {label}
-    valid token: {valid_token}
-    hash type: {hash_type}
-    provider: {provider}
-""",
+                msg=yaml.dump(data, default_flow_style=False, indent=2),
             )
             err_msgs = []
             if outputs is None:
@@ -824,27 +826,21 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             if not all(v for v in copied.values()):
                 self.set_status(403)
 
-            self.write(
-                json.dumps(
-                    {
-                        "errors": errors,
-                        "valid": valid,
-                        "copied": copied,
-                        "run_time": run_time,
-                    }
-                )
-            )
+            data = {
+                "feedstock_exists": feedstock_exists,
+                "errors": errors,
+                "valid": valid,
+                "copied": copied,
+                "provider": provider,
+                "run_time": run_time,
+            }
+
+            self.write(json.dumps(data))
 
             log_title_and_message_at_level(
                 level="info",
                 title=f"copy finished for outputs for feedstock '{feedstock}'",
-                msg=f"""    feedstock exists: {feedstock_exists}
-    errors: {errors}
-    valid: {valid}
-    copied: {copied}
-    provider: {provider}
-    run time: {run_time} (s)
-""",
+                msg=yaml.dump(data, default_flow_style=False, indent=2),
             )
 
         return
@@ -898,28 +894,26 @@ def _cached_bot_workflow():
     return repo.get_workflow("bot-events.yml")
 
 
-def _dispatch_autotickbot_job(event, uid):
+def _dispatch_autotickbot_job(repo_full_name, event, uid):
     wf = _cached_bot_workflow()
     if wf is None:
-        LOGGER.info(
-            "    autotick bot job dispatch skipped: event|uid = %s|%s - no token",
-            event,
-            uid,
+        msg = f"autotick bot job dispatch skipped: event|uid = {event}|{uid} - no token"
+    else:
+        running = wf.create_dispatch(
+            "main",
+            inputs={
+                "event": str(event),
+                "uid": str(uid),
+            },
         )
-        return
+        msg = (
+            f"autotick bot job dispatched: event|uid|running = {event}|{uid}|{running}"
+        )
 
-    running = wf.create_dispatch(
-        "main",
-        inputs={
-            "event": str(event),
-            "uid": str(uid),
-        },
-    )
-    LOGGER.info(
-        "    autotick bot job dispatched: event|uid|running = %s|%s|%s",
-        event,
-        uid,
-        running,
+    log_title_and_message_at_level(
+        level="info",
+        title=f"autotick bot {event}: {repo_full_name}",
+        msg=msg,
     )
 
 
@@ -949,11 +943,8 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and (body["action"] in ["closed", "labeled"])
                 and head_owner.startswith("regro-cf-autotick-bot/")
             ):
-                log_title_and_message_at_level(
-                    level="info",
-                    title=f"autotick bot PR: {body['repository']['full_name']}",
-                )
                 _dispatch_autotickbot_job(
+                    body["repository"]["full_name"],
                     "pr",
                     body["pull_request"]["id"],
                 )
@@ -981,6 +972,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and repo_name.endswith("-feedstock")
             ):
                 _dispatch_autotickbot_job(
+                    body["repository"]["full_name"],
                     "push",
                     repo_name.split("-feedstock")[0],
                 )
@@ -1021,20 +1013,17 @@ def _dispatch_automerge_job(repo, sha):
         )
 
         if running:
-            LOGGER.info(
-                "    automerge job dispatched: conda-forge/%s@%s [uuid=%s]",
-                repo,
-                sha,
-                uid,
-            )
+            msg = f"automerge job dispatched: uuid={uid}"
         else:
-            LOGGER.info("    automerge job dispatch failed")
+            msg = "automerge job dispatch failed"
     else:
-        LOGGER.info(
-            "    automerge job dispatch skipped for testing: conda-forge/%s@%s",
-            repo,
-            sha,
-        )
+        msg = "automerge job dispatch skipped for testing"
+
+    log_title_and_message_at_level(
+        level="info",
+        title=f"automerge for conda-forge/{repo}@{sha}",
+        msg=msg,
+    )
 
 
 class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
@@ -1056,10 +1045,10 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
         body = tornado.escape.json_decode(self.request.body)
         if event == "check_run":
-            log_title_and_message_at_level(
-                level="info",
-                title=f"check run: {body['repository']['full_name']}",
-            )
+            # log_title_and_message_at_level(
+            #     level="info",
+            #     title=f"check run: {body['repository']['full_name']}",
+            # )
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
             async with STATUS_DATA_LOCK:
@@ -1070,10 +1059,10 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
 
-            log_title_and_message_at_level(
-                level="info",
-                title=f"check suite: {body['repository']['full_name']}",
-            )
+            # log_title_and_message_at_level(
+            #     level="info",
+            #     title=f"check suite: {body['repository']['full_name']}",
+            # )
 
             if body["action"] == "completed" and body["repository"][
                 "full_name"
@@ -1085,10 +1074,10 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event == "status":
-            log_title_and_message_at_level(
-                level="info",
-                title=f"status: {body['repository']['full_name']}",
-            )
+            # log_title_and_message_at_level(
+            #     level="info",
+            #     title=f"status: {body['repository']['full_name']}",
+            # )
             inject_app_token_into_feedstock(body["repository"]["full_name"])
             inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
             async with STATUS_DATA_LOCK:
@@ -1102,13 +1091,13 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             return
         elif event in ["pull_request", "pull_request_review"]:
-            log_title_and_message_at_level(
-                level="info",
-                title=(
-                    "pull request/pull request review: "
-                    f"{body['repository']['full_name']}"
-                ),
-            )
+            # log_title_and_message_at_level(
+            #     level="info",
+            #     title=(
+            #         "pull request/pull request review: "
+            #         f"{body['repository']['full_name']}"
+            #     ),
+            # )
 
             if body["repository"]["full_name"].endswith("-feedstock"):
                 _dispatch_automerge_job(
