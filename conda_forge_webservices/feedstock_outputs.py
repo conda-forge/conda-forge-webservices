@@ -978,7 +978,7 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
         error_msg = "error messages:\n"
         for err in errors:
             is_all_valid &= "not allowed for" not in err
-            error_msg += f" - {err}"
+            error_msg += f" - {err}\n"
 
         message += "\n\n"
         message += error_msg
