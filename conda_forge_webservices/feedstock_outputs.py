@@ -955,15 +955,6 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
 """  # noqa
 
     is_all_valid = True
-    if len(valid) > 0:
-        valid_msg = "output validation (is this package allowed for your feedstock?):\n"
-        for o, v in valid.items():
-            valid_msg += f" - **{o}**: {v}\n"
-            is_all_valid &= v
-
-        message += "\n\n"
-        message += valid_msg
-
     if len(copied) > 0:
         copied_msg = (
             "copied (did this package get copied to the production channel?):\n"
