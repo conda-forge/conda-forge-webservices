@@ -632,40 +632,6 @@ class OutputsValidationHandler(WriteErrorAsJSONRequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
-def _dist_exists_on_prod_with_label_and_hash(dist, dest_label, hash_type, hash_value):
-    import hmac
-    import urllib.parse
-
-    import binstar_client
-    from conda_forge_webservices.feedstock_outputs import _get_ac_api_prod, PROD
-    from conda_forge_webservices.utils import parse_conda_pkg
-
-    ac = _get_ac_api_prod()
-
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for existence check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    try:
-        data = ac.distribution(
-            PROD,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        )
-        return (dest_label in data.get("labels", ())) and hmac.compare_digest(
-            data[hash_type], hash_value
-        )
-    except binstar_client.errors.NotFound:
-        return False
-
-
 def _do_copy(
     feedstock,
     outputs,
