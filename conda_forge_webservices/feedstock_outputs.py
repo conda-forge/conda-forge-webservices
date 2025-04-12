@@ -488,7 +488,10 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
         ac = _get_ac_api_pre_staging()
     else:
         LOGGER.critical(
-            "    channel must be one of conda-forge or cf-staging: %s", channel
+            "    did not do hash comp because "
+            f"channel must be one of {PROD}, {STAGING}, or {PRE_STAGING}: "
+            "%s",
+            channel,
         )
         return valid
 
@@ -497,24 +500,31 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
             data = _get_dist(ac, channel, dist)
             if data is None:
                 LOGGER.info(
-                    "    did not do hash comp due to dist not existing: %s",
+                    "    did not do hash comp on %s due to dist not existing: %s",
+                    channel,
                     dist,
                 )
                 continue
 
             if set(data.get("labels", [])) != set([label]):
                 LOGGER.info(
-                    "    did not do hash comp due to dist"
+                    "    did not do hash comp on %s due to dist"
                     " not having only the label %s: %s",
+                    channel,
                     label,
                     dist,
                 )
                 continue
 
             valid[dist] = hmac.compare_digest(data[hash_type], hashsum)
-            LOGGER.info("    did hash comp: %s", dist)
+            LOGGER.info("    did hash comp on %s: %s", channel, dist)
         except (BinstarError, requests.exceptions.ReadTimeout) as e:
-            LOGGER.info("    did not do hash comp: %s", dist, exc_info=e)
+            LOGGER.info(
+                "    did not do hash comp on %s due to anaconda.org error: %s",
+                channel,
+                dist,
+                exc_info=e,
+            )
             pass
 
     return valid
