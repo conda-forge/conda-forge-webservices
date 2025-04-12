@@ -864,7 +864,7 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
             dest_ac=ac_pre_staging,
             dest_channel=PRE_STAGING,
             dest_label=dest_label,
-            delete=True,
+            delete=False,
             update_metadata=True,
             replace_metadata=False,
         )[dist]
@@ -899,6 +899,10 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
     finally:
         # always remove the dist from pre-staging
         _remove_dist(ac_pre_staging, PRE_STAGING, dist, force=True)
+
+        # if we copied the dist to prod, remove it from staging
+        if copied:
+            _remove_dist(ac_staging, STAGING, dist, force=True)
 
     return pre_copied and copied, errors
 
