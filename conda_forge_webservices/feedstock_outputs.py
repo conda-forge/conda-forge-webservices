@@ -892,7 +892,7 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
             else:
                 errors.append(
                     f"output {dist} does not have a valid checksum "
-                    f"and staging label on {PROD}"
+                    f"and staging label on {PRE_STAGING}"
                 )
         else:
             errors.append(f"output {dist} did not copy to {PRE_STAGING}")
