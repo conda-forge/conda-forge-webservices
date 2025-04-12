@@ -299,17 +299,17 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             # Only do anything if we are working with conda-forge,
             # and an open PR.
             if is_open and owner == "conda-forge" and not stale:
-                log_title_and_message_at_level(
-                    level="info",
-                    title=f"linting: {body['repository']['full_name']}",
-                )
-
                 if linting.LINT_VIA_GHA:
                     linting.lint_via_github_actions(
                         body["repository"]["full_name"],
                         pr_id,
                     )
                 else:
+                    log_title_and_message_at_level(
+                        level="info",
+                        title=f"linting: {body['repository']['full_name']}#{pr_id}",
+                    )
+
                     lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
                         _worker_pool("command"),
                         linting.compute_lint_message,
