@@ -393,7 +393,6 @@ def test_feedstock_outputs_copy_works(build_test_package, should_fail, hash_type
                         with open(output_fname) as fp:
                             data = json.load(fp)
                             assert data["feedstocks"] == ["staged-recipes"]
-
     finally:
         _print_step("cleaning up repos and dists")
         for dist in outputs:
