@@ -326,7 +326,7 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
         The hash key to look for. One of sha256 or md5.
     channel : str
         The channel to check the hashes on. Should be one of
-        `cf-staging` or `conda-forge`.
+        `cf-staging`, `cf-post-staging`, or `conda-forge`.
     label : str
         The label for the packages to validate. The packages must have this label and
         only this labvel to be considered valid.
@@ -637,6 +637,28 @@ def validate_feedstock_outputs(
 def stage_dist_to_post_staging_and_possibly_copy_to_prod(
     dist, dest_label, hash_type, hash_value
 ):
+    """Copy the dist to `cf-post-staging`, check hash again, then copy to `conda-forge`
+    if the hash is valid.
+
+    Parameters
+    ----------
+    dist : str
+        The name of the dist to copy. This should be the full name with the
+        platform directory, version/build info, and file extension
+        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
+    dest_label : str
+        The destination label for the package. The package must also have
+        this label on the staging channel `cf-staging`.
+    hash_type : str
+        The hash key to look for. One of "sha256" or "md5".
+    hash_value : str
+        The hash value to check.
+
+    Returns
+    -------
+    copied : bool
+        True if the dist was copied to `conda-forge` and False otherwise.
+    """
     ac_staging = _get_ac_api_staging()
     ac_post_staging = _get_ac_api_post_staging()
     ac_prod = _get_ac_api_prod()

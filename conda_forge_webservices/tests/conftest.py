@@ -12,6 +12,7 @@ TOKENS = [
     "GH_TOKEN",
     "PROD_BINSTAR_TOKEN",
     "STAGING_BINSTAR_TOKEN",
+    "POST_STAGING_BINSTAR_TOKEN",
 ]
 MISSING_TOKENS = any(token not in os.environ for token in TOKENS)
 
