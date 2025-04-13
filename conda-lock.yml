@@ -832,15 +832,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 8b0439bcd2fe0890e6940182cc468aea
-      sha256: 862b8aaa24b19a7d70fd7e0493982f134d8596ae567fd323ff3c842d7c7aafb7
+      md5: 59a39e896cde65a815125abab27760f3
+      sha256: 9a854b4a1c968acc11bb04c17705e662f47d20ab024911f9eb11fc1f7373d64a
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.4.44-pyhd8ed1ab_0.conda
-    version: 2025.4.44
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.4.45-pyhd8ed1ab_0.conda
+    version: 2025.4.45
   - category: main
     dependencies:
       click: '>=8'
@@ -1809,14 +1809,14 @@ package:
       tomli: ''
       tomli-w: ''
     hash:
-      md5: aaf573edde352953947e2bbdc66a2c63
-      sha256: eafd3d566a59112099d001caec009d46092660c85b3bc385779cacb31292e1f5
+      md5: 5b1c512595a8f6bca1e5b8ed5136fafb
+      sha256: dd89501012ac9b4e6eeb8c614237d0918bcd845195c416f2246db7d9c09e011b
     manager: conda
     name: grayskull
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/noarch/grayskull-2.8.0-pyhd8ed1ab_0.conda
-    version: 2.8.0
+    url: https://conda.anaconda.org/conda-forge/noarch/grayskull-2.9.0-pyhd8ed1ab_0.conda
+    version: 2.9.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
