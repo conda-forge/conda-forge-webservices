@@ -329,9 +329,8 @@ def _attempt_copy_prod(outputs, hash_type, should_fail):
     time.sleep(10)
 
 
-@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
-@flaky
-def test_feedstock_outputs_copy_works():
+@pytest.fixture(scope="session")
+def build_test_package():
     uid = uuid.uuid4().hex[0:6]
 
     _print_step("running conda build")
@@ -340,66 +339,70 @@ def test_feedstock_outputs_copy_works():
     assert len(dists) == 1
     dists = [os.path.relpath(dist, start="built_dists") for dist in dists]
 
+    return uid, dists
+
+
+@pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
+@pytest.mark.parametrize("should_fail", [False, True])
+@pytest.mark.parametrize("hash_type", [None, "md5", "sha256"])
+@flaky
+def test_feedstock_outputs_copy_works(build_test_package, should_fail, hash_type):
+    uid, dists = build_test_package
+
     ac_prod = _get_ac_api_prod()
     ac_staging = _get_ac_api_staging()
 
-    for should_fail in [False, True]:
-        for hash_type in [None, "md5", "sha256"]:
-            _print_step("computing dist info")
-            outputs = {}
-            for dist in dists:
-                hash_value = _compute_local_info(
-                    dist, "built_dists", hash_type or "md5"
-                )[dist]
-                if should_fail:  # scramble the hash
-                    hash_value = list(hash_value)
-                    RNG.shuffle(hash_value)
-                    hash_value = "".join(hash_value)
-                outputs[dist] = hash_value
+    _print_step("computing dist info")
+    outputs = {}
+    for dist in dists:
+        hash_value = _compute_local_info(dist, "built_dists", hash_type or "md5")[dist]
+        if should_fail:  # scramble the hash
+            hash_value = list(hash_value)
+            RNG.shuffle(hash_value)
+            hash_value = "".join(hash_value)
+        outputs[dist] = hash_value
 
-            omsg = yaml.dump(outputs, default_flow_style=False, indent=2)
-            print(f"outputs:\n{omsg}", flush=True)
+    omsg = yaml.dump(outputs, default_flow_style=False, indent=2)
+    print(f"outputs:\n{omsg}", flush=True)
 
-            try:
-                _upload_to_staging(ac_staging, outputs)
-                _attempt_copy_prod(outputs, hash_type, should_fail)
+    try:
+        _upload_to_staging(ac_staging, outputs)
+        _attempt_copy_prod(outputs, hash_type, should_fail)
 
-                _print_step("checking that dists exist on prod")
-                for dist in outputs:
-                    de = _dist_exists(ac_prod, "conda-forge", dist)
+        _print_step("checking that dists exist on prod")
+        for dist in outputs:
+            de = _dist_exists(ac_prod, "conda-forge", dist)
+            if should_fail:
+                assert not de
+                print(f"    conda-forge: dist {dist} does not exist", flush=True)
+            else:
+                assert de
+                print(f"    conda-forge: dist {dist} exists", flush=True)
+
+        _print_step("checking the new outputs")
+        output_fname = f"outputs/b/l/a/blah-{uid}.json"
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pushd(tmpdir):
+                _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
+
+                with pushd(os.path.split(OUTPUTS_REPO)[1].replace(".git", "")):
                     if should_fail:
-                        assert not de
-                        print(
-                            f"    conda-forge: dist {dist} does not exist", flush=True
-                        )
+                        assert not os.path.exists(output_fname)
                     else:
-                        assert de
-                        print(f"    conda-forge: dist {dist} exists", flush=True)
+                        assert os.path.exists(output_fname)
+                        with open(output_fname) as fp:
+                            data = json.load(fp)
+                            assert data["feedstocks"] == ["staged-recipes"]
 
-                _print_step("checking the new outputs")
-                output_fname = f"outputs/b/l/a/blah-{uid}.json"
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    with pushd(tmpdir):
-                        _run_git_command("clone", "--depth=1", OUTPUTS_REPO)
+    finally:
+        _print_step("cleaning up repos and dists")
+        for dist in outputs:
+            if _dist_exists(ac_staging, "cf-staging", dist):
+                if _remove_dist(ac_staging, "cf-staging", dist):
+                    print(f"cf-staging: removed {dist}")
+            if _dist_exists(ac_prod, "conda-forge", dist):
+                if _remove_dist(ac_prod, "conda-forge", dist):
+                    print(f"cond-forge: removed {dist}")
 
-                        with pushd(os.path.split(OUTPUTS_REPO)[1].replace(".git", "")):
-                            if should_fail:
-                                assert not os.path.exists(output_fname)
-                            else:
-                                assert os.path.exists(output_fname)
-                                with open(output_fname) as fp:
-                                    data = json.load(fp)
-                                    assert data["feedstocks"] == ["staged-recipes"]
-
-            finally:
-                _print_step("cleaning up repos and dists")
-                for dist in outputs:
-                    if _dist_exists(ac_staging, "cf-staging", dist):
-                        if _remove_dist(ac_staging, "cf-staging", dist):
-                            print(f"cf-staging: removed {dist}")
-                    if _dist_exists(ac_prod, "conda-forge", dist):
-                        if _remove_dist(ac_prod, "conda-forge", dist):
-                            print(f"cond-forge: removed {dist}")
-
-                _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/blah-{uid}.json")
-                print(" ", flush=True)
+        _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/blah-{uid}.json")
+        print(" ", flush=True)
