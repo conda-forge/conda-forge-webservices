@@ -34,7 +34,7 @@ from conda_forge_webservices.tokens import (
 LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
-PRE_STAGING = "cf-pre-staging"
+POST_STAGING = "cf-post-staging"
 PROD = "conda-forge"
 STAGING_LABEL = "cf-staging-do-not-use"
 
@@ -97,9 +97,9 @@ def _get_ac_api_staging():
 
 
 @functools.lru_cache(maxsize=1)
-def _get_ac_api_pre_staging():
+def _get_ac_api_post_staging():
     """wrap this a function so we can more easily mock it when testing"""
-    return _get_ac_api_with_timeout(token=os.environ["PRE_STAGING_BINSTAR_TOKEN"])
+    return _get_ac_api_with_timeout(token=os.environ["POST_STAGING_BINSTAR_TOKEN"])
 
 
 def _get_dist(ac, channel, dist):
@@ -130,88 +130,6 @@ def _dist_exists(ac, channel, dist):
         return True
     else:
         return False
-
-
-def _dist_has_label(ac, channel, dist, label):
-    data = _get_dist(ac, channel, dist)
-    if data is None:
-        return False
-    else:
-        return label in data.get("labels", [])
-
-
-def _add_label_dist(ac, channel, dist, label, src_label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for adding label %s: %s",
-            label,
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    if _dist_has_label(ac, channel, dist, label):
-        return True
-    else:
-        try:
-            ac.copy(
-                channel,
-                name,
-                version,
-                basename=urllib.parse.quote(dist, safe=""),
-                to_owner=channel,
-                from_label=src_label,
-                to_label=label,
-                update=False,
-                replace=True,
-            )
-        except (BinstarError, requests.exceptions.ReadTimeout) as e:
-            LOGGER.critical(
-                "    could not add label %s: %s",
-                label,
-                dist,
-                exc_info=e,
-            )
-            return False
-
-    return True
-
-
-def _remove_label_dist(ac, channel, dist, label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for removing label %s: %s",
-            label,
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    if not _dist_has_label(ac, channel, dist, label):
-        return True
-    else:
-        try:
-            ac.remove_channel(
-                label,
-                channel,
-                package=name,
-                version=version,
-                filename=urllib.parse.quote(dist, safe=""),
-            )
-        except (BinstarError, requests.exceptions.ReadTimeout) as e:
-            LOGGER.critical(
-                "    could not remove label %s: %s",
-                label,
-                dist,
-                exc_info=e,
-            )
-            return False
-
-    return True
 
 
 def _copy_dist_if_not_exists(
@@ -258,23 +176,6 @@ def _copy_dist_if_not_exists(
             return False
 
     return True
-
-
-def _dist_has_only_staging_labels(ac, channel, dist):
-    data = _get_dist(ac, channel, dist)
-    if data is None:
-        return False
-    else:
-        labels = data.get("labels", [])
-        if all(label.startswith(STAGING_LABEL) for label in labels):
-            return True
-        else:
-            LOGGER.info(
-                "    dist %s has labels %s, not all of which are staging labels",
-                dist,
-                labels,
-            )
-            return False
 
 
 def _remove_dist(ac, channel, dist, force=False):
@@ -412,48 +313,6 @@ def _copy_feedstock_outputs_from_staging_to_prod(
     )
 
 
-def relabel_feedstock_outputs(outputs, src_label, dest_label, remove_src_label=True):
-    """Relabel outputs on a conda channel.
-
-    Parameters
-    ----------
-    outputs : list of str
-        A list of outputs to relabel. These should be the full names with the
-        platform directory, version/build info, and file extension (e.g.,
-        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
-    src_label : str
-        The source label for the packages on the channel.
-    dest_label : str
-        the destination label for the packages on the channel.
-    remove_src_label : bool, optional
-        If True, remove the source label from the artifacts. Default is True.
-
-    Returns
-    -------
-    relabeled : dict
-        A dict keyed on the output name with True if the relabel worked and False
-        otherwise.
-    """
-    ac_prod = _get_ac_api_prod()
-
-    relabeled = dict.fromkeys(outputs, False)
-
-    for dist in outputs:
-        if _add_label_dist(ac_prod, PROD, dist, dest_label, src_label):
-            relabeled[dist] = True
-            LOGGER.info("    relabeled: %s", dist)
-
-            if remove_src_label:
-                if _remove_label_dist(ac_prod, PROD, dist, src_label):
-                    LOGGER.info("    removed label: %s", dist)
-                else:
-                    LOGGER.info("    did not remove label: %s", dist)
-        else:
-            LOGGER.info("    did not relabel: %s", dist)
-
-    return relabeled
-
-
 def _is_valid_output_hash(outputs, hash_type, channel, label):
     """Test if a set of outputs have valid hashes on the staging channel.
 
@@ -484,12 +343,12 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
         ac = _get_ac_api_prod()
     elif channel == STAGING:
         ac = _get_ac_api_staging()
-    elif channel == PRE_STAGING:
-        ac = _get_ac_api_pre_staging()
+    elif channel == POST_STAGING:
+        ac = _get_ac_api_post_staging()
     else:
         LOGGER.critical(
             "    did not do hash comp because "
-            f"channel must be one of {PROD}, {STAGING}, or {PRE_STAGING}: "
+            f"channel must be one of {PROD}, {STAGING}, or {POST_STAGING}: "
             "%s",
             channel,
         )
@@ -687,7 +546,6 @@ def validate_feedstock_outputs(
     outputs,
     hash_type,
     dest_label,
-    # staging_label,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -704,8 +562,6 @@ def validate_feedstock_outputs(
     dest_label : str
         The destination label for the packages. The packages must also have
         this label on the staging channel `cf-staging`.
-    # staging_label : str
-    #     The label to use for the staging dists to the prod channel.
 
     Returns
     -------
@@ -716,15 +572,6 @@ def validate_feedstock_outputs(
         A list of any errors encountered.
     """
     valid = dict.fromkeys(outputs, False)
-
-    # if dest_label == staging_label:
-    #     LOGGER.critical(
-    #         "    destination label must be different "
-    #         "from staging label: dest=%s staging=%s",
-    #         dest_label,
-    #         staging_label,
-    #     )
-    #     return valid, ["destination label must be different from staging label"]
 
     errors = []
 
@@ -772,28 +619,6 @@ def validate_feedstock_outputs(
     for o in outputs_to_test:
         if not valid_outputs[o]:
             errors.append(f"output {o} not allowed for conda-forge/{project}")
-    # outputs_to_test = {o: v for o, v in outputs_to_test.items() if valid_outputs[o]}
-
-    # # next copy outputs to the production channel under the staging label
-    # # again do not pass any invalid outputs to the rest of the functions
-    # copied = _copy_feedstock_outputs_from_staging_to_prod(
-    #     outputs_to_test, dest_label, staging_label, delete=True
-    # )
-    # for o in outputs_to_test:
-    #     if not copied[o]:
-    #         errors.append(
-    #             f"output {o} did not copy to {PROD} under "
-    #             f"staging label {staging_label}"
-    #         )
-    # outputs_to_test = {o: v for o, v in outputs_to_test.items() if copied[o]}
-
-    # # finally validate the hashes on the production channel
-    # valid_hashes_prod = _is_valid_output_hash(
-    #     outputs_to_test, hash_type, PROD, staging_label
-    # )
-    # for o in outputs_to_test:
-    #     if not valid_hashes_prod[o]:
-    #         errors.append(f"output {o} does not have a valid checksum on {PROD}")
 
     # combine all validations
     for o in outputs:
@@ -801,8 +626,6 @@ def validate_feedstock_outputs(
             correctly_formatted.get(o)
             and valid_outputs.get(o)
             and valid_hashes_staging.get(o)
-            # and copied.get(o)
-            # and valid_hashes_prod.get(o)
         ):
             valid[o] = True
         else:
@@ -811,54 +634,11 @@ def validate_feedstock_outputs(
     return valid, errors
 
 
-def stage_dist_to_prod_and_relabel(
-    dist, dest_label, staging_label, hash_type, hash_value
-):
-    ac_prod = _get_ac_api_prod()
-    outputs_to_copy = {dist: hash_value}
-    copied = False
-    relabeled = False
-    errors = []
-    try:
-        # remove any failed copies
-        if _dist_has_only_staging_labels(ac_prod, PROD, dist):
-            _remove_dist(ac_prod, PROD, dist)
-
-        # copy to the staging label
-        copied = _copy_feedstock_outputs_from_staging_to_prod(
-            outputs_to_copy, dest_label, staging_label, delete=True
-        )[dist]
-        if copied:
-            # check the hash
-            valid_hash_prod = _is_valid_output_hash(
-                outputs_to_copy, hash_type, PROD, staging_label
-            )[dist]
-
-            # relabel if the hash is valid
-            if valid_hash_prod:
-                relabeled = relabel_feedstock_outputs(
-                    [dist], staging_label, dest_label, remove_src_label=True
-                )[dist]
-            else:
-                errors.append(
-                    f"output {dist} does not have a valid checksum "
-                    f"and staging label on {PROD}"
-                )
-        else:
-            errors.append(f"output {dist} did not copy to {PROD} under staging label")
-    finally:
-        # remove the dist if it was copied and not relabeled
-        if _dist_has_only_staging_labels(ac_prod, PROD, dist):
-            _remove_dist(ac_prod, PROD, dist)
-
-    return copied and relabeled, errors
-
-
-def stage_dist_to_prestage_and_possibly_copy_to_prod(
+def stage_dist_to_post_staging_and_possibly_copy_to_prod(
     dist, dest_label, hash_type, hash_value
 ):
     ac_staging = _get_ac_api_staging()
-    ac_pre_staging = _get_ac_api_pre_staging()
+    ac_post_staging = _get_ac_api_post_staging()
     ac_prod = _get_ac_api_prod()
     outputs_to_copy = {dist: hash_value}
     pre_copied = False
@@ -871,8 +651,8 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
             src_ac=ac_staging,
             src_channel=STAGING,
             src_label=dest_label,
-            dest_ac=ac_pre_staging,
-            dest_channel=PRE_STAGING,
+            dest_ac=ac_post_staging,
+            dest_channel=POST_STAGING,
             dest_label=dest_label,
             delete=False,
             update_metadata=True,
@@ -881,16 +661,16 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
 
         if pre_copied:
             # check the hash
-            valid_hash_pre_staging = _is_valid_output_hash(
-                outputs_to_copy, hash_type, PRE_STAGING, dest_label
+            valid_hash_post_staging = _is_valid_output_hash(
+                outputs_to_copy, hash_type, POST_STAGING, dest_label
             )[dist]
 
             # copy to prod if the hash is valid
-            if valid_hash_pre_staging:
+            if valid_hash_post_staging:
                 copied = _copy_feedstock_outputs_between_channels(
                     outputs=outputs_to_copy,
-                    src_ac=ac_pre_staging,
-                    src_channel=PRE_STAGING,
+                    src_ac=ac_post_staging,
+                    src_channel=POST_STAGING,
                     src_label=dest_label,
                     dest_ac=ac_prod,
                     dest_channel=PROD,
@@ -902,13 +682,13 @@ def stage_dist_to_prestage_and_possibly_copy_to_prod(
             else:
                 errors.append(
                     f"output {dist} does not have a valid checksum "
-                    f"and staging label on {PRE_STAGING}"
+                    f"and staging label on {POST_STAGING}"
                 )
         else:
-            errors.append(f"output {dist} did not copy to {PRE_STAGING}")
+            errors.append(f"output {dist} did not copy to {POST_STAGING}")
     finally:
         # always remove the dist from pre-staging
-        _remove_dist(ac_pre_staging, PRE_STAGING, dist, force=True)
+        _remove_dist(ac_post_staging, POST_STAGING, dist, force=True)
 
         # if we copied the dist to prod, remove it from staging
         if copied:
