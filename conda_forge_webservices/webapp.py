@@ -36,7 +36,7 @@ from conda_forge_webservices.feedstock_outputs import (
     validate_feedstock_outputs,
     is_valid_feedstock_token,
     comment_on_outputs_copy,
-    stage_dist_to_prestage_and_possibly_copy_to_prod,
+    stage_dist_to_post_staging_and_possibly_copy_to_prod,
     STAGING_LABEL,
 )
 from conda_forge_webservices.utils import (
@@ -658,7 +658,7 @@ def _do_copy(
                 (
                     dist_copied,
                     dist_errors,
-                ) = stage_dist_to_prestage_and_possibly_copy_to_prod(
+                ) = stage_dist_to_post_staging_and_possibly_copy_to_prod(
                     dist, dest_label, hash_type, hash_value
                 )
                 errors.extend(dist_errors)

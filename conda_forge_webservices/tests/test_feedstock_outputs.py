@@ -16,9 +16,7 @@ from conda_forge_webservices.feedstock_outputs import (
     _get_ac_api_prod,
     _get_dist,
     _is_valid_feedstock_output,
-    relabel_feedstock_outputs,
     validate_feedstock_outputs,
-    PROD,
 )
 
 
@@ -127,11 +125,10 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
             ac_staging.return_value.remove_dist.assert_not_called()
 
 
-@pytest.mark.parametrize("same_label", [False])  # add True if change func back
 @pytest.mark.parametrize("valid_output", [True, False])
-@pytest.mark.parametrize("valid_copy", [True])  # add False if change func back
+@pytest.mark.parametrize("valid_copy", [True])
 @pytest.mark.parametrize("valid_staging_hash", [True, False])
-@pytest.mark.parametrize("valid_prod_hash", [True])  # add False if change func back
+@pytest.mark.parametrize("valid_prod_hash", [True])
 @mock.patch(
     "conda_forge_webservices.feedstock_outputs._copy_feedstock_outputs_from_staging_to_prod"
 )
@@ -145,7 +142,6 @@ def test_validate_feedstock_outputs_badoutputhash(
     valid_staging_hash,
     valid_copy,
     valid_prod_hash,
-    same_label,
 ):
     valid_out.return_value = {
         "noarch/a-0.1-py_0.conda": valid_output,
@@ -158,13 +154,11 @@ def test_validate_feedstock_outputs_badoutputhash(
         },
         {
             "noarch/a-0.1-py_0.conda": valid_prod_hash,
-            # change to not valid_prod_hash if change func back
             "noarch/b-0.1-py_0.conda": valid_prod_hash,
         },
     ]
     copy_fo.return_value = {
         "noarch/a-0.1-py_0.conda": valid_copy,
-        # change to not valid_copy if change func back
         "noarch/b-0.1-py_0.conda": valid_copy,
     }
     staging_label = "cf-staging-do-not-use-h" + uuid.uuid4().hex
@@ -176,75 +170,40 @@ def test_validate_feedstock_outputs_badoutputhash(
         },
         "md5",
         staging_label,
-        # "main",
-        # staging_label if not same_label else "main",
     )
 
     assert valid == {
         "noarch/a-0.1-py_0.conda": valid_output
         and valid_staging_hash
         and valid_copy
-        and valid_prod_hash
-        and (not same_label),
+        and valid_prod_hash,
         "noarch/b-0.1-py_0.conda": (not valid_output)
         and (not valid_staging_hash)
-        # change to not valid_copy if change func back
         and (valid_copy)
-        # change to not valid_prod_hash if change func back
-        and (valid_prod_hash)
-        and (not same_label),
+        and (valid_prod_hash),
     }
 
-    if same_label:
-        assert errs == ["destination label must be different from staging label"]
-    else:
-        valid_staging_hash_a_err = (
-            "output noarch/a-0.1-py_0.conda does not "
-            "have a valid checksum or correct label on cf-staging"
-        ) in errs
-        valid_staging_hash_b_err = (
-            "output noarch/b-0.1-py_0.conda does not "
-            "have a valid checksum or correct label on cf-staging"
-        ) in errs
-        assert valid_staging_hash_a_err is not valid_staging_hash
-        assert valid_staging_hash_b_err is valid_staging_hash
+    valid_staging_hash_a_err = (
+        "output noarch/a-0.1-py_0.conda does not "
+        "have a valid checksum or correct label on cf-staging"
+    ) in errs
+    valid_staging_hash_b_err = (
+        "output noarch/b-0.1-py_0.conda does not "
+        "have a valid checksum or correct label on cf-staging"
+    ) in errs
+    assert valid_staging_hash_a_err is not valid_staging_hash
+    assert valid_staging_hash_b_err is valid_staging_hash
 
-        valid_output_a_err = (
-            "output noarch/a-0.1-py_0.conda not allowed for conda-forge/bar-feedstock"
-        ) in errs
-        valid_output_b_err = (
-            "output noarch/b-0.1-py_0.conda not allowed for conda-forge/bar-feedstock"
-        ) in errs
-        if valid_staging_hash:
-            assert valid_output_a_err is not valid_output
-        if not valid_staging_hash:
-            assert valid_output_b_err is valid_output
-
-        # valid_copy_a_err = (
-        #     "output noarch/a-0.1-py_0.conda did not copy to "
-        #     f"conda-forge under staging label {staging_label}"
-        # ) in errs
-        # valid_copy_b_err = (
-        #     "output noarch/b-0.1-py_0.conda did not copy to "
-        #     f"conda-forge under staging label {staging_label}"
-        # ) in errs
-        # if valid_output and valid_staging_hash:
-        #     assert valid_copy_a_err is not valid_copy
-        # if (not valid_output) and (not valid_staging_hash):
-        #     assert valid_copy_b_err is valid_copy
-
-        # valid_prod_hash_a_err = (
-        #     "output noarch/a-0.1-py_0.conda does not "
-        #     "have a valid checksum or correct label on conda-forge"
-        # ) in errs
-        # valid_prod_hash_b_err = (
-        #     "output noarch/b-0.1-py_0.conda does not "
-        #     "have a valid checksum or correct label on conda-forge"
-        # ) in errs
-        # if valid_output and valid_staging_hash and valid_copy:
-        #     assert valid_prod_hash_a_err is not valid_prod_hash
-        # if (not valid_output) and (not valid_staging_hash) and (not valid_copy):
-        #     assert valid_prod_hash_b_err is valid_prod_hash
+    valid_output_a_err = (
+        "output noarch/a-0.1-py_0.conda not allowed for conda-forge/bar-feedstock"
+    ) in errs
+    valid_output_b_err = (
+        "output noarch/b-0.1-py_0.conda not allowed for conda-forge/bar-feedstock"
+    ) in errs
+    if valid_staging_hash:
+        assert valid_output_a_err is not valid_output
+    if not valid_staging_hash:
+        assert valid_output_b_err is valid_output
 
 
 @pytest.mark.skipif(
@@ -393,55 +352,3 @@ def test_is_valid_feedstock_output(
         assert afs_mock.called_once_with(project.replace("-feedstock", ""), "glob")
     else:
         afs_mock.assert_not_called()
-
-
-@pytest.mark.parametrize("error", [True, False])
-@pytest.mark.parametrize("remove_src_label", [True, False])
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
-def test_relabel_feedstock_outputs(
-    ac_prod,
-    remove_src_label,
-    error,
-):
-    if error:
-        ac_prod.return_value.copy.side_effect = BinstarError("error in add")
-
-    outputs = ["noarch/boo-0.1-py_10.conda"]
-
-    ac_prod.return_value.distribution.return_value = {"labels": ["foo"]}
-
-    relabeled = relabel_feedstock_outputs(
-        outputs,
-        "foo",
-        "bar",
-        remove_src_label=remove_src_label,
-    )
-
-    assert relabeled == {"noarch/boo-0.1-py_10.conda": not error}
-
-    ac_prod.assert_called_once()
-
-    ac_prod.return_value.copy.assert_called_once()
-    ac_prod.return_value.copy.assert_any_call(
-        PROD,
-        "boo",
-        "0.1",
-        basename=urllib.parse.quote("noarch/boo-0.1-py_10.conda", safe=""),
-        to_owner=PROD,
-        from_label="foo",
-        to_label="bar",
-        update=False,
-        replace=True,
-    )
-
-    if remove_src_label and not error:
-        ac_prod.return_value.remove_channel.assert_called_once()
-        ac_prod.return_value.remove_channel.assert_any_call(
-            "foo",
-            "conda-forge",
-            package="boo",
-            version="0.1",
-            filename=urllib.parse.quote("noarch/boo-0.1-py_10.conda", safe=""),
-        )
-    else:
-        ac_prod.return_value.remove_channel.assert_not_called()
