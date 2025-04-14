@@ -11,7 +11,10 @@ from git import GitCommandError, Repo
 import conda_smithy.lint_recipe
 
 from conda_forge_webservices.tokens import get_gh_client
-from conda_forge_webservices.utils import get_workflow_run_from_uid
+from conda_forge_webservices.utils import (
+    get_workflow_run_from_uid,
+    log_title_and_message_at_level,
+)
 from ._version import __version__
 
 LOGGER = logging.getLogger("conda_forge_webservices.linting")
@@ -61,12 +64,22 @@ def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
     )
 
     if running:
+        msg = f"linting job dispatched: uuid={uid}"
+
         run = get_workflow_run_from_uid(workflow, uid, ref)
         if run:
             target_url = run.html_url
         else:
             target_url = None
         _set_pr_status(repo_owner, repo_name, sha, "pending", target_url=target_url)
+    else:
+        msg = "linting job dispatch failed"
+
+    log_title_and_message_at_level(
+        level="info",
+        title=f"linting: {full_name}#{pr_num}",
+        msg=msg,
+    )
 
     return running
 

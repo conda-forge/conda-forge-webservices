@@ -6,14 +6,17 @@ import os
 import json
 import hmac
 import urllib.parse
+import functools
 import logging
 import base64
 import time
 
 import requests
+import requests.exceptions
 import scrypt
 import github
 
+import binstar_client.errors
 from binstar_client.utils import get_server_api
 from binstar_client import BinstarError
 from conda_forge_metadata.feedstock_outputs import (
@@ -21,7 +24,6 @@ from conda_forge_metadata.feedstock_outputs import (
     feedstock_outputs_config,
 )
 from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
-import binstar_client.errors
 
 from .utils import parse_conda_pkg, _test_and_raise_besides_file_not_exists
 from conda_forge_webservices.tokens import (
@@ -32,7 +34,9 @@ from conda_forge_webservices.tokens import (
 LOGGER = logging.getLogger("conda_forge_webservices.feedstock_outputs")
 
 STAGING = "cf-staging"
+POST_STAGING = "cf-post-staging"
 PROD = "conda-forge"
+STAGING_LABEL = "cf-staging-do-not-use"
 
 
 def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
@@ -73,143 +77,59 @@ def is_valid_feedstock_token(user, project, feedstock_token, provider=None):
     return False
 
 
+def _get_ac_api_with_timeout(token):
+    # see https://stackoverflow.com/a/59317604/1745538
+    ac = get_server_api(token=token)
+    ac.session.request = functools.partial(ac.session.request, timeout=120)
+    return ac
+
+
+@functools.lru_cache(maxsize=1)
 def _get_ac_api_prod():
     """wrap this a function so we can more easily mock it when testing"""
-    return get_server_api(token=os.environ["PROD_BINSTAR_TOKEN"])
+    return _get_ac_api_with_timeout(token=os.environ["PROD_BINSTAR_TOKEN"])
 
 
+@functools.lru_cache(maxsize=1)
 def _get_ac_api_staging():
     """wrap this a function so we can more easily mock it when testing"""
-    return get_server_api(token=os.environ["STAGING_BINSTAR_TOKEN"])
+    return _get_ac_api_with_timeout(token=os.environ["STAGING_BINSTAR_TOKEN"])
+
+
+@functools.lru_cache(maxsize=1)
+def _get_ac_api_post_staging():
+    """wrap this a function so we can more easily mock it when testing"""
+    return _get_ac_api_with_timeout(token=os.environ["POST_STAGING_BINSTAR_TOKEN"])
+
+
+def _get_dist(ac, channel, dist):
+    try:
+        _, name, version, _ = parse_conda_pkg(dist)
+    except RuntimeError as e:
+        LOGGER.critical(
+            "    could not parse dist for existence check: %s",
+            dist,
+            exc_info=e,
+        )
+        return None
+
+    try:
+        data = ac.distribution(
+            channel,
+            name,
+            version,
+            basename=urllib.parse.quote(dist, safe=""),
+        )
+        return data
+    except (BinstarError, requests.exceptions.ReadTimeout):
+        return None
 
 
 def _dist_exists(ac, channel, dist):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for existence check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    try:
-        ac.distribution(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        )
-        return True
-    except binstar_client.errors.NotFound:
-        return False
-
-
-def _dist_has_label(ac, channel, dist, label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for existence check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    try:
-        labels = ac.distribution(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        ).get("labels", ())
-
-        return label in labels
-    except binstar_client.errors.NotFound as e:
-        LOGGER.critical(
-            "    could not get dist info for label check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-
-def _add_label_dist(ac, channel, dist, label, src_label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for adding label %s: %s",
-            label,
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    if _dist_has_label(ac, channel, dist, label):
+    if _get_dist(ac, channel, dist) is not None:
         return True
     else:
-        try:
-            ac.copy(
-                channel,
-                name,
-                version,
-                basename=urllib.parse.quote(dist, safe=""),
-                to_owner=channel,
-                from_label=src_label,
-                to_label=label,
-                update=False,
-                replace=True,
-            )
-        except BinstarError as e:
-            LOGGER.critical(
-                "    could not add label %s: %s",
-                label,
-                dist,
-                exc_info=e,
-            )
-            return False
-
-    return True
-
-
-def _remove_label_dist(ac, channel, dist, label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for removing label %s: %s",
-            label,
-            dist,
-            exc_info=e,
-        )
         return False
-
-    if not _dist_has_label(ac, channel, dist, label):
-        return True
-    else:
-        try:
-            ac.remove_channel(
-                label,
-                channel,
-                package=name,
-                version=version,
-                filename=urllib.parse.quote(dist, safe=""),
-            )
-        except BinstarError as e:
-            LOGGER.critical(
-                "    could not remove label %s: %s",
-                label,
-                dist,
-                exc_info=e,
-            )
-            if _dist_has_label(ac, channel, dist, label):
-                return False
-            else:
-                return True
-
-    return True
 
 
 def _copy_dist_if_not_exists(
@@ -247,7 +167,7 @@ def _copy_dist_if_not_exists(
                 update=update_metadata,
                 replace=replace_metadata,
             )
-        except BinstarError as e:
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
             LOGGER.critical(
                 "    could not copy dist: %s",
                 dist,
@@ -258,70 +178,99 @@ def _copy_dist_if_not_exists(
     return True
 
 
-def _is_dist_hash_valid(ac, channel, dist, hash_type, hash_value):
+def _remove_dist(ac, channel, dist, force=False):
     try:
         _, name, version, _ = parse_conda_pkg(dist)
     except RuntimeError as e:
         LOGGER.critical(
-            "    could not parse dist for hash check: %s",
+            "    could not parse dist for removing: %s",
             dist,
             exc_info=e,
         )
         return False
 
     try:
-        data = ac.distribution(
+        ac.remove_dist(
             channel,
             name,
             version,
             basename=urllib.parse.quote(dist, safe=""),
         )
-        return hmac.compare_digest(data[hash_type], hash_value)
-    except BinstarError as e:
-        LOGGER.critical(
-            "    could not get dist info for hash check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-
-def _dist_has_label_exclusively(ac, channel, dist, label):
-    try:
-        _, name, version, _ = parse_conda_pkg(dist)
-    except RuntimeError as e:
-        LOGGER.critical(
-            "    could not parse dist for existence check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
-
-    try:
-        labels = ac.distribution(
-            channel,
-            name,
-            version,
-            basename=urllib.parse.quote(dist, safe=""),
-        ).get("labels", [])
-
-        if set(labels) == set([label]):
-            return True
+        LOGGER.info("    removed from %s: %s", channel, dist)
+    except (BinstarError, requests.exceptions.ReadTimeout) as e:
+        if force and isinstance(e, binstar_client.errors.NotFound):
+            pass
         else:
-            LOGGER.info(
-                "    dist %s has labels %s, not only %s",
+            LOGGER.info("    could not remove from %s: %s", channel, dist, exc_info=e)
+        pass
+
+
+def _copy_feedstock_outputs_between_channels(
+    *,
+    outputs,
+    src_ac,
+    src_channel,
+    src_label,
+    dest_ac,
+    dest_channel,
+    dest_label,
+    delete=True,
+    update_metadata=False,
+    replace_metadata=False,
+):
+    """Copy outputs from one chanel to another.
+
+    Parameters
+    ----------
+    outputs : list of str
+        A list of outputs to copy. These should be the full names with the
+        platform directory, version/build info, and file extension (e.g.,
+        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
+    src_ac : Binstar
+        The Binstar API client for the source channel.
+    src_channel : str
+        The source channel for the packages on the src channel.
+    src_label : str
+        The source label for the packages on the src channel.
+    dest_ac : Binstar
+        The Binstar API client for the destination channel.
+    dest_channel : str
+        The destination channel for the packages on the dest channel.
+    dest_label : str
+        The destination label for the packages on the dest channel.
+    delete : bool, optional
+        If True, delete the artifact from src if the copy is successful.
+        Default is True.
+
+    Returns
+    -------
+    copied : dict
+        A dict keyed on the output name with True if the copy worked and False
+        otherwise.
+    """
+
+    copied = dict.fromkeys(outputs, False)
+
+    for dist in outputs:
+        try:
+            copied[dist] = _copy_dist_if_not_exists(
+                src_channel,
+                src_label,
                 dist,
-                labels,
-                label,
+                dest_ac,
+                dest_channel,
+                dest_label,
+                update_metadata=update_metadata,
+                replace_metadata=replace_metadata,
             )
-            return False
-    except binstar_client.errors.NotFound as e:
-        LOGGER.critical(
-            "    could not get dist info for label check: %s",
-            dist,
-            exc_info=e,
-        )
-        return False
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
+            LOGGER.info("    did not copy: %s", dist, exc_info=e)
+            pass
+
+        if copied[dist] and delete:
+            _remove_dist(src_ac, src_channel, dist)
+
+    return copied
 
 
 def _copy_feedstock_outputs_from_staging_to_prod(
@@ -352,92 +301,16 @@ def _copy_feedstock_outputs_from_staging_to_prod(
     ac_prod = _get_ac_api_prod()
     ac_staging = _get_ac_api_staging()
 
-    copied = dict.fromkeys(outputs, False)
-
-    for dist in outputs:
-        try:
-            _, name, version, _ = parse_conda_pkg(dist)
-        except RuntimeError as e:
-            LOGGER.critical(
-                "    could not parse dist for copy: %s",
-                dist,
-                exc_info=e,
-            )
-            continue
-
-        try:
-            copied[dist] = _copy_dist_if_not_exists(
-                STAGING,
-                src_label,
-                dist,
-                ac_prod,
-                PROD,
-                dest_label,
-                update_metadata=False,
-                replace_metadata=False,
-            )
-        except BinstarError as e:
-            LOGGER.info("    did not copy: %s", dist, exc_info=e)
-            pass
-
-        if copied[dist] and _dist_exists(ac_staging, STAGING, dist) and delete:
-            try:
-                ac_staging.remove_dist(
-                    STAGING,
-                    name,
-                    version,
-                    basename=urllib.parse.quote(dist, safe=""),
-                )
-                LOGGER.info("    removed from %s: %s", STAGING, dist)
-            except BinstarError as e:
-                LOGGER.info(
-                    "    could not remove from %s: %s", STAGING, dist, exc_info=e
-                )
-                pass
-
-    return copied
-
-
-def relabel_feedstock_outputs(outputs, src_label, dest_label, remove_src_label=True):
-    """Relabel outputs on a conda channel.
-
-    Parameters
-    ----------
-    outputs : list of str
-        A list of outputs to relabel. These should be the full names with the
-        platform directory, version/build info, and file extension (e.g.,
-        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
-    src_label : str
-        The source label for the packages on the channel.
-    dest_label : str
-        the destination label for the packages on the channel.
-    remove_src_label : bool, optional
-        If True, remove the source label from the artifacts. Default is True.
-
-    Returns
-    -------
-    relabeled : dict
-        A dict keyed on the output name with True if the relabel worked and False
-        otherwise.
-    """
-    ac_prod = _get_ac_api_prod()
-
-    relabeled = dict.fromkeys(outputs, False)
-
-    for dist in outputs:
-        if _add_label_dist(ac_prod, PROD, dist, dest_label, src_label):
-            relabeled[dist] = True
-            LOGGER.info("    relabeled: %s", dist)
-
-            if remove_src_label:
-                if _remove_label_dist(ac_prod, PROD, dist, src_label):
-                    LOGGER.info("    removed label: %s", dist)
-                else:
-                    LOGGER.info("    did not remove label: %s", dist)
-        else:
-            LOGGER.info("    did not relabel: %s", dist)
-
-    return relabeled
+    return _copy_feedstock_outputs_between_channels(
+        outputs=outputs,
+        src_ac=ac_staging,
+        src_channel=STAGING,
+        src_label=src_label,
+        dest_ac=ac_prod,
+        dest_channel=PROD,
+        dest_label=dest_label,
+        delete=delete,
+    )
 
 
 def _is_valid_output_hash(outputs, hash_type, channel, label):
@@ -453,7 +326,7 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
         The hash key to look for. One of sha256 or md5.
     channel : str
         The channel to check the hashes on. Should be one of
-        `cf-staging` or `conda-forge`.
+        `cf-staging`, `cf-post-staging`, or `conda-forge`.
     label : str
         The label for the packages to validate. The packages must have this label and
         only this labvel to be considered valid.
@@ -470,40 +343,47 @@ def _is_valid_output_hash(outputs, hash_type, channel, label):
         ac = _get_ac_api_prod()
     elif channel == STAGING:
         ac = _get_ac_api_staging()
+    elif channel == POST_STAGING:
+        ac = _get_ac_api_post_staging()
     else:
         LOGGER.critical(
-            "    channel must be one of conda-forge or cf-staging: %s", channel
+            "    did not do hash comp because "
+            f"channel must be one of {PROD}, {STAGING}, or {POST_STAGING}: "
+            "%s",
+            channel,
         )
         return valid
 
     for dist, hashsum in outputs.items():
         try:
-            if not _dist_exists(ac, channel, dist):
+            data = _get_dist(ac, channel, dist)
+            if data is None:
                 LOGGER.info(
-                    "    did not do hash comp due to dist not existing: %s",
+                    "    did not do hash comp on %s due to dist not existing: %s",
+                    channel,
                     dist,
                 )
                 continue
 
-            if not _dist_has_label_exclusively(ac, channel, dist, label):
+            if set(data.get("labels", [])) != set([label]):
                 LOGGER.info(
-                    "    did not do hash comp due to dist"
+                    "    did not do hash comp on %s due to dist"
                     " not having only the label %s: %s",
+                    channel,
                     label,
                     dist,
                 )
                 continue
 
-            valid[dist] = _is_dist_hash_valid(
-                ac,
+            valid[dist] = hmac.compare_digest(data[hash_type], hashsum)
+            LOGGER.info("    did hash comp on %s: %s", channel, dist)
+        except (BinstarError, requests.exceptions.ReadTimeout) as e:
+            LOGGER.info(
+                "    did not do hash comp on %s due to anaconda.org error: %s",
                 channel,
                 dist,
-                hash_type,
-                hashsum,
+                exc_info=e,
             )
-            LOGGER.info("    did hash comp: %s", dist)
-        except BinstarError as e:
-            LOGGER.info("    did not do hash comp: %s", dist, exc_info=e)
             pass
 
     return valid
@@ -666,7 +546,6 @@ def validate_feedstock_outputs(
     outputs,
     hash_type,
     dest_label,
-    staging_label,
 ):
     """Validate feedstock outputs on the staging channel.
 
@@ -683,8 +562,6 @@ def validate_feedstock_outputs(
     dest_label : str
         The destination label for the packages. The packages must also have
         this label on the staging channel `cf-staging`.
-    staging_label : str
-        The label to use for the staging dists to the prod channel.
 
     Returns
     -------
@@ -695,15 +572,6 @@ def validate_feedstock_outputs(
         A list of any errors encountered.
     """
     valid = dict.fromkeys(outputs, False)
-
-    if dest_label == staging_label:
-        LOGGER.critical(
-            "    destination label must be different "
-            "from staging label: dest=%s staging=%s",
-            dest_label,
-            staging_label,
-        )
-        return valid, ["destination label must be different from staging label"]
 
     errors = []
 
@@ -731,7 +599,10 @@ def validate_feedstock_outputs(
     )
     for o in outputs_to_test:
         if not valid_hashes_staging[o]:
-            errors.append(f"output {o} does not have a valid checksum on {STAGING}")
+            errors.append(
+                f"output {o} does not have a valid checksum or "
+                f"correct label on {STAGING}"
+            )
     outputs_to_test = {
         o: v for o, v in outputs_to_test.items() if valid_hashes_staging[o]
     }
@@ -748,27 +619,6 @@ def validate_feedstock_outputs(
     for o in outputs_to_test:
         if not valid_outputs[o]:
             errors.append(f"output {o} not allowed for conda-forge/{project}")
-    outputs_to_test = {o: v for o, v in outputs_to_test.items() if valid_outputs[o]}
-
-    # next copy outputs to the production channel under the staging label
-    # again do not pass any invalid outputs to the rest of the functions
-    copied = _copy_feedstock_outputs_from_staging_to_prod(
-        outputs_to_test, dest_label, staging_label, delete=True
-    )
-    for o in outputs_to_test:
-        if not copied[o]:
-            errors.append(
-                f"output {o} did not copy to {PROD} under staging label {staging_label}"
-            )
-    outputs_to_test = {o: v for o, v in outputs_to_test.items() if copied[o]}
-
-    # finally validate the hashes on the production channel
-    valid_hashes_prod = _is_valid_output_hash(
-        outputs_to_test, hash_type, PROD, staging_label
-    )
-    for o in outputs_to_test:
-        if not valid_hashes_prod[o]:
-            errors.append(f"output {o} does not have a valid checksum on {PROD}")
 
     # combine all validations
     for o in outputs:
@@ -776,14 +626,97 @@ def validate_feedstock_outputs(
             correctly_formatted.get(o)
             and valid_outputs.get(o)
             and valid_hashes_staging.get(o)
-            and copied.get(o)
-            and valid_hashes_prod.get(o)
         ):
             valid[o] = True
         else:
             valid[o] = False
 
     return valid, errors
+
+
+def stage_dist_to_post_staging_and_possibly_copy_to_prod(
+    dist, dest_label, hash_type, hash_value
+):
+    """Copy the dist to `cf-post-staging`, check hash again, then copy to `conda-forge`
+    if the hash is valid.
+
+    Parameters
+    ----------
+    dist : str
+        The name of the dist to copy. This should be the full name with the
+        platform directory, version/build info, and file extension
+        (e.g., `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
+    dest_label : str
+        The destination label for the package. The package must also have
+        this label on the staging channel `cf-staging`.
+    hash_type : str
+        The hash key to look for. One of "sha256" or "md5".
+    hash_value : str
+        The hash value to check.
+
+    Returns
+    -------
+    copied : bool
+        True if the dist was copied to `conda-forge` and False otherwise.
+    """
+    ac_staging = _get_ac_api_staging()
+    ac_post_staging = _get_ac_api_post_staging()
+    ac_prod = _get_ac_api_prod()
+    outputs_to_copy = {dist: hash_value}
+    pre_copied = False
+    copied = False
+    errors = []
+    try:
+        # first copy to pre-staging
+        pre_copied = _copy_feedstock_outputs_between_channels(
+            outputs=outputs_to_copy,
+            src_ac=ac_staging,
+            src_channel=STAGING,
+            src_label=dest_label,
+            dest_ac=ac_post_staging,
+            dest_channel=POST_STAGING,
+            dest_label=dest_label,
+            delete=False,
+            update_metadata=True,
+            replace_metadata=False,
+        )[dist]
+
+        if pre_copied:
+            # check the hash
+            valid_hash_post_staging = _is_valid_output_hash(
+                outputs_to_copy, hash_type, POST_STAGING, dest_label
+            )[dist]
+
+            # copy to prod if the hash is valid
+            if valid_hash_post_staging:
+                copied = _copy_feedstock_outputs_between_channels(
+                    outputs=outputs_to_copy,
+                    src_ac=ac_post_staging,
+                    src_channel=POST_STAGING,
+                    src_label=dest_label,
+                    dest_ac=ac_prod,
+                    dest_channel=PROD,
+                    dest_label=dest_label,
+                    delete=True,
+                    update_metadata=True,
+                    replace_metadata=False,
+                )[dist]
+            else:
+                errors.append(
+                    f"output {dist} does not have a valid checksum "
+                    f"and staging label on {POST_STAGING}"
+                )
+        else:
+            errors.append(f"output {dist} did not copy to {POST_STAGING}")
+    finally:
+        # always remove the dist from pre-staging
+        _remove_dist(ac_post_staging, POST_STAGING, dist, force=True)
+
+        # if we copied the dist to prod, remove it from staging
+        if copied:
+            _remove_dist(ac_staging, STAGING, dist, force=True)
+
+    return pre_copied and copied, errors
 
 
 def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
@@ -838,15 +771,6 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
 """  # noqa
 
     is_all_valid = True
-    if len(valid) > 0:
-        valid_msg = "output validation (is this package allowed for your feedstock?):\n"
-        for o, v in valid.items():
-            valid_msg += f" - **{o}**: {v}\n"
-            is_all_valid &= v
-
-        message += "\n\n"
-        message += valid_msg
-
     if len(copied) > 0:
         copied_msg = (
             "copied (did this package get copied to the production channel?):\n"
@@ -861,7 +785,7 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
         error_msg = "error messages:\n"
         for err in errors:
             is_all_valid &= "not allowed for" not in err
-            error_msg += f" - {err}"
+            error_msg += f" - {err}\n"
 
         message += "\n\n"
         message += error_msg

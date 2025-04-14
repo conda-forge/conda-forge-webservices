@@ -1,4 +1,5 @@
 import os
+import logging
 import shutil
 import time
 import tempfile
@@ -7,6 +8,7 @@ from contextlib import contextmanager
 import github
 
 ALLOWED_CMD_NON_FEEDSTOCKS = ["staged-recipes", "admin-requests"]
+LOGGER = logging.getLogger("conda_forge_webservices")
 
 
 @contextmanager
@@ -82,3 +84,14 @@ def _test_and_raise_besides_file_not_exists(e: github.GithubException):
     if e.status == 404 and "No object found" in e.data["message"]:
         return
     raise e
+
+
+def log_title_and_message_at_level(*, level, title, msg=None):
+    func = getattr(LOGGER, level)
+    total_msg = f"""
+===================================================
+>>> {title}"""
+    if msg is not None:
+        total_msg += f"\n{msg.rstrip()}"
+    total_msg += "\n==================================================="
+    func(total_msg)
