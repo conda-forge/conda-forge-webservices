@@ -646,6 +646,7 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
             and not _is_valid_output_hash({o: outputs[o]}, hash_type, PROD, label)[o]
         ):
             copied[o] = False
+
             errors.append(
                 f"package {o} has an incorrect hash on {channel_str}"
             )
