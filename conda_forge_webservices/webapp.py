@@ -632,6 +632,45 @@ class OutputsValidationHandler(WriteErrorAsJSONRequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
+def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type):
+    from conda_forge_webservices.feedstock_outputs import _is_valid_output_hash, PROD
+
+    gh = get_gh_client()
+    repo = gh.get_repo("conda-forge/core-notes")
+
+    channel_str = "conda-forge" if label == "main" else f"conda-forge/label/{label}"
+
+    for o in outputs:
+        if (
+            copied[o]
+            and not _is_valid_output_hash({o: outputs[o]}, hash_type, PROD, label)[o]
+        ):
+            copied[o] = False
+            errors.append(
+                f"package {o} has an incorrect hash on {channel_str}"
+            )
+
+            comment = (
+                f"The package `{o}` was found on {PROD}, but with the incorrect hash ("
+                f"`{hash_type}:{outputs[o]}`). Please investigate!"
+            )
+
+            for issue in repo.get_issues(state="open"):
+                if f"`{o}`" in issue.title:
+                    issue.create_comment(comment)
+                    return
+
+            repo.create_issue(
+                title=(
+                    f"important/security: package `{o}` bad copy operation "
+                    f"to {channel_str}"
+                ),
+                body=comment,
+            )
+
+    return copied, errors
+
+
 def _do_copy(
     feedstock,
     outputs,
@@ -675,6 +714,10 @@ def _do_copy(
             copied[o] = False
         if o not in valid:
             valid[o] = False
+
+    copied, errors = _comment_on_core_notes_if_bad_copy(
+        copied, errors, outputs, dest_label, hash_type
+    )
 
     if not all(copied[o] for o in outputs) and comment_on_error:
         comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied)
