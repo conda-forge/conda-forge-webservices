@@ -638,6 +638,8 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
     gh = get_gh_client()
     repo = gh.get_repo("conda-forge/core-notes")
 
+    channel_str = "conda-forge" if label == "main" else f"conda-forge/label/{label}"
+
     for o in outputs:
         if (
             copied[o]
@@ -645,7 +647,7 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
         ):
             copied[o] = False
             errors.append(
-                f"package {o} has an incorrect hash on conda-forge/label/{label}"
+                f"package {o} has an incorrect hash on {channel_str}"
             )
 
             comment = (
@@ -661,7 +663,7 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
             repo.create_issue(
                 title=(
                     f"important/security: package `{o}` bad copy operation "
-                    f"to conda-forge/label/{label}"
+                    f"to {channel_str}"
                 ),
                 body=comment,
             )
