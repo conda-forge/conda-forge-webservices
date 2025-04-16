@@ -654,11 +654,8 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
     channel_str = "conda-forge" if label == "main" else f"conda-forge/label/{label}"
 
     for o in outputs:
-        if (
-            copied[o]
-            and not _is_valid_output_hash_with_retry(
-                o, outputs[o], hash_type, PROD, label
-            )
+        if copied[o] and not _is_valid_output_hash_with_retry(
+            o, outputs[o], hash_type, PROD, label
         ):
             copied[o] = False
 
