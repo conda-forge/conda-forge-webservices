@@ -632,12 +632,12 @@ class OutputsValidationHandler(WriteErrorAsJSONRequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
-def _is_valid_output_hash_with_retry(outputs, hash_type, channel, label):
+def _is_valid_output_hash_with_retry(dist, hash_value, hash_type, channel, label):
     from conda_forge_webservices.feedstock_outputs import _is_valid_output_hash
 
     num_try = 10
     for i in range(num_try):
-        if _is_valid_output_hash(outputs, hash_type, channel, label):
+        if _is_valid_output_hash({dist: hash_value}, hash_type, channel, label)[dist]:
             return True
 
         time.sleep(2**i)
@@ -657,8 +657,8 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
         if (
             copied[o]
             and not _is_valid_output_hash_with_retry(
-                {o: outputs[o]}, hash_type, PROD, label
-            )[o]
+                o, outputs[o], hash_type, PROD, label
+            )
         ):
             copied[o] = False
 
@@ -666,7 +666,7 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
 
             comment = (
                 f"The package `{o}` was found on {PROD}, but with the incorrect hash ("
-                f"`{hash_type}:{outputs[o]}`). Please investigate!"
+                f"`expected {hash_type}: {outputs[o]}`). Please investigate!"
             )
 
             for issue in repo.get_issues(state="open"):
