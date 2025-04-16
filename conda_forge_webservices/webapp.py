@@ -714,9 +714,9 @@ def _do_copy(
         if o not in valid:
             valid[o] = False
 
-    copied, errors = _comment_on_core_notes_if_bad_copy(
-        copied, errors, outputs, dest_label, hash_type
-    )
+    # copied, errors = _comment_on_core_notes_if_bad_copy(
+    #     copied, errors, outputs, dest_label, hash_type
+    # )
 
     if not all(copied[o] for o in outputs) and comment_on_error:
         comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied)
