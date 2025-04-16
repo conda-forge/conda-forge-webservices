@@ -632,8 +632,21 @@ class OutputsValidationHandler(WriteErrorAsJSONRequestHandler):
         self.write(json.dumps({"deprecated": True}))
 
 
+def _is_valid_output_hash_with_retry(outputs, hash_type, channel, label):
+    from conda_forge_webservices.feedstock_outputs import _is_valid_output_hash
+
+    num_try = 10
+    for i in range(num_try):
+        if _is_valid_output_hash(outputs, hash_type, channel, label):
+            return True
+
+        time.sleep(2**i)
+
+    return False
+
+
 def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type):
-    from conda_forge_webservices.feedstock_outputs import _is_valid_output_hash, PROD
+    from conda_forge_webservices.feedstock_outputs import PROD
 
     gh = get_gh_client()
     repo = gh.get_repo("conda-forge/core-notes")
@@ -643,7 +656,9 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
     for o in outputs:
         if (
             copied[o]
-            and not _is_valid_output_hash({o: outputs[o]}, hash_type, PROD, label)[o]
+            and not _is_valid_output_hash_with_retry(
+                {o: outputs[o]}, hash_type, PROD, label
+            )[o]
         ):
             copied[o] = False
 
