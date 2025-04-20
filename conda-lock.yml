@@ -767,15 +767,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 882f08c2aaaa39ee83a7567ff04e5197
-      sha256: 9218e03fc818c26ec2f049ce73c46c80a5cedf2915f146e16e62d37b64d3b5e0
+      md5: 9528b6097c1d83e1799e84df4bd0c752
+      sha256: 6ee3950fa0650f604212ccf24098329e90a1e6f5cb035f73585f37fbdf1e07f6
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.04.19.00.08.06-hd8ed1ab_0.conda
-    version: 2025.04.19.00.08.06
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.04.20.09.23.48-hd8ed1ab_0.conda
+    version: 2025.04.20.09.23.48
   - category: main
     dependencies:
       attrs: ''
@@ -1029,15 +1029,15 @@ package:
       toolz: ''
       vsts-python-api: ''
     hash:
-      md5: 3162c3def821d746e600e98a278fcaaa
-      sha256: 3b03a3bf7c1a8f25899f977c2d2522681d59e364ed057ad1632eaa62982a9002
+      md5: dd4935fbcdeae6fd9f46ab9f6317184f
+      sha256: 123f7389980e65ea0528172572463fd40deb47d68dad6eae66a27672f97a6cd2
     manager: conda
     name: conda-smithy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.47.1-unix_pyhd81877a_0.conda
-    version: 3.47.1
+      https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.47.2-unix_pyhd81877a_0.conda
+    version: 3.47.2
   - category: main
     dependencies:
       python: '>=3.8'
@@ -3535,15 +3535,15 @@ package:
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 16ad2b996ea8064e0a7cb8b392d924fd
-      sha256: 4ff5f5ab2e0205d712fdc8b2950a2a4b2a063c47d0c9b08f7ea71ae246e47ac1
+      md5: df82417acd53257028de5425047ebc22
+      sha256: 66988aa1a624f7fab4f8c5ccb1b848ee52d9d36dd8eb8b3d0149657316ee53f9
     manager: conda
     name: numpy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/numpy-2.2.4-py311h5d046bc_0.conda
-    version: 2.2.4
+      https://conda.anaconda.org/conda-forge/linux-64/numpy-2.2.5-py311h5d046bc_0.conda
+    version: 2.2.5
   - category: main
     dependencies:
       blinker: ''
@@ -4842,15 +4842,15 @@ package:
     dependencies:
       python: '>=3.9'
     hash:
-      md5: a42da9837e46c53494df0044c3eb1f53
-      sha256: d4c74d2140f2fbc72fe5320cbd65f3fd1d1f7832ab4d7825c37c38ab82440ae2
+      md5: 72437384f9364b6baf20b6dd68d282c2
+      sha256: 33a0cab4724d8130055f65e6edc101df7136f2f26cefb52669df88de8aeee28c
     manager: conda
     name: setuptools
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/setuptools-78.1.0-pyhff2d567_0.conda
-    version: 78.1.0
+      https://conda.anaconda.org/conda-forge/noarch/setuptools-78.1.1-pyhff2d567_0.conda
+    version: 78.1.1
   - category: main
     dependencies:
       packaging: '>=20.0'
