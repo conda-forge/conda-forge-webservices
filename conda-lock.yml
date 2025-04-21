@@ -689,15 +689,15 @@ package:
       ripgrep: ''
       tqdm: ''
     hash:
-      md5: 14517918b345951df14e3bd67bf81d78
-      sha256: fd6d2ccf451cdd4cfbc55565b79fb68ba134d1e14652dcb8b3c84353e3988266
+      md5: 76d402f2e804ba52c0107f9dd912b09a
+      sha256: 14a91107e7400d12351cb99fd608feac2971841673afa04499d4c55467708e98
     manager: conda
     name: conda-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.4.1-py311h38be061_0.conda
-    version: 25.4.1
+      https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.4.2-py311h38be061_0.conda
+    version: 25.4.2
   - category: main
     dependencies:
       boltons: '>=23.0.0'
@@ -2783,17 +2783,18 @@ package:
     version: 2.3.8
   - category: main
     dependencies:
-      libgcc-ng: '>=12'
+      __glibc: '>=2.17,<3.0.a0'
+      libgcc: '>=13'
     hash:
-      md5: ea25936bb4080d843790b586850f82b8
-      sha256: b954e09b7e49c2f2433d6f3bb73868eda5e378278b0f8c1dd10a7ef090e14f2f
+      md5: 9fa334557db9f63da6c9285fd2a48638
+      sha256: 98b399287e27768bf79d48faba8a99a2289748c65cd342ca21033fab1860d4a4
     manager: conda
     name: libjpeg-turbo
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/libjpeg-turbo-3.0.0-hd590300_1.conda
-    version: 3.0.0
+      https://conda.anaconda.org/conda-forge/linux-64/libjpeg-turbo-3.1.0-hb9d3cd8_0.conda
+    version: 3.1.0
   - category: main
     dependencies:
       libblas: 3.9.0
