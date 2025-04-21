@@ -419,16 +419,17 @@ package:
     url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.34.5-hb9d3cd8_0.conda
     version: 1.34.5
   - category: main
-    dependencies: {}
+    dependencies:
+      __unix: ''
     hash:
-      md5: 19f3a56f68d2fd06c516076bff482c52
-      sha256: bf832198976d559ab44d6cdb315642655547e26d826e34da67cbee6624cda189
+      md5: e74273d9fc5ab633d613cde474b55157
+      sha256: 43878eddf8eb46e3ba7fcbe77a2f8d00aab9a66d9ff63bc4d072b7af17481197
     manager: conda
     name: ca-certificates
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2025.1.31-hbcca054_0.conda
+      https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.1.31-hbd8a1cb_1.conda
     version: 2025.1.31
   - category: main
     dependencies:
@@ -833,15 +834,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 59a39e896cde65a815125abab27760f3
-      sha256: 9a854b4a1c968acc11bb04c17705e662f47d20ab024911f9eb11fc1f7373d64a
+      md5: adf59b5affb475e1bf8b88ca7adb398d
+      sha256: 9ef391e9353f75554aeff08e910ce65026bd38b4f96316e1061437f2b4aedc47
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.4.45-pyhd8ed1ab_0.conda
-    version: 2025.4.45
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.4.81-pyhd8ed1ab_0.conda
+    version: 2025.4.81
   - category: main
     dependencies:
       click: '>=8'
@@ -2395,16 +2396,17 @@ package:
     version: '2.43'
   - category: main
     dependencies:
-      libgcc-ng: '>=12'
-      libstdcxx-ng: '>=12'
+      __glibc: '>=2.17,<3.0.a0'
+      libgcc: '>=13'
+      libstdcxx: '>=13'
     hash:
-      md5: 76bbff344f0134279f225174e9064c8f
-      sha256: cb55f36dcd898203927133280ae1dc643368af041a48bcf7c026acb7c47b0c12
+      md5: 9344155d33912347b37f0ae6c410a835
+      sha256: 412381a43d5ff9bbed82cd52a0bbca5b90623f62e41007c9c42d3870c60945ff
     manager: conda
     name: lerc
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/lerc-4.0.0-h27087fc_0.tar.bz2
+    url: https://conda.anaconda.org/conda-forge/linux-64/lerc-4.0.0-h0aef613_1.conda
     version: 4.0.0
   - category: main
     dependencies:
@@ -2552,13 +2554,13 @@ package:
       __glibc: '>=2.17,<3.0.a0'
       libgcc: '>=13'
     hash:
-      md5: 8dfae1d2e74767e9ce36d5fa0d8605db
-      sha256: 511d801626d02f4247a04fff957cc6e9ec4cc7e8622bd9acd076bcdc5de5fe66
+      md5: 27fe770decaf469a53f3e3a6d593067f
+      sha256: 4db2f70a1441317d964e84c268e388110ad9cf75ca98994d1336d670e62e6f07
     manager: conda
     name: libdeflate
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.23-h4ddbbb0_0.conda
+    url: https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.23-h86f0d12_0.conda
     version: '1.23'
   - category: main
     dependencies:
@@ -4457,13 +4459,13 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 37ec65e056b9964529c0e1e2697b9955
-      sha256: 2ff22fffe5bb93802c1687b5c4a34b9062394b78f23cfb5c1c1ef9b635bb030e
+      md5: 6320dac78b3b215ceac35858b2cfdb70
+      sha256: 705d06b15c497b585d235e7e87f6c893ffe5fbfdb3326e376e56c842879e0a09
     manager: conda
     name: python_abi
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/python_abi-3.11-6_cp311.conda
+    url: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.11-7_cp311.conda
     version: '3.11'
   - category: main
     dependencies:
@@ -4842,15 +4844,15 @@ package:
     dependencies:
       python: '>=3.9'
     hash:
-      md5: 72437384f9364b6baf20b6dd68d282c2
-      sha256: 33a0cab4724d8130055f65e6edc101df7136f2f26cefb52669df88de8aeee28c
+      md5: 36c8697843eb7573fe3dde0e36193a06
+      sha256: b0415e169a4b39ebe4fbbbb224a45607dcceb77162761dfd8bb94533a6ff9f97
     manager: conda
     name: setuptools
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/setuptools-78.1.1-pyhff2d567_0.conda
-    version: 78.1.1
+      https://conda.anaconda.org/conda-forge/noarch/setuptools-79.0.0-pyhff2d567_0.conda
+    version: 79.0.0
   - category: main
     dependencies:
       packaging: '>=20.0'
