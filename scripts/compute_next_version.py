@@ -20,7 +20,7 @@ if res.returncode != 0 or (not res.stdout.strip()):
 else:
     # we have a tag so bump
     curr_version = None
-    curr_version_line: str | None = None
+    curr_version_line = ""
     for line in res.stdout.splitlines():
         line = line.strip()
         if line:
@@ -38,6 +38,7 @@ else:
                 curr_version = _version
                 curr_version_line = line
     assert curr_version is not None
+    assert curr_version_line != ""
     print(f"found current version: {curr_version_line}", file=sys.stderr, flush=True)
 
     # figure out if we bump the major, minor or patch version
