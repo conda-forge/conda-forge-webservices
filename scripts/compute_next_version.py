@@ -20,7 +20,7 @@ if res.returncode != 0 or (not res.stdout.strip()):
 else:
     # we have a tag so bump
     curr_version = None
-    curr_version_line = None
+    curr_version_line: str | None = None
     for line in res.stdout.splitlines():
         line = line.strip()
         if line:
