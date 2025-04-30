@@ -768,15 +768,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 3aad2f796d588430603f30ab6519d2d7
-      sha256: 9bb68ce0319ee8fd7e81e3f796bef804e815b467446515246da3be873f932948
+      md5: 77b0ce10a0f14a6ac5158e31d2eb32b7
+      sha256: 9301835330d92a36703ccad0a05cb26aa5bc3da6a0a26ba23efc0dc10c54fe44
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.04.30.10.33.49-hd8ed1ab_0.conda
-    version: 2025.04.30.10.33.49
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.04.30.12.18.08-hd8ed1ab_0.conda
+    version: 2025.04.30.12.18.08
   - category: main
     dependencies:
       attrs: ''
@@ -3837,14 +3837,14 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: 5e2a7acfa2c24188af39e7944e1b3604
-      sha256: 747c58db800d5583fee78e76240bf89cbaeedf7ab1ef339c2990602332b9c4be
+      md5: d2f1c87d4416d1e7344cf92b1aaee1c4
+      sha256: 1330c3fd424fa2deec6a30678f235049c0ed1b0fad8d2d81ef995c9322d5e49a
     manager: conda
     name: pixman
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/pixman-0.44.2-h29eaf8c_0.conda
-    version: 0.44.2
+    url: https://conda.anaconda.org/conda-forge/linux-64/pixman-0.46.0-h29eaf8c_0.conda
+    version: 0.46.0
   - category: main
     dependencies:
       python: '>=3.9'
@@ -4563,15 +4563,15 @@ package:
       openssl: '>=3.5.0,<4.0a0'
       patchelf: ''
     hash:
-      md5: 52da0bb7888e4f07745717a178b81464
-      sha256: 147c0df9d87ebd4eb74e5532576b633125aada64a685476af68b6b1ceed0e5b2
+      md5: 65cb2d12fe849b15c1d4f94cb7b8b335
+      sha256: ee1fb9a3cf8969ae54a093ac2275401560bf23b42e64bb845e0cb1c5767d8012
     manager: conda
     name: rattler-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.40.0-h159367c_0.conda
-    version: 0.40.0
+      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.41.0-h159367c_0.conda
+    version: 0.41.0
   - category: main
     dependencies:
       conda-build: ''
@@ -5392,14 +5392,14 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: d2133d7677404ad92d5735004d8d95e5
-      sha256: cd34bddc5e1c365a1f60c5e84bba421e7581559271fe452d990105ed966a6568
+      md5: 5b8beef88984f7f578e4437c7e432775
+      sha256: aeaeb8928ad27e3f6b921345f60314ec1dcbbc92d4aa8853df092cb0e6df51bb
     manager: conda
     name: uv
     optional: false
     platform: linux-64
-    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.7.0-h3b53078_1.conda
-    version: 0.7.0
+    url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.7.1-h3b53078_1.conda
+    version: 0.7.1
   - category: main
     dependencies:
       distlib: '>=0.3.7,<1'
