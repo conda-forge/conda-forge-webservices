@@ -334,15 +334,15 @@ package:
       python-dateutil: '>=2.1,<3.0.0'
       urllib3: '>=1.25.4,!=2.2.0,<3'
     hash:
-      md5: c07299ca1e8aeb2d8ee9730c5e36ec39
-      sha256: f381d306f7110d9c2207227055ff776f07050605ae98c2783fca624dcfb07ba9
+      md5: a7578cd9279c2e3268a7cbc2f458ca63
+      sha256: 83e409d01fe079ab57ac3e9e942c333a4b0c7ea821c90116d580f7e1b9b9909a
     manager: conda
     name: botocore
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/botocore-1.38.11-pyge310_1234567_0.conda
-    version: 1.38.11
+      https://conda.anaconda.org/conda-forge/noarch/botocore-1.38.12-pyge310_1234567_0.conda
+    version: 1.38.12
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -993,15 +993,15 @@ package:
       pyyaml: ''
       requests: ''
     hash:
-      md5: 47e2547f34864dd6dc7fb4796c6786f0
-      sha256: 9d67c6102c3ee9ae0c0389f0c26142259fcf51b17cd2dfa54c66dfc3fff40294
+      md5: 7ec37e8ae2624d1efe47d76b23793220
+      sha256: fbde35757931c3a06060464dee393e650681e2fcff4066216458ff318ecd5800
     manager: conda
     name: conda-recipe-manager
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.4.2-pyhd8ed1ab_1.conda
-    version: 0.4.2
+      https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.5.0-pyhd8ed1ab_0.conda
+    version: 0.5.0
   - category: main
     dependencies:
       __unix: ''
@@ -3366,8 +3366,10 @@ package:
       contourpy: '>=1.0.1'
       cycler: '>=0.10'
       fonttools: '>=4.22.0'
-      freetype: '>=2.12.1,<3.0a0'
+      freetype: ''
       kiwisolver: '>=1.3.1'
+      libfreetype: '>=2.13.3'
+      libfreetype6: '>=2.13.3'
       libgcc: '>=13'
       libstdcxx: '>=13'
       numpy: '>=1.23'
@@ -3380,15 +3382,15 @@ package:
       qhull: '>=2020.2,<2020.3.0a0'
       tk: '>=8.6.13,<8.7.0a0'
     hash:
-      md5: eed17bae389043337f33b95a0fd8c172
-      sha256: e64e7b9e7fe80051b0a99f79a93fefb2266fd107182853567e7fdec6abf05d74
+      md5: 0d1b7dfe2bbf983cb7907f6cbd6613e6
+      sha256: 39e54c0b54c374c9b27e4ba5dcf78220ce346007c39be9c83441f1eb4a4e33f1
     manager: conda
     name: matplotlib-base
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.10.1-py311h2b939e6_0.conda
-    version: 3.10.1
+      https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.10.3-py311h2b939e6_0.conda
+    version: 3.10.3
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -5230,15 +5232,15 @@ package:
     dependencies:
       python: '>=3.9'
     hash:
-      md5: 351fed528160f3cae894128b04faf319
-      sha256: f59c7ec407cc039fcb219ed91de4ef30e45a1485688203ac697e7b0e8c117cd0
+      md5: 764db08a8d868de9e377d88277c75d83
+      sha256: 455b7b0dc0cf7e4a6fcc41455b4fd7f646b3b842e6dc0d894438366827d7d9b2
     manager: conda
     name: trove-classifiers
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/trove-classifiers-2025.5.8.15-pyhd8ed1ab_0.conda
-    version: 2025.5.8.15
+      https://conda.anaconda.org/conda-forge/noarch/trove-classifiers-2025.5.9.12-pyhd8ed1ab_0.conda
+    version: 2025.5.9.12
   - category: main
     dependencies:
       python: ''
