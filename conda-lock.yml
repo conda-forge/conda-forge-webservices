@@ -834,15 +834,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: a63ecc3215e5a7bea209ef70e3294bcd
-      sha256: 9617572a28e50d481b56927f291e3914aade2ddf30b022ddc0a14508da6adee7
+      md5: b0d98676fcf71c36767138c8211b2d82
+      sha256: c9e325919966b6681727b61d3840df1f36c5fbf2f55564838872534a4354f882
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.5.63-pyhd8ed1ab_0.conda
-    version: 2025.5.63
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.5.64-pyhd8ed1ab_0.conda
+    version: 2025.5.64
   - category: main
     dependencies:
       click: '>=8'
@@ -1191,15 +1191,15 @@ package:
       pyyaml: '>=5.3.1'
       toolz: '>=0.10.0'
     hash:
-      md5: 69bab6d290b49ccb24104515508ee4d0
-      sha256: de979b0d774f4e8a88d4d733f5278789dddc66f5597fb4d2d92de8208e06a05f
+      md5: 8f0ef561cd615a17df3256742a3457c4
+      sha256: 993fe9ff727441c57fab9969c61eb04eeca2ca82cce432804798f258177ab419
     manager: conda
     name: dask-core
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/dask-core-2025.5.0-pyhd8ed1ab_0.conda
-    version: 2025.5.0
+      https://conda.anaconda.org/conda-forge/noarch/dask-core-2025.5.1-pyhd8ed1ab_0.conda
+    version: 2025.5.1
   - category: main
     dependencies:
       expat: '>=2.4.2,<3.0a0'
@@ -1274,7 +1274,7 @@ package:
       click: '>=8.0'
       cloudpickle: '>=3.0.0'
       cytoolz: '>=0.11.2'
-      dask-core: '>=2025.5.0,<2025.5.1.0a0'
+      dask-core: '>=2025.5.1,<2025.5.2.0a0'
       jinja2: '>=2.10.3'
       locket: '>=1.0.0'
       msgpack-python: '>=1.0.2'
@@ -1289,15 +1289,15 @@ package:
       urllib3: '>=1.26.5'
       zict: '>=3.0.0'
     hash:
-      md5: 52003077e67666a32819b242f423de89
-      sha256: aeedbeaadac6fa9d0aee6912879021324ee778a105cc45e1da54656f7c249d0d
+      md5: d2949f56a1479507e36e847681903376
+      sha256: fc550701d648ba791f271068a792788047850bfd23ed082beb5317bb7d77a099
     manager: conda
     name: distributed
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/distributed-2025.5.0-pyhd8ed1ab_0.conda
-    version: 2025.5.0
+      https://conda.anaconda.org/conda-forge/noarch/distributed-2025.5.1-pyhd8ed1ab_0.conda
+    version: 2025.5.1
   - category: main
     dependencies:
       python: '>=3.9'
