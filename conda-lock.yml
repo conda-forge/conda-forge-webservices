@@ -652,15 +652,15 @@ package:
       truststore: '>=0.8.0'
       zstandard: '>=0.19.0'
     hash:
-      md5: c96f87e2e2eecb7cddfde0c888fddbfd
-      sha256: 7c50c6b299fe111b00681a2dc318e09270c658bd8a657aedc9f99e0724e0a536
+      md5: 6637cd1ca7d78c0b2c31e1f8ba1cff11
+      sha256: e7455f1a845883a67739c80dac66a99491d7e1bf5db0635d0b0d9505dd8e3dda
     manager: conda
     name: conda
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/conda-25.3.1-py311h38be061_1.conda
-    version: 25.3.1
+      https://conda.anaconda.org/conda-forge/linux-64/conda-25.5.0-py311h38be061_0.conda
+    version: 25.5.0
   - category: main
     dependencies:
       beautifulsoup4: ''
@@ -2282,15 +2282,15 @@ package:
       python: '>=3.8'
       traitlets: '>=5.3'
     hash:
-      md5: 83a1cebad0a0f877cea1424452b63dd1
-      sha256: 0a25f5e3b24243f3b8ac5295b9784e5cd4ec435c33702afe349d5dc9bd8d61a0
+      md5: b7d89d860ebcda28a5303526cdee68ab
+      sha256: 56a7a7e907f15cca8c4f9b0c99488276d4cb10821d2d15df9245662184872e81
     manager: conda
     name: jupyter_core
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.8.0-pyh31011fe_0.conda
-    version: 5.8.0
+      https://conda.anaconda.org/conda-forge/noarch/jupyter_core-5.8.1-pyh31011fe_0.conda
+    version: 5.8.1
   - category: main
     dependencies:
       __linux: ''
