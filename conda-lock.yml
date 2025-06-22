@@ -787,15 +787,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: d27e0762c21042a279cfa08dd641d417
-      sha256: f4c641df4293dce5d9b5abee42d1583481b3129e67b170caea355c56fede4ea3
+      md5: 25fedc9bc0d0999067aca1da5585dbb3
+      sha256: a5bdbd939ee1f809b3e5c86e286a2454586a0337abdc7c289c023467a00b1acd
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.06.20.19.38.49-hd8ed1ab_0.conda
-    version: 2025.06.20.19.38.49
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.06.21.16.39.25-hd8ed1ab_0.conda
+    version: 2025.06.21.16.39.25
   - category: main
     dependencies:
       attrs: ''
@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 139797b73cc30d499b67933d13a09f8f
-      sha256: 67fc2c6e27bcb744140af55ca77798bebe65165d87daaa877471f3b08f2fede7
+      md5: 2af5c1efbd717f214480d9df2932532d
+      sha256: 11d943e26cc947cd447df0715b1f52856f1936aa63a255f7c215c31aa1ece160
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.6.67-pyhd8ed1ab_0.conda
-    version: 2025.6.67
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.6.69-pyhd8ed1ab_0.conda
+    version: 2025.6.69
   - category: main
     dependencies:
       click: '>=8'
@@ -4217,15 +4217,15 @@ package:
       python-dotenv: '>=0.21.0'
       typing-inspection: '>=0.4.0'
     hash:
-      md5: 29dd5c4ece2497b75b4050ec3c8d4044
-      sha256: ea2f1027218e83e484fd581933e0ce60b9194486c56c98053b4277b0fb291364
+      md5: 673eaa771e633dc773f746f0a3724025
+      sha256: 72f206d1dcb5c845f47dd827c4223166b72388ae50619d245399aefbbe33724b
     manager: conda
     name: pydantic-settings
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/pydantic-settings-2.9.1-pyh3cfb1c2_0.conda
-    version: 2.9.1
+      https://conda.anaconda.org/conda-forge/noarch/pydantic-settings-2.10.0-pyh3cfb1c2_0.conda
+    version: 2.10.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
