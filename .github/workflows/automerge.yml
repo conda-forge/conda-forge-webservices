@@ -37,7 +37,7 @@ jobs:
           ref: ${{ github.ref }}
 
       - name: setup conda
-        uses: mamba-org/setup-micromamba@0dea6379afdaffa5d528b3d1dabc45da37f443fc # v1
+        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
