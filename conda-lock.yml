@@ -345,15 +345,15 @@ package:
       python-dateutil: '>=2.1,<3.0.0'
       urllib3: '>=1.25.4,!=2.2.0,<3'
     hash:
-      md5: bd23892d4b0c03e3ce1083a2f1d94a14
-      sha256: 0c33f3540b91e8cb657b53191b8087dd34d7ab6af9fa4b2c8b85ebcfbe02f7e2
+      md5: 9ca8e822fc6d8192cef66c5a0503d69b
+      sha256: cab2dc7576cb3a048cd45fc424a99f0c01df6af731a9b2460a6b99b81d7d57cc
     manager: conda
     name: botocore
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/botocore-1.38.46-pyge310_1234567_0.conda
-    version: 1.38.46
+      https://conda.anaconda.org/conda-forge/noarch/botocore-1.39.1-pyge310_1234567_0.conda
+    version: 1.39.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -787,15 +787,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 200860d8c9312e7d8b481d3345f4f472
-      sha256: 7a88011ff454fa890754566e11ae8dc8fde1dff2ab08f4e0f8a21a76fd800fca
+      md5: e0ac966eab257abdf19bf08f2d844565
+      sha256: 792cdf69b97190b6a291b20dba854312e629b05ab024abf665b087d1dd4f8bc7
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.06.30.21.25.52-hd8ed1ab_0.conda
-    version: 2025.06.30.21.25.52
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.07.01.21.05.40-hd8ed1ab_0.conda
+    version: 2025.07.01.21.05.40
   - category: main
     dependencies:
       attrs: ''
@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: e19b126c319adc3a3116b8050f232371
-      sha256: 0463fcfb011994773857a5037023bd4ca097bbbd840690f0820a39b10ea1b296
+      md5: b53274c35a056c0bb7603c659a45a7a4
+      sha256: 4551964c7f49851df048b76a28eb0727f599d32bd73c1c8754d32209f9a80c07
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.7.0-pyhd8ed1ab_0.conda
-    version: 2025.7.0
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.7.6-pyhd8ed1ab_0.conda
+    version: 2025.7.6
   - category: main
     dependencies:
       click: '>=8'
@@ -3714,15 +3714,15 @@ package:
       ca-certificates: ''
       libgcc: '>=13'
     hash:
-      md5: de356753cfdbffcde5bb1e86e3aa6cd0
-      sha256: b4491077c494dbf0b5eaa6d87738c22f2154e9277e5293175ec187634bd808a0
+      md5: c87df2ab1448ba69169652ab9547082d
+      sha256: 942347492164190559e995930adcdf84e2fea05307ec8012c02a505f5be87462
     manager: conda
     name: openssl
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/openssl-3.5.0-h7b32b05_1.conda
-    version: 3.5.0
+      https://conda.anaconda.org/conda-forge/linux-64/openssl-3.5.1-h7b32b05_0.conda
+    version: 3.5.1
   - category: main
     dependencies:
       jsonschema: ''
@@ -4429,15 +4429,15 @@ package:
       pytest: '>=7.0.0'
       python: '>=3.9'
     hash:
-      md5: 15353a2a0ea6dfefaa52fc5ab5b98f41
-      sha256: 3cd4dabfaf17f207011f5c3fdb6068568aa71fea86ecd234a2bd0a6fd6fbc6b9
+      md5: 8375cfbda7c57fbceeda18229be10417
+      sha256: b7b58a5be090883198411337b99afb6404127809c3d1c9f96e99b59f36177a96
     manager: conda
     name: pytest-xdist
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/pytest-xdist-3.7.0-pyhd8ed1ab_0.conda
-    version: 3.7.0
+      https://conda.anaconda.org/conda-forge/noarch/pytest-xdist-3.8.0-pyhd8ed1ab_0.conda
+    version: 3.8.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -5549,15 +5549,15 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: fc9c15e81c00d992c501aec4cbf097a5
-      sha256: fc41b5c92c4080ba4594d594463ef80c0f6041cf2b0ffcebc17d731a693bb811
+      md5: c0c966f71acd506e507eedb376ed552b
+      sha256: 423b51a117363c298c715f95d4a3cbb5793278fa5d8753ceeec7bd455a5633b2
     manager: conda
     name: uv
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/uv-0.7.16-h29fcd0c_1.conda
-    version: 0.7.16
+      https://conda.anaconda.org/conda-forge/linux-64/uv-0.7.18-h29fcd0c_0.conda
+    version: 0.7.18
   - category: main
     dependencies:
       distlib: '>=0.3.7,<1'
