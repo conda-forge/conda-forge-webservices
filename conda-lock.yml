@@ -787,15 +787,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: d5a5bea6084c920d0d982c3e36f8768d
-      sha256: f10b0ca2d00d8df87ec187ea877ba331011f9c6979a7f2e89e48335335cd3b72
+      md5: 10965fb221b914513b3be4ee40594180
+      sha256: 27adcee1b4b04dfcc6da9309a54c07b5cb4bbef2ebe49a044efb992be3a3cd21
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.07.07.15.56.50-hd8ed1ab_0.conda
-    version: 2025.07.07.15.56.50
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.07.08.23.16.59-hd8ed1ab_0.conda
+    version: 2025.07.08.23.16.59
   - category: main
     dependencies:
       attrs: ''
@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 451b9b7219c346d01cb52449e0e30934
-      sha256: 5087b2d8bd8aded956ee8f10f6f74824c47631a1065e58535afadaebc1f6abdc
+      md5: 06141aa6fa198778f88cb06341633fff
+      sha256: ce82f553a575f8169d0629daf42a1751d475d14d0c12c7e2537380df800dae32
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.7.16-pyhd8ed1ab_0.conda
-    version: 2025.7.16
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.7.22-pyhd8ed1ab_0.conda
+    version: 2025.7.22
   - category: main
     dependencies:
       click: '>=8'
@@ -1205,22 +1205,22 @@ package:
     dependencies:
       click: '>=8.1'
       cloudpickle: '>=3.0.0'
-      fsspec: '>=2021.09.0'
+      fsspec: '>=2021.9.0'
       importlib-metadata: '>=4.13.0'
       packaging: '>=20.0'
       partd: '>=1.4.0'
-      python: '>=3.10'
+      python: ''
       pyyaml: '>=5.3.1'
       toolz: '>=0.10.0'
     hash:
-      md5: 8f0ef561cd615a17df3256742a3457c4
-      sha256: 993fe9ff727441c57fab9969c61eb04eeca2ca82cce432804798f258177ab419
+      md5: a1a12f11fb2de0efb6f39a97a8bc66e1
+      sha256: 46e000e2b98d5f8bef8801c71ad5ca6b008ba32d29db54334326ac69ffcf012d
     manager: conda
     name: dask-core
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/dask-core-2025.5.1-pyhd8ed1ab_0.conda
+      https://conda.anaconda.org/conda-forge/noarch/dask-core-2025.5.1-pyhe01879c_1.conda
     version: 2025.5.1
   - category: main
     dependencies:
@@ -1307,7 +1307,7 @@ package:
       msgpack-python: '>=1.0.2'
       packaging: '>=20.0'
       psutil: '>=5.8.0'
-      python: '>=3.10'
+      python: ''
       pyyaml: '>=5.4.1'
       sortedcontainers: '>=2.0.5'
       tblib: '>=1.6.0'
@@ -1316,14 +1316,14 @@ package:
       urllib3: '>=1.26.5'
       zict: '>=3.0.0'
     hash:
-      md5: d2949f56a1479507e36e847681903376
-      sha256: fc550701d648ba791f271068a792788047850bfd23ed082beb5317bb7d77a099
+      md5: e82ffbe3f247853638b3646586c1e8fe
+      sha256: b658a23c93eb5d3a3b2db1681ea3e3b681f1819570e3509a1dee724782dbb910
     manager: conda
     name: distributed
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/distributed-2025.5.1-pyhd8ed1ab_0.conda
+      https://conda.anaconda.org/conda-forge/noarch/distributed-2025.5.1-pyhe01879c_1.conda
     version: 2025.5.1
   - category: main
     dependencies:
@@ -2224,15 +2224,15 @@ package:
       more-itertools: ''
       python: '>=3.9'
     hash:
-      md5: eb257d223050a5a27f5fdf5c9debc8ec
-      sha256: 61da3e37149da5c8479c21571eaec61cc4a41678ee872dcb2ff399c30878dddb
+      md5: c2c206c4054db7a655761c9e5bbb11f7
+      sha256: f132ac71f89e3133fe159034ec85cec946c75f2c60e2039a8bbd1012721a785e
     manager: conda
     name: jaraco.functools
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/jaraco.functools-4.1.0-pyhd8ed1ab_0.conda
-    version: 4.1.0
+      https://conda.anaconda.org/conda-forge/noarch/jaraco.functools-4.2.1-pyhd8ed1ab_0.conda
+    version: 4.2.1
   - category: main
     dependencies:
       python: '>=3.9'
