@@ -1499,15 +1499,15 @@ package:
       libgcc: '>=13'
       libstdcxx: '>=13'
     hash:
-      md5: 288a90e722fd7377448b00b2cddcb90d
-      sha256: 2db2a6a1629bc2ac649b31fd990712446394ce35930025e960e1765a9249af5d
+      md5: 0c2f855a88fab6afa92a7aa41217dc8e
+      sha256: e0f53b7801d0bcb5d61a1ddcb873479bfe8365e56fd3722a232fbcc372a9ac52
     manager: conda
     name: fmt
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/fmt-11.1.4-h07f6e7f_1.conda
-    version: 11.1.4
+      https://conda.anaconda.org/conda-forge/linux-64/fmt-11.2.0-h07f6e7f_0.conda
+    version: 11.2.0
   - category: main
     dependencies: {}
     hash:
@@ -1811,30 +1811,30 @@ package:
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
       adwaita-icon-theme: ''
-      cairo: '>=1.18.2,<2.0a0'
+      cairo: '>=1.18.4,<2.0a0'
       fonts-conda-ecosystem: ''
       gdk-pixbuf: '>=2.42.12,<3.0a0'
       gtk3: '>=3.24.43,<4.0a0'
       gts: '>=0.7.6,<0.8.0a0'
-      libexpat: '>=2.6.4,<3.0a0'
-      libgcc: '>=13'
+      libexpat: '>=2.7.1,<3.0a0'
+      libgcc: '>=14'
       libgd: '>=2.3.3,<2.4.0a0'
-      libglib: '>=2.82.2,<3.0a0'
+      libglib: '>=2.84.2,<3.0a0'
       librsvg: '>=2.58.4,<3.0a0'
-      libstdcxx: '>=13'
-      libwebp-base: '>=1.5.0,<2.0a0'
+      libstdcxx: '>=14'
+      libwebp-base: '>=1.6.0,<2.0a0'
       libzlib: '>=1.3.1,<2.0a0'
-      pango: '>=1.56.1,<2.0a0'
+      pango: '>=1.56.4,<2.0a0'
     hash:
-      md5: df7835d2c73cd1889d377cfd6694ada4
-      sha256: e6866409ba03df392ac5ec6f0d6ff9751a685ed917bfbcd8a73f550c5fe83c2b
+      md5: d7326344300afcd65b6c87f238301660
+      sha256: fedeeb51bf0ef7b986153f6a48418749d5a3aa5bcd6ea2153adc0c3549083d63
     manager: conda
     name: graphviz
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/graphviz-12.2.1-h5ae0cbf_1.conda
-    version: 12.2.1
+      https://conda.anaconda.org/conda-forge/linux-64/graphviz-13.1.1-h87b6fe6_0.conda
+    version: 13.1.1
   - category: main
     dependencies:
       beautifulsoup4: ''
@@ -2939,52 +2939,52 @@ package:
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
       cpp-expected: '>=1.1.0,<1.1.1.0a0'
-      fmt: '>=11.1.4,<11.2.0a0'
+      fmt: '>=11.2.0,<11.3.0a0'
       libarchive: '>=3.8.1,<3.9.0a0'
       libcurl: '>=8.14.1,<9.0a0'
-      libgcc: '>=13'
-      libsolv: '>=0.7.33,<0.8.0a0'
-      libstdcxx: '>=13'
+      libgcc: '>=14'
+      libsolv: '>=0.7.34,<0.8.0a0'
+      libstdcxx: '>=14'
       nlohmann_json: '>=3.11.3,<3.11.4.0a0'
-      openssl: '>=3.5.0,<4.0a0'
+      openssl: '>=3.5.1,<4.0a0'
       reproc: '>=14.2,<15.0a0'
       reproc-cpp: '>=14.2,<15.0a0'
       simdjson: '>=3.13.0,<3.14.0a0'
       yaml-cpp: '>=0.8.0,<0.9.0a0'
       zstd: '>=1.5.7,<1.6.0a0'
     hash:
-      md5: 6826be8fbb2b2105ef738dfb5d8db373
-      sha256: 817bee7c075ee99d73af95756f11a3ace3b84dc9994dadf09140b99f84bf19a7
+      md5: 357dacfcda7ef89d3d1089b8b41630a5
+      sha256: 1b6d4a19cedfc86cf87b6f854acfe1740971848f647d0d4ca89c166c240b1aa4
     manager: conda
     name: libmamba
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.3.0-h44402ff_1.conda
-    version: 2.3.0
+      https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.3.1-hae34dd5_0.conda
+    version: 2.3.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      fmt: '>=11.1.4,<11.2.0a0'
-      libgcc: '>=13'
-      libmamba: '>=2.3.0,<2.4.0a0'
-      libstdcxx: '>=13'
-      openssl: '>=3.5.0,<4.0a0'
+      fmt: '>=11.2.0,<11.3.0a0'
+      libgcc: '>=14'
+      libmamba: '>=2.3.1,<2.4.0a0'
+      libstdcxx: '>=14'
+      openssl: '>=3.5.1,<4.0a0'
       pybind11-abi: '4'
       python: ''
       python_abi: 3.11.*
       yaml-cpp: '>=0.8.0,<0.9.0a0'
       zstd: '>=1.5.7,<1.6.0a0'
     hash:
-      md5: 7ac71cd62ee3d154817a50180e954c63
-      sha256: 2cdbb1e9f54f32ebf137182f13af068d5d7c703401fcb569aabdfcd7fe9a8105
+      md5: 712b8a73c05308af56bca1714e97a523
+      sha256: b09dcc79a8204555dd62874c94e224119531529e3943d7b7a8af14b0489c8ab2
     manager: conda
     name: libmambapy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.3.0-py311hff7887e_1.conda
-    version: 2.3.0
+      https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.3.1-py311hb012d16_0.conda
+    version: 2.3.1
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -3407,20 +3407,20 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      libmamba: '>=2.3.0,<2.4.0a0'
+      libmamba: '>=2.3.1,<2.4.0a0'
       reproc: '>=14.2,<15.0a0'
       reproc-cpp: '>=14.2,<15.0a0'
       zstd: '>=1.5.7,<1.6.0a0'
     hash:
-      md5: e26a67ae277ddcc49a1111126bd7106e
-      sha256: 664f01fa2f3d4a47a7ae2798b1a2d674fcfdbbb3a759583c5419b64935b9d8c7
+      md5: 5cd3b421e69b60265401011955620153
+      sha256: 6f205584bf90ebea2fd7bc48d43ddf16abf0ebaa6a5b1a54a8fd4d5199356ce8
     manager: conda
     name: mamba
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/mamba-2.3.0-h233bd08_1.conda
-    version: 2.3.0
+      https://conda.anaconda.org/conda-forge/linux-64/mamba-2.3.1-h3841732_0.conda
+    version: 2.3.1
   - category: main
     dependencies:
       mdurl: '>=0.1,<1'
@@ -4271,19 +4271,19 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      graphviz: '>=12.0.0,<13.0a0'
-      libgcc: '>=13'
+      graphviz: '>=13.1.1,<14.0a0'
+      libgcc: '>=14'
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 7ec06aad0aaf2bbb04b3e97eebb95a3e
-      sha256: 0ddfbff3596d382b7498b42185d1852625cd949f77dab25f392329b2b61fdd1e
+      md5: f3597105ed18acd84b3f965975fd665f
+      sha256: b32ddbf6f531e0c18807ffbab1c56d058940c51cd40b65ec73633cbd7ee8025f
     manager: conda
     name: pygraphviz
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.14-py311hf885082_0.conda
+      https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.14-py311hf824169_1.conda
     version: '1.14'
   - category: main
     dependencies:
