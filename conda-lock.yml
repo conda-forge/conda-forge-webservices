@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: a2b39dcb7485e0d7682a531e18c874eb
-      sha256: 3f7a1ca473fd6fc281a43f7c133a1c223eeef1408bedbf2e7986841aa31bc6e4
+      md5: f86360cebd352ec2726fc97957dd80b5
+      sha256: 429283a2738a8c68daaf3186bde5a76ae73cd660fb4aa510f1bef6197ecf5185
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.6-pyhd8ed1ab_0.conda
-    version: 2025.8.6
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.11-pyhd8ed1ab_0.conda
+    version: 2025.8.11
   - category: main
     dependencies:
       click: '>=8'
@@ -2501,14 +2501,14 @@ package:
     dependencies:
       libopenblas: '>=0.3.30,<1.0a0'
     hash:
-      md5: 2af9f3d5c2e39f417ce040f5a35c40c6
-      sha256: 1540bf739feb446ff71163923e7f044e867d163c50b605c8b421c55ff39aa338
+      md5: b43d5de8fe73c2a5fb2b43f45301285b
+      sha256: 18b165b45f3cea3892fee25a91b231abf29f521df76c8fcc0c92f6cf5071a911
     manager: conda
     name: libblas
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/libblas-3.9.0-32_h59b9bed_openblas.conda
+      https://conda.anaconda.org/conda-forge/linux-64/libblas-3.9.0-33_h59b9bed_openblas.conda
     version: 3.9.0
   - category: main
     dependencies:
@@ -2558,14 +2558,14 @@ package:
     dependencies:
       libblas: 3.9.0
     hash:
-      md5: 3d3f9355e52f269cd8bc2c440d8a5263
-      sha256: 92a001fc181e6abe4f4a672b81d9413ca2f22609f8a95327dfcc6eee593ffeb9
+      md5: 28052b5e6ea5bd283ac343c5c064b950
+      sha256: b34271bb9c3b2377ac23c3fb1ecf45c08f8d09675ff8aad860f4e3c547b126a7
     manager: conda
     name: libcblas
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.9.0-32_he106b2a_openblas.conda
+      https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.9.0-33_he106b2a_openblas.conda
     version: 3.9.0
   - category: main
     dependencies:
@@ -2895,14 +2895,14 @@ package:
     dependencies:
       libblas: 3.9.0
     hash:
-      md5: 6c3f04ccb6c578138e9f9899da0bd714
-      sha256: 5b55a30ed1b3f8195dad9020fe1c6d0f514829bfaaf0cf5e393e93682af009f2
+      md5: e598bb54c4a4b45c3d83c72984f79dbb
+      sha256: 60c2ccdfa181bc304b5162c73cdecb5b4c3972da71758472c71fefb33965cde3
     manager: conda
     name: liblapack
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.9.0-32_h7ac8fdf_openblas.conda
+      https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.9.0-33_h7ac8fdf_openblas.conda
     version: 3.9.0
   - category: main
     dependencies:
@@ -5014,28 +5014,28 @@ package:
       tomli: '>=1.0.0'
       typing-extensions: ''
     hash:
-      md5: 996376098e3648237b3efb0e0ad460c1
-      sha256: f2c94e01f7998aab77edd996afc63482556b1d935e23fc14361889ee89424d16
+      md5: 6c87f9ad6267cf3bfdec22f4b5a183bc
+      sha256: 1f06e6280c74cb00d1b1c3383d58acc43aa84c60a2678d94c345a0ea74401b6c
     manager: conda
     name: setuptools-scm
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/setuptools-scm-8.3.1-pyhd8ed1ab_0.conda
-    version: 8.3.1
+      https://conda.anaconda.org/conda-forge/noarch/setuptools-scm-9.0.1-pyhd8ed1ab_0.conda
+    version: 9.0.1
   - category: main
     dependencies:
-      setuptools-scm: '>=8.3.1,<8.3.2.0a0'
+      setuptools-scm: '>=9.0.1,<9.0.2.0a0'
     hash:
-      md5: 38ca080dff1a30a6fd3aec989062b255
-      sha256: 726d9a8a626e4f87cfb58491d859949511499d20f4fc776a6cfbddfc35e06e50
+      md5: c4f46752295606e97abd5dc96ae75fbe
+      sha256: 886db693a9b71ce2d3cca43d885c6805086ff7259a2332776d990ba10a9f94cb
     manager: conda
     name: setuptools_scm
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/setuptools_scm-8.3.1-hd8ed1ab_0.conda
-    version: 8.3.1
+      https://conda.anaconda.org/conda-forge/noarch/setuptools_scm-9.0.1-hd8ed1ab_0.conda
+    version: 9.0.1
   - category: main
     dependencies:
       python: '>=3.9'
@@ -5554,15 +5554,15 @@ package:
       platformdirs: '>=3.9.1,<5'
       python: '>=3.9'
     hash:
-      md5: a4edda3f0d6f5f3dac3e210ee4a62bc7
-      sha256: 6916afd6dffd7c209ab91e3ae385059d8f04cad7672b7daff7e1751c0956794b
+      md5: 3f6ee060b1462c29b3442df71939a358
+      sha256: 7b8328d79cb7ec19929ec955fe4dbb938d35da391a74a3974c47ca2622c64b04
     manager: conda
     name: virtualenv
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/virtualenv-20.33.0-pyhd8ed1ab_0.conda
-    version: 20.33.0
+      https://conda.anaconda.org/conda-forge/noarch/virtualenv-20.33.1-pyhd8ed1ab_0.conda
+    version: 20.33.1
   - category: main
     dependencies:
       msrest: '>=0.6.0,<0.7.0'
