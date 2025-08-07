@@ -1011,15 +1011,15 @@ package:
       pyyaml: ''
       requests: ''
     hash:
-      md5: 3f8aee9ec1e3f06fb6fc879c0cc0b1b8
-      sha256: b2d8f9333ec02ca6b139238916f5caa6d8f5a53397a0162673fac8096dcffc3b
+      md5: 2b29b8511e41df13644241cb6eb7c829
+      sha256: 19483ba2bfba5c5f35a7bd65ea75658eed17cdc49bcca098e305526a2ccf72f6
     manager: conda
     name: conda-recipe-manager
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.6.0-pyhd8ed1ab_0.conda
-    version: 0.6.0
+      https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.6.1-pyhd8ed1ab_0.conda
+    version: 0.6.1
   - category: main
     dependencies:
       __unix: ''
@@ -5538,15 +5538,15 @@ package:
       libgcc: '>=14'
       libstdcxx: '>=14'
     hash:
-      md5: f73ac113aa23bcbd045b7357a3438beb
-      sha256: f9369c233e6f7e29e4311e36a9affe70654e3f3a9a2525e6e5bbe464a1145f52
+      md5: 4d7f455410af4550371d3166eb20ae64
+      sha256: cbbbfb0712ed88a6524e8e3c5af6a906f53ab03344cf1a585f2429a6ab55f8b6
     manager: conda
     name: uv
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/uv-0.8.5-heb9285d_0.conda
-    version: 0.8.5
+      https://conda.anaconda.org/conda-forge/linux-64/uv-0.8.6-heb9285d_0.conda
+    version: 0.8.6
   - category: main
     dependencies:
       distlib: '>=0.3.7,<1'
