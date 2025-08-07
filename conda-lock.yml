@@ -787,15 +787,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: b8f8f33f1487c071f9671e24b497328a
-      sha256: c00def8ec724c2f084e56ea83ae23c05897b45a3f7c8b613959bf66a585b3627
+      md5: 6b90ef802b59e88ef7c78ced0a1bbc56
+      sha256: 6a048a7cc6f6a908b6caa7c1b5b2464385870174b23f57aa7b907f36ce1ba4d0
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.06.23.06.56-hd8ed1ab_0.conda
-    version: 2025.08.06.23.06.56
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.07.10.38.00-hd8ed1ab_0.conda
+    version: 2025.08.07.10.38.00
   - category: main
     dependencies:
       attrs: ''
@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: f86360cebd352ec2726fc97957dd80b5
-      sha256: 429283a2738a8c68daaf3186bde5a76ae73cd660fb4aa510f1bef6197ecf5185
+      md5: f9808197a39192d09655a10fe292c4a3
+      sha256: 6ff0965db971c1070a212b90e37e545313ed5427f6fa382520881770e6220028
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.11-pyhd8ed1ab_0.conda
-    version: 2025.8.11
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.15-pyhd8ed1ab_0.conda
+    version: 2025.8.15
   - category: main
     dependencies:
       click: '>=8'
@@ -4861,19 +4861,19 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      libgcc: '>=13'
+      libgcc: '>=14'
       python: ''
       python_abi: 3.11.*
     hash:
-      md5: 875fcd394b4ea7df4f73827db7674a82
-      sha256: 552e826f953f974f20573c8fb061136a24ca0456c73ecf99e0da24c2aed281e8
+      md5: 397e7e07356db9425069fa86e8920404
+      sha256: c32892bc6ec30f932424c6a02f2b6de1062581a1cc942127792ec7980ddc31aa
     manager: conda
     name: rpds-py
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.26.0-py311hdae7d1d_0.conda
-    version: 0.26.0
+      https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.27.0-py311h902ca64_0.conda
+    version: 0.27.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -5354,15 +5354,15 @@ package:
     dependencies:
       python: '>=3.9'
     hash:
-      md5: 764db08a8d868de9e377d88277c75d83
-      sha256: 455b7b0dc0cf7e4a6fcc41455b4fd7f646b3b842e6dc0d894438366827d7d9b2
+      md5: 8bafd50025b4faec22ef275bfc877671
+      sha256: e39419532699b07aa539a91b15430f99b9cc2a895e19bf111b20445cd55a2e2f
     manager: conda
     name: trove-classifiers
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/trove-classifiers-2025.5.9.12-pyhd8ed1ab_0.conda
-    version: 2025.5.9.12
+      https://conda.anaconda.org/conda-forge/noarch/trove-classifiers-2025.8.6.13-pyhd8ed1ab_0.conda
+    version: 2025.8.6.13
   - category: main
     dependencies:
       python: ''
