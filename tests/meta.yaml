@@ -11,7 +11,7 @@ source:
 
 build:
   number: 0
-  skip: true  # [py != 39 or win or aarch64 or ppc64le or s390x]
+  skip: true  # [py != 313 or win or aarch64 or ppc64le or s390x]
 
 requirements:
   host:
