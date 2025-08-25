@@ -286,19 +286,19 @@ package:
     version: 1.2.0
   - category: main
     dependencies:
-      python: '>=3.9'
+      python: '>=3.10'
       soupsieve: '>=1.2'
       typing-extensions: ''
     hash:
-      md5: 9f07c4fc992adb2d6c30da7fab3959a7
-      sha256: ddb0df12fd30b2d36272f5daf6b6251c7625d6a99414d7ea930005bbaecad06d
+      md5: de0fd9702fd4c1186e930b8c35af6b6b
+      sha256: d2124c0ea13527c7f54582269b3ae19541141a3740d6d779e7aa95aa82eaf561
     manager: conda
     name: beautifulsoup4
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.4-pyha770c72_0.conda
-    version: 4.13.4
+      https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.13.5-pyha770c72_0.conda
+    version: 4.13.5
   - category: main
     dependencies:
       python: '>=3.9'
@@ -787,15 +787,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: ecb181d7ffef4d70736c6a5370ad816d
-      sha256: 65c386af15591f68ce6514241360a75792f56ce1e7403e58f7cfc8588310bb39
+      md5: 3a800da7ddaa4099f6af02bf5bc62c41
+      sha256: 8e07f58aeecd99a187a99fbe6f26757b1eea9ddb8861b65c5e54e2a949109ca7
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.24.11.52.40-hd8ed1ab_0.conda
-    version: 2025.08.24.11.52.40
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.25.03.18.12-hd8ed1ab_0.conda
+    version: 2025.08.25.03.18.12
   - category: main
     dependencies:
       attrs: ''
@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 1d2ef8c80fbaa30623fa525b31a48bb1
-      sha256: 0bb604b318bf7a807b35a04c13b42518857a1e3db341d55ec012ebbc7253f919
+      md5: a628e15f889237e4d478a6e4d8c820cf
+      sha256: d2be7ecd1c220133b8a0eccb82bfc6690550446c7a1c55e9f2e71b9e34fbfa5c
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.60-pyhd8ed1ab_0.conda
-    version: 2025.8.60
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.63-pyhd8ed1ab_0.conda
+    version: 2025.8.63
   - category: main
     dependencies:
       click: '>=8'
@@ -1652,18 +1652,18 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      libgcc: '>=13'
+      libgcc: '>=14'
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 5ed089614b88920f8cc673fe3bc34558
-      sha256: a33ef893e4c09e9a22851b4813a28e2a4a536819eed25491d9d26533b47c8a3b
+      md5: ae1979df507c82c25f19dc53bc8a2206
+      sha256: 0850f1215c12e330453657f37c6c64a05d8f663aef451492f603fef0f3c807f4
     manager: conda
     name: frozendict
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/frozendict-2.4.6-py311h9ecbd09_0.conda
+      https://conda.anaconda.org/conda-forge/linux-64/frozendict-2.4.6-py311h49ec1c0_1.conda
     version: 2.4.6
   - category: main
     dependencies:
@@ -5983,18 +5983,18 @@ package:
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
       cffi: '>=1.11'
-      libgcc: '>=13'
+      libgcc: '>=14'
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: ca02de88df1cc3cfc8f24766ff50cb3c
-      sha256: 76d28240cc9fa0c3cb2cde750ecaf98716ce397afaf1ce90f8d18f5f43a122f1
+      md5: 493d5b49a7b416746b2fe41c82e27dce
+      sha256: 2d2adc6539abbab7a599357b73faf8e3d8c9fc40f31d9fdf2e2927c315f02a6a
     manager: conda
     name: zstandard
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.23.0-py311h9ecbd09_2.conda
+      https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.23.0-py311h49ec1c0_3.conda
     version: 0.23.0
   - category: main
     dependencies:
