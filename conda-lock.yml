@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 35da0a4fa3e824e48470672b47020d3b
-      sha256: 7d4faf716e38869de741cb049914c78b6f691c8d244e3c3f586349e66a2ad19f
+      md5: 6f21d247a630324a2cc4d093c35d153c
+      sha256: 00597bc6e8b4561e8e91566830fa3246dd525ae4c292d1a080fbaaaef537663a
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.69-pyhd8ed1ab_0.conda
-    version: 2025.8.69
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.73-pyhd8ed1ab_0.conda
+    version: 2025.8.73
   - category: main
     dependencies:
       click: '>=8'
@@ -3516,14 +3516,14 @@ package:
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 1536e33294b7907d6d8e9249f0def528
-      sha256: bf01b40d982330543305c03730e2c0220f2048d0dec95e2ddc8a8f98e8bc8104
+      md5: 9956c4d282c21ae4e8b064a8ddd5bc29
+      sha256: 377f414e34bf551c99a57d3c33f3a4c1c62fcdc0aa5911da5f1f87e53b0cca86
     manager: conda
     name: menuinst
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.3.1-py311h38be061_0.conda
+      https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.3.1-py311h38be061_1.conda
     version: 2.3.1
   - category: main
     dependencies:
@@ -3748,15 +3748,15 @@ package:
       python: ''
       python_abi: 3.11.*
     hash:
-      md5: 9db43476156095484a7e6c25fd372e45
-      sha256: aecf6ada094fde756a4628f782dd71ca610c5a4e9a3502c3039ea88f11439c3b
+      md5: c0e654637da04d04aa5754d2e36663bc
+      sha256: 17ed0e5f041625a3ea906de967a50e02b6ff1179e47e7fc78d12e3b47fe0fa68
     manager: conda
     name: orjson
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.2-py311h902ca64_0.conda
-    version: 3.11.2
+      https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.3-py311h902ca64_0.conda
+    version: 3.11.3
   - category: main
     dependencies:
       python: ''
