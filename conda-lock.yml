@@ -345,15 +345,15 @@ package:
       python-dateutil: '>=2.1,<3.0.0'
       urllib3: '>=1.25.4,!=2.2.0,<3'
     hash:
-      md5: 42f86fbce14d7a025ff914cfc7e5450e
-      sha256: ae41db8e340a72fcf7f4804fbaa12c8c46da033637cfd205a6bf05a811ab40bb
+      md5: c759b495d45486f818eb977fc8cf6234
+      sha256: 5b99ff12fa547c2a15688920cb382abe3a5ecd8ae547a4333e3c36657528bba0
     manager: conda
     name: botocore
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/botocore-1.40.18-pyhd8ed1ab_0.conda
-    version: 1.40.18
+      https://conda.anaconda.org/conda-forge/noarch/botocore-1.40.20-pyhd8ed1ab_0.conda
+    version: 1.40.20
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -787,15 +787,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 564b4306749c7863e475bd797c08a3f0
-      sha256: 725f831f6a9c11bb340b5ea5776cb8b6cb707236f865cc0c351314f895099ad5
+      md5: 041306972652089ed098b0f6713b32b4
+      sha256: e62102f5a25f1350a0f05073f65d32f6fa7232d27a5ff89f1fc9c495923e445f
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.27.14.08.27-hd8ed1ab_0.conda
-    version: 2025.08.27.14.08.27
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.28.20.53.16-hd8ed1ab_0.conda
+    version: 2025.08.28.20.53.16
   - category: main
     dependencies:
       attrs: ''
@@ -853,15 +853,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 6f21d247a630324a2cc4d093c35d153c
-      sha256: 00597bc6e8b4561e8e91566830fa3246dd525ae4c292d1a080fbaaaef537663a
+      md5: ebf6cc8c80c35a347971915df632e8e8
+      sha256: 7d298d7342bec3053b4f02eb9e63d10875ec7c7ba1e9078cf8280f0396fdad2a
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.73-pyhd8ed1ab_0.conda
-    version: 2025.8.73
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.8.84-pyhd8ed1ab_0.conda
+    version: 2025.8.84
   - category: main
     dependencies:
       click: '>=8'
@@ -1613,15 +1613,15 @@ package:
       python_abi: 3.11.*
       unicodedata2: '>=15.1.0'
     hash:
-      md5: a879d36924dd853bf855ed423b02d92b
-      sha256: a272826eb8bda4c7207db735448f67f1e5ce79a08eb5a78271c62d9ea452a275
+      md5: 5be2463c4d16a021dd571d7bf56ac799
+      sha256: f2685b212f3d84d2ba4fc89a03442724a94166ee8a9c1719efed0d7a07d474cb
     manager: conda
     name: fonttools
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.59.1-py311h3778330_0.conda
-    version: 4.59.1
+      https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.59.2-py311h3778330_0.conda
+    version: 4.59.2
   - category: main
     dependencies:
       libfreetype: 2.13.3
@@ -1940,17 +1940,17 @@ package:
     dependencies:
       hpack: '>=4.1,<5'
       hyperframe: '>=6.1,<7'
-      python: '>=3.9'
+      python: ''
     hash:
-      md5: b4754fb1bdcb70c8fd54f918301582c6
-      sha256: 0aa1cdc67a9fe75ea95b5644b734a756200d6ec9d0dff66530aec3d1c1e9df75
+      md5: 164fc43f0b53b6e3a7bc7dce5e4f1dc9
+      sha256: 84c64443368f84b600bfecc529a1194a3b14c3656ee2e832d15a20e0329b6da3
     manager: conda
     name: h2
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/h2-4.2.0-pyhd8ed1ab_0.conda
-    version: 4.2.0
+      https://conda.anaconda.org/conda-forge/noarch/h2-4.3.0-pyhcf101f3_0.conda
+    version: 4.3.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -3665,17 +3665,17 @@ package:
       libgcc: '>=14'
       liblapack: '>=3.9.0,<4.0a0'
       libstdcxx: '>=14'
-      python: '>=3.11,<3.12.0a0'
+      python: ''
       python_abi: 3.11.*
     hash:
-      md5: 768227d126f180ca9212d2ce8d69497d
-      sha256: 079a9183d7e15afb3ec75290e1c3618959241fa6f2bd67fd5a659281560eff12
+      md5: 7fb6248106c55e3ccd29ac675be01fac
+      sha256: a8be67f8be3354e33da3adacb021f7f93971ddc466d79eab412151bf5dc58cf4
     manager: conda
     name: numpy
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/numpy-2.3.2-py311h9517ec2_1.conda
+      https://conda.anaconda.org/conda-forge/linux-64/numpy-2.3.2-py311h2e04523_2.conda
     version: 2.3.2
   - category: main
     dependencies:
@@ -4661,21 +4661,21 @@ package:
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
-      libgcc: '>=13'
-      libstdcxx: '>=13'
+      libgcc: '>=14'
+      libstdcxx: '>=14'
       numpy: ''
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: 9f4a6ee8fe126c8afe71230d0febb9ec
-      sha256: c8cf544f1e8e0a50b1dd774062bb4d56adcb7b5f5f03dbf7ccfcb236639311a2
+      md5: 1cd0a6a7251df005b1b918f10222a198
+      sha256: 193fd72c41cc047cf403cb79b77ffc258cbaea25a8c8c22d166bd59a8d89a8db
     manager: conda
     name: rapidfuzz
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rapidfuzz-3.13.0-py311hfdbb021_0.conda
-    version: 3.13.0
+      https://conda.anaconda.org/conda-forge/linux-64/rapidfuzz-3.14.0-py311h1ddb823_0.conda
+    version: 3.14.0
   - category: main
     dependencies:
       __glibc: '>=2.17,<3.0.a0'
@@ -5145,17 +5145,17 @@ package:
     version: 2.4.0
   - category: main
     dependencies:
-      python: '>=3.9'
+      python: '>=3.10'
     hash:
-      md5: fb32097c717486aa34b38a9db57eb49e
-      sha256: 7518506cce9a736042132f307b3f4abce63bf076f5fb07c1f4e506c0b214295a
+      md5: 18c019ccf43769d211f2cf78e9ad46c2
+      sha256: c978576cf9366ba576349b93be1cfd9311c00537622a2f9e14ba2b90c97cae9c
     manager: conda
     name: soupsieve
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/soupsieve-2.7-pyhd8ed1ab_0.conda
-    version: '2.7'
+      https://conda.anaconda.org/conda-forge/noarch/soupsieve-2.8-pyhd8ed1ab_0.conda
+    version: '2.8'
   - category: main
     dependencies:
       python: '>=3.9'
