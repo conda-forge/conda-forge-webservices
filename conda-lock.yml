@@ -735,19 +735,20 @@ package:
       wurlitzer: ''
       zstandard: ''
     hash:
-      md5: e73c0857684ba77063e1f6232c9bcd3c
-      sha256: 281628921f2132d500390edcf38f7cfdd3c9a383d2096a11a7b6fd5f27cd021a
+      md5: 68d3dc5e8229fd17862a5b8e74a24b4a
+      sha256: f3c8751cb523ea5dc454269ac2e0807b35385d1d6b8f4e982fedc32bffe2f7aa
     manager: conda
     name: conda-forge-feedstock-check-solvable
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-check-solvable-0.10.1-pyhd8ed1ab_0.conda
-    version: 0.10.1
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-check-solvable-0.11.0-pyhd8ed1ab_0.conda
+    version: 0.11.0
   - category: main
     dependencies:
       click: ''
       conda-build: '>=3.27'
+      conda-forge-tick: '>=2025.3.22'
       conda-smithy: '>=3.40.1'
       pydantic-settings: ''
       python: '>=3.11'
@@ -755,15 +756,15 @@ package:
       pyyaml: ''
       rattler-build-conda-compat: '>=0.0.2,<2.0.0a0'
     hash:
-      md5: 7b442e74087b017a26654ec1c991e42c
-      sha256: 73d03669a92c2a33904200d0df8434aa82a9df9f526735816f2a3c22ac0185c2
+      md5: 1a17fad73a7f288c7e7a2ef44706fbde
+      sha256: 03f520be04d79340b7cd172b14b410e616362883051a3deb493da42ba49fd1f5
     manager: conda
     name: conda-forge-feedstock-ops
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.12.0-pyhd8ed1ab_0.conda
-    version: 0.12.0
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.13.0-pyhd8ed1ab_0.conda
+    version: 0.13.0
   - category: main
     dependencies:
       beautifulsoup4: ''
@@ -787,15 +788,15 @@ package:
   - category: main
     dependencies: {}
     hash:
-      md5: 041306972652089ed098b0f6713b32b4
-      sha256: e62102f5a25f1350a0f05073f65d32f6fa7232d27a5ff89f1fc9c495923e445f
+      md5: 10242a21b487e84e8f9e11d34bb4ccd5
+      sha256: 7eadc8bb51c0dd637498a99243706eb9a4f8624df60cb583b8accf48c2457da1
     manager: conda
     name: conda-forge-pinning
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.28.20.53.16-hd8ed1ab_0.conda
-    version: 2025.08.28.20.53.16
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.08.29.18.03.47-hd8ed1ab_0.conda
+    version: 2025.08.29.18.03.47
   - category: main
     dependencies:
       attrs: ''
@@ -2392,14 +2393,14 @@ package:
       python: ''
       python_abi: 3.11.*
     hash:
-      md5: 9c869454a8fdb86fabd93df6cf6075a3
-      sha256: 51813a024ff9ed172ebd8042ad5927400ece08da2498f815cb61f93c6a455b34
+      md5: 92720706b174926bc7238cc24f3b5956
+      sha256: 029a00a337e307256beab9cbaefc2c23cd28f040fff6f087703a63bc7487fc14
     manager: conda
     name: kiwisolver
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/kiwisolver-1.4.9-py311h724c32c_0.conda
+      https://conda.anaconda.org/conda-forge/linux-64/kiwisolver-1.4.9-py311h724c32c_1.conda
     version: 1.4.9
   - category: main
     dependencies:
