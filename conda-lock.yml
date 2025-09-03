@@ -4684,15 +4684,15 @@ package:
       openssl: '>=3.5.2,<4.0a0'
       patchelf: ''
     hash:
-      md5: bcb9aefec62f3802a538209811c61934
-      sha256: ac6beec6bda1223348d8a14a73681a4d578a6749d99bea3e54a815ef276ebff1
+      md5: 98366f1ada223a785f0dc24ed211a99c
+      sha256: aa71bcaf81c71da4a9137777249970c426a37afd46b7960b3e8c397f553a7f40
     manager: conda
     name: rattler-build
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.46.0-h60886be_0.conda
-    version: 0.46.0
+      https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.47.0-h60886be_0.conda
+    version: 0.47.0
   - category: main
     dependencies:
       conda-build: ''
@@ -4973,14 +4973,14 @@ package:
       python: '>=3.11,<3.12.0a0'
       python_abi: 3.11.*
     hash:
-      md5: b7d5a90193f112c78e25befb013dd606
-      sha256: e7d68675349e80416aa0d4fb8262c2f4a223ef9e6e430704be3f809ea0c34d57
+      md5: e8131ef5f338f7982dd93c0103687551
+      sha256: 633a03b7bf6cd32cf2de2f349e968fbb8a14b46edb427ea83ba311a4868d5609
     manager: conda
     name: secretstorage
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/linux-64/secretstorage-3.3.3-py311h38be061_3.conda
+      https://conda.anaconda.org/conda-forge/linux-64/secretstorage-3.3.3-py311h38be061_4.conda
     version: 3.3.3
   - category: main
     dependencies:
