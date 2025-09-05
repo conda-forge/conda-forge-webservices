@@ -76,6 +76,9 @@ def _worker_pool(kind):
                 # needed for mocks in testing
                 COMMAND_POOL = ThreadPoolExecutor(max_workers=2)
             else:
+                # we only use one process here to conserve memory.
+                # we have to use a process because the commands
+                # run git operations which are not thread safe.
                 COMMAND_POOL = ProcessPoolExecutor(max_workers=1)
         return COMMAND_POOL
     elif kind == "upload":
