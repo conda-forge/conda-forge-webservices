@@ -70,15 +70,15 @@ def _worker_pool(kind):
     global UPLOAD_POOL
     global COPYLOCK
 
-    # if kind == "command":
-    #     if COMMAND_POOL is None:
-    #         if "PYTEST_CURRENT_TEST" in os.environ:
-    #             # needed for mocks in testing
-    #             COMMAND_POOL = ThreadPoolExecutor(max_workers=2)
-    #         else:
-    #             COMMAND_POOL = ProcessPoolExecutor(max_workers=2)
-    #     return COMMAND_POOL
-    if kind == "upload" or kind == "command":
+    if kind == "command":
+        if COMMAND_POOL is None:
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                # needed for mocks in testing
+                COMMAND_POOL = ThreadPoolExecutor(max_workers=2)
+            else:
+                COMMAND_POOL = ThreadPoolExecutor(max_workers=2)
+        return COMMAND_POOL
+    elif kind == "upload":
         if UPLOAD_POOL is None:
             if "PYTEST_CURRENT_TEST" in os.environ:
                 # needed for mocks in testing
