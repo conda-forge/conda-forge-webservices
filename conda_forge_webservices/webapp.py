@@ -76,7 +76,7 @@ def _worker_pool(kind):
                 # needed for mocks in testing
                 COMMAND_POOL = ThreadPoolExecutor(max_workers=2)
             else:
-                COMMAND_POOL = ThreadPoolExecutor(max_workers=2)
+                COMMAND_POOL = ProcessPoolExecutor(max_workers=1)
         return COMMAND_POOL
     elif kind == "upload":
         if UPLOAD_POOL is None:
