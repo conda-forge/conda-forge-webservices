@@ -88,3 +88,34 @@ jobs:
         env:
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+
+  keep-alive:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'issue_comment'
+    steps:
+      - name: Generate token for conda-forge
+        id: generate_token_conda_forge
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b
+        with:
+          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          owner: conda-forge
+      - name: Re-enable workflows in conda-forge
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token_conda_forge.outputs.token }}
+        shell: sh
+        run: |
+          gh api -X PUT "repos/conda-forge/docker-images/actions/workflows/ci.yaml/enable"
+      - name: Generate token for channel-mirrors
+        id: generate_token_channel_mirrors
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b
+        with:
+          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          owner: channel-mirrors
+      - name: Re-enable workflows in channel-mirrors
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token_channel_mirrors.outputs.token }}
+        shell: sh
+        run: |
+          gh api -X PUT "repos/channel-mirrors/mirrormirror/actions/workflows/cron.yml/enable"
