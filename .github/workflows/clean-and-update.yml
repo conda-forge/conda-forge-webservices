@@ -24,18 +24,20 @@ jobs:
           skip-if-pr-exists: true
           include-only-packages:
             anaconda-client
-            conda-smithy
             conda
             conda-build
-            conda-libmamba-solver
-            mamba
             conda-forge-ci-setup
-            conda-forge-tick
             conda-forge-feedstock-ops
+            conda-forge-tick
+            conda-libmamba-solver
             conda-recipe-manager
+            conda-smithy
             conda-souschef
+            mamba
             rattler-build
             rattler-build-conda-compat
+            pixi
+            py-rattler
 
       - name: generate token
         id: generate_token
