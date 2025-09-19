@@ -16,24 +16,54 @@ jobs:
           token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 
       - name: relock
-        uses: beckermr/relock-conda@1187b776400478c5ff35d4cf423da23a80bbdd4c
+        id: relock
+        uses: conda-incubator/relock-conda@1187b776400478c5ff35d4cf423da23a80bbdd4c
         with:
           github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
           automerge: true
           skip-if-pr-exists: true
           include-only-packages:
             anaconda-client
-            conda-smithy
             conda
             conda-build
-            conda-libmamba-solver
-            mamba
-            conda-forge-tick
+            conda-forge-ci-setup
             conda-forge-feedstock-ops
+            conda-forge-tick
+            conda-libmamba-solver
             conda-recipe-manager
+            conda-smithy
             conda-souschef
+            mamba
             rattler-build
             rattler-build-conda-compat
+            pixi
+            py-rattler
+
+      - name: generate token
+        id: generate_token
+        if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b
+        with:
+          app-id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+          owner: conda-forge
+          repositories: docker-images
+
+      - name: re-enable conda-forge/docker-images workflow
+        if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
+        shell: sh
+        run: |
+          gh api -X PUT "repos/conda-forge/docker-images/actions/workflows/ci.yaml/enable"
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+
+      - name: rebuild conda-forge/docker-images
+        uses: benc-uk/workflow-dispatch@e2e5e9a103e331dad343f381a29e654aea3cf8fc # v1.2.4
+        if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
+        with:
+          repo: conda-forge/docker-images
+          workflow: ci.yaml
+          token: ${{ steps.generate_token.outputs.token }}
 
   clean-and-cache:
     name: clean-and-cache
