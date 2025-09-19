@@ -46,7 +46,15 @@ jobs:
           owner: conda-forge
           repositories: docker-images
 
-      - name: rebuild docker images for CI jobs
+      - name: re-enable conda-forge/docker-images workflow
+        if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
+        shell: sh
+        run: |
+          gh api -X PUT "repos/conda-forge/docker-images/actions/workflows/ci.yaml/enable"
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+
+      - name: rebuild conda-forge/docker-images
         uses: benc-uk/workflow-dispatch@e2e5e9a103e331dad343f381a29e654aea3cf8fc # v1.2.4
         if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
         with:
