@@ -39,7 +39,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        if: steps.relock.outputs.relocked == 'true'
+        if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
         uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
