@@ -855,15 +855,15 @@ package:
       wurlitzer: ''
       yaml: ''
     hash:
-      md5: 80f4bb123586511a93f34086d5131b7f
-      sha256: e3ebe3407c8e17a27c77fafdd0025748edfc57ae699f8ae9fd6501428243924d
+      md5: 51e370759a981578ac28fd258e67ae35
+      sha256: 634e452b42547f614566bc79b0c2d39434bc2312c5fb7349c51aab7b36fd3db1
     manager: conda
     name: conda-forge-tick
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.9.87-pyhd8ed1ab_0.conda
-    version: 2025.9.87
+      https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.9.88-pyhd8ed1ab_0.conda
+    version: 2025.9.88
   - category: main
     dependencies:
       click: '>=8'
@@ -4377,15 +4377,15 @@ package:
     dependencies:
       python: ''
     hash:
-      md5: bf1f1292fc78307956289707e85cb1bf
-      sha256: c3260cf948da6345770d75ae559d716e557580eddcd19623676931d172346969
+      md5: 6c8979be6d7a17692793114fa26916e8
+      sha256: 6814b61b94e95ffc45ec539a6424d8447895fef75b0fec7e1be31f5beee883fb
     manager: conda
     name: pyparsing
     optional: false
     platform: linux-64
     url:
-      https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.4-pyhcf101f3_0.conda
-    version: 3.2.4
+      https://conda.anaconda.org/conda-forge/noarch/pyparsing-3.2.5-pyhcf101f3_0.conda
+    version: 3.2.5
   - category: main
     dependencies:
       python: '>=3.9'
