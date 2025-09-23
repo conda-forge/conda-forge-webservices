@@ -624,7 +624,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                             do_rerender = False
                             check_bump_build = False
                             pr_title = f"[ci skip] {gerund} user @{user}"
-                            to_close = ADD_USER.search(title) or REMOVE_USER.search(title)
+                            to_close = ADD_USER.search(title) or REMOVE_USER.search(
+                                title
+                            )
                             extra_msg = (
                                 f"\n\nMerge this PR to {verb} the user. Please do not rerender "  # noqa
                                 "this PR or change it in any way. It has `[ci skip]` in "  # noqa
