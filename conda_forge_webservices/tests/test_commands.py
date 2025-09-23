@@ -304,11 +304,27 @@ def test_pr_command_triggers(
                 "add user @blah, @conda-forge-admin",
             ],
         ),
+        (
+            "remove_user",
+            [
+                "@conda-forge-admin, please remove user @blah",
+                "@conda-forge-admin, remove user @blah",
+                "something something. @conda-forge-admin: please remove user @blah",
+            ],
+            [
+                "@conda-forge admin is pretty cool. please remove user @blah",
+                "@conda-forge admin is pretty cool. rerun remove user @blah?",
+                "@conda-forge-admin, go ahead and rerun remove user @blah?",
+                "please remove user @blah, @conda-forge-admin",
+                "remove user @blah, @conda-forge-admin",
+            ],
+        ),
     ],
 )
 @mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
 @mock.patch("conda_forge_webservices.commands.update_version")
 @mock.patch("conda_forge_webservices.commands.add_user")
+@mock.patch("conda_forge_webservices.commands.remove_user")
 @mock.patch("conda_forge_webservices.commands.make_rerender_dummy_commit")
 @mock.patch("conda_forge_webservices.commands.add_bot_automerge")
 @mock.patch("conda_forge_webservices.commands.rerender")
@@ -329,6 +345,7 @@ def test_issue_command_triggers(
     add_bot_automerge,
     rerender_dummy_commit,
     add_user,
+    remove_user,
     update_version,
     get_app_token_for_webservices_only,
     command,
@@ -350,6 +367,8 @@ def test_issue_command_triggers(
         command = update_team
     elif command == "add_user":
         command = add_user
+    elif command == "remove_user":
+        command = remove_user
     else:
         raise ValueError(f"Unknown command: {command}")
 
@@ -370,7 +389,7 @@ def test_issue_command_triggers(
             rerender_dummy_commit.assert_called()
         else:
             rerender_dummy_commit.assert_not_called()
-        if command is add_user:
+        if command in (add_user, remove_user):
             command.assert_called_with(git_repo.clone_from.return_value, "blah")
 
         rerender_dummy_commit.reset_mock()
@@ -384,6 +403,7 @@ def test_issue_command_triggers(
             make_noarch,
             add_bot_automerge,
             add_user,
+            remove_user,
             update_version,
         ):
             assert "Fixes #" in repo.create_pull.call_args.kwargs["body"]
@@ -393,7 +413,7 @@ def test_issue_command_triggers(
             rerender_dummy_commit.assert_called()
         else:
             rerender_dummy_commit.assert_not_called()
-        if command is add_user:
+        if command in (add_user, remove_user):
             command.assert_called_with(git_repo.clone_from.return_value, "blah")
 
         rerender_dummy_commit.reset_mock()

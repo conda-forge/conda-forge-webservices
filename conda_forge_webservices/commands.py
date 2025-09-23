@@ -12,6 +12,7 @@ from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
 import logging
+from typing import Literal
 
 # from .utils import tmp_directory
 from .linting import (
@@ -57,6 +58,7 @@ REMOVE_BOT_AUTOMERGE = re.compile(
     pre + "(please )?(remove|delete|stop|disable) bot auto-?merge", re.I
 )
 ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
+REMOVE_USER = re.compile(pre + r"(please )?remove user @(?P<user>\S+)$", re.I)
 UPDATE_VERSION = re.compile(
     pre + r"(please )?update (the )?version( to (?P<ver>\S+))?",
     re.I,
@@ -398,6 +400,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
         UPDATE_CB3_MSG,
         ADD_BOT_AUTOMERGE,
         ADD_USER,
+        REMOVE_USER,
         REMOVE_BOT_AUTOMERGE,
         UPDATE_VERSION,
     ]
@@ -407,6 +410,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
         UPDATE_CB3_MSG,
         ADD_BOT_AUTOMERGE,
         ADD_USER,
+        REMOVE_USER,
         REMOVE_BOT_AUTOMERGE,
         UPDATE_VERSION,
     ]
@@ -579,43 +583,50 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                 extra_msg = "\n\nMerge this PR to disable bot automerging.\n"
 
                 changed_anything |= remove_bot_automerge(git_repo)
-            elif ADD_USER.search(text):
-                if ADD_USER.search(title):
-                    m = ADD_USER.search(title)
+            elif ADD_USER.search(text) or REMOVE_USER.search(text):
+                if m := (ADD_USER.search(title) or ADD_USER.search(comment)):
+                    verb, past_verb, gerund = "add", "added", "adding"
                     user = m.group("user")
-                elif ADD_USER.search(comment):
-                    m = ADD_USER.search(comment)
+                elif m := (REMOVE_USER.search(title) or REMOVE_USER.search(comment)):
+                    verb, past_verb, gerund = "remove", "removed", "removing"
                     user = m.group("user")
                 else:
+                    verb, past_verb, gerund = None, None, None
                     user = None
-                comment_msg = f"added user @{user}"
+                comment_msg = f"{past_verb} user @{user}"
 
                 if user is None:
                     err_msg = (
-                        "the user to add to the feedstock could not be found "
+                        "the user to process in the feedstock could not be found "
                         "from the issue title or text"
                     )
                     to_close = False
                 else:
-                    added_user = add_user(git_repo, user)
-                    if added_user is None:
+                    if verb == "add":
+                        handled_user = add_user(git_repo, user)
+                    else:
+                        handled_user = remove_user(git_repo, user)
+                    if handled_user is None:
                         err_msg = (
                             "the recipe meta.yaml and/or CODEOWNERS file could "
-                            "not be found or parsed properly when adding "
-                            f"user @{user} to the feedstock"
+                            "not be found or parsed properly when processing "
+                            f"user @{user} in the feedstock"
                         )
                         to_close = False
                     else:
-                        if not added_user:
-                            err_msg = f"the recipe already has maintainer @{user}"
+                        if not handled_user:
+                            if verb == "add":
+                                err_msg = f"the recipe already has maintainer @{user}"
+                            else:
+                                err_msg = f"the recipe doesn't have maintainer @{user}"
                             to_close = True
                         else:
                             do_rerender = False
                             check_bump_build = False
-                            pr_title = f"[ci skip] adding user @{user}"
-                            to_close = ADD_USER.search(title)
+                            pr_title = f"[ci skip] {gerund} user @{user}"
+                            to_close = ADD_USER.search(title) or REMOVE_USER.search(title)
                             extra_msg = (
-                                "\n\nMerge this PR to add the user. Please do not rerender "  # noqa
+                                f"\n\nMerge this PR to {verb} the user. Please do not rerender "  # noqa
                                 "this PR or change it in any way. It has `[ci skip]` in "  # noqa
                                 "the commit message to avoid pushing a new build and so "  # noqa
                                 "the build configuration in the feedstock should not be "  # noqa
@@ -624,7 +635,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                                 "#mfaq-contact-core) to have this PR merged, if the "
                                 "maintainer is unresponsive."
                             )
-                            changed_anything |= added_user
+                            changed_anything |= handled_user
 
             if changed_anything:
                 git_repo.git.push("origin", forked_repo_branch)
@@ -796,7 +807,7 @@ def _determine_recipe_path(repo):
     return None
 
 
-def add_user(repo, user):
+def _update_user(repo, user, action: Literal["add", "remove"] = "add"):
     # a feedstock has user names in three spots as of 2021/06/19
     # 1. the recipe maintainers section
     # 2. the CODEOWNERS file
@@ -828,10 +839,15 @@ def add_user(repo, user):
                         fp_out.writelines([line])
             fp_out.seek(0)
             data = yaml.load(fp_out)
-        curr_users = data["extra"]["recipe-maintainers"]
+        curr_users: list[str] = data["extra"]["recipe-maintainers"]
         if user in curr_users:
-            return False
+            if action == "add":
+                return False
+            else:
+                curr_users.remove(user)
         else:
+            if action == "remove":
+                return False
             if os.path.exists(co_path):
                 # do code owners first
                 with open(co_path) as fp:
@@ -845,11 +861,21 @@ def add_user(repo, user):
                         co_lines.append(lines[i])
                     else:
                         other_lines.append(lines[i])
-                all_users = ["@" + user]
+                if action == "add":
+                    all_users = ["@" + user]
+                else:
+                    all_users = []
                 for co_line in co_lines:
                     parts = co_line.split("*", 1)
                     if len(parts) > 1:
-                        all_users.extend(parts[1].strip().split(" "))
+                        this_line_users = parts[1].strip().split(" ")
+                        if action == "remove":
+                            this_line_users = [
+                                u
+                                for u in this_line_users
+                                if u.lower() != f"@{user.lower()}"
+                            ]
+                        all_users.extend(this_line_users)
                 other_lines = ["* " + " ".join(all_users), *other_lines]
                 with open(co_path, "w") as fp:
                     fp.write("\n".join(other_lines))
@@ -863,7 +889,7 @@ def add_user(repo, user):
             new_lines = []
             found_extra = False
             found_rm = False
-            added_user = False
+            updated_user = False
             for line in lines:
                 if line.strip().startswith("extra:"):
                     found_extra = True
@@ -871,18 +897,22 @@ def add_user(repo, user):
                 elif line.strip().startswith("recipe-maintainers:"):
                     found_rm = True
                     new_lines.append(line)
-                elif found_extra and found_rm and not added_user:
-                    added_user = True
+                elif found_extra and found_rm and not updated_user:
                     dashind = line.find("-")
                     if dashind == -1:
                         return None
                     head = line[:dashind]
-                    new_lines.append(head + "- " + user)
+                    if action == "add":
+                        new_lines.append(head + "- " + user)
+                        updated_user = True
+                    elif user.lower() in [word.lower() for word in line.split()]:
+                        updated_user = True
+                        continue  # skip line == remove user
                     new_lines.append(line)
                 else:
                     new_lines.append(line)
 
-            if not added_user:
+            if not updated_user:
                 return None
 
             with open(recipe_path, "w") as fp:
@@ -898,14 +928,23 @@ def add_user(repo, user):
             )
             # do not @-mention users in commit messages - it causes lots of
             # extra notifications
+            verb = "added" if action == "add" else "removed"
             repo.index.commit(
-                with_action_url(f"[ci skip] added user {user}"),
+                with_action_url(f"[ci skip] {verb} user {user}"),
                 author=author,
             )
 
             return True
     else:
         return None
+
+
+def add_user(repo, user):
+    return _update_user(repo, user, action="add")
+
+
+def remove_user(repo, user):
+    return _update_user(repo, user, action="remove")
 
 
 def add_bot_automerge(repo):
