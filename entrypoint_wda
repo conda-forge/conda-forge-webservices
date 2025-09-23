@@ -6,5 +6,8 @@ source ~/.bashrc
 # activate env
 micromamba activate $CF_FEEDSTOCK_OPS_ENV
 
+# make special locks location for conda-build for conda user
+mkdir -p ${TMPDIR}/conda_user_conda_build_locks
+
 # Run whatever the user wants.
 exec "$@"
