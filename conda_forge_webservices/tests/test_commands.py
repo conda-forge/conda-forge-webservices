@@ -1,6 +1,8 @@
 import os
 import unittest.mock as mock
+from pathlib import Path
 
+from git import Repo
 import github
 import pytest
 from requests.exceptions import RequestException
@@ -9,6 +11,9 @@ from conda_forge_webservices.commands import (
     pr_detailed_comment as _pr_detailed_comment,
     issue_comment as _issue_comment,
     _find_reactable_comment,
+    add_user,
+    remove_user,
+    _determine_recipe_path,
 )
 
 
@@ -553,3 +558,45 @@ def test_find_reactable_comment(number, comment_id, review_id):
     repo = gh.get_repo("conda-forge/conda-pypi-feedstock")
     comment = _find_reactable_comment(repo, number, comment_id, review_id)
     assert hasattr(comment, "create_reaction")
+
+
+@pytest.fixture
+def pillow_feedstock(tmp_path):
+    yield Repo.clone_from(
+        "https://github.com/conda-forge/pillow-feedstock.git",
+        tmp_path,
+        depth=1,
+    )
+
+
+def _read_codeowners_words(repo):
+    return Path(repo.working_dir, ".github", "CODEOWNERS").read_text().split()
+
+
+def _read_recipe_stripped_lines(repo):
+    recipe_path = _determine_recipe_path(repo)
+    if recipe_path:
+        return [line.strip() for line in Path(recipe_path).read_text().splitlines()]
+    return []
+
+
+def test_add_and_remove_user(pillow_feedstock):
+    assert remove_user(pillow_feedstock, "doesnotexist") is False
+    assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
+
+    assert add_user(pillow_feedstock, "doesnotexist") is True
+    assert "@doesnotexist" in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" in _read_recipe_stripped_lines(pillow_feedstock)
+
+    assert remove_user(pillow_feedstock, "doesnotexist") is True
+    assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
+
+    os.rename(
+        os.path.join(pillow_feedstock.working_dir, "recipe"),
+        os.path.join(pillow_feedstock.working_dir, "recipe-moved"),
+    )
+    assert remove_user(pillow_feedstock, "doesnotexist") is None
+    assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
