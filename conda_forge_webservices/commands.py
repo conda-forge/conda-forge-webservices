@@ -821,124 +821,125 @@ def _update_user(repo, user, action: Literal["add", "remove"] = "add"):
     # Those happen to also be the only locations where adding a user really matters.
 
     recipe_path = _determine_recipe_path(repo)
-    if not recipe_path:
+    if not recipe_path or not os.path.exists(recipe_path):
+        LOGGER.debug("No recipe found at %s", repo.working_dir)
         return None
     co_path = os.path.join(repo.working_dir, ".github", "CODEOWNERS")
     yaml = _get_yaml_parser()
-    if os.path.exists(recipe_path):
-        # get the current maintainers - if user is in them, return False
-        with io.StringIO() as fp_out:
-            with open(recipe_path) as fp_in:
-                extra_section = False
-                for line in fp_in:
-                    if line.strip().startswith("extra:"):
-                        if extra_section:
-                            raise ValueError(
-                                "team update failed due to > 1 'extra:' sections"
-                            )
-                        extra_section = True
-                    if extra_section:
-                        fp_out.writelines([line])
-            fp_out.seek(0)
-            data = yaml.load(fp_out)
-        curr_users: list[str] = data["extra"]["recipe-maintainers"]
-        if user in curr_users:
-            if action == "add":
-                return False
-            else:
-                curr_users.remove(user)
-        else:
-            if action == "remove":
-                return False
-            if os.path.exists(co_path):
-                # do code owners first
-                with open(co_path) as fp:
-                    lines = [ln.strip() for ln in fp.readlines()]
 
-                # get any current lines with "* " at the front
-                co_lines = []
-                other_lines = []
-                for i in range(len(lines)):
-                    if lines[i].startswith("* "):
-                        co_lines.append(lines[i])
-                    else:
-                        other_lines.append(lines[i])
-                if action == "add":
-                    all_users = ["@" + user]
-                else:
-                    all_users = []
-                for co_line in co_lines:
-                    parts = co_line.split("*", 1)
-                    if len(parts) > 1:
-                        this_line_users = parts[1].strip().split(" ")
-                        if action == "remove":
-                            this_line_users = [
-                                u
-                                for u in this_line_users
-                                if u.lower() != f"@{user.lower()}"
-                            ]
-                        all_users.extend(this_line_users)
-                other_lines = ["* " + " ".join(all_users), *other_lines]
-                with open(co_path, "w") as fp:
-                    fp.write("\n".join(other_lines))
-
-            # now the recipe
-            # we cannot use yaml because sometimes reading a recipe via the yaml
-            # is impossible or lossy
-            # so we have to parse it directly :/
-            with open(recipe_path) as fp:
-                lines = fp.read().splitlines()
-            new_lines = []
-            found_extra = False
-            found_rm = False
-            updated_user = False
-            for line in lines:
+    # get the current maintainers and see if we can return early
+    with io.StringIO() as fp_out:
+        with open(recipe_path) as fp_in:
+            extra_section = False
+            for line in fp_in:
                 if line.strip().startswith("extra:"):
-                    found_extra = True
-                    new_lines.append(line)
-                elif line.strip().startswith("recipe-maintainers:"):
-                    found_rm = True
-                    new_lines.append(line)
-                elif found_extra and found_rm and not updated_user:
-                    dashind = line.find("-")
-                    if dashind == -1:
-                        return None
-                    head = line[:dashind]
-                    if action == "add":
-                        new_lines.append(head + "- " + user)
-                        updated_user = True
-                    elif user.lower() in [word.lower() for word in line.split()]:
-                        updated_user = True
-                        continue  # skip line == remove user
-                    new_lines.append(line)
-                else:
-                    new_lines.append(line)
+                    if extra_section:
+                        raise ValueError(
+                            "team update failed due to > 1 'extra:' sections"
+                        )
+                    extra_section = True
+                if extra_section:
+                    fp_out.writelines([line])
+        fp_out.seek(0)
+        data = yaml.load(fp_out)
 
-            if not updated_user:
+    curr_users = [user.lower() for user in data["extra"]["recipe-maintainers"]]
+    if user.lower() in curr_users and action == "add":
+        LOGGER.debug("User %s is already added", user)
+        print("User %s is already added", user)
+        return False
+    if user.lower() not in curr_users and action == "remove":
+        LOGGER.debug("User %s is not present, can't remove", user)
+        print("User %s is not present, can't remove", user)
+        return False
+
+    if os.path.exists(co_path):
+        # do code owners first
+        with open(co_path) as fp:
+            lines = [ln.strip() for ln in fp.readlines()]
+
+        # get any current lines with "* " at the front
+        co_lines = []
+        other_lines = []
+        for i in range(len(lines)):
+            if lines[i].startswith("* "):
+                co_lines.append(lines[i])
+            else:
+                other_lines.append(lines[i])
+        if action == "add":
+            all_users = ["@" + user]
+        else:
+            all_users = []
+        for co_line in co_lines:
+            parts = co_line.split("*", 1)
+            if len(parts) > 1:
+                this_line_users = parts[1].strip().split(" ")
+                if action == "remove":
+                    this_line_users = [
+                        u for u in this_line_users if u.lower() != f"@{user.lower()}"
+                    ]
+                all_users.extend(this_line_users)
+        other_lines = ["* " + " ".join(all_users), *other_lines]
+        with open(co_path, "w") as fp:
+            fp.write("\n".join(other_lines))
+
+    # now the recipe
+    # we cannot use yaml because sometimes reading a recipe via the yaml
+    # is impossible or lossy
+    # so we have to parse it directly :/
+    with open(recipe_path) as fp:
+        lines = fp.read().splitlines()
+    new_lines = []
+    found_extra = False
+    found_rm = False
+    updated_user = False
+    for line in lines:
+        if line.strip().startswith("extra:"):
+            found_extra = True
+            new_lines.append(line)
+        elif line.strip().startswith("recipe-maintainers:"):
+            found_rm = True
+            new_lines.append(line)
+        elif found_extra and found_rm and not updated_user:
+            dashind = line.find("-")
+            if dashind == -1:
+                LOGGER.debug("'extra.recipe-maintainers' is malformed, can't parse.")
                 return None
+            head = line[:dashind]
+            if action == "add":
+                new_lines.append(head + "- " + user)
+                updated_user = True
+            elif user.lower() in [word.lower() for word in line.split()]:
+                updated_user = True
+                continue  # skip line == remove user
+            new_lines.append(line)
+        else:
+            new_lines.append(line)
 
-            with open(recipe_path, "w") as fp:
-                fp.write("\n".join(new_lines) + "\n")
-
-            # and commit
-            repo.index.add([recipe_path])
-            if os.path.exists(co_path):
-                repo.index.add([co_path])
-            author = Actor(
-                "conda-forge-webservices[bot]",
-                "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
-            )
-            # do not @-mention users in commit messages - it causes lots of
-            # extra notifications
-            verb = "added" if action == "add" else "removed"
-            repo.index.commit(
-                with_action_url(f"[ci skip] {verb} user {user}"),
-                author=author,
-            )
-
-            return True
-    else:
+    if not updated_user:
+        LOGGER.debug("Didn't apply any changes")
         return None
+
+    with open(recipe_path, "w") as fp:
+        fp.write("\n".join(new_lines) + "\n")
+
+    # and commit
+    repo.index.add([recipe_path])
+    if os.path.exists(co_path):
+        repo.index.add([co_path])
+    author = Actor(
+        "conda-forge-webservices[bot]",
+        "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
+    )
+    # do not @-mention users in commit messages - it causes lots of
+    # extra notifications
+    verb = "added" if action == "add" else "removed"
+    repo.index.commit(
+        with_action_url(f"[ci skip] {verb} user {user}"),
+        author=author,
+    )
+    LOGGER.debug("%s user %s", verb, user)
+    return True
 
 
 def add_user(repo, user):
