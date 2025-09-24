@@ -608,7 +608,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                         handled_user = remove_user(git_repo, user)
                     if handled_user is None:
                         err_msg = (
-                            "the recipe meta.yaml and/or CODEOWNERS file could "
+                            "the recipe file and/or CODEOWNERS file could "
                             "not be found or parsed properly when processing "
                             f"user @{user} in the feedstock"
                         )
