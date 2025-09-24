@@ -13,6 +13,7 @@ from conda_forge_webservices.commands import (
     _find_reactable_comment,
     add_user,
     remove_user,
+    _determine_recipe_path,
 )
 
 
@@ -568,23 +569,34 @@ def pillow_feedstock(tmp_path):
     )
 
 
-def _read_codeowners(repo):
+def _read_codeowners_words(repo):
     return Path(repo.working_dir, ".github", "CODEOWNERS").read_text().split()
+
+
+def _read_recipe_stripped_lines(repo):
+    recipe_path = _determine_recipe_path(repo)
+    if recipe_path:
+        return [line.strip() for line in Path(recipe_path).read_text().splitlines()]
+    return []
 
 
 def test_add_and_remove_user(pillow_feedstock):
     assert remove_user(pillow_feedstock, "doesnotexist") is False
-    assert "@doesnotexist" not in _read_codeowners(pillow_feedstock)
+    assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
 
     assert add_user(pillow_feedstock, "doesnotexist") is True
-    assert "@doesnotexist" in _read_codeowners(pillow_feedstock)
+    assert "@doesnotexist" in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" in _read_recipe_stripped_lines(pillow_feedstock)
 
     assert remove_user(pillow_feedstock, "doesnotexist") is True
-    assert "@doesnotexist" not in _read_codeowners(pillow_feedstock)
+    assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
 
     os.rename(
         os.path.join(pillow_feedstock.working_dir, "recipe"),
         os.path.join(pillow_feedstock.working_dir, "recipe-moved"),
     )
     assert remove_user(pillow_feedstock, "doesnotexist") is None
-    assert "@doesnotexist" not in _read_codeowners(pillow_feedstock)
+    assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
+    assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
