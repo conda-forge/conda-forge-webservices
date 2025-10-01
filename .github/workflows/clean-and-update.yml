@@ -17,7 +17,7 @@ jobs:
 
       - name: relock
         id: relock
-        uses: conda-incubator/relock-conda@1187b776400478c5ff35d4cf423da23a80bbdd4c
+        uses: conda-incubator/relock-conda@7f346dc5b5acb46605a218779ebcc290608ee9c2
         with:
           github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
           automerge: true
@@ -42,7 +42,7 @@ jobs:
       - name: generate token
         id: generate_token
         if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
-        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: setup conda
-        uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b
+        uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -88,7 +88,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}

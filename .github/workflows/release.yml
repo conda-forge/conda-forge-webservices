@@ -28,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v1
+      - uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -67,7 +67,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/setup-micromamba@b09ef9b599704322748535812ca03efb2625677b # v1
+      - uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v1
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -81,7 +81,7 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
       - name: login to docker hub
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
         with:
           username: condaforgebot
           password: ${{ secrets.CF_BOT_DH_PASSWORD }}
