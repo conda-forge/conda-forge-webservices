@@ -6,7 +6,7 @@ platforms:
 dependencies:
   - anaconda-client >=1.8.0
   - cachetools
-  - conda
+  - conda >=25.9.0
   - conda-build
   - conda-forge-metadata >=0.9.2
   - conda-forge-pinning
