@@ -382,7 +382,11 @@ like to enable automerge again!
             return False, "PR does not have the '[bot-automerge]' slug in the title"
 
         # only if only ALLOWED_USERS have commits
-        committers = {getattr(c.author, "login", None) for c in pr.get_commits()}
+        committers = set()
+        for c in pr.get_commits():
+            committers.add(getattr(c.author, "login", None))
+            committers.add(getattr(c.committer, "login", None))
+
         if not all(c in ALLOWED_USERS for c in committers):
             _comment_on_pr_with_race(
                 pr_for_admin,
