@@ -346,7 +346,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.40.54
+  version: 1.40.55
   manager: conda
   platform: linux-64
   dependencies:
@@ -354,10 +354,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.40.54-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.40.55-pyhd8ed1ab_0.conda
   hash:
-    md5: 7ce0d1d433642628bb2ac40ad734c4a0
-    sha256: ce0ffc4284e62aee3f68aa35141175be6bd08818616cb12d017256c5286f1243
+    md5: 2d037098ac230039a3cc8e791307c03b
+    sha256: ff5c0fcfc5e65665bf964a5359edd4c3b824f5cc2b48ee7f455add6f705fee84
   category: main
   optional: false
 - name: brotli
@@ -769,18 +769,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.10.15.11.56.55
+  version: 2025.10.17.17.13.48
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.15.11.56.55-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.17.17.13.48-hd8ed1ab_0.conda
   hash:
-    md5: b0fbab32c33336550e08d84668cf2771
-    sha256: 4175c06ec0accbbd16dee7701e115625da4ab0cd2ad66979b881867419b3d0be
+    md5: f103a2ce0a505744ec85f38a2621b8ab
+    sha256: 1374f5792efd0c730f8fc63c4d4eb75895bc242b49d13d079ba8fd659f961cab
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.10.48
+  version: 2025.10.54
   manager: conda
   platform: linux-64
   dependencies:
@@ -839,10 +839,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.10.48-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.10.54-pyhd8ed1ab_0.conda
   hash:
-    md5: 82561580fe95aa75c364e9e459c12883
-    sha256: ecc8ecae3323709d97144304dba4dfae0585d03a7402535c5dd248c7e7e432bd
+    md5: 136cfce38d858a55955f20efa3b9476a
+    sha256: ec3c4d3772c283df12460ef53463cf88a47c2f06958dac6b1727eba67f302874
   category: main
   optional: false
 - name: conda-index
@@ -1455,17 +1455,17 @@ package:
   category: main
   optional: false
 - name: fmt
-  version: 11.2.0
+  version: 12.0.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-    libstdcxx: '>=13'
-  url: https://conda.anaconda.org/conda-forge/linux-64/fmt-11.2.0-h07f6e7f_0.conda
+    libgcc: '>=14'
+    libstdcxx: '>=14'
+  url: https://conda.anaconda.org/conda-forge/linux-64/fmt-12.0.0-h2b0788b_0.conda
   hash:
-    md5: 0c2f855a88fab6afa92a7aa41217dc8e
-    sha256: e0f53b7801d0bcb5d61a1ddcb873479bfe8365e56fd3722a232fbcc372a9ac52
+    md5: d90bf58b03d9a958cb4f9d3de539af17
+    sha256: b546c4eb5e11c2d8eab0685593e078fd0cd483e467d5d6e307d60d887488230f
   category: main
   optional: false
 - name: font-ttf-dejavu-sans-mono
@@ -1646,7 +1646,7 @@ package:
   category: main
   optional: false
 - name: git
-  version: 2.51.0
+  version: 2.51.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1656,13 +1656,13 @@ package:
     libgcc: '>=14'
     libiconv: '>=1.18,<2.0a0'
     libzlib: '>=1.3.1,<2.0a0'
-    openssl: '>=3.5.2,<4.0a0'
+    openssl: '>=3.5.4,<4.0a0'
     pcre2: '>=10.46,<10.47.0a0'
     perl: 5.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.51.0-pl5321h8305f47_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.51.1-pl5321h8305f47_0.conda
   hash:
-    md5: 59b5aeeb61f1b2873b03905734b8d7b7
-    sha256: 44f2ba63f4f00ddb4bf681a1aeed41642833eacce5111c462ab03ed732d25514
+    md5: 4eb9c87093149748921a6a222cccf74c
+    sha256: be4b8bc3a687f160219278eb06602b4633f25fffc88a4125d97025693c13ac49
   category: main
   optional: false
 - name: gitdb
@@ -2897,7 +2897,7 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     cpp-expected: '>=1.3.1,<1.3.2.0a0'
-    fmt: '>=11.2.0,<11.3.0a0'
+    fmt: '>=12.0.0,<12.1.0a0'
     libarchive: '>=3.8.2,<3.9.0a0'
     libcurl: '>=8.14.1,<9.0a0'
     libgcc: '>=14'
@@ -2910,10 +2910,10 @@ package:
     simdjson: '>=4.0.7,<4.1.0a0'
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.3.3-hae34dd5_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.3.3-h09abcb8_1.conda
   hash:
-    md5: 323c854d701dd733800bb9cbc1d3d7c1
-    sha256: 4ef1c186a907fd8b1f6528845df9427f50f8c750d712f0b19b2c0dabea7b2d7d
+    md5: 56b2c9e25ad3d5b9d152d3d222447309
+    sha256: e167c10b021ab30838f10a2e165a8c3febad74e46d14d95be26e05fcaecf0b23
   category: main
   optional: false
 - name: libmambapy
@@ -2922,7 +2922,7 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    fmt: '>=11.2.0,<11.3.0a0'
+    fmt: '>=12.0.0,<12.1.0a0'
     libgcc: '>=14'
     libmamba: '>=2.3.3,<2.4.0a0'
     libstdcxx: '>=14'
@@ -2933,10 +2933,10 @@ package:
     python_abi: 3.11.*
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.3.3-py311h36db1f7_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.3.3-py311hfb22bfb_1.conda
   hash:
-    md5: 5f9c45c5968ee9b1e88afe58350a5651
-    sha256: 2ef03b1e50446d92e2c3443ba3d32b37f67a81ca7f25a0f2e044a9548e2171d2
+    md5: 1752ab7e8d1f2acde8bb6618c6ffdcf1
+    sha256: f1102ad8898022af4248637ac173486a38c35afde1d11a73f38425792476cd13
   category: main
   optional: false
 - name: libnghttp2
@@ -3373,10 +3373,10 @@ package:
     reproc: '>=14.2,<15.0a0'
     reproc-cpp: '>=14.2,<15.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.3.3-h1e462d5_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.3.3-heaf8479_1.conda
   hash:
-    md5: cb28c1ebbac493ea7ba68fc583ad8de1
-    sha256: 93d12f279fda1d2573cb486f6ecd2ed7ab34a6dde3abe3ced1a61ed979ca5eef
+    md5: dbe12b27f30b251680918227b38f18dd
+    sha256: c75045c698c15842b201749823a67f26dc013c773111efdaaa46511388cc95ea
   category: main
   optional: false
 - name: markdown-it-py
