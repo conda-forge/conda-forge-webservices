@@ -780,7 +780,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.10.54
+  version: 2025.10.55
   manager: conda
   platform: linux-64
   dependencies:
@@ -839,10 +839,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.10.54-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.10.55-pyhd8ed1ab_0.conda
   hash:
-    md5: 136cfce38d858a55955f20efa3b9476a
-    sha256: ec3c4d3772c283df12460ef53463cf88a47c2f06958dac6b1727eba67f302874
+    md5: f04fa7f524451549ac3af81299371fd4
+    sha256: b1940eb6ec1324920f1d450e5ff7d92ba3c34ef57bcca866e1c060d1e5bacae8
   category: main
   optional: false
 - name: conda-index
@@ -3199,7 +3199,7 @@ package:
   category: main
   optional: false
 - name: libxkbcommon
-  version: 1.12.0
+  version: 1.12.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -3211,10 +3211,10 @@ package:
     libxml2-16: '>=2.14.6'
     xkeyboard-config: ''
     xorg-libxau: '>=1.0.12,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libxkbcommon-1.12.0-hca5e8e5_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxkbcommon-1.12.1-hca5e8e5_0.conda
   hash:
-    md5: 38d9cae31d66c1b73ab34e786bb3afe5
-    sha256: fac8ca6937eefe7c4c374343ff09d0d37246ac98171386ffc229da673ad293a9
+    md5: 5cf46f7e2aab57da3b9ae2f16c7ff3b6
+    sha256: 76bebbf4a4c6d4b777d1c5b095db4bc6c5a5c7763f5e0377bd4805a03d1c96ac
   category: main
   optional: false
 - name: libxml2
@@ -4076,7 +4076,7 @@ package:
   category: main
   optional: false
 - name: pydantic
-  version: 2.12.2
+  version: 2.12.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -4086,10 +4086,10 @@ package:
     typing-extensions: '>=4.6.1'
     typing-inspection: '>=0.4.2'
     typing_extensions: '>=4.14.1'
-  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.12.2-pyh3cfb1c2_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.12.3-pyh3cfb1c2_0.conda
   hash:
-    md5: fc3a3515b4e71b22b635c4ae34e2f3ea
-    sha256: 736deae13f14b18436e2bea9f5e8e60ad1b355965e09c0744fe4a0c8ab9691c4
+    md5: 2cb5d62fdf68deb0263663598feb9fc5
+    sha256: 6a940747e8445653224dcff95fadf1060c66b9e544fdb0ed469b70a98c3aee7e
   category: main
   optional: false
 - name: pydantic-core
