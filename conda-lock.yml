@@ -769,14 +769,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.10.17.17.13.48
+  version: 2025.10.20.14.02.36
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.17.17.13.48-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.20.14.02.36-hd8ed1ab_0.conda
   hash:
-    md5: f103a2ce0a505744ec85f38a2621b8ab
-    sha256: 1374f5792efd0c730f8fc63c4d4eb75895bc242b49d13d079ba8fd659f961cab
+    md5: ff5d3f95c5602cbe4447f2795f34f401
+    sha256: 057c560b6005c7e856bac68385b46025e84a06bd22fa4d08d8d67583322b7274
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1152,19 +1152,19 @@ package:
   category: main
   optional: false
 - name: cytoolz
-  version: 1.0.1
+  version: 1.1.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
+    libgcc: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     toolz: '>=0.10.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/cytoolz-1.0.1-py311h9ecbd09_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/cytoolz-1.1.0-py311h49ec1c0_1.conda
   hash:
-    md5: 69a0a85acdcc5e6d0f1cc915c067ad4c
-    sha256: fd5a8c7e613c3c538ca775951fd814ab10cfcdaed79e193c3bf7eb59c87cd114
+    md5: 907579fcaf43b90c8c198ae8d43320ef
+    sha256: 8da7cec4fc78ea77fc10e21f273f6f640809c98c18a85c7ad39409c626dcf153
   category: main
   optional: false
 - name: dask-core
@@ -2090,15 +2090,15 @@ package:
   category: main
   optional: false
 - name: iniconfig
-  version: 2.0.0
+  version: 2.3.0
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_1.conda
+    python: '>=3.10'
+  url: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.3.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 6837f3eff7dcea42ecd714ce1ac2b108
-    sha256: 0ec8f4d02053cd03b0f3e63168316530949484f80e16f5e2fb199a1d117a89ca
+    md5: 9614359868482abba1bd15ce465e3c42
+    sha256: e1a9e3b1c8fe62dc3932a616c284b5d8cbe3124bbfbedcf4ce5c828cb166ee19
   category: main
   optional: false
 - name: isodate
@@ -2868,13 +2868,13 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-    libstdcxx: '>=13'
+    libgcc: '>=14'
+    libstdcxx: '>=14'
     mbedtls: '>=3.6.3.1,<3.7.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/liblief-0.16.6-h5888daf_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/liblief-0.16.6-hecca717_1.conda
   hash:
-    md5: f50ffc193e5e577664791538d89cbb9a
-    sha256: 621baaae366a8fd86bc66b30ab1b907bd2fc15b6569b1ea1e28e0383d7bc4ca9
+    md5: ee85af9eb8616d220710a07bbfcb7ac3
+    sha256: 2b3844ed6837e8bead1e1cc2823ab395f16b29cf4ef50f080ec4a1ea469639d6
   category: main
   optional: false
 - name: liblzma
@@ -3871,7 +3871,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.56.0
+  version: 0.57.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3879,10 +3879,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.4,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.56.0-h3760c50_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.57.0-ha759004_0.conda
   hash:
-    md5: a983a26f613223783d173fdb7b07176c
-    sha256: 792c71d908567e4db8a29847a19828afb6765af1cc241f64c08caa7e14f76531
+    md5: 360c1dfcffea0b5b3decc4ccbef0b930
+    sha256: 0970255db29bfc427cd1548d1c1982b8741ef701976f1d4848f36731cb653aa6
   category: main
   optional: false
 - name: pixman
@@ -3949,7 +3949,7 @@ package:
   category: main
   optional: false
 - name: psutil
-  version: 7.1.0
+  version: 7.1.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -3957,10 +3957,10 @@ package:
     libgcc: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/psutil-7.1.0-py311h49ec1c0_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/psutil-7.1.1-py311h49ec1c0_0.conda
   hash:
-    md5: eaf20d52642262d2987c3cdc7423649e
-    sha256: 06797609454011c59555e1dd2f9b5ac951227169d15f762a2219acf971fc8a5d
+    md5: fdf6ddf7278ca192158d25760f2c110a
+    sha256: ce79e9c43da67de620ded2cdfa2fe42336013abc2fb4e143796e5d22c7ff94d2
   category: main
   optional: false
 - name: pthread-stubs
@@ -3994,15 +3994,15 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
+    libgcc: '>=14'
     liblief: 0.16.6
-    libstdcxx: '>=13'
+    libstdcxx: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/py-lief-0.16.6-py311hfdbb021_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/py-lief-0.16.6-py311h1ddb823_1.conda
   hash:
-    md5: e1c117186138ec57186383a6aa1583b8
-    sha256: f17e6bad3abb32a44823e1618755c02250cec09f1b8414cd8d4e2bb6290ed5d9
+    md5: cc2f6c77792a48ce942eac99e419e60e
+    sha256: a673d47b6efeb3b5d1a4802359a32b7ade3531fea32d01908b35e98175fbec5c
   category: main
   optional: false
 - name: py-rattler
@@ -4877,7 +4877,7 @@ package:
   category: main
   optional: false
 - name: setuptools-scm
-  version: 9.2.1
+  version: 9.2.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -4887,22 +4887,22 @@ package:
     setuptools: '>=45'
     tomli: '>=1.0.0'
     typing-extensions: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/setuptools-scm-9.2.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/setuptools-scm-9.2.2-pyhd8ed1ab_0.conda
   hash:
-    md5: bad3afa4af7915d6cbda6aab33ab5bb5
-    sha256: 3d5512288748f24160d766a6ad4cf1a950e95c29b253fd880d554610307b5a2a
+    md5: e2e4d7094d0580ccd62e2a41947444f3
+    sha256: 2161ac35fc22770b248bab0be2cc3b5bd765f528a9e60e7f3be784fd8d0d605a
   category: main
   optional: false
 - name: setuptools_scm
-  version: 9.2.1
+  version: 9.2.2
   manager: conda
   platform: linux-64
   dependencies:
-    setuptools-scm: '>=9.2.1,<9.2.2.0a0'
-  url: https://conda.anaconda.org/conda-forge/noarch/setuptools_scm-9.2.1-hd8ed1ab_0.conda
+    setuptools-scm: '>=9.2.2,<9.2.3.0a0'
+  url: https://conda.anaconda.org/conda-forge/noarch/setuptools_scm-9.2.2-hd8ed1ab_0.conda
   hash:
-    md5: e88b7b03fe9d1acd415bb4488307c1ad
-    sha256: f5997ca89dca69ea655ab55be98dc16698cf2b534d6a7b2243656b73566c916f
+    md5: 7537abc2590073ffde5545c648ad6974
+    sha256: 60eec92bd931bbcba700b9a70b1446dccbf62d3298e408d3a28e09b8ecd96d98
   category: main
   optional: false
 - name: sgmllib3k
@@ -5366,17 +5366,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.9.3
+  version: 0.9.4
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.9.3-h30787bc_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.9.4-h30787bc_0.conda
   hash:
-    md5: 7e011e836c30db6ba8fa5498d843560f
-    sha256: 32b6dd0671891e7985bfa9fd555702db69496caa3421030daaae745e2085d248
+    md5: 7bdc894d966a30e96371a639265c08dd
+    sha256: 8cb05fe6759056c41ebd03cf3c10621050d904f6c28b9f0a2ab2830198ee9e48
   category: main
   optional: false
 - name: virtualenv
