@@ -769,18 +769,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.10.22.10.12.30
+  version: 2025.10.22.20.03.40
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.22.10.12.30-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.22.20.03.40-hd8ed1ab_0.conda
   hash:
-    md5: 72b57e3d42703d0ae3c6f203eae499b8
-    sha256: 53749a36b3cfa2dd6bb1666ba4f8a778cbd427bf85c5da96d4d58d233689eb83
+    md5: a7f19017ada5f166f95e6cc20fb5273b
+    sha256: 73d50dd8d2e935aeb296e839e65f216c5d9fd17140713462e2ea26f4e83d015d
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.10.55
+  version: 2025.10.62
   manager: conda
   platform: linux-64
   dependencies:
@@ -839,10 +839,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.10.55-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.10.62-pyhd8ed1ab_0.conda
   hash:
-    md5: f04fa7f524451549ac3af81299371fd4
-    sha256: b1940eb6ec1324920f1d450e5ff7d92ba3c34ef57bcca866e1c060d1e5bacae8
+    md5: 9ffd02bfd26958bf5feac82bca88d347
+    sha256: d1e98b3bf6bce0b7b2111663a2f4c788e78dc2f6aed8d1984a2ad5c4b246d8f5
   category: main
   optional: false
 - name: conda-index
@@ -3597,7 +3597,7 @@ package:
   category: main
   optional: false
 - name: numpy
-  version: 2.3.3
+  version: 2.3.4
   manager: conda
   platform: linux-64
   dependencies:
@@ -3609,10 +3609,10 @@ package:
     libstdcxx: '>=14'
     python: ''
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/numpy-2.3.3-py311h2e04523_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/numpy-2.3.4-py311h2e04523_0.conda
   hash:
-    md5: 3b0d0a2241770397d3146fdcab3b49f8
-    sha256: 264528d6e73d5c902a0463d9d138607018d994b86e209df4a51945886233989d
+    md5: d84afde5a6f028204f24180ff87cf429
+    sha256: 67cc072b8f5c157df4228a1a2291628e5ca2360f48ef572a64e2cf2bf55d2e25
   category: main
   optional: false
 - name: oauthlib
@@ -4754,7 +4754,7 @@ package:
   category: main
   optional: false
 - name: ruamel.yaml
-  version: 0.18.15
+  version: 0.18.16
   manager: conda
   platform: linux-64
   dependencies:
@@ -4763,10 +4763,10 @@ package:
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
     ruamel.yaml.clib: '>=0.1.2'
-  url: https://conda.anaconda.org/conda-forge/linux-64/ruamel.yaml-0.18.15-py311h49ec1c0_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/ruamel.yaml-0.18.16-py311h49ec1c0_0.conda
   hash:
-    md5: f894d7c8e697306e9da670eef7716330
-    sha256: add7d4f77455a65d5bbc5e18fa5c61071c958eba2922dc325699af6ca45c3cbb
+    md5: 945689ec8e69e9f254eceef82c9f932f
+    sha256: 3ad29409ab3742a4cab9e42fc936a2678249c97bbe014905d215afab3aaf13bb
   category: main
   optional: false
 - name: ruamel.yaml.clib
