@@ -769,14 +769,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.10.27.11.00.59
+  version: 2025.10.27.15.27.40
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.27.11.00.59-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.10.27.15.27.40-hd8ed1ab_0.conda
   hash:
-    md5: ccb79bf1a172c6ec2ad3ab523432d113
-    sha256: 7043f34cee7479aa9787c34034a9f98d7f546b624cff44a0394752c6a695c47c
+    md5: 952a16c73f95c789c4e23b426ae05afd
+    sha256: 8d11c9f68842828787d2a2f87680acec40fca634ef8b6dca55eb4a370148b678
   category: main
   optional: false
 - name: conda-forge-tick
@@ -975,7 +975,7 @@ package:
   category: main
   optional: false
 - name: conda-recipe-manager
-  version: 0.7.1
+  version: 0.8.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -990,10 +990,10 @@ package:
     python: '>=3.11'
     pyyaml: ''
     requests: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.7.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.8.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 093a0d850c0f05064fbabba5513cc247
-    sha256: a7fec5d5f324145bd537070e94d959592d217c2324070fddc7541b427d80a6b3
+    md5: c6cc5badd8d020daa07e6318d89a4ed1
+    sha256: 600f807f0a64700454129c676174a7d9dbee1d006d91758aa3ea11b6630eba96
   category: main
   optional: false
 - name: conda-smithy
