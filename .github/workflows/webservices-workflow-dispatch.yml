@@ -90,7 +90,7 @@ jobs:
 
       - name: upload task data
         id: upload-task-data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: task-data-${{ inputs.task }}-${{ inputs.repo }}-${{ inputs.pr_number }}-${{ github.run_id }}-${{ github.run_number }}
           path: ${{ github.workspace }}/task-data
@@ -125,7 +125,7 @@ jobs:
           pip install --no-deps --no-build-isolation -e .
 
       - name: download task data
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: task-data-${{ inputs.task }}-${{ inputs.repo }}-${{ inputs.pr_number }}-${{ github.run_id }}-${{ github.run_number }}
           path: ${{ github.workspace }}/task-data
