@@ -17,7 +17,7 @@ defaults:
 
 jobs:
   check:
-    name: Check if we can skip the merge queue
+    name: check if we can skip the merge queue
     outputs:
       skip-check: ${{ steps.merge-queue-ci-skipper.outputs.skip-check }}
     runs-on: ubuntu-latest
