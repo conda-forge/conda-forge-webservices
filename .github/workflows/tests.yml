@@ -27,6 +27,7 @@ jobs:
         uses: cariad-tech/merge-queue-ci-skipper@cf80db21fc70244e36487acc531b3f1118889b0a
         with:
             secret: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}  
+  
   tests:
     name: tests
     needs:
