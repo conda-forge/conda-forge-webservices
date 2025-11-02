@@ -951,7 +951,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
             if (
                 body["repository"]["full_name"].endswith("-feedstock")
-                and (body["action"] in ["closed", "labeled"])
+                and (body["action"] in ["closed", "labeled", "reopened"])
                 and head_owner.startswith("regro-cf-autotick-bot/")
             ):
                 _dispatch_autotickbot_job(
