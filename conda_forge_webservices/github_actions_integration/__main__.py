@@ -159,7 +159,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
                 lints, hints, errors = res
             lint_error = False
         except Exception as err:
-            LOGGER.warning("LINTING ERROR: %s", repr(err))
+            LOGGER.warning("LINTING ERROR: %r", err)
             LOGGER.warning("LINTING ERROR TRACEBACK: %s", traceback.format_exc())
             lint_error = True
             lints = None
