@@ -122,7 +122,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
         except Exception as err:
             import traceback
 
-            LOGGER.warning("LINTING ERROR: %s", repr(err))
+            LOGGER.warning("LINTING ERROR: %r", err)
             LOGGER.warning("LINTING ERROR TRACEBACK: %s", traceback.format_exc())
             lints = [
                 "Failed to even lint the recipe, probably because "
