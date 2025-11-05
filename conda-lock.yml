@@ -696,10 +696,10 @@ package:
     requests: ''
     ripgrep: ''
     tqdm: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.9.0-py311h38be061_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.9.0-py311h7b80f79_1.conda
   hash:
-    md5: d2f6bb29850c6e0ef7f41fbff30bbc03
-    sha256: f3845ad532707c9815856e948eec160729d913faa0951e3e04ae38e2829b90d0
+    md5: 0e69ebfc2e1fc7cb10d126de97b4eff8
+    sha256: 02c80186c8fa6b196daf824be524bd153f838f94a676287ca31d0df0ab24297b
   category: main
   optional: false
 - name: conda-forge-feedstock-check-solvable
@@ -780,7 +780,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.11.19
+  version: 2025.11.20
   manager: conda
   platform: linux-64
   dependencies:
@@ -840,10 +840,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.19-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.20-pyhd8ed1ab_0.conda
   hash:
-    md5: aa7572ef6202f974119f731a2aff8904
-    sha256: db701335caef25feaf95b0850277722863e15d66062005b1d03956343ae05d80
+    md5: 66203a709e6d16da3223ee67f478db8f
+    sha256: 932f2452b29c222b948ed9feea8abd388e13d78503332113d5b3ea5e15806e59
   category: main
   optional: false
 - name: conda-index
@@ -1567,10 +1567,10 @@ package:
     font-ttf-inconsolata: ''
     font-ttf-source-code-pro: ''
     font-ttf-ubuntu: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-forge-1-0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/fonts-conda-forge-1-hc364b38_1.conda
   hash:
-    md5: f766549260d6815b0c52253f1fb1bb29
-    sha256: 53f23a3319466053818540bcdf2091f253cbdbab1e0e9ae7b9e509dcaa2a5e38
+    md5: a7970cd949a077b7cb9696379d338681
+    sha256: 54eea8469786bc2291cc40bca5f46438d3e062a399e8f53f013b6a9f50e98333
   category: main
   optional: false
 - name: fonttools
@@ -4331,12 +4331,12 @@ package:
     packaging: '>=20'
     pluggy: '>=1.5,<2'
     pygments: '>=2.7.2'
-    python: '>=3.10'
+    python: ''
     tomli: '>=1'
-  url: https://conda.anaconda.org/conda-forge/noarch/pytest-8.4.2-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pytest-8.4.2-pyhcf101f3_1.conda
   hash:
-    md5: 1f987505580cb972cf28dc5f74a0f81b
-    sha256: 41053d9893e379a3133bb9b557b98a3d2142fca474fb6b964ba5d97515f78e2d
+    md5: da0c42269086f5170e2b296878ec13a6
+    sha256: 39f41a52eb6f927caf5cd42a2ff98a09bb850ce9758b432869374b6253826962
   category: main
   optional: false
 - name: pytest-xdist
