@@ -769,18 +769,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.05.22.26.47
+  version: 2025.11.06.15.57.16
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.05.22.26.47-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.06.15.57.16-hd8ed1ab_0.conda
   hash:
-    md5: e0850915b68159307c15b31a450ce8c0
-    sha256: 113c1e1c42f08719f3799f9a2d6e63bf36fd00e4b8f34374ead974be6eeb1adb
+    md5: 91970e9b95e0e354f2c36a1e5727123c
+    sha256: c6c48734bdd80c1eacd05d4db04fa7095721778a2a845a027257fbb9df217f55
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.11.23
+  version: 2025.11.26
   manager: conda
   platform: linux-64
   dependencies:
@@ -840,10 +840,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.23-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.26-pyhd8ed1ab_0.conda
   hash:
-    md5: cf2c0daa74cdb64c0fe33a1f3736f1b6
-    sha256: 08155fbe622e9cf8f79930e8cdcaf8c40383045fdf2c91b7c5a4fe23b2d11bf7
+    md5: e3b4152a63ec33a99245172968649f03
+    sha256: 0c7f3c54fe273b4b26ceaec89f9424c9b42b316204adaa2aa8ef0c9e30311804
   category: main
   optional: false
 - name: conda-index
@@ -1169,7 +1169,7 @@ package:
   category: main
   optional: false
 - name: dask-core
-  version: 2025.10.0
+  version: 2025.11.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -1182,10 +1182,10 @@ package:
     python: ''
     pyyaml: '>=5.3.1'
     toolz: '>=0.10.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/dask-core-2025.10.0-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/dask-core-2025.11.0-pyhcf101f3_0.conda
   hash:
-    md5: dbd642e078ca10f2b4c1ddda0b1b4426
-    sha256: 7463f1f476cf648595a103697939573676f610b10be0d1c4918cbcb0c160867e
+    md5: 91549f296c15ef7b49ee6600e7c934c1
+    sha256: a1fa1457cf759d90deb87c258da393809285b807ecef47a317d210fa4fa9f7fb
   category: main
   optional: false
 - name: dateparser
@@ -1274,14 +1274,14 @@ package:
   category: main
   optional: false
 - name: distributed
-  version: 2025.10.0
+  version: 2025.11.0
   manager: conda
   platform: linux-64
   dependencies:
     click: '>=8.0'
     cloudpickle: '>=3.0.0'
     cytoolz: '>=0.11.2'
-    dask-core: '>=2025.10.0,<2025.10.1.0a0'
+    dask-core: '>=2025.11.0,<2025.11.1.0a0'
     jinja2: '>=2.10.3'
     locket: '>=1.0.0'
     msgpack-python: '>=1.0.2'
@@ -1295,10 +1295,10 @@ package:
     tornado: '>=6.2.0'
     urllib3: '>=1.26.5'
     zict: '>=3.0.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/distributed-2025.10.0-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/distributed-2025.11.0-pyhcf101f3_0.conda
   hash:
-    md5: d5e8cc9e670affaea8d5eea29ff5b6ed
-    sha256: 6aacdafeb6d56c342c5e3f188022c36593934e21f5fd02867d01d2466f794080
+    md5: a072de34cd7024a54f1b309bc9e36a3b
+    sha256: 2c66187658069e66957b27265531e94911e9484276bb8a00a0377d25bc8d52ee
   category: main
   optional: false
 - name: distro
@@ -5105,15 +5105,15 @@ package:
   category: main
   optional: false
 - name: tblib
-  version: 3.1.0
+  version: 3.2.1
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/tblib-3.1.0-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/tblib-3.2.1-pyhcf101f3_0.conda
   hash:
-    md5: a15c62b8a306b8978f094f76da2f903f
-    sha256: a83c83f5e622a2f34fb1d179c55c3ff912429cd0a54f9f3190ae44a0fdba2ad2
+    md5: c07c341cc6ab9ed17b5a087e4bc954d0
+    sha256: 60c58dca39b30c3d1e2d8a474fe71c04537b8a5e42b9759706129f36100c84bf
   category: main
   optional: false
 - name: tini
