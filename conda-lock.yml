@@ -769,18 +769,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.07.19.14.48
+  version: 2025.11.08.06.38.44
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.07.19.14.48-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.08.06.38.44-hd8ed1ab_0.conda
   hash:
-    md5: ac924c8ced3787c92feee1dd9131993d
-    sha256: b378d629ac86e1182b471adf9f7e3801b9ac695d39b644a0670ceeac71aec84e
+    md5: e1955992b070e6be5388286d10d82557
+    sha256: 0c4d4ddc1df9bdf34be422fce1a6af5e20db88957392534b5abb5a75fc43d4fd
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.11.30
+  version: 2025.11.32
   manager: conda
   platform: linux-64
   dependencies:
@@ -840,10 +840,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.30-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.32-pyhd8ed1ab_0.conda
   hash:
-    md5: cf7c6213dc7e555dabe376a962f94d3a
-    sha256: f1f22dd8d08cf2798d152bc8c7b206554df52ee77fd440df5144ddbe75fc523e
+    md5: b59c2f736d0ae8e34fb0399137a2e40f
+    sha256: b37910b926f243f32676b024ccc7e41f12b856a9031adc8722a44e9fadd0d83e
   category: main
   optional: false
 - name: conda-index
@@ -5413,17 +5413,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.9.7
+  version: 0.9.8
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.9.7-h30787bc_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.9.8-h76e24b7_0.conda
   hash:
-    md5: 5144aa8155f23052977571a63ce8d03f
-    sha256: 949e98185f68242eaf5e205925e59cede4890811b7fbd7891b65e7aca71f1ffe
+    md5: 23b31dda4cca5794d1cceb0f9faa3238
+    sha256: 3a0fdfb99e3c2e228991b078ff4495cb8462db589b8c00be32baa60d24306fb2
   category: main
   optional: false
 - name: virtualenv
