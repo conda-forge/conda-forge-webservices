@@ -769,18 +769,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.08.06.38.44
+  version: 2025.11.09.09.01.30
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.08.06.38.44-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.09.09.01.30-hd8ed1ab_0.conda
   hash:
-    md5: e1955992b070e6be5388286d10d82557
-    sha256: 0c4d4ddc1df9bdf34be422fce1a6af5e20db88957392534b5abb5a75fc43d4fd
+    md5: dd13c1e8e144fb7d1cdccb562847c741
+    sha256: 2ff74cb69b0c74210c9fea62f887f67ff7b3f7e2934b34a6caec08007213b994
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.11.32
+  version: 2025.11.35
   manager: conda
   platform: linux-64
   dependencies:
@@ -840,10 +840,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.32-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.35-pyhd8ed1ab_0.conda
   hash:
-    md5: b59c2f736d0ae8e34fb0399137a2e40f
-    sha256: b37910b926f243f32676b024ccc7e41f12b856a9031adc8722a44e9fadd0d83e
+    md5: adf8dfc64df2b1b9c08a027e253c61e9
+    sha256: f63114b02dd4547849c21e89c62ca4c5e549f81079560b6950b25fd68a6d05f8
   category: main
   optional: false
 - name: conda-index
@@ -2363,10 +2363,10 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.44-h1aa0949_4.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.44-h1aa0949_5.conda
   hash:
-    md5: c94ab6ff54ba5172cf1c58267005670f
-    sha256: 96b6900ca0489d9e5d0318a6b49f8eff43fd85fef6e07cb0c25344ee94cd7a3a
+    md5: 511ed8935448c1875776b60ad3daf3a1
+    sha256: dab1fbf65abb05d3f2ee49dff90d60eeb2e02039fcb561343c7cea5dea523585
   category: main
   optional: false
 - name: lerc
@@ -4321,22 +4321,22 @@ package:
   category: main
   optional: false
 - name: pytest
-  version: 8.4.2
+  version: 9.0.0
   manager: conda
   platform: linux-64
   dependencies:
     colorama: '>=0.4'
     exceptiongroup: '>=1'
-    iniconfig: '>=1'
-    packaging: '>=20'
+    iniconfig: '>=1.0.1'
+    packaging: '>=22'
     pluggy: '>=1.5,<2'
     pygments: '>=2.7.2'
     python: ''
     tomli: '>=1'
-  url: https://conda.anaconda.org/conda-forge/noarch/pytest-8.4.2-pyhcf101f3_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.0-pyhcf101f3_0.conda
   hash:
-    md5: da0c42269086f5170e2b296878ec13a6
-    sha256: 39f41a52eb6f927caf5cd42a2ff98a09bb850ce9758b432869374b6253826962
+    md5: 499e8e2df95ad3d263bee8d41cc3d475
+    sha256: afd413cd919bd3cca1d45062b9822be8935e1f61ce6d6b2642364e8c19e2873d
   category: main
   optional: false
 - name: pytest-xdist
