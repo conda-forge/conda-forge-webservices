@@ -750,37 +750,37 @@ package:
   category: main
   optional: false
 - name: conda-forge-metadata
-  version: 0.11.0
+  version: 0.12.0
   manager: conda
   platform: linux-64
   dependencies:
     beautifulsoup4: ''
     conda-oci-mirror: ''
-    conda-package-streaming: ''
+    conda-package-streaming: '>=0.12.0'
     deprecated: ''
-    python: '>=3.9'
+    python: ''
     requests: ''
     ruamel.yaml: ''
     typing-extensions: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-metadata-0.11.0-pyhd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-metadata-0.12.0-pyhcf101f3_1.conda
   hash:
-    md5: 27564bdfec4272e6f69927d9baf4ae2e
-    sha256: 9fd9249f3f1e0c10c3fbfab670a430d689a7b8c51152bf9df782b0c9cfb2b062
+    md5: f4e97cdb52b448c4c82913ef9d674e42
+    sha256: 30aef73a42204366a228c4d5707210c08d194f3d0486c63f80832ff197546fe9
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.09.09.01.30
+  version: 2025.11.09.23.10.12
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.09.09.01.30-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.09.23.10.12-hd8ed1ab_0.conda
   hash:
-    md5: dd13c1e8e144fb7d1cdccb562847c741
-    sha256: 2ff74cb69b0c74210c9fea62f887f67ff7b3f7e2934b34a6caec08007213b994
+    md5: 4ffc70e106b90f5ea0e029d1c2d8df64
+    sha256: 857cde0106549a2d8cb9bd2ff6e44c2792b5de88995a7d547f8357224f95eb5f
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.11.37
+  version: 2025.11.39
   manager: conda
   platform: linux-64
   dependencies:
@@ -840,10 +840,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.37-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.39-pyhd8ed1ab_0.conda
   hash:
-    md5: fade9e0884dbdc542046e23a153b9fee
-    sha256: d58108eceec31a5d83c8ecaa67e27fda4d2657397e3823aeaae8becedf1b9f94
+    md5: 44459f68694c30268d12f16f313fb3b3
+    sha256: c60536cf5bf37aa0c64ce0b12791118dca8cea70fc799224fa3f0b158bbe9e71
   category: main
   optional: false
 - name: conda-index
