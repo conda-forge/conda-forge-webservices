@@ -769,18 +769,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.13.20.21.10
+  version: 2025.11.14.11.30.28
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.13.20.21.10-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.14.11.30.28-hd8ed1ab_0.conda
   hash:
-    md5: 58dc181539c9a0218be4b76878a81bf9
-    sha256: 9b5f2ae5f77ae8be73c2bbf452f2d8623aff0a16244050a31f8ce5b8d74d17a0
+    md5: 6595bbd7d65af7bb0a25e7877dcd457e
+    sha256: 94afd5b315d2c50f7a636b1e875a5608eb9c5a3df092a06b99bf603e81dab85a
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.11.60
+  version: 2025.11.65
   manager: conda
   platform: linux-64
   dependencies:
@@ -840,10 +840,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.60-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.65-pyhd8ed1ab_0.conda
   hash:
-    md5: fe6e67eb41acff1b9d6a1952c9124a8a
-    sha256: c426da50cf34d93a28469daff47c4ee46124971e744e5404e8e7edc2ad6b7870
+    md5: 6d23dbf5d10e0ae1c2cb9bef24635917
+    sha256: 8e3c71a2385d20a4e567c06b4775ade240fa71cd6feb12ce98cb2d85cbe76091
   category: main
   optional: false
 - name: conda-index
@@ -1618,7 +1618,7 @@ package:
   category: main
   optional: false
 - name: frozendict
-  version: 2.4.6
+  version: 2.4.7
   manager: conda
   platform: linux-64
   dependencies:
@@ -1626,10 +1626,10 @@ package:
     libgcc: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/frozendict-2.4.6-py311h49ec1c0_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/frozendict-2.4.7-py311h49ec1c0_0.conda
   hash:
-    md5: ae1979df507c82c25f19dc53bc8a2206
-    sha256: 0850f1215c12e330453657f37c6c64a05d8f663aef451492f603fef0f3c807f4
+    md5: cfc74ea184e02e531732abb17778e9fc
+    sha256: df99ccc63c065875cc150f451aaab03e6733898219cf2f248543fe53b08deff0
   category: main
   optional: false
 - name: fsspec
@@ -2997,10 +2997,10 @@ package:
     libgcc: '>=14'
     libgfortran: ''
     libgfortran5: '>=14.3.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libopenblas-0.3.30-pthreads_h94d23a6_3.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libopenblas-0.3.30-pthreads_h94d23a6_4.conda
   hash:
-    md5: ac2e4832427d6b159576e8a68305c722
-    sha256: 200899e5acc01fa29550d2782258d9cf33e55ce4cbce8faed9c6fe0b774852aa
+    md5: be43915efc66345cccb3c310b6ed0374
+    sha256: 199d79c237afb0d4780ccd2fbf829cea80743df60df4705202558675e07dd2c5
   category: main
   optional: false
 - name: libpciaccess
