@@ -769,18 +769,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.17.12.05.48
+  version: 2025.11.18.12.17.49
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.17.12.05.48-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.18.12.17.49-hd8ed1ab_0.conda
   hash:
-    md5: 57757b4a12a7e49cebbd07a66e02b976
-    sha256: 7e71ed3db7bbcf4c94f8bf1a425c11a9d64aea436aaa4778ddb922449d219422
+    md5: 932651b2bb450dc91b98e285b792d98f
+    sha256: 44d9a2f4d6596fc523a59e95fc5afa178801c1a67f4fb824972c1469f3c61d5c
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.11.65
+  version: 2025.11.72
   manager: conda
   platform: linux-64
   dependencies:
@@ -840,10 +840,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.65-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.11.72-pyhd8ed1ab_0.conda
   hash:
-    md5: 6d23dbf5d10e0ae1c2cb9bef24635917
-    sha256: 8e3c71a2385d20a4e567c06b4775ade240fa71cd6feb12ce98cb2d85cbe76091
+    md5: 77d65cac80f34085f249e2aacd8d267b
+    sha256: 1fb1fe01a0d32d479953fa6ea664f13d9199d2e5ab8c8c8ebe6b16272ad2fe3c
   category: main
   optional: false
 - name: conda-index
@@ -2411,10 +2411,10 @@ package:
   platform: linux-64
   dependencies:
     libopenblas: '>=0.3.30,<1.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.11.0-0_h4a7cf45_openblas.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libblas-3.11.0-1_h4a7cf45_openblas.conda
   hash:
-    md5: 2bb9d4578340054b5ce0de1e7c1c55ff
-    sha256: c0a2755ec4a99e0948689e63611181fa6f262fb5386e5ac0b6ab6bb8830e9a5b
+    md5: 8b39e1ae950f1b54a3959c58ca2c32b8
+    sha256: a36d1230c435d9b06c3bbd1c5c32c695bc341a413719d6e8c4bb6574818f46ea
   category: main
   optional: false
 - name: libbrotlicommon
@@ -2464,10 +2464,10 @@ package:
   platform: linux-64
   dependencies:
     libblas: 3.11.0
-  url: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.11.0-0_h0358290_openblas.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.11.0-1_h0358290_openblas.conda
   hash:
-    md5: 28edd73431cf4030be8a439ecf68a8cb
-    sha256: d400e068dc156f7d7f7cfd0b61856e0f3c2b36d2fb21b8e4f089688728b0a8d7
+    md5: a670bff9eb7963ea41b4e09a4e4ab608
+    sha256: f39c69450d14049463a15adfffa01447cfe9e9497e323800d747ee828ae43a2b
   category: main
   optional: false
 - name: libcups
@@ -2874,10 +2874,10 @@ package:
   platform: linux-64
   dependencies:
     libblas: 3.11.0
-  url: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.11.0-0_h47877c9_openblas.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/liblapack-3.11.0-1_h47877c9_openblas.conda
   hash:
-    md5: d7465a8f51f90ca21ca806e1a8832b83
-    sha256: 24bfd6db5a204d50d820c3b6923879b6254b946958b09cbb59a173c62767406e
+    md5: dee12a83aa4aca5077ea23c0605de044
+    sha256: b87938dc1220984c4313045d97422723f96ba4639676639a95ba144e2359f875
   category: main
   optional: false
 - name: liblief
