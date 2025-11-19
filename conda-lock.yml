@@ -93,7 +93,7 @@ package:
   category: main
   optional: false
 - name: anaconda-client
-  version: 1.13.0
+  version: 1.13.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -102,6 +102,7 @@ package:
     conda-package-streaming: '>=0.9.0'
     defusedxml: '>=0.7.1'
     nbformat: '>=4.4.0'
+    packaging: ''
     pillow: '>=8.2'
     platformdirs: '>=3.10.0,<5.0'
     python: ''
@@ -113,10 +114,10 @@ package:
     setuptools: '>=58.0.4'
     tqdm: '>=4.56.0'
     urllib3: '>=1.26.4'
-  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-client-1.13.0-pyh29332c3_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-client-1.13.1-pyhcf101f3_0.conda
   hash:
-    md5: cbedce9385f687aaf59043b0ed71f38c
-    sha256: 9802c4b3cd89bf6d59f9b4e4f0916a1ccbe1dff5fe9d187402b5efcdc7d410e1
+    md5: 115ee239026f0f240473741887eef5be
+    sha256: bfb16992e3b17e365b2b9f0e36c519008048f5bfd30bdf8917bce4583f51f6cc
   category: main
   optional: false
 - name: annotated-types
@@ -346,7 +347,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.40.75
+  version: 1.40.76
   manager: conda
   platform: linux-64
   dependencies:
@@ -354,10 +355,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.40.75-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.40.76-pyhd8ed1ab_0.conda
   hash:
-    md5: 5b41e0d470be10a0c8b81a8bf0940890
-    sha256: 9a5f37f646e0c86f73417bf9323774ff4d4bad3c92b358aa9fc5a57f5a30d5b6
+    md5: 4babebd5361bc44503358a519a81a465
+    sha256: 2afe0d2808613fbfabace9825d71d62a9dbf28a3af6d271613e1be6e03131dc7
   category: main
   optional: false
 - name: brotli
@@ -769,14 +770,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.18.12.17.49
+  version: 2025.11.19.18.25.31
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.18.12.17.49-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.19.18.25.31-hd8ed1ab_0.conda
   hash:
-    md5: 932651b2bb450dc91b98e285b792d98f
-    sha256: 44d9a2f4d6596fc523a59e95fc5afa178801c1a67f4fb824972c1469f3c61d5c
+    md5: 34887cd7954c6b1bc1396a07962f076d
+    sha256: 2ca56b2a4ece74914fb512108855052a7c7aa49c809bb4776f7fc35be22220fb
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1663,12 +1664,12 @@ package:
   category: main
   optional: false
 - name: git
-  version: 2.51.2
+  version: 2.52.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.28,<3.0.a0'
-    libcurl: '>=8.16.0,<9.0a0'
+    libcurl: '>=8.17.0,<9.0a0'
     libexpat: '>=2.7.1,<3.0a0'
     libgcc: '>=14'
     libiconv: '>=1.18,<2.0a0'
@@ -1676,10 +1677,10 @@ package:
     openssl: '>=3.5.4,<4.0a0'
     pcre2: '>=10.46,<10.47.0a0'
     perl: 5.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.51.2-pl5321h28be001_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.52.0-pl5321h28be001_0.conda
   hash:
-    md5: 1e4465f1bb7537c13d299922bbdb6ad7
-    sha256: 6ec0a715e315bade2408c965d0c25173883ef083a7c432c0c21436d96d7b0c09
+    md5: 64f99919099fccc29460a2f484090fa2
+    sha256: eb44eb774eef6bfba063318a9bcb16e5d7ac2421c0295aa372cd9c79e298ec83
   category: main
   optional: false
 - name: gitdb
@@ -2587,16 +2588,16 @@ package:
   category: main
   optional: false
 - name: libexpat
-  version: 2.7.1
+  version: 2.7.3
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libexpat-2.7.1-hecca717_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libexpat-2.7.3-hecca717_0.conda
   hash:
-    md5: 4211416ecba1866fab0c6470986c22d6
-    sha256: da2080da8f0288b95dd86765c801c6e166c4619b910b11f9a8446fb852438dc2
+    md5: 8b09ae86839581147ef2e5c5e229d164
+    sha256: 1e1b08f6211629cbc2efe7a5bca5953f8f6b3cae0eeb04ca4dacee1bd4e2db2f
   category: main
   optional: false
 - name: libffi
