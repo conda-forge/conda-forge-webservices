@@ -770,14 +770,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.11.21.02.19.18
+  version: 2025.11.21.16.58.07
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.21.02.19.18-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.11.21.16.58.07-hd8ed1ab_0.conda
   hash:
-    md5: 4dd90d05b9a942ee2d28ad6942a10417
-    sha256: 1b51403339366ce28d3b97487624e961720b601862e693002788124207bce36c
+    md5: 2f636d1c4e1b4519eb47b58f978983bc
+    sha256: d6e14b2e10a904886858c45a7062edee2b1645d554a8ccbd2d8bceeb5431e981
   category: main
   optional: false
 - name: conda-forge-tick
@@ -2364,10 +2364,10 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.45-hbd61a6d_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.45-default_1234567_2.conda
   hash:
-    md5: 74973af25f7e298f684f7782f4e8b43b
-    sha256: 94ca574cba401afa9a6feacb5c1a2ef2af4f24deab2b2266064364e15fd7b642
+    md5: 1d61642f2f613525ae3babf8ca408e84
+    sha256: 696424b82630d756c20bd92822c5782202e8a7396fe31c250651ee07795f54f7
   category: main
   optional: false
 - name: lerc
@@ -4587,7 +4587,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.50.0
+  version: 0.51.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4595,10 +4595,10 @@ package:
     libgcc: '>=14'
     openssl: '>=3.5.4,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.50.0-he64ecbb_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.51.0-he64ecbb_0.conda
   hash:
-    md5: 252688614b4136bfc62c034f53a68905
-    sha256: da9364cfb3be72495e04c8515aeb562bcd6aef9b0f15dce4f3a77c1df75b53f9
+    md5: e1689c761143daa09f16a728c7f94a0a
+    sha256: 012910563838a08db870ffedb27e00fd2db3049c197b19df973de0826a10c157
   category: main
   optional: false
 - name: rattler-build-conda-compat
