@@ -347,7 +347,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.41.1
+  version: 1.41.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -355,10 +355,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.41.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.41.2-pyhd8ed1ab_0.conda
   hash:
-    md5: ec3102688db4befa523ac5a6de64ef98
-    sha256: 65d8eebcf1ae90f02ba83214046b959c373f7b5deb9d5a5bea03156d1533f526
+    md5: 8bc7c3faf561af87943d85aed32f1a62
+    sha256: f062bd353c428ea9cd546e7620fb3d3d7a13ee13d6b7a5ec9de9cb0cc3c41bef
   category: main
   optional: false
 - name: brotli
@@ -668,7 +668,7 @@ package:
   category: main
   optional: false
 - name: conda-build
-  version: 25.9.0
+  version: 25.11.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -697,10 +697,10 @@ package:
     requests: ''
     ripgrep: ''
     tqdm: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.9.0-py311h7b80f79_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-build-25.11.0-py311h7b80f79_0.conda
   hash:
-    md5: 0e69ebfc2e1fc7cb10d126de97b4eff8
-    sha256: 02c80186c8fa6b196daf824be524bd153f838f94a676287ca31d0df0ab24297b
+    md5: 2a872cfeb1cec347a182c70d7c652de0
+    sha256: 8e23ee32eedb79d63abf50744533c306f2a1a1286eea86ad0e91ffb37eb668b5
   category: main
   optional: false
 - name: conda-forge-feedstock-check-solvable
@@ -2363,11 +2363,10 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.45-default_1234567_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/ld_impl_linux-64-2.45-bootstrap_ha15bf96_3.conda
   hash:
-    md5: 1d61642f2f613525ae3babf8ca408e84
-    sha256: 696424b82630d756c20bd92822c5782202e8a7396fe31c250651ee07795f54f7
+    md5: 3036ca5b895b7f5146c5a25486234a68
+    sha256: 7dfdf5500318521827c590fbda0fce5d6bda1d15dfee11b677d420580d18ccc0
   category: main
   optional: false
 - name: lerc
@@ -3018,17 +3017,17 @@ package:
   category: main
   optional: false
 - name: libpng
-  version: 1.6.50
+  version: 1.6.51
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libzlib: '>=1.3.1,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libpng-1.6.50-h421ea60_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libpng-1.6.51-h421ea60_0.conda
   hash:
-    md5: 7af8e91b0deb5f8e25d1a595dea79614
-    sha256: e75a2723000ce3a4b9fd9b9b9ce77553556c93e475a4657db6ed01abc02ea347
+    md5: d8b81203d08435eb999baa249427884e
+    sha256: 1eb769c0f2778d07428947f64272592cc2d3b9bce63b41600abe5dc2b683d829
   category: main
   optional: false
 - name: librsvg
