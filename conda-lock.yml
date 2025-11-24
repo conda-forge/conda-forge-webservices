@@ -999,7 +999,7 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 3.53.2
+  version: 3.53.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -1029,10 +1029,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.53.2-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.53.3-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 65bf4f1f5fe914d7081e6ff7490af856
-    sha256: 435282c7d1c95c0b8cbcdb54c3c751f14fa86519407b52a7cb0dfe6b53d3744e
+    md5: 57daa819aad77ef9a2b06475b872d5e8
+    sha256: ebb265d4384e28a5fdd6e52e1405faf9b28ac42f15e0333bb03441c5c7da04fa
   category: main
   optional: false
 - name: conda-souschef
@@ -3593,15 +3593,15 @@ package:
   category: main
   optional: false
 - name: networkx
-  version: '3.5'
+  version: '3.6'
   manager: conda
   platform: linux-64
   dependencies:
     python: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/networkx-3.5-pyhe01879c_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/networkx-3.6-pyhcf101f3_0.conda
   hash:
-    md5: 16bff3d37a4f99e3aa089c36c2b8d650
-    sha256: 02019191a2597865940394ff42418b37bc585a03a1c643d7cea9981774de2128
+    md5: 6725bfdf8ea7a8bf6415f096f3f1ffa5
+    sha256: 57b0bbb72ed5647438a81e7caf4890075390f80030c1333434467f9366762db7
   category: main
   optional: false
 - name: nlohmann_json-abi
