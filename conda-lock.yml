@@ -868,18 +868,21 @@ package:
   category: main
   optional: false
 - name: conda-libmamba-solver
-  version: 25.4.0
+  version: 25.11.0
   manager: conda
   platform: linux-64
   dependencies:
     boltons: '>=23.0.0'
-    conda: '>=24.11'
+    conda: '>=25.9'
     libmambapy: '>=2.0.0'
-    python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-libmamba-solver-25.4.0-pyhd8ed1ab_0.conda
+    msgpack-python: '>=1.1.1'
+    python: '>=3.10'
+    requests: '>=2.28.0,<3'
+    zstandard: '>=0.15'
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-libmamba-solver-25.11.0-pyhd8ed1ab_0.conda
   hash:
-    md5: d62b8f745ff471d5594ad73605cb9b59
-    sha256: 48999a7a6e300075e4ef1c85130614d75429379eea8fe78f18a38a8aab8da384
+    md5: 48d786fa77e34d2a915db2248910e8f5
+    sha256: c90742e4168529807f5acb0907a5f829b5d479ac3291d863b327917d74908c27
   category: main
   optional: false
 - name: conda-lock
