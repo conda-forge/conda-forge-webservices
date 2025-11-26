@@ -28,7 +28,7 @@ def _clean_channel(base_channel, token_name):
             updt = parse(f["upload_time"])
             dt = now - updt
             if dt > timedelta(hours=2):
-                print("deleting:", f["basename"], dt)
+                print("deleting: {}/{}".format(base_channel, f["basename"]), dt, flush=True)
                 _, name, version, _ = parse_conda_pkg(f["basename"])
                 r = requests.delete(
                     "https://api.anaconda.org/dist/{}/{}/{}/{}".format(
@@ -49,4 +49,5 @@ if __name__ == "__main__":
         ("cf-staging", "STAGING_BINSTAR_TOKEN"),
         ("cf-post-staging", "POST_STAGING_BINSTAR_TOKEN"),
     ]:
+        print("clean channel", base_channel, flush=True)
         _clean_channel(base_channel, token_name)
