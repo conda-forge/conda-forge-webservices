@@ -28,7 +28,11 @@ def _clean_channel(base_channel, token_name):
             updt = parse(f["upload_time"])
             dt = now - updt
             if dt > timedelta(hours=2):
-                print("deleting: {}/{}".format(base_channel, f["basename"]), dt, flush=True)
+                print(
+                    "deleting: {}/{}".format(base_channel, f["basename"]),
+                    dt,
+                    flush=True,
+                )
                 _, name, version, _ = parse_conda_pkg(f["basename"])
                 r = requests.delete(
                     "https://api.anaconda.org/dist/{}/{}/{}/{}".format(
