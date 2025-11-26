@@ -7,9 +7,12 @@ import requests
 import urllib
 from conda_forge_webservices.utils import parse_conda_pkg
 
-if __name__ == "__main__":
-    header = {"Authorization": "token {}".format(os.environ["STAGING_BINSTAR_TOKEN"])}
-    rc = requests.get("https://api.anaconda.org/channels/cf-staging", headers=header)
+
+def _clean_channel(base_channel, token_name):
+    header = {"Authorization": f"token {os.environ[token_name]}"}
+    rc = requests.get(
+        f"https://api.anaconda.org/channels/{base_channel}", headers=header
+    )
 
     now = datetime.utcnow()
     now = now.replace(tzinfo=timezone.utc)
@@ -17,7 +20,7 @@ if __name__ == "__main__":
     num_del = 0
     for channel in rc.json():
         r = requests.get(
-            f"https://api.anaconda.org/channels/cf-staging/{channel}",
+            f"https://api.anaconda.org/channels/{base_channel}/{channel}",
             headers=header,
         )
 
@@ -28,11 +31,22 @@ if __name__ == "__main__":
                 print("deleting:", f["basename"], dt)
                 _, name, version, _ = parse_conda_pkg(f["basename"])
                 r = requests.delete(
-                    "https://api.anaconda.org/dist/cf-staging/{}/{}/{}".format(
-                        name, version, urllib.parse.quote(f["basename"], safe="")
+                    "https://api.anaconda.org/dist/{}/{}/{}/{}".format(
+                        base_channel,
+                        name,
+                        version,
+                        urllib.parse.quote(f["basename"], safe=""),
                     ),
                     headers=header,
                 )
                 num_del += 1
                 if num_del > 10000:
                     sys.exit(0)
+
+
+if __name__ == "__main__":
+    for base_channel, token_name in [
+        ("cf-staging", "STAGING_BINSTAR_TOKEN"),
+        ("cf-post-staging", "POST_STAGING_BINSTAR_TOKEN"),
+    ]:
+        _clean_channel(base_channel, token_name)
