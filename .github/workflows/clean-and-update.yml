@@ -11,7 +11,7 @@ jobs:
     name: relock
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
         with:
           token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 
@@ -42,7 +42,7 @@ jobs:
       - name: generate token
         id: generate_token
         if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
-        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42
+        uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -73,7 +73,7 @@ jobs:
       run:
         shell: bash -leo pipefail {0}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
 
       - name: setup conda
         uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462
@@ -88,7 +88,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42
+        uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
