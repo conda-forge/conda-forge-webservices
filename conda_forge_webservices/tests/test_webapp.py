@@ -166,7 +166,7 @@ class TestBucketHandler(TestHandlerBase):
 
             for slug in test_slugs:
                 owner, name = slug.split("/")
-                for __branch in ["main", "master"]:
+                for main_or_master_branch in ["main", "master"]:
                     body = {
                         "after": "324234fdf",
                         "repository": {
@@ -196,7 +196,7 @@ class TestBucketHandler(TestHandlerBase):
                             "id": 56767,
                         },
                         "action": "opened",
-                        "ref": "refs/heads/" + __branch,
+                        "ref": "refs/heads/" + main_or_master_branch,
                     }
 
                     hash = hmac.new(
@@ -267,7 +267,7 @@ class TestBucketHandler(TestHandlerBase):
 
                 for slug in test_slugs:
                     owner, name = slug.split("/")
-                    for __branch in ["main", "master"]:
+                    for main_or_master_branch in ["main", "master"]:
                         body = {
                             "after": "324234fdf",
                             "repository": {
@@ -295,7 +295,7 @@ class TestBucketHandler(TestHandlerBase):
                                 "title": "title",
                             },
                             "action": "opened",
-                            "ref": "refs/heads/" + __branch,
+                            "ref": "refs/heads/" + main_or_master_branch,
                             "head_commit": {"id": "xyz", "message": commit_msg},
                         }
 

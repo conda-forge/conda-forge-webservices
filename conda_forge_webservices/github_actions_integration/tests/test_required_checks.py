@@ -1,5 +1,5 @@
 import os
-import unittest
+from unittest import mock
 
 import pytest
 
@@ -48,18 +48,16 @@ def test_all_statuses_and_checks_ok(val):
     ],
 )
 @pytest.mark.parametrize("ignore_linter", ["conda-forge-linter", "linter", None])
-@unittest.mock.patch(
+@mock.patch(
     "conda_forge_webservices.github_actions_integration.automerge._run_git_command"
 )
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge.tempfile"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge.tempfile")
 def test_get_required_checks_and_statuses(
     tmpmock, submock, tmpdir, fname, ignore_linter
 ):
     tmpmock.TemporaryDirectory.return_value.__enter__.return_value = str(tmpdir)
 
-    pr = unittest.mock.MagicMock()
+    pr = mock.MagicMock()
     if ignore_linter is not None:
         cfg = {"bot": {"automerge_options": {"ignored_statuses": [ignore_linter]}}}
     else:

@@ -136,9 +136,9 @@ def _linter_is_ok(repo, target_urls, target_pr_number, verbose=False):
         commit = repo.get_commit(pr.head.sha)
 
         status = None
-        for _status in commit.get_statuses():
-            if _status.context == "conda-forge-linter":
-                status = _status
+        for possible_status in commit.get_statuses():
+            if possible_status.context == "conda-forge-linter":
+                status = possible_status
                 break
 
         if verbose:
@@ -150,12 +150,12 @@ def _linter_is_ok(repo, target_urls, target_pr_number, verbose=False):
                 return False
 
         comment = None
-        for _comment in pr.get_issue_comments():
+        for possible_comment in pr.get_issue_comments():
             if (
                 "Hi! This is the friendly automated conda-forge-linting service."
-                in _comment.body
+                in possible_comment.body
             ):
-                comment = _comment
+                comment = possible_comment
 
         if verbose:
             assert comment is not None, (

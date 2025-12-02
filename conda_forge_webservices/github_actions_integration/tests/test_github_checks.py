@@ -1,11 +1,9 @@
-import unittest
+from unittest import mock
 
 from ..automerge import _get_github_checks
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_get_github_checks_nochecks(get_mock):
     get_mock.return_value = {}
     stat = _get_github_checks(1, 2)
@@ -13,9 +11,7 @@ def test_get_github_checks_nochecks(get_mock):
     assert stat == {}
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_check_github_checks_all_pending(get_mock):
     get_mock.return_value = [
         {
@@ -34,9 +30,7 @@ def test_check_github_checks_all_pending(get_mock):
     assert stat == {"c1": None, "c2": None}
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_check_github_checks_all_fail(get_mock):
     get_mock.return_value = [
         {
@@ -55,9 +49,7 @@ def test_check_github_checks_all_fail(get_mock):
     assert stat == {"c1": False, "c2": False}
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_check_github_checks_all_success(get_mock):
     get_mock.return_value = [
         {
@@ -76,9 +68,7 @@ def test_check_github_checks_all_success(get_mock):
     assert stat == {"c1": True, "c2": True}
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_check_github_checks_success_plus_pending(get_mock):
     get_mock.return_value = [
         {
@@ -97,9 +87,7 @@ def test_check_github_checks_success_plus_pending(get_mock):
     assert stat == {"c1": None, "c2": True}
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_check_github_checks_success_plus_fail(get_mock):
     get_mock.return_value = [
         {
@@ -123,9 +111,7 @@ def test_check_github_checks_success_plus_fail(get_mock):
     assert stat == {"c1": False, "c2": False, "c3": True}
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_check_github_checks_pending_plus_fail(get_mock):
     get_mock.return_value = [
         {
@@ -149,9 +135,7 @@ def test_check_github_checks_pending_plus_fail(get_mock):
     assert stat == {"c1": False, "c2": False, "c3": None}
 
 
-@unittest.mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._get_checks"
-)
+@mock.patch("conda_forge_webservices.github_actions_integration.automerge._get_checks")
 def test_check_github_checks_pending_plus_success_plus_fail(get_mock):
     get_mock.return_value = [
         {
