@@ -802,11 +802,11 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
 
     repo = gh.get_repo(f"conda-forge/{feedstock}")
     issue = None
-    for _issue in repo.get_issues(state="all"):
-        if (git_sha is not None and git_sha in _issue.title) or (
-            "[warning] failed package validation and/or copy" in _issue.title
+    for possible_issue in repo.get_issues(state="all"):
+        if (git_sha is not None and git_sha in possible_issue.title) or (
+            "[warning] failed package validation and/or copy" in possible_issue.title
         ):
-            issue = _issue
+            issue = possible_issue
             break
 
     if issue is None:

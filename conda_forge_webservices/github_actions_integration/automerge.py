@@ -264,7 +264,7 @@ def _get_required_checks_and_statuses(pr, cfg):
     return [
         r.lower()
         for r in required
-        if not any(r.lower() in _i for _i in ignored_statuses)
+        if not any(r.lower() in istat for istat in ignored_statuses)
     ]
 
 

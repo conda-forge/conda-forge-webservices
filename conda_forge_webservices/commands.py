@@ -169,6 +169,27 @@ def add_reaction(
             raise exc
 
 
+def _attempt_git_clone(repo_url, feedstock_dir, pr_branch=None):
+    for git_try_num in range(NUM_GIT_CLONE_TRIES):
+        try:
+            if pr_branch is not None:
+                repo = Repo.clone_from(
+                    repo_url, feedstock_dir, branch=pr_branch, depth=1
+                )
+            else:
+                repo = Repo.clone_from(
+                    repo_url, feedstock_dir, branch=pr_branch, depth=1
+                )
+        except Exception as git_try_err:
+            if git_try_num == NUM_GIT_CLONE_TRIES - 1:
+                raise git_try_err
+        else:
+            time.sleep(0.050 * 2**git_try_num)
+            break
+
+    return repo
+
+
 def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
     if not COMMAND_PREFIX.search(comment):
         return
@@ -297,16 +318,7 @@ def pr_detailed_comment(
             f"https://x-access-token:{gh_token}@github.com/{pr_owner}/{pr_repo}.git"
         )
 
-        for _git_try_num in range(NUM_GIT_CLONE_TRIES):
-            try:
-                repo = Repo.clone_from(
-                    repo_url, feedstock_dir, branch=pr_branch, depth=1
-                )
-            except Exception as _git_try_err:
-                if _git_try_num == NUM_GIT_CLONE_TRIES - 1:
-                    raise _git_try_err
-            else:
-                break
+        repo = _attempt_git_clone(repo_url, feedstock_dir, pr_branch=pr_branch)
 
         if LINT_MSG.search(comment):
             relint(org_name, repo_name, pr_num)
@@ -498,17 +510,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
             )
             upstream_repo_url = f"https://x-access-token:{gh_token}@github.com/{org_name}/{repo_name}.git"
 
-            for _git_try_num in range(NUM_GIT_CLONE_TRIES):
-                try:
-                    git_repo = Repo.clone_from(repo_url, feedstock_dir, depth=1)
-                except Exception as _git_try_err:
-                    if _git_try_num == NUM_GIT_CLONE_TRIES - 1:
-                        raise _git_try_err
-                    else:
-                        time.sleep(0.050 * 2**_git_try_num)
-                        pass
-                else:
-                    break
+            git_repo = _attempt_git_clone(repo_url, feedstock_dir, pr_branch=None)
 
             forked_repo_branch = f"conda_forge_admin_{issue_num}"
             upstream = git_repo.create_remote("upstream", upstream_repo_url)

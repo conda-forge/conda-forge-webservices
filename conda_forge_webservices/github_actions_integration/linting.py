@@ -76,11 +76,11 @@ def _get_comment_state(comment):
 def make_lint_comment(repo, pr_id, message):
     pr = repo.get_pull(pr_id)
     comment = None
-    for _comment in pr.get_issue_comments():
+    for possible_comment in pr.get_issue_comments():
         if (
             "Hi! This is the friendly automated conda-forge-linting service."
-        ) in _comment.body:
-            comment = _comment
+        ) in possible_comment.body:
+            comment = possible_comment
 
     if comment:
         if comment.body != message:
@@ -234,9 +234,9 @@ def set_pr_status(repo, sha, status, target_url=None):
     # API emits these in reverse time order so first is latest
     statuses = commit.get_statuses()
     last_status = None
-    for _status in statuses:
-        if _status.context == "conda-forge-linter":
-            last_status = _status
+    for possible_status in statuses:
+        if possible_status.context == "conda-forge-linter":
+            last_status = possible_status
             break
 
     # convert the linter status to a state
