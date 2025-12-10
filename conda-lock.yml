@@ -362,7 +362,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.5
+  version: 1.42.6
   manager: conda
   platform: linux-64
   dependencies:
@@ -370,10 +370,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.5-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.6-pyhd8ed1ab_0.conda
   hash:
-    md5: 94b994963a98c8a0b64b85c791ae6836
-    sha256: abfa7c8159bbfc4ef59cb6ab9bda733d6fdc573a69b06eff86b58623a8b57fb0
+    md5: d185c49ce23a9f3d5070335d02262950
+    sha256: 1e97839e16d2338feb12bbc2655808bed703039f604b1829e5d215c5e5394048
   category: main
   optional: false
 - name: brotli
@@ -631,11 +631,11 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/cloudpickle-3.1.2-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/cloudpickle-3.1.2-pyhcf101f3_1.conda
   hash:
-    md5: fcac5929097ba1f2a0e5b6ecaa13b253
-    sha256: 57050bd1bbac9e4be3728da4d33dee2168884d61d0ec51cd2ac72a1b34e11fc3
+    md5: 61b8078a0905b12529abc622406cb62c
+    sha256: 4c287c2721d8a34c94928be8fe0e9a85754e90189dd4384a31b1806856b50a67
   category: main
   optional: false
 - name: colorama
@@ -785,14 +785,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.12.09.07.52.56
+  version: 2025.12.10.16.41.21
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.12.09.07.52.56-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.12.10.16.41.21-hd8ed1ab_0.conda
   hash:
-    md5: 8bf2c8af8c830e80fd3c25db4a7c4005
-    sha256: 4c29bd69eda69067652be1179fb7b0bdd64944e44799e537c815a0443e939a57
+    md5: 8106a47c259839d7438f63298b3b2787
+    sha256: 7adc019172dcaeed2ecae0e9663d50b8c10d4cdbb950f53d72a66b437666b29e
   category: main
   optional: false
 - name: conda-forge-tick
@@ -995,7 +995,7 @@ package:
   category: main
   optional: false
 - name: conda-recipe-manager
-  version: 0.9.0
+  version: 0.9.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1011,10 +1011,10 @@ package:
     python: '>=3.11'
     pyyaml: ''
     requests: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.9.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.9.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 4dd92d4c61127d838ed795ef4bc53b02
-    sha256: 4002e1e6de73a33cca0dcc0084c8300adbc526325ff7de8ec574915b8eaded66
+    md5: d134062cb57f61069727ffe05da11c0c
+    sha256: 5f7ddd0a126b8137e8c010f6b95c9b7cc7b56fb8574c56b3afc3cb7ddbf19737
   category: main
   optional: false
 - name: conda-smithy
@@ -1154,10 +1154,10 @@ package:
     libzlib: '>=1.3.1,<2.0a0'
     openssl: '>=3.5.4,<4.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/curl-8.17.0-h4e3cde8_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/curl-8.17.0-h4e3cde8_1.conda
   hash:
-    md5: a37bd62e2c34797cdb577920b35f3bc5
-    sha256: 3fb39c401fbdbaf68b8f25c1d81600d2a771b6467cc5d7c88fbd1e06d8825ee1
+    md5: cb3648a22e7d5010fc9edae69bb2eab8
+    sha256: de3643097dd7780ad3c1d8e4976324f5dbd564a787bd6496d0694fc9cfdae8e8
   category: main
   optional: false
 - name: cycler
@@ -2519,10 +2519,10 @@ package:
     libzlib: '>=1.3.1,<2.0a0'
     openssl: '>=3.5.4,<4.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.17.0-h4e3cde8_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libcurl-8.17.0-h4e3cde8_1.conda
   hash:
-    md5: 01e149d4a53185622dc2e788281961f2
-    sha256: 100e29ca864c32af15a5cc354f502d07b2600218740fdf2439fa7d66b50b3529
+    md5: 117499f93e892ea1e57fdca16c2e8351
+    sha256: 2d7be2fe0f58a0945692abee7bb909f8b19284b518d958747e5ff51d0655c303
   category: main
   optional: false
 - name: libdeflate
@@ -5432,17 +5432,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.9.16
+  version: 0.9.17
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.9.16-h76e24b7_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.9.17-h76e24b7_0.conda
   hash:
-    md5: 9092334a4b811b29749fa8822f4535b9
-    sha256: ecb1c52867be0e7a6854d83cb8618bfbcbe77989e947f9abb04d63bb2a57cbe3
+    md5: 4cae6aca4d10274f47e4779a5a19a73d
+    sha256: f4b58b6fac4950aa39e4e3aa78d07b2a83bdc9295c4fd4b723b9fc9342170a4d
   category: main
   optional: false
 - name: virtualenv
