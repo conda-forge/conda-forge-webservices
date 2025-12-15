@@ -785,18 +785,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.12.14.07.19.02
+  version: 2025.12.15.10.28.39
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.12.14.07.19.02-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.12.15.10.28.39-hd8ed1ab_0.conda
   hash:
-    md5: 8e989870b6157068ca29c6e475cd463d
-    sha256: a957c9685eacfa4a8dab561d5377f8631a62240a6ec1e013531759060be9f358
+    md5: 1ef0bb6a2b7ba320fb7cabd4bc4380f8
+    sha256: be03d7d355c379dbd58aaf96a78a27cf4d649fec4fa4468806239e6b483fcba2
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.12.44
+  version: 2025.12.46
   manager: conda
   platform: linux-64
   dependencies:
@@ -856,10 +856,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.12.44-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.12.46-pyhd8ed1ab_0.conda
   hash:
-    md5: a60d27924d166b8e56daa1bdfd7e1f2a
-    sha256: 80c813870a4d118fc61b2dd2a43e1b358cab3827ba9dd24cb121a8be64d29f29
+    md5: 1a217da9dbd4f5f176b91e219f9a5bc8
+    sha256: e5ee63090aee23c4cc8a1ad1908db185dc4ee72b6e0cf66aa074679f0b27a968
   category: main
   optional: false
 - name: conda-index
@@ -3502,16 +3502,16 @@ package:
   category: main
   optional: false
 - name: menuinst
-  version: 2.4.1
+  version: 2.4.2
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.4.1-py311h38be061_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.4.2-py311h38be061_0.conda
   hash:
-    md5: 269046366b4c74ebf56aa149e21cbff2
-    sha256: c16073344e6cd1cfb1351b2b7c41388817150f78908a48c55b4a612842dc87dd
+    md5: ba48e568ec4fdbcb8f3fef87bca9fddb
+    sha256: 096f1db22fd47ddcf5df82aed016ef8cef4c1b810925bf63b67cfc3f9ba67cdb
   category: main
   optional: false
 - name: mock
@@ -3714,7 +3714,7 @@ package:
   category: main
   optional: false
 - name: orjson
-  version: 3.11.4
+  version: 3.11.5
   manager: conda
   platform: linux-64
   dependencies:
@@ -3722,10 +3722,10 @@ package:
     libgcc: '>=14'
     python: ''
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.4-py311h902ca64_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.5-py311h7098c77_0.conda
   hash:
-    md5: 90e178bc05a7f1313bd0d5ac5470a81e
-    sha256: 3405e5f6c56de81028ef759dabf4aa84312f0e19036c4c90956cafaea7aa0703
+    md5: d51594b3fe7ebde171b813acebe680e4
+    sha256: d5a790e7b02892cf7985a77df56d110e22f87671d356360de1a8fd2a7f6c5c7f
   category: main
   optional: false
 - name: packaging
@@ -5352,14 +5352,14 @@ package:
   category: main
   optional: false
 - name: tzdata
-  version: 2025b
+  version: 2025c
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h8577fbf_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-h8577fbf_0.conda
   hash:
-    md5: e4e8496b68cf5f25e76fbe67f3856550
-    sha256: 865716d3e2ccaca1218462645830d2370ab075a9a118c238728e1231a234bc6c
+    md5: 338201218b54cadff2e774ac27733990
+    sha256: 50fad5db6734d1bb73df1cf5db73215e326413d4b2137933f70708aa1840e25b
   category: main
   optional: false
 - name: tzlocal
@@ -5403,7 +5403,7 @@ package:
   category: main
   optional: false
 - name: urllib3
-  version: 2.6.1
+  version: 2.6.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -5412,10 +5412,10 @@ package:
     h2: '>=4,<5'
     pysocks: '>=1.5.6,<2.0,!=1.5.7'
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.6.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.6.2-pyhd8ed1ab_0.conda
   hash:
-    md5: fb84f0f6ee8a0ad67213cd1bea98bf5b
-    sha256: a66fc716c9dc6eb048c40381b0d1c5842a1d74bba7ce3d16d80fc0a7232d8644
+    md5: 4949ca7b83065cfe94ebe320aece8c72
+    sha256: f4302a80ee9b76279ad061df05003abc2a29cc89751ffab2fd2919b43455dac0
   category: main
   optional: false
 - name: userpath
