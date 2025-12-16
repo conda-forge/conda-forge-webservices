@@ -785,18 +785,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2025.12.15.18.10.22
+  version: 2025.12.16.02.55.47
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.12.15.18.10.22-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2025.12.16.02.55.47-hd8ed1ab_0.conda
   hash:
-    md5: 1fac3cf1bbd711ed034165508ba156fd
-    sha256: 8d035b45e2616e738c230067adfbbbe9192b63107d142e21c8ea6169df4e83b2
+    md5: ff024fab979421c8961b7e9889edac80
+    sha256: 58b642f0a0e95e5122cc214c242347dfc265992118f3dd7944161fa78be2487c
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2025.12.53
+  version: 2025.12.55
   manager: conda
   platform: linux-64
   dependencies:
@@ -856,10 +856,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.12.53-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2025.12.55-pyhd8ed1ab_0.conda
   hash:
-    md5: fd1f47aa08caa9a85dbae1008ab1d88c
-    sha256: 40687f911f1cf9027df816b37c2bf0f6688b3105c3bef6715374104daf3d6d5d
+    md5: 239651b10c9924e9a5942ceab801fcfa
+    sha256: 3fd8ed8ce145ccebbfaf460112e99cf6771ff1237d8c0608768d90b2ca866950
   category: main
   optional: false
 - name: conda-index
@@ -1468,15 +1468,15 @@ package:
   category: main
   optional: false
 - name: filelock
-  version: 3.20.0
+  version: 3.20.1
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.20.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.20.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 66b8b26023b8efdf8fcb23bac4b6325d
-    sha256: 19025a4078ff3940d97eb0da29983d5e0deac9c3e09b0eabf897daeaf9d1114e
+    md5: 81a651287d3000eb12f0860ade0a1b41
+    sha256: 8028582d956ab76424f6845fa1bdf5cb3e629477dd44157ca30d45e06d8a9c7c
   category: main
   optional: false
 - name: flaky
