@@ -208,7 +208,7 @@ def _push_changes(
         * Is the `recipe/{{meta.yaml,recipe.yaml}}` file valid?
         * If there is a `recipe/conda-build-config.yaml` file in \\
         the feedstock make sure that it is compatible with the current \\
-        [global pinnnings]({}).
+        [global pinnings]({}).
         * Is the fork used for this PR on an organization or user GitHub account? \\
         Automated rerendering via the webservices admin bot only works for user \\
         GitHub accounts.
