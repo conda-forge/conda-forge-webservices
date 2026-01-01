@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
@@ -90,7 +90,7 @@ jobs:
 
       - name: upload task data
         id: upload-task-data
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: task-data-${{ inputs.task }}-${{ inputs.repo }}-${{ inputs.pr_number }}-${{ github.run_id }}-${{ github.run_number }}
           path: ${{ github.workspace }}/task-data
@@ -104,7 +104,7 @@ jobs:
       - run-task
     steps:
       - name: checkout code
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
@@ -125,7 +125,7 @@ jobs:
           pip install --no-deps --no-build-isolation -e .
 
       - name: download task data
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: task-data-${{ inputs.task }}-${{ inputs.repo }}-${{ inputs.pr_number }}-${{ github.run_id }}-${{ github.run_number }}
           path: ${{ github.workspace }}/task-data
