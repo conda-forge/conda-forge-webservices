@@ -362,7 +362,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.28
+  version: 1.42.29
   manager: conda
   platform: linux-64
   dependencies:
@@ -370,10 +370,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.28-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.29-pyhd8ed1ab_0.conda
   hash:
-    md5: 3ffb545565cecc233d7bf0afe219ffd0
-    sha256: 6e79aaa276ae194754fe92c3085ece9c96d7071812d9092d17b8ee90f9efd736
+    md5: 9b0720f66a25c7ac83dda643e4d20ff3
+    sha256: 828ae5d63fd202fd902bdc5ed00186384a6b35dc38deb5bd4b77698a1297eaed
   category: main
   optional: false
 - name: brotli
@@ -1056,17 +1056,17 @@ package:
   category: main
   optional: false
 - name: conda-souschef
-  version: 2.2.3
+  version: 3.0.1
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.8'
+    python: '>=3.10'
     ruamel.yaml: '>=0.15.3'
     ruamel.yaml.jinja2: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-souschef-2.2.3-pyhd8ed1ab_0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-souschef-3.0.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 7f466b88d647486200d7e57dd67bbb99
-    sha256: 9e72fafce567e04554ad117b16b7a573d05e5673705c7699a6cc19a0e9d9fd52
+    md5: d42e18395050dd8f800a566ffacb4602
+    sha256: 2192ab58abb1837f389a8013fafb3726e5247a704b7cff859493d142d3d37dd5
   category: main
   optional: false
 - name: contourpy
