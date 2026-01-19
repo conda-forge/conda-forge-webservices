@@ -362,7 +362,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.29
+  version: 1.42.30
   manager: conda
   platform: linux-64
   dependencies:
@@ -370,10 +370,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.29-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.30-pyhd8ed1ab_0.conda
   hash:
-    md5: 9b0720f66a25c7ac83dda643e4d20ff3
-    sha256: 828ae5d63fd202fd902bdc5ed00186384a6b35dc38deb5bd4b77698a1297eaed
+    md5: 82b5c1f7d596ddd3bf5c096c1204a553
+    sha256: b097212cd66085c206462e25cdc097466f432b32e27ba825ecd93bb5ce3e3a34
   category: main
   optional: false
 - name: brotli
@@ -786,14 +786,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.01.15.15.30.53
+  version: 2026.01.18.13.43.35
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.01.15.15.30.53-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.01.18.13.43.35-hd8ed1ab_0.conda
   hash:
-    md5: b661ded1ac5a353f7757b2fe534e1eeb
-    sha256: 99f86cd9957bef1e8b4a33946ba4bd454d95edb856032cea1c8b01acb8bc9396
+    md5: 61bc4e4e9ab9114cf6b100ddaf513f57
+    sha256: fb8968fce304ae6a99921a0a1bcc1d9454446c6f8bb07491ba84bbaccc0d7c3c
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1789,7 +1789,7 @@ package:
   category: main
   optional: false
 - name: graphviz
-  version: 13.1.2
+  version: 14.1.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1797,33 +1797,33 @@ package:
     adwaita-icon-theme: ''
     cairo: '>=1.18.4,<2.0a0'
     fonts-conda-ecosystem: ''
-    gdk-pixbuf: '>=2.42.12,<3.0a0'
+    gdk-pixbuf: '>=2.44.4,<3.0a0'
     gtk3: '>=3.24.43,<4.0a0'
     gts: '>=0.7.6,<0.8.0a0'
-    libexpat: '>=2.7.1,<3.0a0'
+    libexpat: '>=2.7.3,<3.0a0'
     libgcc: '>=14'
     libgd: '>=2.3.3,<2.4.0a0'
-    libglib: '>=2.84.3,<3.0a0'
-    librsvg: '>=2.58.4,<3.0a0'
+    libglib: '>=2.86.3,<3.0a0'
+    librsvg: '>=2.60.0,<3.0a0'
     libstdcxx: '>=14'
     libwebp-base: '>=1.6.0,<2.0a0'
     libzlib: '>=1.3.1,<2.0a0'
     pango: '>=1.56.4,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/graphviz-13.1.2-h87b6fe6_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/graphviz-14.1.1-h8b86629_0.conda
   hash:
-    md5: 0adddc9b820f596638d8b0ff9e3b4823
-    sha256: efbd7d483f3d79b7882515ccf229eceb7f4ff636ea2019044e98243722f428be
+    md5: 4cf37d6ca8783d52c080bd277ebc1ab3
+    sha256: 6c2ae893445ac4962271d8bd925ea08e3e2c5a32caa92d8f454b94769b3db7a4
   category: main
   optional: false
 - name: grayskull
-  version: 2.9.2
+  version: 3.0.1
   manager: conda
   platform: linux-64
   dependencies:
     beautifulsoup4: ''
     colorama: ''
     conda-recipe-manager: ''
-    conda-souschef: '>=2.2.3'
+    conda-souschef: '>=3.0.1'
     packaging: '>=21.3'
     pip: ''
     pkginfo: ''
@@ -1837,10 +1837,10 @@ package:
     stdlib-list: ''
     tomli: ''
     tomli-w: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/grayskull-2.9.2-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/grayskull-3.0.1-pyhcf101f3_0.conda
   hash:
-    md5: 726ea54dcb11f3747c7980aeb68cef5c
-    sha256: 9cb73d7bc283d135cd4d82ad509fb4a54c48c32dfc29dfabeeb9b02b8cfe6f6c
+    md5: 2b35ad86e9cc460dc21ad5d26e12852c
+    sha256: e1fb22e4f02add0835ffb9a0ccfb323904e379d3ace326eace4173271a484c50
   category: main
   optional: false
 - name: gtk3
@@ -2918,16 +2918,16 @@ package:
   category: main
   optional: false
 - name: liblzma
-  version: 5.8.1
+  version: 5.8.2
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-  url: https://conda.anaconda.org/conda-forge/linux-64/liblzma-5.8.1-hb9d3cd8_2.conda
+    libgcc: '>=14'
+  url: https://conda.anaconda.org/conda-forge/linux-64/liblzma-5.8.2-hb03c661_0.conda
   hash:
-    md5: 1a580f7796c7bf6393fddb8bbbde58dc
-    sha256: f2591c0069447bbe28d4d696b7fcb0c5bd0b4ac582769b89addbcf26fb3430d8
+    md5: c7c83eecbb72d88b940c249af56c8b17
+    sha256: 755c55ebab181d678c12e49cced893598f2bab22d582fbbf4d8b83c18be207eb
   category: main
   optional: false
 - name: libmamba
@@ -3930,7 +3930,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.63.0
+  version: 0.63.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -3938,10 +3938,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.4,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.63.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.63.1-ha759004_0.conda
   hash:
-    md5: 63f5d08fe39c2d8f3d1d9bbd7b969b9f
-    sha256: 6992fec9e7160c2376bdeffa9b82ee80c263f43314ffc3527759c90eef900057
+    md5: f71eb7ec1195b9964e5f8a353166b37f
+    sha256: 6a6b12dd1548a267213592a6c57c80f06fed76319317cd5a551e5fcc47308463
   category: main
   optional: false
 - name: pixman
@@ -4128,10 +4128,10 @@ package:
     libgcc: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/pycryptodome-3.23.0-py311hc8f4f90_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pycryptodome-3.23.0-py311hc8f4f90_2.conda
   hash:
-    md5: 735678bf883dacdeb0e85244ff03e20e
-    sha256: dc5c61453c6a7f0870c3613ea78307bb2147d6068868170950c4fb211915b25d
+    md5: 74567c968f50107f35e3b3607b419a6d
+    sha256: 407676d5429e6a47921d485c6c1c3d61bca78b79a34ea8a17d106c9f07d26fd0
   category: main
   optional: false
 - name: pydantic
@@ -4250,14 +4250,14 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    graphviz: '>=13.1.2,<14.0a0'
+    graphviz: '>=14.1.0,<15.0a0'
     libgcc: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.14-py311hf824169_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pygraphviz-1.14-py311h172b3d0_3.conda
   hash:
-    md5: bdbf68f8f0eac7e4194a90ca55e76427
-    sha256: fd3547b570f90c793d7d790ed657db925ed2f83f207e56d667d1435ea2134898
+    md5: c47f6117d7e1346cbe1c05ea2d388ae7
+    sha256: 3dfec525c2d1d6de796fcdca4e3bafff486a5ecf9ee1f8b79432d58eb8ac8b54
   category: main
   optional: false
 - name: pyjwt
@@ -4888,10 +4888,10 @@ package:
     numpy: '>=1.25.2'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.17.0-py311hbe70eeb_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.17.0-py311hbe70eeb_1.conda
   hash:
-    md5: a1698614a27f4bd96815bac2ab22e1fc
-    sha256: b054e25d5987c860725d5fa817cd3d408b28dd83cfb9f7c13bef8076de9aff84
+    md5: f4dda6316cc4718cbcab7009b5d60c41
+    sha256: b9582e96d703b2f2f61efc7394c886aefa5ab44983818bfc4a1894afc099561c
   category: main
   optional: false
 - name: scrypt
@@ -5078,15 +5078,15 @@ package:
   category: main
   optional: false
 - name: soupsieve
-  version: 2.8.1
+  version: 2.8.2
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/soupsieve-2.8.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/soupsieve-2.8.2-pyhd8ed1ab_0.conda
   hash:
-    md5: 7de28c27fe620a4f7dbfaea137c6232b
-    sha256: 4ba9b8c45862e54d05ed9a04cc6aab5a17756ab9865f57cbf2836e47144153d2
+    md5: fcbe3971b6017792e9b24ff451daa7f5
+    sha256: aacc87d88795ef887b89fe9401d1092312c43371d1ba92340d8924da1a982b6a
   category: main
   optional: false
 - name: spdlog
