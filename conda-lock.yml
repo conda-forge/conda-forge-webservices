@@ -73,6 +73,27 @@ package:
     sha256: a362b4f5c96a0bf4def96be1a77317e2730af38915eb9bec85e2a92836501ed7
   category: main
   optional: false
+- name: anaconda-auth
+  version: 0.12.3
+  manager: conda
+  platform: linux-64
+  dependencies:
+    anaconda-cli-base: '>=0.7.0'
+    cryptography: '>=3.4.0'
+    keyring: ''
+    pkce: ''
+    pydantic: ''
+    pyjwt: ''
+    python: '>=3.10'
+    python-dotenv: ''
+    requests: ''
+    semver: <4
+  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-auth-0.12.3-pyhd8ed1ab_0.conda
+  hash:
+    md5: fd490190b2f7b0d6ec15a0dbe403ee14
+    sha256: 1a21c56240a6643f97bfa1aa68f16a5d00e60a5603db89541b161185c8877489
+  category: main
+  optional: false
 - name: anaconda-cli-base
   version: 0.7.0
   manager: conda
@@ -93,11 +114,12 @@ package:
   category: main
   optional: false
 - name: anaconda-client
-  version: 1.13.1
+  version: 1.14.0
   manager: conda
   platform: linux-64
   dependencies:
-    anaconda-cli-base: '>=0.4.0'
+    anaconda-auth: '>=0.12.3'
+    anaconda-cli-base: '>=0.7.0'
     conda-package-handling: '>=1.7.3'
     conda-package-streaming: '>=0.9.0'
     defusedxml: '>=0.7.1'
@@ -114,10 +136,10 @@ package:
     setuptools: '>=58.0.4'
     tqdm: '>=4.56.0'
     urllib3: '>=1.26.4'
-  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-client-1.13.1-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-client-1.14.0-pyhcf101f3_0.conda
   hash:
-    md5: 115ee239026f0f240473741887eef5be
-    sha256: bfb16992e3b17e365b2b9f0e36c519008048f5bfd30bdf8917bce4583f51f6cc
+    md5: 635519f88ed351fb8d316b4e55c3584d
+    sha256: 7f74f5bf4a1c40249e65f77754e3a4a9c09e51b51a6b895d6d92b18eb3c7a803
   category: main
   optional: false
 - name: annotated-types
@@ -3956,6 +3978,18 @@ package:
   hash:
     md5: c01af13bdc553d1a8fbfff6e8db075f0
     sha256: 43d37bc9ca3b257c5dd7bf76a8426addbdec381f6786ff441dc90b1a49143b6a
+  category: main
+  optional: false
+- name: pkce
+  version: 1.0.3
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.9'
+  url: https://conda.anaconda.org/conda-forge/noarch/pkce-1.0.3-pyhd8ed1ab_1.conda
+  hash:
+    md5: 26080682305b698406b4086210b9c237
+    sha256: 5bf8d0d2c8db333abcd8455f06dbc01d60ffe2aac5fe6ff3d31bab69a5185a1e
   category: main
   optional: false
 - name: pkginfo
