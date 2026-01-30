@@ -18,30 +18,35 @@ from conda_forge_webservices.utils import with_action_url
 
 LOGGER = logging.getLogger("conda_forge_webservices.status_monitor")
 
+START_TIME = datetime.datetime.fromisoformat("2020-01-01T00:00:00+00:00")
+TIME_INTERVAL = 60 * 5  # five minutes
+NUM_HOURS_TO_SAVE = 12
+NUM_STATUS_SLOTS = NUM_HOURS_TO_SAVE * 60 * 60 // TIME_INTERVAL
+
 APP_DATA: dict = {
     "azure-pipelines": {
         "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=96),
+        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
     "travis-ci": {
         "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=96),
+        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
     "github-actions": {
         "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=96),
+        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
     "appveyor": {
         "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=96),
+        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
     "circleci": {
         "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=96),
+        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
     "drone": {
         "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=96),
+        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
 }
 
@@ -52,8 +57,6 @@ WEBS_STATUS_DATA = {
     "status": NOSTATUS,
     "updated_at": None,
 }
-START_TIME = datetime.datetime.fromisoformat("2020-01-01T00:00:00+00:00")
-TIME_INTERVAL = 60 * 5  # five minutes
 
 
 def _make_time_key(uptime):
