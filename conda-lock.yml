@@ -385,7 +385,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.38
+  version: 1.42.39
   manager: conda
   platform: linux-64
   dependencies:
@@ -393,10 +393,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.38-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.39-pyhd8ed1ab_0.conda
   hash:
-    md5: 4b507600cbc149b55c780c300b9e97f1
-    sha256: 786d55eec3b673e1e997811c3dc81854dbc664a3e6ab8025bef8cc2925d16ff0
+    md5: 6b47da4f598c70cb7e06a428e2e44620
+    sha256: 7637ac5d549e6ec5ffd80c71a3c6ad8ecd26ed7a70a0da4cb3058da6764024d2
   category: main
   optional: false
 - name: brotli
@@ -809,18 +809,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.01.30.18.13.32
+  version: 2026.01.31.15.29.35
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.01.30.18.13.32-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.01.31.15.29.35-hd8ed1ab_0.conda
   hash:
-    md5: f7b1ab8678ca7a01e5357558788a71e0
-    sha256: 96ec15112b967a3f7ab2653ea492838ec6c23a1d6aaf20f8111ecea7ebe73480
+    md5: 2b16fb41673b9140e6753e928dda47b3
+    sha256: 37849bd29783f261f2fd16a21b043afbc843fb1e3cfb272ed22c1c95e20a0e8e
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.1.32
+  version: 2026.1.93
   manager: conda
   platform: linux-64
   dependencies:
@@ -832,14 +832,14 @@ package:
     click: ''
     conda: ''
     conda-build: '>=3.24.0'
-    conda-forge-feedstock-check-solvable: '>=0.8.0'
+    conda-forge-feedstock-check-solvable: '>=0.12.0'
     conda-forge-feedstock-ops: '>=0.12.0'
     conda-forge-metadata: '>=0.3.0'
     conda-forge-pinning: ''
     conda-libmamba-solver: ''
     conda-lock: ''
     conda-package-handling: ''
-    conda-smithy: '>=3.34.1'
+    conda-smithy: '>=3.54.2'
     curl: ''
     dateparser: ''
     depfinder: ''
@@ -848,7 +848,7 @@ package:
     frozendict: ''
     git: ''
     github3.py: ''
-    grayskull: '>=2.5'
+    grayskull: '>=3.1.0'
     jinja2: ''
     lockfile: ''
     mamba: '>=0.23'
@@ -880,10 +880,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.1.32-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.1.93-pyhd8ed1ab_0.conda
   hash:
-    md5: 791208520837f324baac2c1ca9721e09
-    sha256: fa651227433b665d4b69c01d715869f443749f73a6903aa9ca397f599f5b7f28
+    md5: 6f49f55090d142b977f15e918bead9cf
+    sha256: 9aa1616179c02b5a0e97911f8c821c0905a7958453297d3b5b67c10994d96f04
   category: main
   optional: false
 - name: conda-index
