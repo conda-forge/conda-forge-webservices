@@ -829,7 +829,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.1.93
+  version: 2026.2.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -889,10 +889,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.1.93-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.2.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 6f49f55090d142b977f15e918bead9cf
-    sha256: 9aa1616179c02b5a0e97911f8c821c0905a7958453297d3b5b67c10994d96f04
+    md5: 5e180c812c098a4d243b15910ad6f297
+    sha256: 4ce42cdf4e86f43a580772b538819184ba4ad014368d9aaff8dbb15ba1cbce51
   category: main
   optional: false
 - name: conda-index
@@ -4832,7 +4832,7 @@ package:
   category: main
   optional: false
 - name: rich
-  version: 14.3.1
+  version: 14.3.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -4840,10 +4840,10 @@ package:
     pygments: '>=2.13.0,<3.0.0'
     python: ''
     typing_extensions: '>=4.0.0,<5.0.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/rich-14.3.1-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/rich-14.3.2-pyhcf101f3_0.conda
   hash:
-    md5: 83d94f410444da5e2f96e5742b7a4973
-    sha256: 8d9c9c52bb4d3684d467a6e31814d8c9fccdacc8c50eb1e3e5025e88d6d57cb4
+    md5: 33950a076fd589a7655c6888cc3d2b34
+    sha256: ed17985cec5a0540002c6cabe67848f7cc17e5f4019c0e2a40534e9b7c0b38de
   category: main
   optional: false
 - name: ripgrep
