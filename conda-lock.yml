@@ -770,23 +770,32 @@ package:
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
-  version: 0.14.0
+  version: 0.15.1
   manager: conda
   platform: linux-64
   dependencies:
+    boltons: '>=23.0.0'
     click: ''
+    conda: ''
     conda-build: '>=3.27'
-    conda-forge-tick: '>=2025.3.22'
+    conda-forge-metadata: '>=0.11.0'
+    conda-package-handling: ''
     conda-smithy: '>=3.40.1'
-    pydantic-settings: ''
+    orjson: ''
+    pixi: ''
+    py-rattler: '>=0.21.0,<0.22a0'
+    pydantic-settings: '>=2.8.1,<3.0.0'
     python: '>=3.11'
-    python-rapidjson: ''
-    pyyaml: ''
     rattler-build-conda-compat: '>=0.0.2,<2.0.0a0'
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.14.0-pyhd8ed1ab_0.conda
+    requests: ''
+    ruamel.yaml: ''
+    ruamel.yaml.jinja2: ''
+    wurlitzer: ''
+    zstandard: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.15.1-pyhd8ed1ab_0.conda
   hash:
-    md5: bc18e778db5f3fcce4fcc511096e6e2e
-    sha256: cc7919437c532e1bd2127f0e9effd9c1a4a5ba0a2b8f57141a917af4446c27fc
+    md5: e213b352a80234a6bbc2a598c7f15185
+    sha256: 0eb3c595acd188bc7861ade4357654192bffac71e2fdd91750fb925842d6ab0d
   category: main
   optional: false
 - name: conda-forge-metadata
@@ -809,14 +818,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.01.31.15.29.35
+  version: 2026.02.01.15.58.59
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.01.31.15.29.35-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.01.15.58.59-hd8ed1ab_0.conda
   hash:
-    md5: 2b16fb41673b9140e6753e928dda47b3
-    sha256: 37849bd29783f261f2fd16a21b043afbc843fb1e3cfb272ed22c1c95e20a0e8e
+    md5: 449917f87c2391fb4325e8de79707983
+    sha256: 77755bec8e5fd9edec1aa3dd07913169979095824e2465b8fc4a59e50e5fe716
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1691,21 +1700,21 @@ package:
   category: main
   optional: false
 - name: gdk-pixbuf
-  version: 2.44.4
+  version: 2.44.5
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
-    libglib: '>=2.86.0,<3.0a0'
-    libjpeg-turbo: '>=3.1.0,<4.0a0'
-    liblzma: '>=5.8.1,<6.0a0'
-    libpng: '>=1.6.50,<1.7.0a0'
+    libglib: '>=2.86.3,<3.0a0'
+    libjpeg-turbo: '>=3.1.2,<4.0a0'
+    liblzma: '>=5.8.2,<6.0a0'
+    libpng: '>=1.6.54,<1.7.0a0'
     libtiff: '>=4.7.1,<4.8.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.4-h2b0a6b4_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/gdk-pixbuf-2.44.5-h2b0a6b4_0.conda
   hash:
-    md5: c379d67c686fb83475c1a6ed41cc41ff
-    sha256: f47222f58839bcc77c15f11a8814c1d8cb8080c5ca6ba83398a12b640fd3c85c
+    md5: e3bcef76c3ecb25823c503ce11783d85
+    sha256: bd61bc71e6a21f3d8e1a362310789fc329fd45eab3c66f1204249253f9abd3d0
   category: main
   optional: false
 - name: git
