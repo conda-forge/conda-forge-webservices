@@ -349,6 +349,6 @@ def test_is_valid_feedstock_output(
         }
 
     if register:
-        assert afs_mock.called_once_with(project.replace("-feedstock", ""), "glob")
+        afs_mock.assert_called_once_with(project.replace("-feedstock", ""), "glob")
     else:
         afs_mock.assert_not_called()
