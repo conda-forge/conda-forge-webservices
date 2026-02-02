@@ -513,15 +513,15 @@ package:
   category: main
   optional: false
 - name: cachetools
-  version: 6.2.6
+  version: 7.0.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-6.2.6-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.0.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 9e5f8e2fe9770c4730163d2e289adb53
-    sha256: 040e2feb74c5d85881d727a7ac5d707eccf9e6499e6a1608ddea8bb9e59c5ed1
+    md5: 715059df4fa9f291a2d84954b274b71b
+    sha256: 663a3e5e4c81c37ff0686d0f6671e0d4590af83563364aeb74f5c54f4a9043f7
   category: main
   optional: false
 - name: cairo
@@ -675,7 +675,7 @@ package:
   category: main
   optional: false
 - name: conda
-  version: 25.11.1
+  version: 26.1.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -699,11 +699,11 @@ package:
     setuptools: '>=60.0.0'
     tqdm: '>=4'
     truststore: '>=0.8.0'
-    zstandard: '>=0.19.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-25.11.1-py311h38be061_0.conda
+    zstandard: '>=0.15'
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.1.0-py311h38be061_0.conda
   hash:
-    md5: 35baaa353a5ca6814589c87672076d13
-    sha256: f8cf33cdbae30deb7efb13bb920e15cbdaf2588c6e709f8eb18741443237157c
+    md5: 04ea119f2b4807e92ddc1bdca8783b0b
+    sha256: 1a3a2a8581e5e9a3666bfcf2727e590fa776cd636864209159b4a8eb00b013ff
   category: main
   optional: false
 - name: conda-build
@@ -818,14 +818,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.01.15.58.59
+  version: 2026.02.02.11.22.05
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.01.15.58.59-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.02.11.22.05-hd8ed1ab_0.conda
   hash:
-    md5: 449917f87c2391fb4325e8de79707983
-    sha256: 77755bec8e5fd9edec1aa3dd07913169979095824e2465b8fc4a59e50e5fe716
+    md5: 9513b9fc8e6efc09e63f6e09587b2f7e
+    sha256: 7178001ee0251825bb42cb8bf162020c9b6f096816393be47b7ed7e163f0dfb2
   category: main
   optional: false
 - name: conda-forge-tick
@@ -3689,7 +3689,7 @@ package:
   category: main
   optional: false
 - name: numpy
-  version: 2.4.1
+  version: 2.4.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -3701,10 +3701,10 @@ package:
     libstdcxx: '>=14'
     python: ''
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/numpy-2.4.1-py311h2e04523_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/numpy-2.4.2-py311h2e04523_0.conda
   hash:
-    md5: 716357afd11c16214cdac522da447704
-    sha256: 51b04fafacedb05ef2865dccce212161112f22bfedd7655f8ae04489f85ce083
+    md5: 569f84011c0363af76195eed092b957d
+    sha256: 6e35d2034b0f932c12fb7d48af1346b61f4bc4f5524be36141a60c476b847744
   category: main
   optional: false
 - name: oauthlib
@@ -4219,11 +4219,11 @@ package:
   platform: linux-64
   dependencies:
     pydantic: '>=2.5.2'
-    python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhcf101f3_1.conda
   hash:
-    md5: b74145c95d910d3dd4195cf7d7567c35
-    sha256: e984052b8922b8996add05d595b68430e4f28b7d93846693b2729dc1e0504685
+    md5: 83984e3edee8f7312c0aa860682ee145
+    sha256: 6a25f3b7a92833534eb9d09e3b4ba00195fbf459ec608d15dc9e31f81b67e972
   category: main
   optional: false
 - name: pydantic-settings
@@ -5605,7 +5605,7 @@ package:
   category: main
   optional: false
 - name: wrapt
-  version: 2.0.1
+  version: 2.1.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -5613,10 +5613,10 @@ package:
     libgcc: '>=14'
     python: '>=3.11,<3.12.0a0'
     python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/wrapt-2.0.1-py311h49ec1c0_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/wrapt-2.1.0-py311h49ec1c0_0.conda
   hash:
-    md5: e8442f5d358d1449deaf4ba76f5e212c
-    sha256: 81327871ef18cbdd095e1e7650a198fd13f02355a39f23f1e377aa6d899f8ce0
+    md5: ddbef76cdab78a6b35a2907c94b82619
+    sha256: d52f79724d29d005832df9f4baca60767bf3550471b5ac4d98f06e663ea74c92
   category: main
   optional: false
 - name: wurlitzer
