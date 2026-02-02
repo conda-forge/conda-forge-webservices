@@ -474,6 +474,7 @@ def _is_valid_feedstock_output(
     """
     gh_token = get_app_token_for_webservices_only()
 
+    # FIXME: use better variable name and do not try and handle either entry
     if project.endswith("-feedstock"):
         feedstock = project[: -len("-feedstock")]
     else:

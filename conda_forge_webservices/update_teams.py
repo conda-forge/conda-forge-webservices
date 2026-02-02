@@ -81,7 +81,7 @@ def update_team(org_name, repo_name, commit=None):
     if not repo_name.endswith("-feedstock"):
         return
 
-    team_name = repo_name.replace("-feedstock", "").lower()
+    team_name = repo_name.rsplit("-feedstock", 1)[0].lower()
     if team_name in [
         "core",
         "bot",
@@ -106,7 +106,7 @@ def update_team(org_name, repo_name, commit=None):
         meta,
         gh_repo,
         org,
-        repo_name.replace("-feedstock", ""),
+        team_name,
         remove=True,
     )
 

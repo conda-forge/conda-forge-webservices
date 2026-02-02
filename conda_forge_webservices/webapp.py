@@ -980,7 +980,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 _dispatch_autotickbot_job(
                     body["repository"]["full_name"],
                     "push",
-                    repo_name.split("-feedstock")[0],
+                    repo_name.rsplit("-feedstock", 1)[0],
                 )
 
             return
