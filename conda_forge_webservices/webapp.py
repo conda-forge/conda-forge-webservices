@@ -674,7 +674,7 @@ def _comment_on_core_notes_if_bad_copy(copied, errors, outputs, label, hash_type
 
 
 def _do_copy(
-    feedstock,
+    feedstock_repo_name,
     outputs,
     dest_label,
     git_sha,
@@ -684,7 +684,7 @@ def _do_copy(
     start_time,
 ):
     valid, errors = validate_feedstock_outputs(
-        feedstock,
+        feedstock_repo_name,
         outputs,
         hash_type,
         dest_label,
@@ -722,7 +722,7 @@ def _do_copy(
     # )
 
     if not all(copied[o] for o in outputs) and comment_on_error:
-        comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied)
+        comment_on_outputs_copy(feedstock_repo_name, git_sha, errors, valid, copied)
 
     return valid, errors, copied, time.time() - start_time
 
@@ -732,7 +732,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         headers = self.request.headers
         feedstock_token = headers.get("FEEDSTOCK_TOKEN", None)
         data = tornado.escape.json_decode(self.request.body)
-        feedstock = data.get("feedstock", None)
+        feedstock_repo_name = data.get("feedstock", None)
         outputs = data.get("outputs", None)
         # the anaconda-client calls labels (e.g., "main") "channels" internally
         # we did adopt that nomenclature in the API here, but that was a mistake
@@ -757,11 +757,11 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
 
         log_title_and_message_at_level(
             level="info",
-            title=f"copy started for outputs for feedstock '{feedstock}'",
+            title=f"copy started for outputs for feedstock '{feedstock_repo_name}'",
         )
 
-        if feedstock is not None and len(feedstock) > 0:
-            feedstock_exists = _repo_exists(feedstock)
+        if feedstock_repo_name is not None and len(feedstock_repo_name) > 0:
+            feedstock_exists = _repo_exists(feedstock_repo_name)
         else:
             feedstock_exists = False
 
@@ -772,7 +772,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             and len(feedstock_token) > 0
             and is_valid_feedstock_token(
                 "conda-forge",
-                feedstock,
+                feedstock_repo_name,
                 feedstock_token,
                 provider=provider,
             )
@@ -796,7 +796,10 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             }
             log_title_and_message_at_level(
                 level="warning",
-                title=f"invalid outputs copy request for feedstock '{feedstock}'",
+                title=(
+                    f"invalid outputs copy request for "
+                    f"feedstock '{feedstock_repo_name}'"
+                ),
                 msg=yaml.dump(data, default_flow_style=False, indent=2),
             )
             err_msgs = []
@@ -810,7 +813,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 err_msgs.append("invalid hash type")
 
             if feedstock_exists and comment_on_error:
-                comment_on_outputs_copy(feedstock, git_sha, err_msgs, {}, {})
+                comment_on_outputs_copy(feedstock_repo_name, git_sha, err_msgs, {}, {})
 
             self.set_status(403)
             self.write_error(403)
@@ -824,7 +827,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             ) = await tornado.ioloop.IOLoop.current().run_in_executor(
                 _worker_pool("upload"),
                 _do_copy,
-                feedstock,
+                feedstock_repo_name,
                 outputs,
                 label,
                 git_sha,
@@ -850,7 +853,9 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
 
             log_title_and_message_at_level(
                 level="info",
-                title=f"copy finished for outputs for feedstock '{feedstock}'",
+                title=(
+                    f"copy finished for outputs for feedstock '{feedstock_repo_name}'"
+                ),
                 msg=yaml.dump(data, default_flow_style=False, indent=2),
             )
 
@@ -871,7 +876,8 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         #
         #     if git_sha is not None and not all(copied[o] for o in outputs):
         #         comment_on_outputs_copy(
-        #             feedstock, git_sha, ["some outputs did not copy"], {}, copied)
+        #             feedstock_repo_name,
+        #             git_sha, ["some outputs did not copy"], {}, copied)
         #
         #     self.write(json.dumps(
         #         {"errors": ["some outputs did not copy"],
@@ -885,7 +891,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         # else:
         #     if git_sha is not None and feedstock is not None:
         #         comment_on_outputs_copy(
-        #             feedstock, git_sha,
+        #             feedstock_repo_name, git_sha,
         #             ["invalid copy request (either bad data or bad feedstock token)"],
         #             {}, {}
         #         )
@@ -980,7 +986,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 _dispatch_autotickbot_job(
                     body["repository"]["full_name"],
                     "push",
-                    repo_name.split("-feedstock")[0],
+                    repo_name.rsplit("-feedstock", 1)[0],
                 )
 
             return

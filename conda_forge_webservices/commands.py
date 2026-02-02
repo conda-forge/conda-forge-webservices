@@ -263,14 +263,14 @@ def pr_detailed_comment(
         if m.group("team"):
             team = m.group("team").strip()
             if team == "team":
-                team = repo_name.replace("-feedstock", "")
+                team = repo_name.rsplit("-feedstock", 1)[0]
             else:
                 if "conda-forge/" in team:
                     team = team.split("/")[1].strip()
                 if team.endswith("-feedstock"):
                     team = team[: -len("-feedstock")]
         else:
-            team = repo_name.replace("-feedstock", "")
+            team = repo_name.rsplit("-feedstock", 1)[0]
 
         gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
