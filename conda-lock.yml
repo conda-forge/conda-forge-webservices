@@ -675,7 +675,7 @@ package:
   category: main
   optional: false
 - name: conda
-  version: 25.11.1
+  version: 26.1.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3661,7 +3661,7 @@ package:
   category: main
   optional: false
 - name: numpy
-  version: 2.4.1
+  version: 2.4.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -4189,11 +4189,11 @@ package:
   platform: linux-64
   dependencies:
     pydantic: '>=2.5.2'
-    python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/pydantic-extra-types-2.11.0-pyhcf101f3_1.conda
   hash:
-    md5: b74145c95d910d3dd4195cf7d7567c35
-    sha256: e984052b8922b8996add05d595b68430e4f28b7d93846693b2729dc1e0504685
+    md5: 83984e3edee8f7312c0aa860682ee145
+    sha256: 6a25f3b7a92833534eb9d09e3b4ba00195fbf459ec608d15dc9e31f81b67e972
   category: main
   optional: false
 - name: pydantic-settings
