@@ -24,7 +24,7 @@ dependencies:
   - parameterized
   - pip
   - pygithub >=2.2.0,<2.6.0  # lower bound for GH App endpoints and upper bound so making app tokens works
-  - python
+  - python =3.12.*
   - pytz
   - pyyaml
   - rattler-build >=0.35.4
