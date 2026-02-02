@@ -393,6 +393,10 @@ def _add_feedstock_output(
     feedstock: str,
     pkg_name: str,
 ):
+    """
+    the feedstock argument is without "-feedstock"
+    (i.e., "ngmix" for the "ngmix-feedstock" repo.)
+    """
     gh = get_gh_client()
     repo = gh.get_repo("conda-forge/feedstock-outputs")
     try:
@@ -446,7 +450,7 @@ def _run_with_backoff(func, *args, n_try=10):
 
 
 def _is_valid_feedstock_output(
-    project,
+    feedstock_repo_name,
     outputs,
     register=False,
 ):
@@ -455,8 +459,8 @@ def _is_valid_feedstock_output(
 
     Parameters
     ----------
-    project : str
-        The GitHub repo.
+    feedstock_repo_name : str
+        The name of the feedstock repo (i.e., ngmix-feedstock).
     outputs : list of str
         A list of outputs top validate. The list entries should be the
         full names with the platform directory, version/build info, and file extension
@@ -474,11 +478,7 @@ def _is_valid_feedstock_output(
     """
     gh_token = get_app_token_for_webservices_only()
 
-    # FIXME: use better variable name and do not try and handle either entry
-    if project.endswith("-feedstock"):
-        feedstock = project[: -len("-feedstock")]
-    else:
-        feedstock = project
+    feedstock = feedstock_repo_name.rsplit("-feedstock", 1)[0]
 
     valid = dict.fromkeys(outputs, False)
 
@@ -498,6 +498,7 @@ def _is_valid_feedstock_output(
     unique_names_valid = dict.fromkeys(unique_names, False)
     for un in unique_names:
         try:
+            # this returns the feedstock without -feedstock
             registered_feedstocks = package_to_feedstock(un)
         except requests.exceptions.HTTPError:
             registered_feedstocks = []
@@ -543,7 +544,7 @@ def _is_valid_feedstock_output(
 
 
 def validate_feedstock_outputs(
-    project,
+    feedstock_repo_name,
     outputs,
     hash_type,
     dest_label,
@@ -552,8 +553,8 @@ def validate_feedstock_outputs(
 
     Parameters
     ----------
-    project : str
-        The name of the feedstock.
+    feedstock_repo_name : str
+        The name of the feedstock repo (i.e., ngmix-feedstock).
     outputs : dict
         A dictionary mapping each output to its md5 hash. The keys should be the
         full names with the platform directory, version/build info, and file extension
@@ -611,7 +612,7 @@ def validate_feedstock_outputs(
     # next ensure the outputs are valid for the feedstock
     # again do not pass any invalid outputs to the rest of the functions
     valid_outputs = _is_valid_feedstock_output(
-        project,
+        feedstock_repo_name,
         outputs_to_test,
         # to turn this off, set the value in the config.json blob in
         # conda-forge/feedstock-outputs
@@ -619,7 +620,9 @@ def validate_feedstock_outputs(
     )
     for o in outputs_to_test:
         if not valid_outputs[o]:
-            errors.append(f"output {o} not allowed for conda-forge/{project}")
+            errors.append(
+                f"output {o} not allowed for conda-forge/{feedstock_repo_name}"
+            )
 
     # combine all validations
     for o in outputs:
@@ -720,13 +723,13 @@ def stage_dist_to_post_staging_and_possibly_copy_to_prod(
     return pre_copied and copied, errors
 
 
-def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
+def comment_on_outputs_copy(feedstock_repo_name, git_sha, errors, valid, copied):
     """Make an issue or comment if the feedstock output copy failed.
 
     Parameters
     ----------
-    feedstock : str
-        The name of the feedstock.
+    feedstock_repo_name : str
+        The name of the feedstock repo (i.e., ngmix-feedstock).
     git_sha : str
         The git SHA of the commit.
     errors : list of str
@@ -737,12 +740,12 @@ def comment_on_outputs_copy(feedstock, git_sha, errors, valid, copied):
     copied : dict
         A dictionary mapping outputs to whether or not they were copied.
     """
-    if not feedstock.endswith("-feedstock"):
+    if not feedstock_repo_name.endswith("-feedstock"):
         return None
 
     gh = get_gh_client()
 
-    team_name = feedstock[: -len("-feedstock")]
+    team_name = feedstock_repo_name[: -len("-feedstock")]
 
     message = f"""\
 Hi @conda-forge/{team_name}! This is the friendly automated conda-forge-webservice!
@@ -801,7 +804,7 @@ community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-gen
             "registration."
         )
 
-    repo = gh.get_repo(f"conda-forge/{feedstock}")
+    repo = gh.get_repo(f"conda-forge/{feedstock_repo_name}")
     issue = None
     for possible_issue in repo.get_issues(state="all"):
         if (git_sha is not None and git_sha in possible_issue.title) or (
