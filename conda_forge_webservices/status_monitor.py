@@ -146,7 +146,7 @@ def _make_report_data(iso=False):
     report = {}
     for key in APP_DATA:
         rates = {}
-        for k in range(know, know - 96, -1):
+        for k in range(know, know - NUM_STATUS_SLOTS, -1):
             tstr = _make_est_from_time_key(k, iso=iso)
             rates[tstr] = APP_DATA[key]["rates"].get(k, 0)
 
