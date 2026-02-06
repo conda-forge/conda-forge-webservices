@@ -16,7 +16,7 @@ concurrency:
 jobs:
   tag-and-release:
     name: tag-and-release
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-slim"
     defaults:
       run:
         shell: bash -leo pipefail {0}
@@ -24,11 +24,11 @@ jobs:
       new_version: ${{ steps.version.outputs.NEXT }}
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v1
+      - uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -63,11 +63,11 @@ jobs:
       IMAGE_NAME: condaforge/conda-forge-webservices-gha-dispatch
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v1
+      - uses: mamba-org/setup-micromamba@add3a49764cedee8ee24e82dfde87f5bc2914462 # v2.0.7
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -78,17 +78,17 @@ jobs:
               - conda-forge
 
       - name: set up docker buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: login to docker hub
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           username: condaforgebot
           password: ${{ secrets.CF_BOT_DH_PASSWORD }}
 
       - name: build docker metadata
         id: meta
-        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: condaforge/webservices-dispatch-action
           flavor: |
@@ -98,7 +98,7 @@ jobs:
             type=raw,value=latest
 
       - name: build and push image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
           file: Dockerfile_wda
@@ -126,7 +126,7 @@ jobs:
       - build-and-push-dispatch-container
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ needs.tag-and-release.outputs.new_version }}
 
@@ -135,7 +135,7 @@ jobs:
           curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
 
       - name: build and push to heroku
-        uses: AkhileshNS/heroku-deploy@e3eb99d45a8e2ec5dca08735e089607befa4bf28
+        uses: AkhileshNS/heroku-deploy@e3eb99d45a8e2ec5dca08735e089607befa4bf28 # v3.14.15
         with:
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
