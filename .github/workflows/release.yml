@@ -54,7 +54,7 @@ jobs:
 
   build-and-push-dispatch-container:
     name: build and push dispatch container
-    runs-on: "ubuntu-slim"
+    runs-on: "ubuntu-latest"
     needs: tag-and-release
     defaults:
       run:
@@ -120,7 +120,7 @@ jobs:
 
   build-and-push-to-heroku:
     name: build and push to heroku
-    runs-on: "ubuntu-slim"
+    runs-on: "ubuntu-latest"
     needs:
       - tag-and-release
       - build-and-push-dispatch-container
