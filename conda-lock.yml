@@ -385,7 +385,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.42
+  version: 1.42.43
   manager: conda
   platform: linux-64
   dependencies:
@@ -393,10 +393,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.42-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.43-pyhd8ed1ab_0.conda
   hash:
-    md5: 8613520026d80f6263357a28bcd613fc
-    sha256: cb1e542f6704f6afb7ce87fe0b2b9be575a935e4194ae2d4ecac6a00672926d6
+    md5: 7100850972bd550a45bed00645ddf349
+    sha256: f7a3126329b67facac3e173e7d480e8ed30be539a11b7af003d390781a6ce7ea
   category: main
   optional: false
 - name: brotli
@@ -791,18 +791,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.05.12.33.50
+  version: 2026.02.05.22.05.09
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.05.12.33.50-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.05.22.05.09-hd8ed1ab_0.conda
   hash:
-    md5: 3ee49a312ad51e619e48086cabe19bdf
-    sha256: ff63cefeb745ab08bf1837cdeac65311ee9e36e0cb96e18d358415eae4539ae1
+    md5: 14056e5004126791c37eaee38b11b71b
+    sha256: 24edec66ee855c988e3969edbfd075681c480a67ec082f2ead0cdb69b62276b1
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.2.4
+  version: 2026.2.24
   manager: conda
   platform: linux-64
   dependencies:
@@ -862,10 +862,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.2.4-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.2.24-pyhd8ed1ab_0.conda
   hash:
-    md5: 4198a9d8430123643427d458ac71e4cc
-    sha256: 9c910736e1cae6eda97570b2c691867233aabd71824b07f4a7c1d5bfbcfeea6d
+    md5: 61eb921da180e0feb7a23351d85d5570
+    sha256: 28e505dc41f669087304548d78209978f0ce289b6973f98ea06b1edac538f14a
   category: main
   optional: false
 - name: conda-index
@@ -5470,17 +5470,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.9.30
+  version: 0.10.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.9.30-h6dd6661_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.10.0-h6dd6661_0.conda
   hash:
-    md5: 492cc22df20eb2ca8cc240e65e477528
-    sha256: 8ced98b57830e3aa39399839ed42d4f5b4e9e4caa373496de028ba084d51d8ae
+    md5: 9efcffdffce09926c0a01867cf2c71d2
+    sha256: ca5fba9d7750175edfd399572dc68cc0d8c422fc0966d3720e37e7748a3eb66a
   category: main
   optional: false
 - name: virtualenv
