@@ -792,18 +792,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.23.12.16.34
+  version: 2026.02.23.16.10.43
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.23.12.16.34-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.23.16.10.43-hd8ed1ab_0.conda
   hash:
-    md5: 4773143cf9d83f43923ea17f233e8d6d
-    sha256: a8ec32fdc553c5cba13aa57746dc344fe2a4a11b6d92427aae0d23d76f5e8c61
+    md5: 20322c13b142f82146e9ef8d9ea56c44
+    sha256: db6e7106d536fc716039208e98f89dc6603f548828b8e46538d64b72c0a10392
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.2.91
+  version: 2026.2.92
   manager: conda
   platform: linux-64
   dependencies:
@@ -863,10 +863,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.2.91-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.2.92-pyhd8ed1ab_0.conda
   hash:
-    md5: 48cdd1e20e0bf9f9b2705164553c49a0
-    sha256: 96e69204562d25915bf60bf0e4280fda676495814b7c2a4eb37e378479b7ccc1
+    md5: 4ba827718ff1ebf359f1f0e88ce0fd53
+    sha256: bf12146e213d0d887dac9a9cd7a89e00b38911c2fac987d159a0995544d647ab
   category: main
   optional: false
 - name: conda-index
@@ -1762,10 +1762,10 @@ package:
     libffi: ''
     libgcc: '>=14'
     libglib: 2.86.4
-  url: https://conda.anaconda.org/conda-forge/linux-64/glib-tools-2.86.4-hf516916_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/glib-tools-2.86.4-hf516916_1.conda
   hash:
-    md5: 70a09b6817c7ad694ef4543204c59c25
-    sha256: 20972d7770ccfb4cf9e77f5262195228e6f357626d172c195a9fa2a64f4818e8
+    md5: b52b769cd13f7adaa6ccdc68ef801709
+    sha256: 441586fc577c5a3f2ad7bf83578eb135dac94fb0cb75cc4da35f8abb5823b857
   category: main
   optional: false
 - name: gmp
@@ -2801,10 +2801,10 @@ package:
     libiconv: '>=1.18,<2.0a0'
     libzlib: '>=1.3.1,<2.0a0'
     pcre2: '>=10.47,<10.48.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.86.4-h6548e54_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libglib-2.86.4-h6548e54_1.conda
   hash:
-    md5: b7113551db5a3e2403cdd052c66e9999
-    sha256: 0d8cf491cb00aeb35fcfb68dfcb5b0ad188a98fb35c21c2421d2b2acc128cbf5
+    md5: bb26456332b07f68bf3b7622ed71c0da
+    sha256: a27e44168a1240b15659888ce0d9b938ed4bdb49e9ea68a7c1ff27bcea8b55ce
   category: main
   optional: false
 - name: libglvnd
