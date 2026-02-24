@@ -792,14 +792,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.23.16.10.43
+  version: 2026.02.23.21.20.04
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.23.16.10.43-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.23.21.20.04-hd8ed1ab_0.conda
   hash:
-    md5: 20322c13b142f82146e9ef8d9ea56c44
-    sha256: db6e7106d536fc716039208e98f89dc6603f548828b8e46538d64b72c0a10392
+    md5: 1823a429ce2dfb0ea9e7828bf96f2762
+    sha256: e1078c7a258fda8aaa6d65ea3cffc57308e1805a8152181d1cbd3306c241d3da
   category: main
   optional: false
 - name: conda-forge-tick
@@ -3940,18 +3940,18 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.63.2
+  version: 0.64.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-    openssl: '>=3.5.4,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.63.2-ha759004_0.conda
+    openssl: '>=3.5.5,<4.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.64.0-ha759004_0.conda
   hash:
-    md5: 6d2eee31638fde1456498902548e8f48
-    sha256: 01d409034c51e5dcf858dcb74fed5ae80a9359f7d9c8b5a244e95f03099e886c
+    md5: 70c34141b01b1f88f2a67a66eeeecb37
+    sha256: 589f33af0171a5de24075bbe31666b7c1ec3bda7380bf9e8a7143fbde277ee41
   category: main
   optional: false
 - name: pixman
@@ -4880,7 +4880,7 @@ package:
   category: main
   optional: false
 - name: scipy
-  version: 1.17.0
+  version: 1.17.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -4895,10 +4895,10 @@ package:
     numpy: '>=1.25.2'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.17.0-py312h54fa4ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.17.1-py312h54fa4ab_0.conda
   hash:
-    md5: 828eb07c4c87c38ed8c6560c25893280
-    sha256: 5b296faf6f5ff90d9ea3f6b16ff38fe2b8fe81c7c45b5e3a78b48887cca881d1
+    md5: 3e38daeb1fb05a95656ff5af089d2e4c
+    sha256: e3ad577361d67f6c078a6a7a3898bf0617b937d44dc4ccd57aa3336f2b5778dd
   category: main
   optional: false
 - name: scrypt
@@ -5451,17 +5451,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.10.4
+  version: 0.10.5
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.10.4-h6dd6661_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.10.5-h6dd6661_0.conda
   hash:
-    md5: d1807b67269cb9e60891e95cae6d5a7c
-    sha256: c839e6b55fac5fd4e60b55b5973ace0edb18b9fa150346f0d760d86c82aa2b5f
+    md5: 2e737f983b7ae90f1ee95242de4becf6
+    sha256: c67f445544245a14aabbe48ac27968070312910ab1f6dd522cb8fcdc8d9573ee
   category: main
   optional: false
 - name: virtualenv
