@@ -386,7 +386,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.56
+  version: 1.42.57
   manager: conda
   platform: linux-64
   dependencies:
@@ -394,10 +394,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.56-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.57-pyhd8ed1ab_0.conda
   hash:
-    md5: bb0a2284344f121ae5438c5e0146ddbb
-    sha256: 08cb4255055393b75431c268e4ec78971040fbc2919ccca16dac4ee1fb5046a9
+    md5: 9ea43484d7f27bfabf32b7af769bfec9
+    sha256: e6210f56d38455458cdbbd40e2c9239e3b8ad0295da782f464e7237bed6a46af
   category: main
   optional: false
 - name: brotli
@@ -792,14 +792,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.25.16.03.10
+  version: 2026.02.26.15.15.33
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.25.16.03.10-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.26.15.15.33-hd8ed1ab_0.conda
   hash:
-    md5: 87f194f7d675c96a748179c7f1b7400d
-    sha256: 008c5ce744754c5e9b0378caf3c6eefdebfb9f032801434c039ae82ac6e90558
+    md5: b31eeba1747b98a8f3d19a0dbde4066c
+    sha256: f8691cad3c0cf20a2a6d8e3b186eef9ca118663f5029e1828fb89a3630b27767
   category: main
   optional: false
 - name: conda-forge-tick
@@ -4633,7 +4633,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.58.0
+  version: 0.58.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -4642,10 +4642,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.5,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.1-ha759004_0.conda
   hash:
-    md5: 147d4d8edc74e2981625e198e13b79f0
-    sha256: b88aaa23c36238a8fe9308a8cd4f186be27afb31eb31e30a38458c376b666984
+    md5: adaf093dae5fa3a73ca1d3193595b0f0
+    sha256: fd557959169e506da6604e4ec9f048b918bbe2c3d40dab59be130cc3bcab32a4
   category: main
   optional: false
 - name: rattler-build-conda-compat
