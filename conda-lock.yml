@@ -803,7 +803,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.2.92
+  version: 2026.2.101
   manager: conda
   platform: linux-64
   dependencies:
@@ -863,10 +863,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.2.92-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.2.101-pyhd8ed1ab_0.conda
   hash:
-    md5: 4ba827718ff1ebf359f1f0e88ce0fd53
-    sha256: bf12146e213d0d887dac9a9cd7a89e00b38911c2fac987d159a0995544d647ab
+    md5: b55e13d03c1dc5db5c65e510e065c09f
+    sha256: 5426b58a7f6ece27b7c6c9fa4eb37fa4557aa9d1fc286368dffd354cf88d354d
   category: main
   optional: false
 - name: conda-index
