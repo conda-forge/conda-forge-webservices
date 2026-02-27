@@ -386,7 +386,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.57
+  version: 1.42.58
   manager: conda
   platform: linux-64
   dependencies:
@@ -394,10 +394,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.57-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.58-pyhd8ed1ab_0.conda
   hash:
-    md5: 9ea43484d7f27bfabf32b7af769bfec9
-    sha256: e6210f56d38455458cdbbd40e2c9239e3b8ad0295da782f464e7237bed6a46af
+    md5: 366fe303895cff70f4073974bdd09663
+    sha256: cb8162ffd3e9a98c57c9e36cfce2269aa25f5c3107a037f77dcdce7c076d5da3
   category: main
   optional: false
 - name: brotli-python
@@ -4398,7 +4398,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.58.1
+  version: 0.58.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4407,10 +4407,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.5,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.1-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.0-ha759004_0.conda
   hash:
-    md5: adaf093dae5fa3a73ca1d3193595b0f0
-    sha256: fd557959169e506da6604e4ec9f048b918bbe2c3d40dab59be130cc3bcab32a4
+    md5: 147d4d8edc74e2981625e198e13b79f0
+    sha256: b88aaa23c36238a8fe9308a8cd4f186be27afb31eb31e30a38458c376b666984
   category: main
   optional: false
 - name: rattler-build-conda-compat
