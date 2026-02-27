@@ -3748,7 +3748,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.64.0
+  version: 0.65.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3756,10 +3756,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.5,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.64.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.65.0-ha759004_0.conda
   hash:
-    md5: 70c34141b01b1f88f2a67a66eeeecb37
-    sha256: 589f33af0171a5de24075bbe31666b7c1ec3bda7380bf9e8a7143fbde277ee41
+    md5: acd539326b309b03e2e788b3c0d39c97
+    sha256: 996d02467e1b5311eeb81afa0003bb7a5657f78982ba54cd98d884342ca5b142
   category: main
   optional: false
 - name: pixman
