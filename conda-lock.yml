@@ -645,7 +645,7 @@ package:
   category: main
   optional: false
 - name: conda
-  version: 26.1.0
+  version: 26.1.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -669,11 +669,11 @@ package:
     setuptools: '>=60.0.0'
     tqdm: '>=4'
     truststore: '>=0.8.0'
-    zstandard: '>=0.15'
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.1.0-py312h7900ff3_0.conda
+    zstandard: '>=0.19.0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.1.1-py312h7900ff3_0.conda
   hash:
-    md5: f1a3d2e2fed0b4401f28a91bab36eeb7
-    sha256: 3e15224c730a5c185da8ed20a21216b4a41fd2c269d933770c87fdf069ca0f33
+    md5: 32e3a7c6278d6f3993241ea4e4689ba8
+    sha256: 375f17f645dfb7e995acaf0bfadd9ad0e591d8b63f8c2e6875d7a8c7b84ce1bf
   category: main
   optional: false
 - name: conda-build
@@ -761,14 +761,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.26.19.31.03
+  version: 2026.02.27.08.13.09
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.26.19.31.03-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.27.08.13.09-hd8ed1ab_0.conda
   hash:
-    md5: dc73976e162a43f6e46c6b0c4e2c849c
-    sha256: fd14d6c546afd9e5d44c9c7d60fe90c632cf61ca941800bb61f8473053488898
+    md5: b17d8af1de2b26f50f169e4d97596e50
+    sha256: d1edef47d331ae52d516dbefec04dfa32176d714a175ed193057f4233b5fee48
   category: main
   optional: false
 - name: conda-forge-tick
@@ -2948,15 +2948,16 @@ package:
   category: main
   optional: false
 - name: libsodium
-  version: 1.0.20
+  version: 1.0.21
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libsodium-1.0.20-h4ab18f5_0.conda
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=14'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libsodium-1.0.21-h280c20c_2.conda
   hash:
-    md5: a587892d3c13b6621a6091be690dbca2
-    sha256: 0105bd108f19ea8e6a78d2d994a6d4a8db16d19a41212070d2d1d48a63c34161
+    md5: ef0b79f6a6f4893d4faccbcedc606d3c
+    sha256: 0c890710173a98befb5ecc0f84475f1351c39cba4b52ba2f76f47aaf3c08a819
   category: main
   optional: false
 - name: libsolv
@@ -4111,14 +4112,14 @@ package:
     __glibc: '>=2.17,<3.0.a0'
     cffi: '>=1.4.1'
     libgcc: '>=14'
-    libsodium: '>=1.0.20,<1.0.21.0a0'
+    libsodium: '>=1.0.21,<1.0.22.0a0'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
     six: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/pynacl-1.6.2-py312h4c3975b_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pynacl-1.6.2-py312h587e1b2_1.conda
   hash:
-    md5: c6ceb8fd432a834aab008cb63749b02c
-    sha256: 68b2796fa9210ffbb169976bed2fe26b0481463cdca3e08cc8440a4c8ed8fd89
+    md5: 6e4d8ed581cc576435d366372054ac71
+    sha256: cc84dd07811861c800fb3f0df3fb64ea579adcb518a5daac6e1089baabd697d1
   category: main
   optional: false
 - name: pynamodb
