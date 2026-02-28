@@ -63,12 +63,13 @@ package:
   category: main
   optional: false
 - name: anaconda-auth
-  version: 0.12.3
+  version: 0.13.0
   manager: conda
   platform: linux-64
   dependencies:
-    anaconda-cli-base: '>=0.7.0'
+    anaconda-cli-base: '>=0.8.1'
     cryptography: '>=3.4.0'
+    httpx: ''
     keyring: ''
     pkce: ''
     pydantic: ''
@@ -77,10 +78,10 @@ package:
     python-dotenv: ''
     requests: ''
     semver: <4
-  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-auth-0.12.3-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-auth-0.13.0-pyhd8ed1ab_0.conda
   hash:
-    md5: fd490190b2f7b0d6ec15a0dbe403ee14
-    sha256: 1a21c56240a6643f97bfa1aa68f16a5d00e60a5603db89541b161185c8877489
+    md5: 7df604fa6b0c70bac9d77dec7a3741af
+    sha256: 07409058cc87b0f3ea865ad3412aea9ad212401c0a7ce3a5e1a69323ff0c70b2
   category: main
   optional: false
 - name: anaconda-cli-base
@@ -761,14 +762,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.27.08.13.09
+  version: 2026.02.27.18.23.39
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.27.08.13.09-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.27.18.23.39-hd8ed1ab_0.conda
   hash:
-    md5: b17d8af1de2b26f50f169e4d97596e50
-    sha256: d1edef47d331ae52d516dbefec04dfa32176d714a175ed193057f4233b5fee48
+    md5: 2b9b77c822826ebee7f2856043440c30
+    sha256: 3ce4d7023497def69c13da36ed8b564a174da96602f01f14522d60bcdd078a33
   category: main
   optional: false
 - name: conda-forge-tick
@@ -4399,7 +4400,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.58.1
+  version: 0.58.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -4408,10 +4409,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.5,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.1-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.2-ha759004_0.conda
   hash:
-    md5: adaf093dae5fa3a73ca1d3193595b0f0
-    sha256: fd557959169e506da6604e4ec9f048b918bbe2c3d40dab59be130cc3bcab32a4
+    md5: 7dfafe89dae0271ee5a8b18664715faa
+    sha256: d6699e37dbf0f9269d3e44088371e0cf6b03a5ee93f45362f10f81dd20b593a6
   category: main
   optional: false
 - name: rattler-build-conda-compat
@@ -5203,17 +5204,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.10.6
+  version: 0.10.7
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.10.6-h6dd6661_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.10.7-h6dd6661_0.conda
   hash:
-    md5: 716ef148de4db18db2035ce58a87d412
-    sha256: 3ef72cf85c42b06c7bd0fcdc02d49286f44e505630d6d2a7f476a42a7e02fdfd
+    md5: 288d83534bc284e480229b7c8f02d61a
+    sha256: 033aac3879d772ee496f383099c9e33240ee20956db86655beb23f295a21ade8
   category: main
   optional: false
 - name: virtualenv
@@ -5264,20 +5265,22 @@ package:
   category: main
   optional: false
 - name: wget
-  version: 1.21.4
+  version: 1.25.0
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=14'
     libidn2: '>=2,<3.0a0'
     libunistring: '>=0,<1.0a0'
-    libzlib: '>=1.2.13,<2.0.0a0'
-    openssl: '>=3.2.1,<4.0a0'
+    libzlib: '>=1.3.1,<2.0a0'
+    openssl: '>=3.5.5,<4.0a0'
+    pcre2: '>=10.47,<10.48.0a0'
     zlib: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/wget-1.21.4-hda4d442_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/wget-1.25.0-h653f8fd_1.conda
   hash:
-    md5: 361e96b664eac64a33c20dfd11affbff
-    sha256: 70df4ac8cca488618458af4705706551cef7e402bac9c2c41dd17148f60cbd1f
+    md5: 3b97a15e7345c7f6c51bb57bffad7c93
+    sha256: 66a5a05e0e44fd7a57e24d77665d5d6672646a7b316575b2f679108966d9124e
   category: main
   optional: false
 - name: wheel
