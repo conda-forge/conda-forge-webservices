@@ -58,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: rebuild conda-forge/docker-images
-        uses: benc-uk/workflow-dispatch@e2e5e9a103e331dad343f381a29e654aea3cf8fc # v1.2.4
+        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 # v1.3.1
         if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
         with:
           repo: conda-forge/docker-images
