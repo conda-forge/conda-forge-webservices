@@ -762,14 +762,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.02.27.18.23.39
+  version: 2026.03.02.11.32.26
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.02.27.18.23.39-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.02.11.32.26-hd8ed1ab_0.conda
   hash:
-    md5: 2b9b77c822826ebee7f2856043440c30
-    sha256: 3ce4d7023497def69c13da36ed8b564a174da96602f01f14522d60bcdd078a33
+    md5: 7eb11d2c92df16e56e2e16a90cee54e1
+    sha256: 71bb4329fd010879c5ce31fae67549c17764f5d43bfc6e3554ee61a9c329f398
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1413,15 +1413,15 @@ package:
   category: main
   optional: false
 - name: filelock
-  version: 3.24.3
+  version: 3.25.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.24.3-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.25.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 9dbb20eec24beb026291c20a35ce1ff9
-    sha256: 6d576ed3bd0e7c57b1144f0b2014de9ea3fab9786316bc3e748105d44e0140a0
+    md5: 49a92015e912176999ae81bea11ea778
+    sha256: 55162ec0ff4e22d8f762b3e774f08f79f234ba37ab5e64d7a1421ed9216a222c
   category: main
   optional: false
 - name: flaky
@@ -2955,10 +2955,10 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libsodium-1.0.21-h280c20c_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libsodium-1.0.21-h280c20c_3.conda
   hash:
-    md5: ef0b79f6a6f4893d4faccbcedc606d3c
-    sha256: 0c890710173a98befb5ecc0f84475f1351c39cba4b52ba2f76f47aaf3c08a819
+    md5: 7af961ef4aa2c1136e11dd43ded245ab
+    sha256: 64e5c80cbce4680a2d25179949739a6def695d72c40ca28f010711764e372d97
   category: main
   optional: false
 - name: libsolv
@@ -3321,10 +3321,10 @@ package:
     libgcc: '>=14'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.3-py312h8a5da7c_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.3-py312h8a5da7c_1.conda
   hash:
-    md5: f775a43412f7f3d7ed218113ad233869
-    sha256: f77f9f1a4da45cbc8792d16b41b6f169f649651a68afdc10b2da9da12b9aa42b
+    md5: 93a4752d42b12943a355b682ee43285b
+    sha256: 5f3aad1f3a685ed0b591faad335957dbdb1b73abfd6fc731a0d42718e0653b33
   category: main
   optional: false
 - name: mbedtls
@@ -4256,15 +4256,15 @@ package:
   category: main
   optional: false
 - name: python-dotenv
-  version: 1.2.1
+  version: 1.2.2
   manager: conda
   platform: linux-64
   dependencies:
-    python: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/python-dotenv-1.2.1-pyhcf101f3_0.conda
+    python: '>=3.10'
+  url: https://conda.anaconda.org/conda-forge/noarch/python-dotenv-1.2.2-pyhcf101f3_0.conda
   hash:
-    md5: 083725d6cd3dc007f06d04bcf1e613a2
-    sha256: aa98e0b1f5472161318f93224f1cfec1355ff69d2f79f896c0b9e033e4a6caf9
+    md5: 130584ad9f3a513cdd71b1fdc1244e9c
+    sha256: 74e417a768f59f02a242c25e7db0aa796627b5bc8c818863b57786072aeb85e5
   category: main
   optional: false
 - name: python-fastjsonschema
@@ -4400,7 +4400,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.58.2
+  version: 0.58.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -4409,10 +4409,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.5,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.2-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.58.3-ha759004_0.conda
   hash:
-    md5: 7dfafe89dae0271ee5a8b18664715faa
-    sha256: d6699e37dbf0f9269d3e44088371e0cf6b03a5ee93f45362f10f81dd20b593a6
+    md5: 1326cfd0a63ddaf797eb7c0934c428b8
+    sha256: 910a720b93fc39077ad5678d4fdf7a93224654456f819e4b420fb3c9452db7b6
   category: main
   optional: false
 - name: rattler-build-conda-compat
