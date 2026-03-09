@@ -485,15 +485,15 @@ package:
   category: main
   optional: false
 - name: cachetools
-  version: 7.0.3
+  version: 7.0.4
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.0.3-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.0.4-pyhd8ed1ab_0.conda
   hash:
-    md5: 8a7ead9f9c99bcdd2dda94f31cfb4f4b
-    sha256: ef95412a7e7f2742591d328a445348852642f9ddffdf1973e29579d4365b68d7
+    md5: a7fef730ccbb250f134bd78c3bccd202
+    sha256: d2ff85604d13c73fed4b70abe7d54e589277cb7ba146bf4fbb1197e2f9737ff2
   category: main
   optional: false
 - name: cairo
@@ -763,14 +763,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.03.07.05.38.35
+  version: 2026.03.09.07.50.11
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.07.05.38.35-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.09.07.50.11-hd8ed1ab_0.conda
   hash:
-    md5: dde4378e7118030b91215a7ce250f19d
-    sha256: f36d1e7f97beee735b31bf19d75f86f99b2db8a8a28cfa4bccc29f0b89cbd69f
+    md5: 9476c0c84d8877077c9b9bce935dbf0b
+    sha256: df2ea5f1dc9dd7f04291ae76c3118515aab4eda26a9b11a70f38dade4867a273
   category: main
   optional: false
 - name: conda-forge-tick
@@ -992,7 +992,7 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 3.55.1
+  version: 3.56.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1000,7 +1000,7 @@ package:
     backports.strenum: ''
     cirun: '>=0.30'
     conda: '>=4.2'
-    conda-build: '>=24.3'
+    conda-build: '>=25.3.1'
     conda-forge-pinning: ''
     conda-package-handling: '>=1.9.0'
     exceptiongroup: ''
@@ -1023,10 +1023,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.55.1-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.56.1-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 451cf4c2168f91dddaf3c35c5d2c01eb
-    sha256: 4a6e40cd91713a1c3074e914863b1369079101b50dc97f30e6fe07bef6789050
+    md5: 98b8483d37e7910568589a47b3dd3366
+    sha256: 0b8ca769defd6ca834e6c6490f99e7cb23ab00d3df11093961e3403ed4399186
   category: main
   optional: false
 - name: conda-souschef
