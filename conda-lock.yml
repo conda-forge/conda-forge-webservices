@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.63
+  version: 1.42.64
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.63-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.64-pyhd8ed1ab_0.conda
   hash:
-    md5: 5406560f802f993c97b932f49e08bdd2
-    sha256: bb2718c1f99515bca3d184d38903a2b384d932bf66393c619fe4f42312fd81a1
+    md5: 5f3410b0f49dc28e7d604bf9c80cc5c0
+    sha256: 91ce89255d080720ab48ff4c4b23c76cd50c65335bc8b955767db76b08418c1a
   category: main
   optional: false
 - name: brotli-python
@@ -485,15 +485,15 @@ package:
   category: main
   optional: false
 - name: cachetools
-  version: 7.0.4
+  version: 7.0.5
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.0.4-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.0.5-pyhd8ed1ab_0.conda
   hash:
-    md5: a7fef730ccbb250f134bd78c3bccd202
-    sha256: d2ff85604d13c73fed4b70abe7d54e589277cb7ba146bf4fbb1197e2f9737ff2
+    md5: a66a1542c3ed584ca4fdb23955d81e91
+    sha256: edfecb626da69607f926f51ad0d24942bfe9f7a29391d55d4ac62403e878605b
   category: main
   optional: false
 - name: cairo
@@ -763,18 +763,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.03.09.07.50.11
+  version: 2026.03.10.04.02.21
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.09.07.50.11-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.10.04.02.21-hd8ed1ab_0.conda
   hash:
-    md5: 9476c0c84d8877077c9b9bce935dbf0b
-    sha256: df2ea5f1dc9dd7f04291ae76c3118515aab4eda26a9b11a70f38dade4867a273
+    md5: bae5ae0bf2834118966cd7e268f5cb23
+    sha256: 3eccadad3ee037e892c27783a255752ad611d2cdac535e6914948596a88b2101
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.3.28
+  version: 2026.3.38
   manager: conda
   platform: linux-64
   dependencies:
@@ -834,10 +834,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.3.28-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.3.38-pyhd8ed1ab_0.conda
   hash:
-    md5: 16683cd135a5d43543adfacb0f231724
-    sha256: 9814816ae14fa68e906a029f571a819ceee0fc4c6234f3cc81827665ac4ba13c
+    md5: 79b1865ff89f4a98bbf355942f486ef9
+    sha256: 9f1355e6c81b8b03de484e826417a72dec9ee4567e7d616943be24349584dae3
   category: main
   optional: false
 - name: conda-index
@@ -1414,15 +1414,15 @@ package:
   category: main
   optional: false
 - name: filelock
-  version: 3.25.0
+  version: 3.25.1
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.25.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.25.1-pyhd8ed1ab_0.conda
   hash:
-    md5: 49a92015e912176999ae81bea11ea778
-    sha256: 55162ec0ff4e22d8f762b3e774f08f79f234ba37ab5e64d7a1421ed9216a222c
+    md5: e1301f0b6a104ca461697f394be2bd25
+    sha256: 3e9c0c2e956be0b6495e5102378cebbd666b4a58fe1c114bee41fd9078f9bf82
   category: main
   optional: false
 - name: flaky
@@ -2083,16 +2083,16 @@ package:
   category: main
   optional: false
 - name: jaraco.context
-  version: 6.1.0
+  version: 6.1.1
   manager: conda
   platform: linux-64
   dependencies:
     backports.tarfile: ''
     python: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/jaraco.context-6.1.0-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jaraco.context-6.1.1-pyhcf101f3_0.conda
   hash:
-    md5: f34ec3aa0ea911a038d973d97603faf3
-    sha256: 04c9f919dcc9edd18f748c47d809479812429af27c43c5562a861df22d5bda6a
+    md5: 5ed60de12f1673398943262371667f79
+    sha256: 49c3e2e9aa4930734badfcbb31543406ed1b5531cb833f595cf57baf628dea7d
   category: main
   optional: false
 - name: jaraco.functools
@@ -2293,17 +2293,17 @@ package:
   category: main
   optional: false
 - name: lerc
-  version: 4.0.0
+  version: 4.1.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-    libstdcxx: '>=13'
-  url: https://conda.anaconda.org/conda-forge/linux-64/lerc-4.0.0-h0aef613_1.conda
+    libgcc: '>=14'
+    libstdcxx: '>=14'
+  url: https://conda.anaconda.org/conda-forge/linux-64/lerc-4.1.0-hdb68285_0.conda
   hash:
-    md5: 9344155d33912347b37f0ae6c410a835
-    sha256: 412381a43d5ff9bbed82cd52a0bbca5b90623f62e41007c9c42d3870c60945ff
+    md5: a752488c68f2e7c456bcbd8f16eec275
+    sha256: f84cb54782f7e9cea95e810ea8fef186e0652d0fa73d3009914fa2c1262594e1
   category: main
   optional: false
 - name: libarchive
