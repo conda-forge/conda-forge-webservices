@@ -992,7 +992,7 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 3.56.1
+  version: 3.56.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -1023,10 +1023,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.56.1-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.56.2-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 98b8483d37e7910568589a47b3dd3366
-    sha256: 0b8ca769defd6ca834e6c6490f99e7cb23ab00d3df11093961e3403ed4399186
+    md5: ca3d761984247e464bc0ae9fd0cf7450
+    sha256: 22eed38961a8a4b73352ca060e38783b9dd372cb957bf5122b998d148c50b576
   category: main
   optional: false
 - name: conda-souschef
