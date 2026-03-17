@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.68
+  version: 1.42.69
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.68-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.69-pyhd8ed1ab_0.conda
   hash:
-    md5: c565cf223fec7a4aab9331841b5b74b0
-    sha256: 6fae79246725674bb8db5f6c9fe461c7ac04a38d415549eb6f583322ab224230
+    md5: 912c27fe2ec99c4000a5eea1511c6ce1
+    sha256: 24de926a5c762c5725f650ad213e711f6d8087cb45f3c5294a3f6d64b32cfd43
   category: main
   optional: false
 - name: brotli-python
@@ -763,14 +763,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.03.16.07.26.15
+  version: 2026.03.17.05.58.10
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.16.07.26.15-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.17.05.58.10-hd8ed1ab_0.conda
   hash:
-    md5: d45a9c7869867d526a096b59eb555dbb
-    sha256: 0f3093a18dfaccc41c7cf522f241b2d3e28751e034adc1c3e90f20bb04b52fa9
+    md5: c7030ca8c6fc8f92da92d315505fd777
+    sha256: 01a7022e846182f0ca9acffc9634c2b975a49eaba106aa1f9b4390833b7a4e57
   category: main
   optional: false
 - name: conda-forge-tick
@@ -4360,15 +4360,15 @@ package:
   category: main
   optional: false
 - name: pytz
-  version: '2025.2'
+  version: 2026.1.post1
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/pytz-2025.2-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/pytz-2026.1.post1-pyhcf101f3_0.conda
   hash:
-    md5: bc8e3267d44011051f2eb14d22fb0960
-    sha256: 8d2a8bf110cc1fc3df6904091dead158ba3e614d8402a83e51ed3a8aa93cdeb0
+    md5: f8a489f43a1342219a3a4d69cecc6b25
+    sha256: d35c15c861d5635db1ba847a2e0e7de4c01994999602db1f82e41b5935a9578a
   category: main
   optional: false
 - name: pyyaml
@@ -4405,7 +4405,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.59.0
+  version: 0.60.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4414,10 +4414,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.5,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.59.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.60.0-ha759004_0.conda
   hash:
-    md5: dabce28424b57d65f97124827b548583
-    sha256: 411f403ec2102474d7772949ce90808fe76e288f247567569f4c081e5fc0e08a
+    md5: 67197d497b6e21d220631668ce3118e8
+    sha256: eba19bc4cd57994946b2067486e6ab1af52c50492ce476d54e386c44189233c6
   category: main
   optional: false
 - name: rattler-build-conda-compat
