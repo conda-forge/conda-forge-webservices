@@ -229,6 +229,24 @@ def _circle_is_active():
         return True
 
 
+def _github_is_active():
+    """check if github is active"""
+
+    # look for sentinels indicating github is not active
+    sentinels = ["name: Disabled build", "- run: exit 0", "if: false"]
+    found_sentinels = [False] * len(sentinels)
+    with open(".github/workflows/conda-build.yml") as fp:
+        for line in fp.readlines():
+            for ind, sentinel in enumerate(sentinels):
+                if line.strip() == sentinel:
+                    found_sentinels[ind] = True
+
+    if all(found_sentinels):
+        return False
+    else:
+        return True
+
+
 def _get_required_checks_and_statuses(pr, cfg):
     """return a list of required statuses and checks"""
     ignored_statuses = (
@@ -253,7 +271,10 @@ def _get_required_checks_and_statuses(pr, cfg):
             if os.path.exists("azure-pipelines.yml"):
                 required.append("azure")
 
-            if os.path.exists(".github/workflows/conda-build.yml"):
+            if (
+                os.path.exists(".github/workflows/conda-build.yml")
+                and _github_is_active()
+            ):
                 required.append("github-actions")
 
             # smithy writes this config even if circle is off, but we can check
