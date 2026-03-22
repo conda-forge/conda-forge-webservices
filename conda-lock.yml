@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.71
+  version: 1.42.73
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.71-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.73-pyhd8ed1ab_0.conda
   hash:
-    md5: b9faa7e42dfb66d749bf529d7d392c70
-    sha256: ed351b63bb637c0541399e6884ea0ece2e58f2121269414c4bb142b76af28ba5
+    md5: a6e78dd40289febe3703dd9d333ff5f7
+    sha256: ea545178ae86e81347ec0c3e072582a6ae0b221af7d65f2e25ecbb483d816491
   category: main
   optional: false
 - name: brotli-python
@@ -763,18 +763,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.03.18.17.42.56
+  version: 2026.03.20.10.43.27
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.18.17.42.56-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.03.20.10.43.27-hd8ed1ab_0.conda
   hash:
-    md5: 3ef71579fe4505318b3c4ec2630e2207
-    sha256: a24fe8b3f26e836b53d8757193dba161f6d5c526defc1c8d341e3587ee0cd4bf
+    md5: 1fb382cb54bf18f8690fcc5d6061a43a
+    sha256: 2803c42eac1debca41da1e345f0055946434a5dd7b1b2d25407c9c1e8a740dca
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.3.82
+  version: 2026.3.102
   manager: conda
   platform: linux-64
   dependencies:
@@ -834,10 +834,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.3.82-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.3.102-pyhd8ed1ab_0.conda
   hash:
-    md5: 29f7b88eec71e5574cd5619eff930ed5
-    sha256: 92761140de51cfccdef01ff131c10e34a96c80de3830c936e95d5d909a3d5aec
+    md5: 04d566246cb6fed4b541be7b5ff2f41f
+    sha256: 65ec7b7eed2ce514a07a17e4a07f84248699cd0d1d2bf289fddc8c91872e046d
   category: main
   optional: false
 - name: conda-index
@@ -3192,16 +3192,15 @@ package:
   category: main
   optional: false
 - name: libzlib
-  version: 1.3.1
+  version: 1.3.2
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.3.1-hb9d3cd8_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.3.2-h25fd6f3_2.conda
   hash:
-    md5: edb0dca6bc32e4f4789199455a1dbeb8
-    sha256: d4bfe88d7cb447768e31650f06257995601f89076080e76df55e3112d4e47dc4
+    md5: d87ff7921124eccd67248aa483c23fec
+    sha256: 55044c403570f0dc26e6364de4dc5368e5f3fc7ff103e867c487e2b5ab2bcda9
   category: main
   optional: false
 - name: license-expression
@@ -5209,17 +5208,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.10.11
+  version: 0.10.12
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.10.11-h0f56927_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.10.12-h0f56927_0.conda
   hash:
-    md5: 6cc4b5044e736ab13efa5c5b759edf21
-    sha256: f9b63d8b97bff153eb99568c1d65ebcbd180a857cf625b3c018ee775cfc64352
+    md5: a44fb5a7475ba92b19bbd5bc3536af21
+    sha256: 661365aa40ba423bfe2e6ab8e7b14190426d57f30097f3668f947a61c2a00c5c
   category: main
   optional: false
 - name: virtualenv
@@ -5643,17 +5642,16 @@ package:
   category: main
   optional: false
 - name: zlib
-  version: 1.3.1
+  version: 1.3.2
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-    libzlib: 1.3.1
-  url: https://conda.anaconda.org/conda-forge/linux-64/zlib-1.3.1-hb9d3cd8_2.conda
+    libzlib: 1.3.2
+  url: https://conda.anaconda.org/conda-forge/linux-64/zlib-1.3.2-h25fd6f3_2.conda
   hash:
-    md5: c9f075ab2f33b3bbee9e62d4ad0a6cd8
-    sha256: 5d7c0e5f0005f74112a34a7425179f4eb6e73c92f5d109e6af4ddeca407c92ab
+    md5: c2a01a08fc991620a74b32420e97868a
+    sha256: 245c9ee8d688e23661b95e3c6dd7272ca936fabc03d423cdb3cdee1bbcf9f2f2
   category: main
   optional: false
 - name: zlib-ng
