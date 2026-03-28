@@ -1130,12 +1130,6 @@ class StatusMonitorAzureHandler(WriteErrorAsJSONRequestHandler):
         self.write(status_monitor.get_azure_status())
 
 
-class StatusMonitorOpenGPUServerHandler(WriteErrorAsJSONRequestHandler):
-    async def get(self):
-        self.add_header("Access-Control-Allow-Origin", "*")
-        self.write(status_monitor.get_open_gpu_server_status())
-
-
 class StatusMonitorDockerHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
         self.add_header("Access-Control-Allow-Origin", "*")
@@ -1210,7 +1204,6 @@ def create_webapp():
             (r"/autotickbot/payload", AutotickBotPayloadHookHandler),
             (r"/status-monitor/payload", StatusMonitorPayloadHookHandler),
             (r"/status-monitor/azure", StatusMonitorAzureHandler),
-            (r"/status-monitor/open-gpu-server", StatusMonitorOpenGPUServerHandler),
             (r"/status-monitor/docker", StatusMonitorDockerHandler),
             (r"/status-monitor/db", StatusMonitorDBHandler),
             (r"/status-monitor/report/(.*)", StatusMonitorReportHandler),
