@@ -54,8 +54,7 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                     print("rerendering...", flush=True)
                     subprocess.run(
                         [
-                            "conda",
-                            "smithy",
+                            "conda-smithy",
                             "rerender",
                             "-c",
                             "auto",
