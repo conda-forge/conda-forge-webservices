@@ -647,14 +647,14 @@ package:
   category: main
   optional: false
 - name: conda
-  version: 26.1.1
+  version: 26.3.1
   manager: conda
   platform: linux-64
   dependencies:
     archspec: '>=0.2.3'
     boltons: '>=23.0.0'
     charset-normalizer: ''
-    conda-libmamba-solver: '>=25.4.0'
+    conda-libmamba-solver: '>=25.11.0'
     conda-package-handling: '>=2.2.0'
     distro: '>=1.5.0'
     frozendict: '>=2.4.2'
@@ -672,10 +672,10 @@ package:
     tqdm: '>=4'
     truststore: '>=0.8.0'
     zstandard: '>=0.19.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.1.1-py312h7900ff3_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.3.1-py312h7900ff3_1.conda
   hash:
-    md5: 32e3a7c6278d6f3993241ea4e4689ba8
-    sha256: 375f17f645dfb7e995acaf0bfadd9ad0e591d8b63f8c2e6875d7a8c7b84ce1bf
+    md5: b81238b553666658b577b104f56e3a47
+    sha256: 18902d94c74b75b2df43722dc21858e5a914e79ba3c9f792521861527d3b69ba
   category: main
   optional: false
 - name: conda-build
@@ -993,14 +993,14 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 3.58.1
+  version: 3.59.1
   manager: conda
   platform: linux-64
   dependencies:
     __unix: ''
     backports.strenum: ''
     cirun: '>=0.30'
-    conda: '>=4.2,<26.3.0a0'
+    conda: '>=22.11.1'
     conda-build: '>=25.3.1'
     conda-forge-pinning: ''
     conda-package-handling: '>=1.9.0'
@@ -1024,10 +1024,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.58.1-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.59.1-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 565f06b5668c348e82b6c974410aac03
-    sha256: ca7ba14e384b54f412edb62d8a71101b3086f677724479230c572ac23fdf39cb
+    md5: 099e532188b3b13b3cc048c4ead7eea8
+    sha256: 9a6b2742f6cde1b5440c38e520d7ee82254a2b7bf24619b3bbf673a0ca799ca5
   category: main
   optional: false
 - name: conda-souschef
