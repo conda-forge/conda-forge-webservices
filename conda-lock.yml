@@ -63,7 +63,7 @@ package:
   category: main
   optional: false
 - name: anaconda-auth
-  version: 0.14.0
+  version: 0.14.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -78,10 +78,10 @@ package:
     python-dotenv: ''
     requests: ''
     semver: <4
-  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-auth-0.14.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/anaconda-auth-0.14.1-pyhd8ed1ab_0.conda
   hash:
-    md5: a60066d23ca609efbb14ada3e57fa98c
-    sha256: 402e5433ecc3d3ae06a9b43c3e45e769de86985ffd60e8355190802bba7ca3bb
+    md5: 18b8082600565ab922555ce01b785dc1
+    sha256: d74184b93673483bbcee5319927ad522f059f291a0f1f2b00e8bff0badd995e2
   category: main
   optional: false
 - name: anaconda-cli-base
@@ -647,14 +647,14 @@ package:
   category: main
   optional: false
 - name: conda
-  version: 26.3.1
+  version: 26.1.1
   manager: conda
   platform: linux-64
   dependencies:
     archspec: '>=0.2.3'
     boltons: '>=23.0.0'
     charset-normalizer: ''
-    conda-libmamba-solver: '>=25.11.0'
+    conda-libmamba-solver: '>=25.4.0'
     conda-package-handling: '>=2.2.0'
     distro: '>=1.5.0'
     frozendict: '>=2.4.2'
@@ -672,10 +672,10 @@ package:
     tqdm: '>=4'
     truststore: '>=0.8.0'
     zstandard: '>=0.19.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.3.1-py312h7900ff3_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.1.1-py312h7900ff3_0.conda
   hash:
-    md5: b81238b553666658b577b104f56e3a47
-    sha256: 18902d94c74b75b2df43722dc21858e5a914e79ba3c9f792521861527d3b69ba
+    md5: 32e3a7c6278d6f3993241ea4e4689ba8
+    sha256: 375f17f645dfb7e995acaf0bfadd9ad0e591d8b63f8c2e6875d7a8c7b84ce1bf
   category: main
   optional: false
 - name: conda-build
@@ -775,7 +775,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.3.102
+  version: 2026.4.11
   manager: conda
   platform: linux-64
   dependencies:
@@ -787,7 +787,7 @@ package:
     click: ''
     conda: '>=25'
     conda-build: '>=25'
-    conda-forge-feedstock-ops: '>=0.15.1'
+    conda-forge-feedstock-ops: '>=0.16.0'
     conda-forge-metadata: '>=0.12.0'
     conda-forge-pinning: ''
     conda-libmamba-solver: ''
@@ -835,10 +835,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.3.102-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.4.11-pyhd8ed1ab_0.conda
   hash:
-    md5: 04d566246cb6fed4b541be7b5ff2f41f
-    sha256: 65ec7b7eed2ce514a07a17e4a07f84248699cd0d1d2bf289fddc8c91872e046d
+    md5: ea4a2a7417039240fbd1e7f292202922
+    sha256: 8d0004459e2802fcbf74bc76a3c20889ac43620f370ebad536f757419ce07418
   category: main
   optional: false
 - name: conda-index
@@ -993,14 +993,14 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 3.59.0
+  version: 3.58.1
   manager: conda
   platform: linux-64
   dependencies:
     __unix: ''
     backports.strenum: ''
     cirun: '>=0.30'
-    conda: '>=22.11.1'
+    conda: '>=4.2,<26.3.0a0'
     conda-build: '>=25.3.1'
     conda-forge-pinning: ''
     conda-package-handling: '>=1.9.0'
@@ -1024,10 +1024,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.59.0-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.58.1-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 20fdaa1bc8e0ecdb380a15dca46c20c9
-    sha256: b6f634b368f0c17842cc76bc2e085c8c155be0902a1b14524bdb2d9b158c6762
+    md5: 565f06b5668c348e82b6c974410aac03
+    sha256: ca7ba14e384b54f412edb62d8a71101b3086f677724479230c572ac23fdf39cb
   category: main
   optional: false
 - name: conda-souschef
@@ -4174,6 +4174,7 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
+    colorama: '>=0.4'
     exceptiongroup: '>=1'
     iniconfig: '>=1.0.1'
     packaging: '>=22'
@@ -4181,10 +4182,10 @@ package:
     pygments: '>=2.7.2'
     python: ''
     tomli: '>=1'
-  url: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.3-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pytest-9.0.3-pyhc364b38_1.conda
   hash:
-    md5: 2975fa17c217677d83a8af40d0ecea44
-    sha256: 5107b0a63b40904ffc04afac79ae2019e455fef90bcb01e6141c5188ffa4b462
+    md5: 6a991452eadf2771952f39d43615bb3e
+    sha256: 960f59442173eee0731906a9077bd5ccf60f4b4226f05a22d1728ab9a21a879c
   category: main
   optional: false
 - name: pytest-xdist
