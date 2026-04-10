@@ -647,7 +647,7 @@ package:
   category: main
   optional: false
 - name: conda
-  version: 26.3.1
+  version: 26.3.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -672,10 +672,10 @@ package:
     tqdm: '>=4'
     truststore: '>=0.8.0'
     zstandard: '>=0.19.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.3.1-py312h7900ff3_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.3.2-py312h7900ff3_0.conda
   hash:
-    md5: b81238b553666658b577b104f56e3a47
-    sha256: 18902d94c74b75b2df43722dc21858e5a914e79ba3c9f792521861527d3b69ba
+    md5: 6c565cc6497b70a868b6009463af3c2b
+    sha256: afce9dfb7e48bb0a41694c6fbb39f78551d514067a636fda0a39c0e2282813bd
   category: main
   optional: false
 - name: conda-build
