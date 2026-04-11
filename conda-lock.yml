@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.87
+  version: 1.42.88
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.87-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.88-pyhd8ed1ab_0.conda
   hash:
-    md5: 9b5d9908eaca1deb68fd3f7029bc9d2c
-    sha256: f78c97c91b0186c4bd3de64ad7f2d00f2831ae987d6f7b1714a1bb04f692645b
+    md5: a609373a1f5b08697c9c734d0e6c7d58
+    sha256: 80bdcf8af426cc94d90ff22842de69c4359b6309f9e150bb45acb9334e328f41
   category: main
   optional: false
 - name: brotli-python
@@ -775,7 +775,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.4.16
+  version: 2026.4.18
   manager: conda
   platform: linux-64
   dependencies:
@@ -835,10 +835,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.4.16-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.4.18-pyhd8ed1ab_0.conda
   hash:
-    md5: 9a3830e6d519222eeda002cebd825597
-    sha256: e9961e3ef4e1fddeea74ffb14cec7a65f3512dabd17bed3a82b084501a98e69c
+    md5: 4b527fb83be49961786a34902633083a
+    sha256: 17f85aa68deacecf28c67aac6befb732889f3ec29324323c15858e0d12299100
   category: main
   optional: false
 - name: conda-index
@@ -4231,7 +4231,7 @@ package:
   category: main
   optional: false
 - name: python-build
-  version: 1.4.2
+  version: 1.4.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -4241,10 +4241,10 @@ package:
     pyproject_hooks: ''
     python: ''
     tomli: '>=1.1.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.4.2-pyhc364b38_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/python-build-1.4.3-pyhc364b38_0.conda
   hash:
-    md5: 09971b38d49f16c47a8769aeb171ef3d
-    sha256: 3f76a55e524728cd4092d78dd01107c8c3e91a66842317b49c7c8209a332c4f1
+    md5: d039729a4537b67fa7b4a9335abd5070
+    sha256: f36faffa91fa8492b61ed68deae1a5a6e8e1efee808b5af2a971eeb0ca039719
   category: main
   optional: false
 - name: python-dateutil
@@ -4566,7 +4566,7 @@ package:
   category: main
   optional: false
 - name: rich
-  version: 14.3.3
+  version: 14.3.4
   manager: conda
   platform: linux-64
   dependencies:
@@ -4574,10 +4574,10 @@ package:
     pygments: '>=2.13.0,<3.0.0'
     python: ''
     typing_extensions: '>=4.0.0,<5.0.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/rich-14.3.3-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/rich-14.3.4-pyhcf101f3_0.conda
   hash:
-    md5: 7a6289c50631d620652f5045a63eb573
-    sha256: b06ce84d6a10c266811a7d3adbfa1c11f13393b91cc6f8a5b468277d90be9590
+    md5: 2e6a922d07244f514863b7e10bf5c923
+    sha256: a941b5e002504e1c9b02ea02180d40186b67d03e8e7d668bf746393c266b3951
   category: main
   optional: false
 - name: ripgrep
