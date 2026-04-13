@@ -703,16 +703,15 @@ package:
     py-lief: ''
     python: '>=3.11'
     python-libarchive-c: ''
-    pytz: ''
     pyyaml: ''
     rattler-build: ''
     requests: ''
     ripgrep: ''
     tqdm: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-build-26.3.0-pyh31ec981_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-build-26.3.0-pyh31ec981_1.conda
   hash:
-    md5: 315159e27cb872b7c0141681a69dba3a
-    sha256: 81ce7618c6d9dd0fb7861519ebf381839384e13715095a796463fb72b197322f
+    md5: 47c7f3c52fb50f7699147ff3b9a2d987
+    sha256: 584ea91cfede78020876f75c864726fb96743e1424461b0ff86fa2a49f37d15d
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
@@ -2034,16 +2033,16 @@ package:
   category: main
   optional: false
 - name: importlib_resources
-  version: 7.0.0
+  version: 7.1.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
     zipp: '>=3.1.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-7.0.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/importlib_resources-7.1.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 724309d702b3a44f59987f9be424c040
-    sha256: e3bea73fd27a5767a372413b6281a5e6e99baa47765a11914e4c91b25cd64984
+    md5: 0ba6225c279baf7ea9473a62ea0ec9ae
+    sha256: a563a51aa522998172838e867e6dedcf630bc45796e8612f5a1f6d73e9c8125a
   category: main
   optional: false
 - name: iniconfig
@@ -4405,19 +4404,19 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.61.4
+  version: 0.62.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-    openssl: '>=3.5.5,<4.0a0'
+    openssl: '>=3.5.6,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.61.4-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.62.0-ha759004_0.conda
   hash:
-    md5: e2a723aea7b00504af01bb424f87b7f1
-    sha256: 75c7fc60c42363b681cb52d589597b504cbf6679eb8103973803fdab170fc39b
+    md5: e70457813c314798c8b55c4fad55b812
+    sha256: 6db9a88596f9dc7413fba19bcca5b74b6ced9b490cf11e527746b4019037fc30
   category: main
   optional: false
 - name: rattler-build-conda-compat
