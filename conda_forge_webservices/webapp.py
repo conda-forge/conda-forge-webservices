@@ -28,6 +28,7 @@ from datetime import datetime, timezone
 import conda_forge_webservices
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
+import conda_forge_webservices.staged_recipes as staged_recipes
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 from conda_forge_webservices._version import __version__
@@ -335,6 +336,91 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                             lint_info,
                             target_url=msg.html_url,
                         )
+        else:
+            LOGGER.info(f'Unhandled event "{event}".')
+            self.set_status(404)
+            self.write_error(404)
+
+
+class StagedRecipesLabelerHandler(WriteErrorAsJSONRequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        event = headers.get("X-GitHub-Event", None)
+
+        if not valid_request(
+            self.request.body,
+            headers.get("X-Hub-Signature", ""),
+        ):
+            self.set_status(403)
+            self.write_error(403)
+            return
+
+        if event == "ping":
+            self.write("pong")
+        elif event in ["pull_request", "issues", "issue_comment"]:
+            body = tornado.escape.json_decode(self.request.body)
+
+            label = None
+            comment = None
+            is_pr = False
+            curr_label_names = set()
+            if event in ["issues", "issue_comment"]:
+                action = body["action"]
+                repo_name = body["repository"]["name"]
+                owner = body["repository"]["owner"]["login"]
+                pr_id = int(body["issue"]["number"])
+                if "pull_request" in body["issue"]:
+                    is_pr = True
+                is_open = True
+
+                if "labels" in body["issue"]:
+                    curr_label_names = set(
+                        [label["name"] for label in body["issue"]["labels"]]
+                    )
+            else:
+                action = body["action"]
+                repo_name = body["repository"]["name"]
+                owner = body["repository"]["owner"]["login"]
+                pr_id = int(body["pull_request"]["number"])
+                is_pr = True
+                is_open = body["pull_request"]["state"] == "open"
+                if "labels" in body["pull_request"]:
+                    curr_label_names = set(
+                        [label["name"] for label in body["pull_request"]["labels"]]
+                    )
+
+            if "label" in body:
+                label = body["label"]["name"]
+            if "comment" in body:
+                comment = body["comment"]["body"]
+
+            if (
+                owner != "conda-forge"
+                or repo_name != "staged-recipes"
+                or (not is_pr)
+                or (not is_open)
+            ):
+                return
+
+            log_title_and_message_at_level(
+                level="info",
+                title=f"staged-recipes labeler: {owner}/{repo_name}#{pr_id}",
+                msg=(
+                    f"action: {action}\n"
+                    f"has comment: {comment is not None}\n"
+                    f"label: {label}\n"
+                    f"current labels: {curr_label_names!r}\n"
+                ),
+            )
+            staged_recipes.label_pr(
+                f"{owner}/{repo_name}",
+                pr_id,
+                action,
+                curr_label_names,
+                comment=comment,
+                label=label,
+            )
+
         else:
             LOGGER.info(f'Unhandled event "{event}".')
             self.set_status(404)
@@ -1193,6 +1279,7 @@ class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
 def create_webapp():
     application = tornado.web.Application(
         [
+            (r"/staged-recipes/labeler-hook", StagedRecipesLabelerHandler),
             (r"/conda-linting/org-hook", LintingHookHandler),
             (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
             (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
