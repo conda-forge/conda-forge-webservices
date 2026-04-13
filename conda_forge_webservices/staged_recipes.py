@@ -49,6 +49,8 @@ def label_pr(
             if team_regex.search(comment):
                 if label not in curr_label_names:
                     pr.add_to_labels(label)
+                if AWAITING_REV_LABEL not in curr_label_names:
+                    pr.add_to_labels(AWAITING_REV_LABEL)
 
                 if label == "staged-recipes":
                     found_sr_team = True
