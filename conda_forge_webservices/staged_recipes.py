@@ -4,7 +4,7 @@ from conda_forge_webservices.tokens import (
     get_gh_client,
 )
 
-AWAITING_REV_LABEL = "Awaiting author contribution"
+AWAITING_AUTH_LABEL = "Awaiting author contribution"
 REVIEW_REQ_LABEL = "review-requested"
 ALL_TEAMS = [
     "@conda-forge/staged-recipes",
@@ -69,18 +69,18 @@ def label_pr(
             )
 
         # remove awaiting author contribution label if it is there
-        if AWAITING_REV_LABEL in curr_label_names and found_team:
-            pr.remove_from_labels(AWAITING_REV_LABEL)
+        if AWAITING_AUTH_LABEL in curr_label_names and found_team:
+            pr.remove_from_labels(AWAITING_AUTH_LABEL)
 
     if (
         label == REVIEW_REQ_LABEL
         and action == "unlabeled"
-        and AWAITING_REV_LABEL not in curr_label_names
+        and AWAITING_AUTH_LABEL not in curr_label_names
     ):
-        pr.add_to_labels(AWAITING_REV_LABEL)
+        pr.add_to_labels(AWAITING_AUTH_LABEL)
 
     if (
-        label == AWAITING_REV_LABEL
+        label == AWAITING_AUTH_LABEL
         and action == "labeled"
         and REVIEW_REQ_LABEL in curr_label_names
     ):
