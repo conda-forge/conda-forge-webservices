@@ -35,6 +35,7 @@ def test_staged_recipes_label_pr_comment_help_python(
     pr.add_to_labels.assert_any_call("python")
     pr.add_to_labels.assert_any_call(REVIEW_REQ_LABEL)
     pr.as_issue.assert_not_called()
+    pr.remove_from_labels.assert_not_called()
 
 
 @mock.patch("conda_forge_webservices.staged_recipes.get_gh_client")
@@ -66,6 +67,7 @@ def test_staged_recipes_label_pr_comment_staged_recipes(
     pr.add_to_labels.assert_any_call(REVIEW_REQ_LABEL)
     pr.as_issue.assert_called_once()
     pr.as_issue.return_value.create_comment.assert_called_once()
+    pr.remove_from_labels.assert_not_called()
 
 
 @mock.patch("conda_forge_webservices.staged_recipes.get_gh_client")
@@ -94,6 +96,8 @@ def test_staged_recipes_label_pr_review_req_label(
     pr = repo.get_pull.return_value
     repo.get_pull.assert_called_once_with(pr_id)
     pr.remove_from_labels.assert_called_once_with(REVIEW_REQ_LABEL)
+    pr.as_issue.assert_not_called()
+    pr.add_to_labels.assert_not_called()
 
 
 @mock.patch("conda_forge_webservices.staged_recipes.get_gh_client")
@@ -122,3 +126,5 @@ def test_staged_recipes_label_pr_awaiting_auth_label(
     pr = repo.get_pull.return_value
     repo.get_pull.assert_called_once_with(pr_id)
     pr.add_to_labels.assert_called_once_with(AWAITING_AUTH_LABEL)
+    pr.as_issue.assert_not_called()
+    pr.remove_from_labels.assert_not_called()
