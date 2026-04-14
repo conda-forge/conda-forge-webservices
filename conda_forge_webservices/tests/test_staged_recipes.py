@@ -45,7 +45,7 @@ def test_staged_recipes_label_pr_comment_staged_recipes(
     repo_full_name = "conda-forge/staged-recipes"
     pr_id = 10
     action = "blahblah"
-    curr_label_names = ["blah"]
+    curr_label_names = ["blah", AWAITING_AUTH_LABEL]
     comment = "@conda-forge/staged-recipes"
     label = None
 
@@ -67,7 +67,7 @@ def test_staged_recipes_label_pr_comment_staged_recipes(
     pr.add_to_labels.assert_any_call(REVIEW_REQ_LABEL)
     pr.as_issue.assert_called_once()
     pr.as_issue.return_value.create_comment.assert_called_once()
-    pr.remove_from_labels.assert_not_called()
+    pr.remove_from_labels.assert_called_once_with(AWAITING_AUTH_LABEL)
 
 
 @mock.patch("conda_forge_webservices.staged_recipes.get_gh_client")
