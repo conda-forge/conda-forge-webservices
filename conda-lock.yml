@@ -763,14 +763,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.04.16.08.17.00
+  version: 2026.04.16.13.46.05
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.04.16.08.17.00-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.04.16.13.46.05-hd8ed1ab_0.conda
   hash:
-    md5: e065ef36779ea7c70e0b97afd88b5caa
-    sha256: 3d342a1fbfa76cc2ebf9eeb646674a4058b9ec7abdd59908554a76c4d4cea346
+    md5: 2e83f25b50dd270363595515915b86a8
+    sha256: f477e7796f4bb3c25cb0a43bd427a84c8c1445df0289db737f742bc54b439a7d
   category: main
   optional: false
 - name: conda-forge-tick
@@ -4403,7 +4403,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.62.0
+  version: 0.62.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -4412,10 +4412,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.6,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.62.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.62.2-ha759004_0.conda
   hash:
-    md5: e70457813c314798c8b55c4fad55b812
-    sha256: 6db9a88596f9dc7413fba19bcca5b74b6ced9b490cf11e527746b4019037fc30
+    md5: 982bea84ddb83f65569f508d2bb633ec
+    sha256: dfd7b6411adcf234ea13bbca6c5c98f8a4350d3fa9203489f16bba0f1af16673
   category: main
   optional: false
 - name: rattler-build-conda-compat
