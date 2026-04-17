@@ -29,7 +29,8 @@ import conda_forge_webservices
 import conda_forge_webservices.linting as linting
 import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.staged_recipes as staged_recipes
-import conda_forge_webservices.update_teams as update_teams
+import conda_forge_webservices.update_teams as cancel_invites_cron_job
+import update_teams
 import conda_forge_webservices.commands as commands
 from conda_forge_webservices._version import __version__
 from conda_forge_webservices.update_me import WEBSERVICE_PKGS
@@ -1367,6 +1368,12 @@ def main():
         60 * 5 * 1000,  # five minutes in ms
     )
     ptk.start()
+
+    pci = tornado.ioloop.PeriodicCallback(
+        lambda: asyncio.create_task(cancel_invites_cron_job()),
+        60 * 5 * 1000,  # five mins in ms
+    )
+    pci.start()
 
     tornado.ioloop.IOLoop.instance().start()
 
