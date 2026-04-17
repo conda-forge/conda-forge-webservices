@@ -1322,14 +1322,15 @@ async def _print_token_info():
 
 
 async def _cancel_invites_cron_job():
-    log_title_and_message_at_level(
-        level="info",
-        title="cleaning up failed user invites",
-    )
-    await tornado.ioloop.IOLoop.current().run_in_executor(
-        _thread_pool(),
-        update_teams.cancel_invites_cron_job,
-    )
+    if "CF_WEBSERVICES_TEST" not in os.environ:
+        log_title_and_message_at_level(
+            level="info",
+            title="cleaning up failed user invites",
+        )
+        await tornado.ioloop.IOLoop.current().run_in_executor(
+            _thread_pool(),
+            update_teams.cancel_invites_cron_job,
+        )
 
 
 def main():

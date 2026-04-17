@@ -40,7 +40,7 @@ def cancel_invites_cron_job():
     try:
         r.raise_for_status()
     except Exception:
-        LOGGER.info("failed to get failed invites!", exc_info=True)
+        LOGGER.debug("failed to get failed invites!", exc_info=True)
         pass
     else:
         for invite in r.json():
@@ -51,7 +51,7 @@ def cancel_invites_cron_job():
             try:
                 ri.raise_for_status()
             except Exception:
-                LOGGER.info("failed to cancel invite!", exc_info=True)
+                LOGGER.debug("failed to cancel invite!", exc_info=True)
                 pass
             else:
                 num_processed += 1
