@@ -14,6 +14,9 @@ from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
 )
 from conda_forge_webservices.utils import _test_and_raise_besides_file_not_exists
+from conda_forge_webservices.utils import (
+    log_title_and_message_at_level,
+)
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
@@ -31,6 +34,9 @@ def cancel_invites_cron_job():
         "https://api.github.com/orgs/conda-forge/failed_invitations",
         headers=headers,
     )
+
+    num_processed = 0
+
     try:
         r.raise_for_status()
     except Exception:
@@ -47,6 +53,13 @@ def cancel_invites_cron_job():
             except Exception:
                 LOGGER.debug("failed to cancel invite!", exc_info=True)
                 pass
+            else:
+                num_processed += 1
+
+    log_title_and_message_at_level(
+        level="info",
+        title=f"removed {num_processed} failed invites",
+    )
 
 
 def _jinja2_repl(match):
