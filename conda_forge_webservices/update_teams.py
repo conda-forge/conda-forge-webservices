@@ -4,16 +4,62 @@ import re
 import logging
 
 from conda_smithy.github import configure_github_team
+import requests
 import textwrap
 from functools import cache
 
 from ruamel.yaml import YAML
-from conda_forge_webservices.tokens import get_gh_client
+from conda_forge_webservices.tokens import (
+    get_gh_client,
+    get_app_token_for_webservices_only,
+)
 from conda_forge_webservices.utils import _test_and_raise_besides_file_not_exists
+from conda_forge_webservices.utils import (
+    log_title_and_message_at_level,
+)
 
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
 JINJA_PAT = re.compile(r"\{\{([^\{\}]*)\}\}")
+
+
+def cancel_invites_cron_job():
+    token = get_app_token_for_webservices_only()
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}",
+        "X-GitHub-Api-Version": "2026-03-10",
+    }
+    r = requests.get(
+        "https://api.github.com/orgs/conda-forge/failed_invitations",
+        headers=headers,
+    )
+
+    num_processed = 0
+
+    try:
+        r.raise_for_status()
+    except Exception:
+        LOGGER.debug("failed to get failed invites!", exc_info=True)
+        pass
+    else:
+        for invite in r.json():
+            ri = requests.delete(
+                f"https://api.github.com/orgs/conda-forge/invitations/{invite['id']}",
+                headers=headers,
+            )
+            try:
+                ri.raise_for_status()
+            except Exception:
+                LOGGER.debug("failed to cancel invite!", exc_info=True)
+                pass
+            else:
+                num_processed += 1
+
+    log_title_and_message_at_level(
+        level="info",
+        title=f"removed {num_processed} failed invites",
+    )
 
 
 def _jinja2_repl(match):
