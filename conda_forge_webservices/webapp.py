@@ -1321,6 +1321,17 @@ async def _print_token_info():
     )
 
 
+async def _cancel_invites_cron_job():
+    log_title_and_message_at_level(
+        level="info",
+        title="cleaning up failed user invites",
+    )
+    await tornado.ioloop.IOLoop.current().run_in_executor(
+        _thread_pool(),
+        update_teams.cancel_invites_cron_job,
+    )
+
+
 def main():
     # start logging and reset the log format to make it a bit easier to read
     tornado.log.enable_pretty_logging()
@@ -1369,8 +1380,8 @@ def main():
     ptk.start()
 
     pci = tornado.ioloop.PeriodicCallback(
-        lambda: asyncio.create_task(update_teams.cancel_invites_cron_job()),
-        60 * 5 * 1000,  # five mins in ms
+        lambda: asyncio.create_task(_cancel_invites_cron_job()),
+        60 * 1 * 1000,  # five mins in ms
     )
     pci.start()
 
