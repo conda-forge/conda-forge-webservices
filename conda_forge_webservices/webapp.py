@@ -1382,7 +1382,7 @@ def main():
 
     pci = tornado.ioloop.PeriodicCallback(
         lambda: asyncio.create_task(_cancel_invites_cron_job()),
-        60 * 1 * 1000,  # five mins in ms
+        60 * 5 * 1000,  # five minutes in ms
     )
     pci.start()
 
