@@ -1,7 +1,6 @@
 import functools
 import time
 import os
-import multiprocessing
 import threading
 import subprocess
 import asyncio
@@ -84,21 +83,12 @@ def _worker_pool(kind):
         return COMMAND_POOL
     elif kind == "upload":
         if UPLOAD_POOL is None:
-            if "PYTEST_CURRENT_TEST" in os.environ:
-                # needed for mocks in testing
-                COPYLOCK = threading.Lock()
-                UPLOAD_POOL = ThreadPoolExecutor(
-                    max_workers=2,
-                    initializer=_init_upload_pool_processes,
-                    initargs=(COPYLOCK,),
-                )
-            else:
-                COPYLOCK = multiprocessing.Lock()
-                UPLOAD_POOL = ProcessPoolExecutor(
-                    max_workers=2,
-                    initializer=_init_upload_pool_processes,
-                    initargs=(COPYLOCK,),
-                )
+            COPYLOCK = threading.Lock()
+            UPLOAD_POOL = ThreadPoolExecutor(
+                max_workers=2,
+                initializer=_init_upload_pool_processes,
+                initargs=(COPYLOCK,),
+            )
         return UPLOAD_POOL
     else:
         raise ValueError(f"Unknown pool kind: {kind}")
