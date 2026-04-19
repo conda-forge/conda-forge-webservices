@@ -2,9 +2,11 @@ import github
 import os
 import re
 import logging
+import math
 
 from conda_smithy.github import configure_github_team
 import requests
+import threading
 import textwrap
 from functools import cache
 
@@ -18,9 +20,33 @@ from conda_forge_webservices.utils import (
     log_title_and_message_at_level,
 )
 
+from cachetools import cachedmethod, TTLCache
+
 LOGGER = logging.getLogger("conda_forge_webservices.update_teams")
 
 JINJA_PAT = re.compile(r"\{\{([^\{\}]*)\}\}")
+
+
+# MRB: AI generated a similar code snippet which was a
+#   nearly exact copy of this SO post: https://stackoverflow.com/a/62419949
+# MRB: I rewrote the function using a TTL cache w/ cachetools.
+class _TeamUpdateLocks:
+    def __init__(self):
+        self._lock = threading.RLock()
+        self._locks = TTLCache(maxsize=math.inf, ttl=2 * 60 * 60)
+
+    @cachedmethod(cache=lambda self: self._locks, lock=lambda self: self._lock)
+    def get_team_lock(self, param):
+        """Generate a unique lock per `param` value.
+
+        The locks are held in a time-to-live cache with no maximum size.
+
+        Locks older than 2 hours will eventually be garbage collected.
+        """
+        return threading.RLock()
+
+
+TeamUpdateLocks = _TeamUpdateLocks()
 
 
 def cancel_invites_cron_job():
@@ -144,59 +170,60 @@ def update_team(org_name, repo_name, commit=None):
     recipe_content = get_recipe_contents(gh_repo)
     meta = get_recipe_dummy_meta(recipe_content)
 
-    (
-        current_maintainers,
-        prev_maintainers,
-        new_conda_forge_members,
-    ) = configure_github_team(
-        meta,
-        gh_repo,
-        org,
-        team_name,
-        remove=True,
-    )
-
-    if commit:
-        message = textwrap.dedent("""
-            Hi! This is the friendly automated conda-forge-webservice.
-
-            I updated the Github team because of this commit.
-            """)
-        newm = get_handles(new_conda_forge_members)
-        if newm:
-            message += textwrap.dedent(
-                """
-                - {} {} added to conda-forge. Welcome to conda-forge!
-                  Go to https://github.com/orgs/conda-forge/invitation see your invitation.
-            """.format(newm, "were" if newm.count(",") >= 1 else "was")  # noqa
-            )
-
-        addm = get_handles(
-            current_maintainers - prev_maintainers - new_conda_forge_members
+    with TeamUpdateLocks.get_team_lock(team_name):
+        (
+            current_maintainers,
+            prev_maintainers,
+            new_conda_forge_members,
+        ) = configure_github_team(
+            meta,
+            gh_repo,
+            org,
+            team_name,
+            remove=True,
         )
-        if addm:
-            message += textwrap.dedent(
-                """
-                - {} {} added to this feedstock maintenance team.
-            """.format(addm, "were" if addm.count(",") >= 1 else "was")
+
+        if commit:
+            message = textwrap.dedent("""
+                Hi! This is the friendly automated conda-forge-webservice.
+
+                I updated the Github team because of this commit.
+                """)
+            newm = get_handles(new_conda_forge_members)
+            if newm:
+                message += textwrap.dedent(
+                    """
+                    - {} {} added to conda-forge. Welcome to conda-forge!
+                    Go to https://github.com/orgs/conda-forge/invitation see your invitation.
+                """.format(newm, "were" if newm.count(",") >= 1 else "was")  # noqa
+                )
+
+            addm = get_handles(
+                current_maintainers - prev_maintainers - new_conda_forge_members
             )
+            if addm:
+                message += textwrap.dedent(
+                    """
+                    - {} {} added to this feedstock maintenance team.
+                """.format(addm, "were" if addm.count(",") >= 1 else "was")
+                )
 
-        if addm or newm:
-            message += textwrap.dedent("""
-                You should get push access to this feedstock and CI services.
+            if addm or newm:
+                message += textwrap.dedent("""
+                    You should get push access to this feedstock and CI services.
 
-                Your package won't be available for installation locally until it is built
-                and synced to the anaconda.org CDN (takes 1-2 hours after the build finishes).
+                    Your package won't be available for installation locally until it is built
+                    and synced to the anaconda.org CDN (takes 1-2 hours after the build finishes).
 
-                Feel free to join the community on [Zulip](https://conda-forge.zulipchat.com).
+                    Feel free to join the community on [Zulip](https://conda-forge.zulipchat.com).
 
-                NOTE: Please make sure to not push to the repository directly.
-                      Use branches in your fork for any changes and send a PR.
-                      More details on this are [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests).
-            """)  # noqa
+                    NOTE: Please make sure to not push to the repository directly.
+                        Use branches in your fork for any changes and send a PR.
+                        More details on this are [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests).
+                """)  # noqa
 
-            c = gh_repo.get_commit(commit)
-            c.create_comment(message)
+                c = gh_repo.get_commit(commit)
+                c.create_comment(message)
 
 
 if __name__ == "__main__":
