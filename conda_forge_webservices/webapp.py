@@ -83,9 +83,9 @@ def _worker_pool(kind):
         return COMMAND_POOL
     elif kind == "upload":
         if UPLOAD_POOL is None:
-            COPYLOCK = threading.Lock()
+            COPYLOCK = threading.RLock()
             UPLOAD_POOL = ThreadPoolExecutor(
-                max_workers=2,
+                max_workers=4,
                 initializer=_init_upload_pool_processes,
                 initargs=(COPYLOCK,),
             )
