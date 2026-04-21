@@ -13,7 +13,7 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 7a1255a25b0399545cf94f23d11f5ccc806a67dd151e3fe8d760577bbcff26fc
+    linux-64: 185c37202567e0e62630679751dbf7d90e0889a3ced7c69b05df87a07ff7f6d7
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.91
+  version: 1.42.92
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.91-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.92-pyhd8ed1ab_0.conda
   hash:
-    md5: f349c45de0cb6be0bd59731c42111d27
-    sha256: dda506c475ff8b0b6987a3d3711a229ce1b4874402dc4330092f6f2f108ccd63
+    md5: 4b7fae7eab4f3bc7a64f5eeb38330b76
+    sha256: c38a07a8fa74106680135e63ae593a861402578451b6bb1e93bb9996c9a2287e
   category: main
   optional: false
 - name: brotli-python
@@ -763,14 +763,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.04.21.00.01.26
+  version: 2026.04.21.11.53.26
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.04.21.00.01.26-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.04.21.11.53.26-hd8ed1ab_0.conda
   hash:
-    md5: 410fe030344cb1000a3baa4acba46acd
-    sha256: ea7fa5e65037afb742bfbaf00724e0895b8f5db2b0f85a769c13f0be6ac04a23
+    md5: 9d60db490784efaa2e028b6fd287f69e
+    sha256: 3ecf27b4d37ffb3cf761ff372f0975dbcb2cd1fbf6b82a0f2214fdb43423c82c
   category: main
   optional: false
 - name: conda-forge-tick
@@ -992,7 +992,7 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 3.60.0
+  version: 3.61.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -1014,8 +1014,8 @@ package:
     pycryptodome: ''
     pygit2: ''
     pygithub: '>=2,<3'
-    python: '>=3.10'
-    rattler-build-conda-compat: '>=1.4.5,<2.0.0a0'
+    python: '>=3.11'
+    rattler-build-conda-compat: '>=1.4.12,<2.0.0a0'
     requests: ''
     ruamel.yaml: '>=0.16'
     scrypt: ''
@@ -1023,10 +1023,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.60.0-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.61.0-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 8472139add8602b1a8959cfffdb3faba
-    sha256: 74506643dfc5d47e4eb222e45e09a80591da46bddcba9f4c9b7e31d81c5ef8fb
+    md5: 3251058ba7a00ee98413525d3a12eb73
+    sha256: eb717ca2a0a4db8f4d95b02201c9b10da88586e3ae2ee45023c5dbcb2c9dab4f
   category: main
   optional: false
 - name: conda-souschef
@@ -1844,7 +1844,7 @@ package:
   category: main
   optional: false
 - name: harfbuzz
-  version: 14.1.0
+  version: 14.2.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -1859,10 +1859,10 @@ package:
     libglib: '>=2.86.4,<3.0a0'
     libstdcxx: '>=14'
     libzlib: '>=1.3.2,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/harfbuzz-14.1.0-h6083320_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/harfbuzz-14.2.0-h6083320_0.conda
   hash:
-    md5: ca8a94b613db5d805c3d2498a7c30997
-    sha256: 22c4f6df7eb4684a4b60e62de84211e7d80a0df2d7cfdbbd093a73650e3f2d45
+    md5: e194f6a2f498f0c7b1e6498bd0b12645
+    sha256: 232c95b56d16d33d8256026a3b1ad34f7f9a75c179d388854be0fd624ddba9e3
   category: main
   optional: false
 - name: hatch
@@ -4092,7 +4092,7 @@ package:
   category: main
   optional: false
 - name: pymongo
-  version: 4.16.0
+  version: 4.17.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4102,10 +4102,10 @@ package:
     libstdcxx: '>=14'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/pymongo-4.16.0-py312h1289d80_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pymongo-4.17.0-py312h1289d80_0.conda
   hash:
-    md5: 1b10774052fd891e846adf20bc02f839
-    sha256: c4e8f34bff400c94181e81d04ef54951cc862e97b6d10f7e7f4c3ea65da9a632
+    md5: 955dab0e5b7f1299628c6ca58c1a8d05
+    sha256: 9d5c726b2f6cf3aa0a384a4807789d1153e7e4696f01d3aaa9fd1bd978912342
   category: main
   optional: false
 - name: pynacl
