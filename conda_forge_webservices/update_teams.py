@@ -167,6 +167,16 @@ def update_team(org_name, repo_name, commit=None):
     org = gh.get_organization(org_name)
     gh_repo = org.get_repo(repo_name)
 
+    try:
+        gh_repo.get_contents(".recipe_maintainers.json")
+    except Exception:
+        log_title_and_message_at_level(
+            level="warning",
+            title=f"Skipping team update for conda-forge/{repo_name} since "
+            "it is missing the `.recipe_maintainers.json` file!",
+        )
+        return
+
     recipe_content = get_recipe_contents(gh_repo)
     meta = get_recipe_dummy_meta(recipe_content)
 
