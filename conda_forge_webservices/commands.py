@@ -454,19 +454,18 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
     if comment_id is not None:
         add_reaction("rocket", app_repo, issue_num, comment_id)
 
-    # FIXME: Turn back on
-    # if UPDATE_TEAM_MSG.search(text):
-    #     update_team(org_name, repo_name)
-    #     message = textwrap.dedent(
-    #         f"""
-    #         Hi! This is the friendly automated conda-forge-webservice.
+    if UPDATE_TEAM_MSG.search(text):
+        update_team(org_name, repo_name)
+        message = textwrap.dedent(
+            f"""
+            Hi! This is the friendly automated conda-forge-webservice.
 
-    #         I just wanted to let you know that I updated the team with maintainers from {default_branch}.
-    #         """  # noqa
-    #     )
-    #     app_issue.create_comment(message)
-    #     if UPDATE_TEAM_MSG.search(title):
-    #         app_issue.edit(state="closed")
+            I just wanted to let you know that I updated the team with maintainers from {default_branch}.
+            """  # noqa
+        )
+        app_issue.create_comment(message)
+        if UPDATE_TEAM_MSG.search(title):
+            app_issue.edit(state="closed")
 
     if any(command.search(text) for command in send_pr_commands):
         forked_user_gh = gh.get_user()

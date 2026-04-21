@@ -506,16 +506,15 @@ class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
             ):
                 log_title_and_message_at_level(
                     level="info",
-                    title=f"!!IGNORED!! update teams: {body['repository']['full_name']}",
+                    title=f"update teams: {body['repository']['full_name']}",
                 )
-                # FIXME: Turn back on
-                # await tornado.ioloop.IOLoop.current().run_in_executor(
-                #     _thread_pool(),  # always threads due to expensive lru_cache
-                #     update_teams.update_team,
-                #     owner,
-                #     repo_name,
-                #     commit,
-                # )
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),  # always threads due to expensive lru_cache
+                    update_teams.update_team,
+                    owner,
+                    repo_name,
+                    commit,
+                )
                 return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
@@ -1251,16 +1250,15 @@ class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
             if feedstock is not None:
                 log_title_and_message_at_level(
                     level="info",
-                    title=f"!!IGNORED!! update teams endpoint: conda-forge/{feedstock}",
+                    title=f"update teams endpoint: conda-forge/{feedstock}",
                 )
-                # FIXME: Turn back on
-                # await tornado.ioloop.IOLoop.current().run_in_executor(
-                #     _thread_pool(),  # always threads due to expensive lru_cache
-                #     update_teams.update_team,
-                #     "conda-forge",
-                #     feedstock,
-                #     None,
-                # )
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),  # always threads due to expensive lru_cache
+                    update_teams.update_team,
+                    "conda-forge",
+                    feedstock,
+                    None,
+                )
                 return
 
         self.set_status(404)

@@ -153,6 +153,19 @@ def update_team(org_name, repo_name, commit=None):
     if not repo_name.endswith("-feedstock"):
         return
 
+    try:
+        r = requests.get(
+            f"https://github.com/conda-forge/{repo_name}/blob/main/.recipe_maintainers.json"
+        )
+        r.raise_for_status()
+    except Exception:
+        log_title_and_message_at_level(
+            level="warning",
+            title=f"Skipping team update for conda-forge/{repo_name} since "
+            "it is missing the `.recipe_maintainers.json` file!",
+        )
+        return
+
     team_name = repo_name.rsplit("-feedstock", 1)[0].lower()
     if team_name in [
         "core",
