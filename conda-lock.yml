@@ -1648,17 +1648,17 @@ package:
   category: main
   optional: false
 - name: gitpython
-  version: 3.1.46
+  version: 3.1.47
   manager: conda
   platform: linux-64
   dependencies:
     gitdb: '>=4.0.1,<5'
     python: '>=3.10'
     typing_extensions: '>=3.10.0.2'
-  url: https://conda.anaconda.org/conda-forge/noarch/gitpython-3.1.46-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/gitpython-3.1.47-pyhd8ed1ab_0.conda
   hash:
-    md5: 74c0cfdd5359cd2a1f178a4c3d0bd3a5
-    sha256: 8043bcb4f59d17467c6c2f8259e7ded18775de5d62a8375a27718554d9440641
+    md5: 7ae7e7bac8a1543c8ceb25dc61605cbd
+    sha256: b9b2c350d70033a5cf623831f720ea51f1fa047e11b0fe7472c9871677eeafec
   category: main
   optional: false
 - name: glib-tools
@@ -4403,7 +4403,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.62.2
+  version: 0.63.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4412,10 +4412,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.6,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.62.2-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.63.0-ha759004_0.conda
   hash:
-    md5: 982bea84ddb83f65569f508d2bb633ec
-    sha256: dfd7b6411adcf234ea13bbca6c5c98f8a4350d3fa9203489f16bba0f1af16673
+    md5: a1e01e18a7db2e6657b28c430976fe33
+    sha256: 26baf0f40ee2915b2efce395bde9b8893e2c041fed5f2f51daf39832dd83e2eb
   category: main
   optional: false
 - name: rattler-build-conda-compat
