@@ -445,15 +445,15 @@ package:
   category: main
   optional: false
 - name: ca-certificates
-  version: 2026.2.25
+  version: 2026.4.22
   manager: conda
   platform: linux-64
   dependencies:
     __unix: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.2.25-hbd8a1cb_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.4.22-hbd8a1cb_0.conda
   hash:
-    md5: 4492fd26db29495f0ba23f146cd5638d
-    sha256: 67cc7101b36421c5913a1687ef1b99f85b5d6868da3abbf6ec1a4181e79782fc
+    md5: e18ad67cf881dcadee8b8d9e2f8e5f73
+    sha256: c9dbcc8039a52023660d6d1bbf87594a93dd69c6ac5a2a44323af2c92976728d
   category: main
   optional: false
 - name: cachecontrol
@@ -527,15 +527,15 @@ package:
   category: main
   optional: false
 - name: certifi
-  version: 2026.2.25
+  version: 2026.4.22
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/certifi-2026.2.25-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/certifi-2026.4.22-pyhd8ed1ab_0.conda
   hash:
-    md5: 765c4d97e877cdbbb88ff33152b86125
-    sha256: a6b118fd1ed6099dc4fc03f9c492b88882a780fadaef4ed4f93dc70757713656
+    md5: 929471569c93acefb30282a22060dcd5
+    sha256: 989db6e5957c4b44fa600c68c681ec2f36a55e48f7c7f1c073d5e91caa8cd878
   category: main
   optional: false
 - name: cffi
@@ -774,7 +774,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.4.42
+  version: 2026.4.50
   manager: conda
   platform: linux-64
   dependencies:
@@ -834,10 +834,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.4.42-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.4.50-pyhd8ed1ab_0.conda
   hash:
-    md5: 01d289f442278302c0fd841271b107fb
-    sha256: 1b026af520368090ee003f6ecbd76ed25151dab8c16588d6eadb61bcdd6c2be1
+    md5: d912d9ce045a990ce6f7479963807db9
+    sha256: 8c86c6dad4c5f8cbfbd4a770ba1df3a8739b8dad3156d0cce6839f2e3cb05993
   category: main
   optional: false
 - name: conda-index
@@ -2083,16 +2083,16 @@ package:
   category: main
   optional: false
 - name: jaraco.context
-  version: 6.1.1
+  version: 6.1.2
   manager: conda
   platform: linux-64
   dependencies:
     backports.tarfile: ''
     python: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/jaraco.context-6.1.1-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jaraco.context-6.1.2-pyhcf101f3_0.conda
   hash:
-    md5: 5ed60de12f1673398943262371667f79
-    sha256: 49c3e2e9aa4930734badfcbb31543406ed1b5531cb833f595cf57baf628dea7d
+    md5: b9d2b1ffa307961f6bb7d83c8ba8a8be
+    sha256: 108b3919db8ef81b5585b38a3fedbe9eeccdf8fa576c250a13559a1188f597cc
   category: main
   optional: false
 - name: jaraco.functools
