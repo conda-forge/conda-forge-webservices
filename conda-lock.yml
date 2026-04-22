@@ -13,7 +13,7 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 185c37202567e0e62630679751dbf7d90e0889a3ced7c69b05df87a07ff7f6d7
+    linux-64: 5ab21b9ee5a6cc64c8d68393fe21368a1a41df09b5af55f7bd28131872d1c241
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.42.92
+  version: 1.42.93
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.92-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.42.93-pyhd8ed1ab_0.conda
   hash:
-    md5: 4b7fae7eab4f3bc7a64f5eeb38330b76
-    sha256: c38a07a8fa74106680135e63ae593a861402578451b6bb1e93bb9996c9a2287e
+    md5: fe76dce4268ff0276ec3228c735bcfa7
+    sha256: 229ed4094f533528487292a58c16e44832c0d8b27b502b2f19105700db5119a9
   category: main
   optional: false
 - name: brotli-python
@@ -992,7 +992,7 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 3.61.0
+  version: 3.61.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1023,10 +1023,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.61.0-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-3.61.1-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 3251058ba7a00ee98413525d3a12eb73
-    sha256: eb717ca2a0a4db8f4d95b02201c9b10da88586e3ae2ee45023c5dbcb2c9dab4f
+    md5: 07488b14ec6fd16ea88e7b3b39453d60
+    sha256: 4443390deee4b878e4e1d00ef894c5888969b9b9d11bd21729d30cbc6ff26954
   category: main
   optional: false
 - name: conda-souschef
@@ -5288,16 +5288,16 @@ package:
   category: main
   optional: false
 - name: wheel
-  version: 0.46.3
+  version: 0.47.0
   manager: conda
   platform: linux-64
   dependencies:
     packaging: '>=24.0'
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.46.3-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/wheel-0.47.0-pyhd8ed1ab_0.conda
   hash:
-    md5: bdbd7385b4a67025ac2dba4ef8cb6a8f
-    sha256: d6cf2f0ebd5e09120c28ecba450556ce553752652d91795442f0e70f837126ae
+    md5: d0e3b2f0030cf4fca58bde71d246e94c
+    sha256: 9e156ffaefb8463437144326ada4b85d1de17961b9997ac5f1cbbaf747bd8bed
   category: main
   optional: false
 - name: wrapt
