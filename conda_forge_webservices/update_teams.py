@@ -151,9 +151,7 @@ def get_recipe_dummy_meta(recipe_content):
     elif skip == 1:
         return DummyMeta("\n".join(keep_lines))
     else:
-        raise RuntimeError(
-            f"team update failed due to {skip} 'extra:' sections"
-        )
+        raise RuntimeError(f"team update failed due to {skip} 'extra:' sections")
 
 
 def update_team(org_name, repo_name, commit=None):
