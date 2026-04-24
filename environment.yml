@@ -13,7 +13,7 @@ dependencies:
   - conda-forge-tick >=2025.1.51
   - conda-forge-feedstock-ops >=0.16.0
   - conda-recipe-manager >=0.9.0
-  - conda-smithy >=3.61.1  # this pin is for username-userid security fixes
+  - conda-smithy >=3.61.2  # this pin is for username-userid & team security fixes
   - conda-souschef
   - cryptography >=39
   - python-dateutil
