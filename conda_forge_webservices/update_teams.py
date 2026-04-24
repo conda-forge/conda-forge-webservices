@@ -145,8 +145,15 @@ def get_recipe_dummy_meta(recipe_content):
             skip += 1
         if skip > 0:
             keep_lines.append(_filter_jinja2(line))
-    assert skip == 1, "team update failed due to > 1 'extra:' sections"
-    return DummyMeta("\n".join(keep_lines))
+
+    if skip == 0:
+        return DummyMeta('{"extra": {"recipe-maintainers": []}}')
+    elif skip == 1:
+        return DummyMeta("\n".join(keep_lines))
+    else:
+        raise RuntimeError(
+            f"team update failed due to {skip} 'extra:' sections"
+        )
 
 
 def update_team(org_name, repo_name, commit=None):
