@@ -110,7 +110,7 @@ jobs:
       - name: generate token
         id: generate_token
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -199,14 +199,14 @@ jobs:
 
       - name: login to docker hub
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           username: condaforgebot
           password: ${{ secrets.CF_BOT_DH_PASSWORD }}
 
       - name: build and push docker image
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: Dockerfile_wda
@@ -242,7 +242,7 @@ jobs:
       - name: generate token
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -306,7 +306,7 @@ jobs:
       - name: generate token
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -373,7 +373,7 @@ jobs:
       - name: generate token
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -440,7 +440,7 @@ jobs:
       - name: generate token
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -506,7 +506,7 @@ jobs:
       - name: generate token
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         id: generate_token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
