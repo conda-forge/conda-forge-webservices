@@ -763,14 +763,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.05.13.02.16.19
+  version: 2026.05.13.11.06.01
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.05.13.02.16.19-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.05.13.11.06.01-hd8ed1ab_0.conda
   hash:
-    md5: ebf8f70dd85a947613782f6ff467a7e7
-    sha256: fde09835e55ad9624492a5f527eea80afb249f56a2eadfdf20b9dba778ea7865
+    md5: 11fbf914186052f492aa9ec8153bcd2d
+    sha256: bf569189e6e12c224c150daa43748026269b52097abc4663933de37488aeab0a
   category: main
   optional: false
 - name: conda-forge-tick
@@ -2791,7 +2791,7 @@ package:
   category: main
   optional: false
 - name: libmamba
-  version: 2.6.0
+  version: 2.6.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -2808,41 +2808,41 @@ package:
     openssl: '>=3.5.6,<4.0a0'
     reproc: '>=14.2,<15.0a0'
     reproc-cpp: '>=14.2,<15.0a0'
-    simdjson: '>=4.6.3,<4.7.0a0'
+    simdjson: '>=4.6.4,<4.7.0a0'
     spdlog: '>=1.17.0,<1.18.0a0'
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.6.0-hd28c85e_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.6.1-hd28c85e_0.conda
   hash:
-    md5: 09ee8a6272898ad6616b2f9635359087
-    sha256: 554aca39e3e6999259e692c67bd86fa6d600430ce397136f5450369c5cf1723d
+    md5: 8cf3c571b8591b229f3d3b262ea41e76
+    sha256: 38bcacf267b254fa85585c9d8b28042429e2030884a90bd41b82b0da42c45319
   category: main
   optional: false
 - name: libmamba-spdlog
-  version: 2.6.0
+  version: 2.6.1
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
-    libmamba: '>=2.6.0,<2.7.0a0'
+    libmamba: '>=2.6.1,<2.7.0a0'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-spdlog-2.6.0-hf859cbd_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-spdlog-2.6.1-hd8d719e_0.conda
   hash:
-    md5: d4f1f94f6ddb5c494f09f8a7b200aacc
-    sha256: cc9395f4bc67871d5dfe60f6c521c97c50cb3ad3d5af7459893e822864956d2a
+    md5: f863baf097e31e304975ac579009eb0f
+    sha256: ff129732b57461230e1125a75b6a8851f1574daa72c15b2068488222967d7c0a
   category: main
   optional: false
 - name: libmambapy
-  version: 2.6.0
+  version: 2.6.1
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     fmt: '>=12.1.0,<12.2.0a0'
     libgcc: '>=14'
-    libmamba: '>=2.6.0,<2.7.0a0'
-    libmamba-spdlog: ==2.6.0
+    libmamba: '>=2.6.1,<2.7.0a0'
+    libmamba-spdlog: ==2.6.1
     libstdcxx: '>=14'
     nlohmann_json-abi: 3.12.0
     openssl: '>=3.5.6,<4.0a0'
@@ -2852,10 +2852,10 @@ package:
     spdlog: '>=1.17.0,<1.18.0a0'
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.6.0-py312h5ee1301_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.6.1-py312h9be051e_0.conda
   hash:
-    md5: 23270bf128896a4375dd4d9abe0d33d3
-    sha256: b355b08441e34026e73fb9fae90a295e906ffa47d327332f9fa81ec57617c3fe
+    md5: e7dbddc5bd1adb44c52589fb69d58c6d
+    sha256: f201302427a9324dbe7ee5e376ac7841ffbdbef8e8d45b82d89f00c698ac09b8
   category: main
   optional: false
 - name: libmsgpack-c
@@ -3300,19 +3300,19 @@ package:
   category: main
   optional: false
 - name: mamba
-  version: 2.6.0
+  version: 2.6.1
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libmamba: '>=2.6.0,<2.7.0a0'
+    libmamba: '>=2.6.1,<2.7.0a0'
     reproc: '>=14.2,<15.0a0'
     reproc-cpp: '>=14.2,<15.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.6.0-hf80e505_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.6.1-h2a27def_0.conda
   hash:
-    md5: 4e6bb2dcfadc34b9a94e2e9ca87befa3
-    sha256: 103d2a4606c0597e81a67e3ebbac28dddbcc622ce7d24d9790e56013f6e1c594
+    md5: 4743e306243576dd110acc1ab5a20b9a
+    sha256: 5d79cbe70311ed5f60be9bbabd2dabb6202c2623f2b9d203e35d73f8a3fac750
   category: main
   optional: false
 - name: markdown-it-py
