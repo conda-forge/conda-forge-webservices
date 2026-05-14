@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.43.6
+  version: 1.43.7
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.6-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.7-pyhd8ed1ab_0.conda
   hash:
-    md5: 4ecc7dd446c60b1814a4ecb0a6b8f4bb
-    sha256: ed311e905e82fd427a23e9e2beccf2af483aa275529954c067a182730ceedde8
+    md5: 0bfbc55eef3725a11afa89f0e8524b5f
+    sha256: 261dc21d0e8778a035b1f00b2b6fa8a066bf53337131a9ca02c0b9a0585e3079
   category: main
   optional: false
 - name: brotli-python
@@ -763,14 +763,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.05.13.11.06.01
+  version: 2026.05.14.11.33.44
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.05.13.11.06.01-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.05.14.11.33.44-hd8ed1ab_0.conda
   hash:
-    md5: 11fbf914186052f492aa9ec8153bcd2d
-    sha256: bf569189e6e12c224c150daa43748026269b52097abc4663933de37488aeab0a
+    md5: 45fcb6749fdbed0475ceb5958754332a
+    sha256: 1381c91a354ea5eb9622596486e24800e7d1c89aa0ab59df948a0128582428bd
   category: main
   optional: false
 - name: conda-forge-tick
@@ -861,7 +861,7 @@ package:
   category: main
   optional: false
 - name: conda-libmamba-solver
-  version: 26.4.1
+  version: 26.4.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -871,10 +871,10 @@ package:
     python: '>=3.10'
     requests: '>=2.28.0,<3'
     zstandard: '>=0.15'
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-libmamba-solver-26.4.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-libmamba-solver-26.4.2-pyhd8ed1ab_0.conda
   hash:
-    md5: 7fb0416c7841b65a087b466abd3dc28f
-    sha256: 3c0513a2c32240f7d3c01af45623fa02950b96c2d74bd98f25882711c53a2978
+    md5: b8d70ceaeb03c3fb4fcfa0ace49272dc
+    sha256: 14545088118baa0d7597f574f2e5b2244817a8def79c8c8c065986ff22acd99d
   category: main
   optional: false
 - name: conda-lock
@@ -3570,7 +3570,7 @@ package:
   category: main
   optional: false
 - name: orjson
-  version: 3.11.8
+  version: 3.11.9
   manager: conda
   platform: linux-64
   dependencies:
@@ -3578,10 +3578,10 @@ package:
     libgcc: '>=14'
     python: ''
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.8-py312h94568fe_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/orjson-3.11.9-py312h94568fe_0.conda
   hash:
-    md5: 9daef1877f49539e02e278338d63a269
-    sha256: dda732a2bb2b4007576adf682cd90175e6680aae6ec0592fac9c552fb22e1395
+    md5: 40efeb66cfe1036a72decef4676cb10f
+    sha256: aa61f42a974fa75f3366594a242d8b3ed23861e99693ee5274d3ed21d93d86b2
   category: main
   optional: false
 - name: packaging
@@ -4535,7 +4535,7 @@ package:
   category: main
   optional: false
 - name: requests
-  version: 2.34.0
+  version: 2.34.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -4544,10 +4544,10 @@ package:
     idna: '>=2.5,<4'
     python: ''
     urllib3: '>=1.26,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/requests-2.34.0-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/requests-2.34.1-pyhcf101f3_0.conda
   hash:
-    md5: a5985537dab1ba7034b5ff4ea22e2fa9
-    sha256: 4487fdb341537e2df47159ed8e546add99080974c52d5b2dc2a710910619115a
+    md5: 18a1731937516054803c047e1b39dc04
+    sha256: 22ffa6f214829b9fb2daac5b25886cca73bd8de1fb9523791ce39478d60a58f7
   category: main
   optional: false
 - name: requests-oauthlib
