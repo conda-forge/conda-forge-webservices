@@ -440,6 +440,16 @@ def main_finalize_task(task_data_dir):
                 recipes_to_lint, _ = get_recipes_for_linting(
                     gh, gh_repo, pr.number, task_results["lints"], task_results["hints"]
                 )
+                LOGGER.info("recipes to lint: %r", sorted(recipes_to_lint))
+                for rec in recipes_to_lint:
+                    if rec not in task_results["errors"]:
+                        LOGGER.info(
+                            "could not find task results for recipe "
+                            "%r - assuming it failed!",
+                            rec,
+                        )
+                flush_logger(LOGGER)
+
                 if any(
                     task_results["errors"].get(rec, True) for rec in recipes_to_lint
                 ):
