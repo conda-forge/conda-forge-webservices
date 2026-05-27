@@ -119,7 +119,7 @@ jobs:
       - name: push README to quay.io
         uses: christian-korneck/update-container-description-action@d36005551adeaba9698d8d67a296bd16fa91f8e8 # v1
         env:
-          DOCKER_APIKEY: ${{ secrets.CONDA_FORGE_WEBSERVICES_QUAY_API_KEY }}
+          DOCKER_APIKEY: ${{ secrets.CONDA_FORGE_QUAY_API_KEY }}
         with:
           destination_container_repo: quay.io/condaforge/webservices-dispatch-action:${{ needs.tag-and-release.outputs.new_version }}
           provider: quay
