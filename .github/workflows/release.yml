@@ -77,35 +77,33 @@ jobs:
             channels:
               - conda-forge
 
-      - name: set up docker buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
-
-      - name: login to docker hub
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+      - name: build docker image
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
         with:
+          image: webservices-dispatch-action
+          tags: latest ${{ needs.tag-and-release.outputs.new_version }}
+          containerfiles: |
+            ./Dockerfile_wda
+          build-args: |
+            --no-cache
+
+      - name: push docker image to docker hub
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
+        with:
+          image: webservices-dispatch-action
+          tags: latest ${{ needs.tag-and-release.outputs.new_version }}
+          registry: docker.io/condaforge
           username: condaforgebot
           password: ${{ secrets.CF_BOT_DH_PASSWORD }}
 
-      - name: build docker metadata
-        id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+      - name: push docker image to quay.io
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
         with:
-          images: condaforge/webservices-dispatch-action
-          flavor: |
-            latest=false
-          tags: |
-            type=raw,value=${{ needs.tag-and-release.outputs.new_version }}
-            type=raw,value=latest
-
-      - name: build and push image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
-        with:
-          context: .
-          file: Dockerfile_wda
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          no-cache: true
+          image: webservices-dispatch-action
+          tags: latest ${{ needs.tag-and-release.outputs.new_version }}
+          registry: quay.io/condaforge
+          username: conda_forge_daemon
+          password: ${{ secrets.CF_DAEMON_QUAY_PASSWORD }}
 
       - name: push README to docker hub
         uses: christian-korneck/update-container-description-action@d36005551adeaba9698d8d67a296bd16fa91f8e8 # v1
@@ -116,6 +114,15 @@ jobs:
           destination_container_repo: condaforge/webservices-dispatch-action:${{ needs.tag-and-release.outputs.new_version }}
           provider: dockerhub
           short_description: "conda-forge-webservices image used to power the admin webservices GitHub Actions integrations"
+          readme_file: "Dockerfile_wda_README.md"
+
+      - name: push README to quay.io
+        uses: christian-korneck/update-container-description-action@d36005551adeaba9698d8d67a296bd16fa91f8e8 # v1
+        env:
+          DOCKER_APIKEY: ${{ secrets.CF_DAEMON_QUAY_API_KEY }}
+        with:
+          destination_container_repo: quay.io/condaforge/webservices-dispatch-action:${{ needs.tag-and-release.outputs.new_version }}
+          provider: quay
           readme_file: "Dockerfile_wda_README.md"
 
   build-and-push-to-heroku:

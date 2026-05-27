@@ -193,25 +193,26 @@ jobs:
           version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: set up docker buildx
+      - name: build docker image
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
-
-      - name: login to docker hub
-        if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
         with:
+          image: webservices-dispatch-action
+          tags: ${{ steps.install-code.outputs.version }}
+          containerfiles: |
+            ./Dockerfile_wda
+          build-args: |
+            --no-cache
+
+      - name: push docker image to docker hub
+        if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
+        with:
+          image: webservices-dispatch-action
+          tags: ${{ steps.install-code.outputs.version }}
+          registry: docker.io/condaforge
           username: condaforgebot
           password: ${{ secrets.CF_BOT_DH_PASSWORD }}
-
-      - name: build and push docker image
-        if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
-        with:
-          context: .
-          file: Dockerfile_wda
-          push: true
-          tags: condaforge/webservices-dispatch-action:${{ steps.install-code.outputs.version }}
 
   live-tests-upload:
     name: live-tests-upload
