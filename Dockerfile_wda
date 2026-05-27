@@ -10,20 +10,18 @@ USER root
 
 COPY conda-lock.yml /tmp/conda-lock.yml
 
-RUN <<EOF
-groupadd -g 32766 lucky
-echo "**** install base env ****"
-micromamba create --yes --quiet --name cf-feedstock-ops --file /tmp/conda-lock.yml
-echo "**** cleanup ****"
-micromamba clean --all --force-pkgs-dirs --yes
-find "${MAMBA_ROOT_PREFIX}" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete
-echo "**** finalize ****"
-chown -R root /opt/conda
-chgrp -R lucky /opt/conda
-chmod -R g=u /opt/conda
-mkdir -p "${MAMBA_ROOT_PREFIX}/locks"
-chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
-EOF
+RUN groupadd -g 32766 lucky && \
+    echo "**** install base env ****" && \
+    micromamba create --yes --quiet --name cf-feedstock-ops --file /tmp/conda-lock.yml && \
+    echo "**** cleanup ****" && \
+    micromamba clean --all --force-pkgs-dirs --yes && \
+    find "${MAMBA_ROOT_PREFIX}" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
+    echo "**** finalize ****" && \
+    chown -R root /opt/conda && \
+    chgrp -R lucky /opt/conda && \
+    chmod -R g=u /opt/conda && \
+    mkdir -p "${MAMBA_ROOT_PREFIX}/locks" && \
+    chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
 
 FROM frolvlad/alpine-glibc:alpine-3.16_glibc-2.34
 LABEL maintainer="conda-forge <conda-forge@googlegroups.com>"
