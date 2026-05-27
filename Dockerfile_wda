@@ -57,7 +57,7 @@ RUN <<'EOF'
     ln -s /opt/conda/envs/$CF_FEEDSTOCK_OPS_ENV/bin/tini /opt/docker/bin/tini
     addgroup -g 32766 lucky
     adduser --disabled-password --shell /bin/bash conda
-'EOF'
+EOF
 
 # finalize the conda user
 ENV HOME=/home/conda \
