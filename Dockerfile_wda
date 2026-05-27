@@ -10,7 +10,7 @@ USER root
 
 COPY conda-lock.yml /tmp/conda-lock.yml
 
-RUN /bin/bash <<EOF
+RUN <<-EOF
     groupadd -g 32766 lucky
     echo "**** install base env ****"
     micromamba create --yes --quiet --name cf-feedstock-ops --file /tmp/conda-lock.yml
