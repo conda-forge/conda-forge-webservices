@@ -1,3 +1,4 @@
+#syntax=docker/dockerfile:1.4
 FROM mambaorg/micromamba:1.5.10-noble AS build-env
 
 ENV PYTHONDONTWRITEBYTECODE=1
