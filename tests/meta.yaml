@@ -26,7 +26,7 @@ test:
     - echo "works!"
 
 about:
-  home: https://github.com/regro/cf-scripts
+  home: https://github.com/conda-forge/conda-forge-bot
   license: BSD-3-Clause
   license_family: BSD
   license_file: LICENSE
