@@ -999,9 +999,7 @@ def _dispatch_autotickbot_job(repo_full_name, event, uid):
                 "uid": str(uid),
             },
         )
-        msg = (
-            f"conda-forge-bot job dispatched: event|uid|running = {event}|{uid}|{running}"
-        )
+        msg = f"conda-forge-bot job dispatched: event|uid|running = {event}|{uid}|{running}"
 
     log_title_and_message_at_level(
         level="info",
