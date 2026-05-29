@@ -983,14 +983,14 @@ def _cached_bot_workflow():
         return None
 
     gh = github.Github(auth=github.Auth.Token(os.environ["AUTOTICK_BOT_GH_TOKEN"]))
-    repo = gh.get_repo("regro/cf-scripts")
+    repo = gh.get_repo("conda-forge/conda-forge-bot")
     return repo.get_workflow("bot-events.yml")
 
 
 def _dispatch_autotickbot_job(repo_full_name, event, uid):
     wf = _cached_bot_workflow()
     if wf is None:
-        msg = f"autotick bot job dispatch skipped: event|uid = {event}|{uid} - no token"
+        msg = f"conda-forge-bot job dispatch skipped: event|uid = {event}|{uid} - no token"
     else:
         running = wf.create_dispatch(
             "main",
@@ -1000,12 +1000,12 @@ def _dispatch_autotickbot_job(repo_full_name, event, uid):
             },
         )
         msg = (
-            f"autotick bot job dispatched: event|uid|running = {event}|{uid}|{running}"
+            f"conda-forge-bot job dispatched: event|uid|running = {event}|{uid}|{running}"
         )
 
     log_title_and_message_at_level(
         level="info",
-        title=f"autotick bot {event}: {repo_full_name}",
+        title=f"conda-forge-bot {event}: {repo_full_name}",
         msg=msg,
     )
 
