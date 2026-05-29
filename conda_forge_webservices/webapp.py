@@ -990,7 +990,10 @@ def _cached_bot_workflow():
 def _dispatch_autotickbot_job(repo_full_name, event, uid):
     wf = _cached_bot_workflow()
     if wf is None:
-        msg = f"conda-forge-bot job dispatch skipped: event|uid = {event}|{uid} - no token"
+        msg = (
+            "conda-forge-bot job dispatch skipped: "
+            f"event|uid = {event}|{uid} - no token"
+        )
     else:
         running = wf.create_dispatch(
             "main",
@@ -999,7 +1002,10 @@ def _dispatch_autotickbot_job(repo_full_name, event, uid):
                 "uid": str(uid),
             },
         )
-        msg = f"conda-forge-bot job dispatched: event|uid|running = {event}|{uid}|{running}"
+        msg = (
+            "conda-forge-bot job dispatched: "
+            f"event|uid|running = {event}|{uid}|{running}"
+        )
 
     log_title_and_message_at_level(
         level="info",
