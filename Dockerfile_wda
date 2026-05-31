@@ -1,4 +1,4 @@
-FROM mambaorg/micromamba:1.5.10-noble AS build-env
+FROM mambaorg/micromamba:2.6.2-noble AS build-env
 
 ENV PYTHONDONTWRITEBYTECODE=1
 USER root
