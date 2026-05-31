@@ -204,15 +204,15 @@ jobs:
           build-args: |
             --no-cache
 
-      - name: push docker image to docker hub
+      - name: push docker image to quay.io
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
         uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
         with:
           image: webservices-dispatch-action
           tags: ${{ steps.install-code.outputs.version }}
-          registry: docker.io/condaforge
-          username: condaforgebot
-          password: ${{ secrets.CF_BOT_DH_PASSWORD }}
+          registry: quay.io/condaforge
+          username: conda_forge_daemon
+          password: ${{ secrets.CF_DAEMON_QUAY_PASSWORD }}
 
   live-tests-upload:
     name: live-tests-upload
@@ -336,7 +336,7 @@ jobs:
           fi
 
           version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
-          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
+          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=quay.io/condaforge/webservices-dispatch-action
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
           cd tests
@@ -403,7 +403,7 @@ jobs:
           fi
 
           version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
-          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
+          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=quay.io/condaforge/webservices-dispatch-action
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
           cd tests
@@ -470,7 +470,7 @@ jobs:
           fi
 
           version=$(python -c "import conda_forge_webservices; print(conda_forge_webservices.__version__.replace('+', '.'))")
-          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=condaforge/webservices-dispatch-action
+          export CF_FEEDSTOCK_OPS_CONTAINER_NAME=quay.io/condaforge/webservices-dispatch-action
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
           cd tests
