@@ -215,8 +215,10 @@ def _get_temp_token(token):
     fn = os.path.join(dn, "binstar.token")
     with open(fn, "w") as fh:
         fh.write(token)
-    yield fn
-    shutil.rmtree(dn)
+    try:
+        yield fn
+    finally:
+        shutil.rmtree(dn)
 
 
 def _remove_dist(ac, channel, dist):
