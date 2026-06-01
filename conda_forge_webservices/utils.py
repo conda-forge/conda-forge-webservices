@@ -14,8 +14,10 @@ LOGGER = logging.getLogger("conda_forge_webservices")
 @contextmanager
 def tmp_directory():
     tmp_dir = tempfile.mkdtemp("_recipe")
-    yield tmp_dir
-    shutil.rmtree(tmp_dir)
+    try:
+        yield tmp_dir
+    finally:
+        shutil.rmtree(tmp_dir)
 
 
 # https://stackoverflow.com/questions/6194499/pushd-through-os-system
