@@ -266,12 +266,28 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
 
         if event == "ping":
             self.write("pong")
-        elif event == "pull_request":
+        elif event == "pull_request" or event == "merge_group":
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body["repository"]["name"]
             owner = body["repository"]["owner"]["login"]
-            pr_id = int(body["pull_request"]["number"])
-            is_open = body["pull_request"]["state"] == "open"
+            if event == "pull_request":
+                pr_id = int(body["pull_request"]["number"])
+                is_open = body["pull_request"]["state"] == "open"
+            else:
+                if (
+                    body["action"] != "checks_requested"
+                    or repo_name != "staged-recipes"
+                ):
+                    # only do merge group events for staged recipes
+                    return
+                else:
+                    # format is
+                    # refs/heads/gh-readonly-queue/{base_branch}/pr-{prNumber}-{sha}
+                    pr_id = body["merge_group"]["head_ref"]
+                    pr_id = int(
+                        pr_id.split("gh-readonly-queue/")[1].split("/")[1].split("-")[1]
+                    )
+                    is_open = True
 
             if owner != "conda-forge" or not (
                 repo_name == "staged-recipes" or repo_name.endswith("-feedstock")
@@ -280,10 +296,12 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                 self.write_error(404)
                 return
 
-            if body["action"] not in ["opened", "reopened", "synchronize", "unlocked"]:
+            if event == "pull_request" and (
+                body["action"] not in ["opened", "reopened", "synchronize", "unlocked"]
+            ):
                 return
 
-            if repo_name == "staged-recipes":
+            if event == "pull_request" and repo_name == "staged-recipes":
                 stale = any(
                     label["name"] == "stale" for label in body["pull_request"]["labels"]
                 )
@@ -294,9 +312,15 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             # and an open PR.
             if is_open and owner == "conda-forge" and not stale:
                 if linting.LINT_VIA_GHA:
+                    # for merge groups, we pass the SHA of the merge commit
                     linting.lint_via_github_actions(
                         body["repository"]["full_name"],
                         pr_id,
+                        sha=(
+                            None
+                            if event == "pull_request"
+                            else body["merge_group"]["head_sha"]
+                        ),
                     )
                 else:
                     log_title_and_message_at_level(

@@ -101,7 +101,9 @@ class TestBucketHandler(TestHandlerBase):
 
         if linting.LINT_VIA_GHA:
             lint_via_gha.assert_called_once_with(
-                "conda-forge/repo_name-feedstock", PR_number
+                "conda-forge/repo_name-feedstock",
+                PR_number,
+                sha=None,
             )
         else:
             compute_lint_message.assert_called_once_with(
@@ -386,7 +388,9 @@ class TestBucketHandler(TestHandlerBase):
         self.assertEqual(response.code, 200)
         if linting.LINT_VIA_GHA:
             lint_via_gha.assert_called_once_with(
-                "conda-forge/staged-recipes", PR_number
+                "conda-forge/staged-recipes",
+                PR_number,
+                sha=None,
             )
         else:
             compute_lint_message.assert_called_once_with(
@@ -407,6 +411,64 @@ class TestBucketHandler(TestHandlerBase):
                 {"message": mock.sentinel.message},
                 target_url=mock.sentinel.html_url,
             )
+
+    @mock.patch(
+        "conda_forge_webservices.linting.lint_via_github_actions",
+        return_value=None,
+    )
+    @mock.patch(
+        "conda_forge_webservices.linting.compute_lint_message",
+        return_value={"message": mock.sentinel.message},
+    )
+    @mock.patch(
+        "conda_forge_webservices.linting.comment_on_pr",
+        return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
+    )
+    @mock.patch("conda_forge_webservices.linting.set_pr_status")
+    def test_staged_recipes_merge_group(
+        self, set_pr_status, comment_on_pr, compute_lint_message, lint_via_gha
+    ):
+        PR_number = 16
+        sha = "blahblahblah"
+        body = {
+            "repository": {
+                "name": "staged-recipes",
+                "full_name": "conda-forge/staged-recipes",
+                "clone_url": "repo_clone_url",
+                "owner": {"login": "conda-forge"},
+            },
+            "action": "checks_requested",
+            "merge_group": {
+                "head_sha": sha,
+                "head_ref": f"gh-readonly-queue/main/pr-{PR_number}-abcd1234",
+            },
+        }
+
+        hash = hmac.new(
+            os.environ["CF_WEBSERVICES_TOKEN"].encode("utf-8"),
+            json.dumps(body).encode("utf-8"),
+            hashlib.sha1,
+        ).hexdigest()
+
+        response = self.fetch(
+            "/conda-linting/org-hook",
+            method="POST",
+            body=json.dumps(body),
+            headers={
+                "X-GitHub-Event": "merge_group",
+                "X-Hub-Signature": f"sha1={hash}",
+            },
+        )
+
+        self.assertEqual(response.code, 200)
+        if linting.LINT_VIA_GHA:
+            lint_via_gha.assert_called_once_with(
+                "conda-forge/staged-recipes",
+                PR_number,
+                sha=sha,
+            )
+        else:
+            assert False, "Cannot process merge group events without GHA linting"
 
     @mock.patch(
         "conda_forge_webservices.linting.compute_lint_message",
