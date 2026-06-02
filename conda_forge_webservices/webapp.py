@@ -284,7 +284,9 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                     # format is
                     # refs/heads/gh-readonly-queue/{base_branch}/pr-{prNumber}-{sha}
                     pr_id = body["merge_group"]["head_ref"]
-                    pr_id = int(pr_id.split("/")[4].split("-")[1])
+                    pr_id = int(
+                        pr_id.split("gh-readonly-queue/")[1].split("/")[1].split("-")[1]
+                    )
                     is_open = True
 
             if owner != "conda-forge" or not (
