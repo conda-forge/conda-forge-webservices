@@ -33,12 +33,12 @@ class LintInfo(TypedDict):
     sha: str
 
 
-def lint_via_github_actions(full_name: str, pr_num: int) -> bool:
+def lint_via_github_actions(full_name: str, pr_num: int, sha: str | None = None) -> bool:
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
     repo_owner, repo_name = full_name.split("/")
     pr = repo.get_pull(pr_num)
-    sha = pr.head.sha
+    sha = sha or pr.head.sha
     commit = gh.get_repo(pr.head.repo.full_name).get_git_commit(sha)
     commit_msg = commit.message
 
