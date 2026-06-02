@@ -33,7 +33,9 @@ class LintInfo(TypedDict):
     sha: str
 
 
-def lint_via_github_actions(full_name: str, pr_num: int, sha: str | None = None) -> bool:
+def lint_via_github_actions(
+    full_name: str, pr_num: int, sha: str | None = None
+) -> bool:
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
     repo_owner, repo_name = full_name.split("/")
