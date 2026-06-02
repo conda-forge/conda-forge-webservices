@@ -274,7 +274,10 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                 pr_id = int(body["pull_request"]["number"])
                 is_open = body["pull_request"]["state"] == "open"
             else:
-                if body["action"] != "checks_requested" or repo_name != "staged-recipes":
+                if (
+                    body["action"] != "checks_requested"
+                    or repo_name != "staged-recipes"
+                ):
                     # only do merge group events for staged recipes
                     return
                 else:
@@ -291,7 +294,9 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                 self.write_error(404)
                 return
 
-            if event == "pull_request" and (body["action"] not in ["opened", "reopened", "synchronize", "unlocked"]):
+            if event == "pull_request" and (
+                body["action"] not in ["opened", "reopened", "synchronize", "unlocked"]
+            ):
                 return
 
             if event == "pull_request" and repo_name == "staged-recipes":
