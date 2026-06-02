@@ -101,7 +101,7 @@ class TestBucketHandler(TestHandlerBase):
 
         if linting.LINT_VIA_GHA:
             lint_via_gha.assert_called_once_with(
-                "conda-forge/repo_name-feedstock", PR_number
+                "conda-forge/repo_name-feedstock", PR_number, sha=None,
             )
         else:
             compute_lint_message.assert_called_once_with(
@@ -386,7 +386,7 @@ class TestBucketHandler(TestHandlerBase):
         self.assertEqual(response.code, 200)
         if linting.LINT_VIA_GHA:
             lint_via_gha.assert_called_once_with(
-                "conda-forge/staged-recipes", PR_number
+                "conda-forge/staged-recipes", PR_number, sha=None,
             )
         else:
             compute_lint_message.assert_called_once_with(
