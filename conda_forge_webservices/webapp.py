@@ -310,11 +310,15 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             # and an open PR.
             if is_open and owner == "conda-forge" and not stale:
                 if linting.LINT_VIA_GHA:
-                    # TODO - need to extract specific commit for the check and pass it here instead PR ID
+                    # for merge groups, we pass the SHA of the merge commit
                     linting.lint_via_github_actions(
                         body["repository"]["full_name"],
                         pr_id,
-                        sha=None if event == "pull_request" else body["merge_group"]["head_sha"].
+                        sha=(
+                            None
+                            if event == "pull_request"
+                            else body["merge_group"]["head_sha"]
+                        ),
                     )
                 else:
                     log_title_and_message_at_level(
