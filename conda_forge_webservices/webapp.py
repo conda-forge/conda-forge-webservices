@@ -314,6 +314,7 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                     linting.lint_via_github_actions(
                         body["repository"]["full_name"],
                         pr_id,
+                        sha=None if event == "pull_request" else body["merge_group"]["head_sha"].
                     )
                 else:
                     log_title_and_message_at_level(
