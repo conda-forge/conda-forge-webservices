@@ -40,7 +40,7 @@ def lint_via_github_actions(
     repo = gh.get_repo(full_name)
     repo_owner, repo_name = full_name.split("/")
     pr = repo.get_pull(pr_num)
-    sha = sha or pr.head.sha
+    sha_to_use = sha or pr.head.sha
     commit = gh.get_repo(pr.head.repo.full_name).get_git_commit(sha)
     commit_msg = commit.message
 
@@ -61,7 +61,7 @@ def lint_via_github_actions(
             "pr_number": str(pr_num),
             "container_tag": ref,
             "uuid": uid,
-            "sha": sha,
+            "sha": sha_to_use,
             "merge_queue": "true" if sha is not None else "false",
         },
     )
