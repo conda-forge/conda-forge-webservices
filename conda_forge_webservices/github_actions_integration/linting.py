@@ -98,8 +98,13 @@ def make_lint_comment(repo, pr_id, message):
     return msg
 
 
-def build_and_make_lint_comment(gh, repo, pr_id, lints, hints):
-    mergeable = _is_mergeable(repo, pr_id)
+def build_and_make_lint_comment(
+    gh, repo, pr_id, lints, hints, skip_mergeable_check=False
+):
+    if not skip_mergeable_check:
+        mergeable = _is_mergeable(repo, pr_id)
+    else:
+        mergeable = True
     if not mergeable:
         message = dedent_with_escaped_continue(
             """

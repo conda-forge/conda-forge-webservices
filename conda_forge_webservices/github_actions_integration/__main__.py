@@ -59,7 +59,10 @@ def _pull_docker_image():
 @click.option("--task-data-dir", required=True, type=str)
 @click.option("--requested-version", required=False, type=str, default=None)
 @click.option("--sha", required=False, type=str, default=None)
-def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
+@click.option("--merge-queue", type=str, default="false")
+def main_run_task(
+    task, repo, pr_number, task_data_dir, requested_version, sha, merge_queue
+):
     setup_logging(level="DEBUG")
 
     action_desc = f"task `{task}` for conda-forge/{repo}#{pr_number}"
@@ -88,6 +91,7 @@ def main_run_task(task, repo, pr_number, task_data_dir, requested_version, sha):
         "repo": repo,
         "pr_number": pr_number,
         "sha": sha,
+        "merge_queue": merge_queue,
         "task_results": {},
     }
 
@@ -257,6 +261,7 @@ def main_finalize_task(task_data_dir):
     pr_number = task_data["pr_number"]
     task_results = task_data["task_results"]
     sha_for_status = task_data["sha"]
+    merge_queue = task_data["merge_queue"]
 
     LOGGER.info("finalizing task `%s` for conda-forge/%s#%s", task, repo, pr_number)
     LOGGER.info("task results:")
@@ -480,7 +485,12 @@ def main_finalize_task(task_data_dir):
                 status = "bad"
             else:
                 msg, status = build_and_make_lint_comment(
-                    gh, gh_repo, pr.number, task_results["lints"], task_results["hints"]
+                    gh,
+                    gh_repo,
+                    pr.number,
+                    task_results["lints"],
+                    task_results["hints"],
+                    skip_mergeable_check=False if merge_queue == "false" else True,
                 )
 
             set_pr_status(gh_repo, sha_for_status, status, target_url=msg.html_url)

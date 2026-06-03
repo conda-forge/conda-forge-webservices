@@ -36,6 +36,11 @@ on:
         required: false
         type: string
         default: 'null'
+      merge_queue:
+        description: 'string `false` or `true` indicating if the PR is in a merge queue'
+        required: false
+        type: string
+        default: 'false'
 
 env:
   PY_COLORS: 1
@@ -86,7 +91,8 @@ jobs:
             --pr-number=${{ inputs.pr_number }} \
             --task-data-dir=${{ github.workspace }}/task-data \
             --requested-version=${{ inputs.requested_version }} \
-            --sha=${{ inputs.sha }}
+            --sha=${{ inputs.sha }} \
+            --merge-queue=${{ inputs.merge_queue }}
 
       - name: upload task data
         id: upload-task-data

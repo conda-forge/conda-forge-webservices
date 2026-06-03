@@ -62,6 +62,7 @@ def lint_via_github_actions(
             "container_tag": ref,
             "uuid": uid,
             "sha": sha,
+            "merge_queue": "true" if sha is not None else "false",
         },
     )
 
