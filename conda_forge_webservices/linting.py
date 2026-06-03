@@ -40,12 +40,14 @@ def lint_via_github_actions(
     repo = gh.get_repo(full_name)
     repo_owner, repo_name = full_name.split("/")
     pr = repo.get_pull(pr_num)
-    sha = sha or pr.head.sha
-    commit = gh.get_repo(pr.head.repo.full_name).get_git_commit(sha)
+    sha_to_use = sha or pr.head.sha
+    commit = gh.get_repo(pr.head.repo.full_name).get_git_commit(sha_to_use)
     commit_msg = commit.message
 
     should_skip = any([msg in commit_msg for msg in SKIP_MSGS])
-    if should_skip:
+    # the sha is only not None if a PR is in a merge queue
+    # we never skip linting in the merge queue
+    if should_skip and sha is None:
         return False
 
     uid = uuid.uuid4().hex
@@ -61,7 +63,8 @@ def lint_via_github_actions(
             "pr_number": str(pr_num),
             "container_tag": ref,
             "uuid": uid,
-            "sha": sha,
+            "sha": sha_to_use,
+            "merge_queue": "true" if sha is not None else "false",
         },
     )
 
@@ -73,7 +76,9 @@ def lint_via_github_actions(
             target_url = run.html_url
         else:
             target_url = None
-        _set_pr_status(repo_owner, repo_name, sha, "pending", target_url=target_url)
+        _set_pr_status(
+            repo_owner, repo_name, sha_to_use, "pending", target_url=target_url
+        )
     else:
         msg = "linting job dispatch failed"
 

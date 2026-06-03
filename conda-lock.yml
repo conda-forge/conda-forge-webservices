@@ -817,14 +817,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.06.02.12.03.26
+  version: 2026.06.03.07.30.59
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.06.02.12.03.26-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.06.03.07.30.59-hd8ed1ab_0.conda
   hash:
-    md5: 599158d99356d3064864311286395eb6
-    sha256: 804db15389feead68da50a657bf34a6d30a9d27ac86881907256743d727398d1
+    md5: a4cc780f954e91ffa8c32b829d619d7d
+    sha256: 63e31a66dfbb2636ed288ced2dfab95a01df14e2be4bc89a88dad7438e8320a2
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1319,15 +1319,15 @@ package:
   category: main
   optional: false
 - name: distlib
-  version: 0.4.0
+  version: 0.4.1
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.9'
-  url: https://conda.anaconda.org/conda-forge/noarch/distlib-0.4.0-pyhd8ed1ab_0.conda
+    python: ''
+  url: https://conda.anaconda.org/conda-forge/noarch/distlib-0.4.1-pyhcf101f3_1.conda
   hash:
-    md5: 003b8ba0a94e2f1e117d0bd46aebc901
-    sha256: 6d977f0b2fc24fee21a9554389ab83070db341af6d6f09285360b2e09ef8b26e
+    md5: f8638ae693ee89e9069ed4f3b77a6be9
+    sha256: c691221f821fad3a0fcdedb7b18605edb7117cdaa50b76885619c6a0f66ed761
   category: main
   optional: false
 - name: distributed
@@ -1571,7 +1571,7 @@ package:
   category: main
   optional: false
 - name: fontconfig
-  version: 2.18.0
+  version: 2.18.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1582,10 +1582,10 @@ package:
     libgcc: '>=14'
     libuuid: '>=2.42.1,<3.0a0'
     libzlib: '>=1.3.2,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/fontconfig-2.18.0-h27c8c51_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/fontconfig-2.18.1-h27c8c51_0.conda
   hash:
-    md5: 06965b2f9854d0b15e0443ee81fe83dc
-    sha256: e798086d8a65d55dc4c51f5746705639c9a5f2eeb0b8fc50e6152cfc0d69a4e8
+    md5: e0e050cfa9fa85fe39632ab11cb7f3e0
+    sha256: 2e50bdcebdf70a865b81f2456bbc586386451ec601c60f2b6cd22b8c40a2d384
   category: main
   optional: false
 - name: fonts-conda-ecosystem
@@ -1765,17 +1765,17 @@ package:
   category: main
   optional: false
 - name: graphite2
-  version: 1.3.14
+  version: 1.3.15
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/graphite2-1.3.14-hecca717_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/graphite2-1.3.15-hecca717_0.conda
   hash:
-    md5: 2cd94587f3a401ae05e03a6caf09539d
-    sha256: 25ba37da5c39697a77fce2c9a15e48cf0a84f1464ad2aafbe53d8357a9f6cc8c
+    md5: cf09e9fc938518e91d0706572cadf17a
+    sha256: 885fa7d1d7e2ad9ed0a700ee0d81ceb49de278253082d517959b22d6336eecce
   category: main
   optional: false
 - name: graphviz
@@ -1918,7 +1918,7 @@ package:
   category: main
   optional: false
 - name: harfbuzz
-  version: 14.2.0
+  version: 14.2.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -1926,17 +1926,17 @@ package:
     cairo: '>=1.18.4,<2.0a0'
     graphite2: '>=1.3.14,<2.0a0'
     icu: '>=78.3,<79.0a0'
-    libexpat: '>=2.7.5,<3.0a0'
+    libexpat: '>=2.8.1,<3.0a0'
     libfreetype: '>=2.14.3'
     libfreetype6: '>=2.14.3'
     libgcc: '>=14'
-    libglib: '>=2.86.4,<3.0a0'
+    libglib: '>=2.88.1,<3.0a0'
     libstdcxx: '>=14'
     libzlib: '>=1.3.2,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/harfbuzz-14.2.0-h6083320_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/harfbuzz-14.2.1-h6083320_0.conda
   hash:
-    md5: e194f6a2f498f0c7b1e6498bd0b12645
-    sha256: 232c95b56d16d33d8256026a3b1ad34f7f9a75c179d388854be0fd624ddba9e3
+    md5: 21ee4640b7c2d94e584349fa12b29b9a
+    sha256: da9901aa1e20cbc2369fda212039b294dd02bce95f005539bab840b7310bf7d0
   category: main
   optional: false
 - name: hatch
@@ -2881,7 +2881,7 @@ package:
   category: main
   optional: false
 - name: libmamba
-  version: 2.6.2
+  version: 2.7.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -2892,7 +2892,7 @@ package:
     libcurl: '>=8.20.0,<9.0a0'
     libgcc: '>=14'
     libmsgpack-c: '>=6.1.0,<7.0a0'
-    libsolv: '>=0.7.37,<0.8.0a0'
+    libsolv: '>=0.7.39,<0.8.0a0'
     libstdcxx: '>=14'
     nlohmann_json-abi: 3.12.0
     openssl: '>=3.5.6,<4.0a0'
@@ -2902,37 +2902,37 @@ package:
     spdlog: '>=1.17.0,<1.18.0a0'
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.6.2-hd28c85e_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.7.0-hd28c85e_0.conda
   hash:
-    md5: 407867e07f4cbd66a05cdc2c406a4d05
-    sha256: fa4095f6cae9981b63162ad66064abc08071dac7e4f37bdd545ea09e4418b803
+    md5: 0a1b30f28f09654466450ab46a6ed589
+    sha256: e32ae244522f5d21f1cae194cf531434fccb79d0a93700c5bc930abf1338266c
   category: main
   optional: false
 - name: libmamba-spdlog
-  version: 2.6.2
+  version: 2.7.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
-    libmamba: '>=2.6.2,<2.7.0a0'
+    libmamba: '>=2.7.0,<2.8.0a0'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-spdlog-2.6.2-hc32eed2_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-spdlog-2.7.0-h34ec1de_0.conda
   hash:
-    md5: ac1fae5a05ca5fd0449e77d372d1d85e
-    sha256: 9f06cf3694c3c2cc5c5637f120db7829259f964fbf32b8942d9772ad58178aea
+    md5: 45cd33043d660b641e45ba1b60a009d1
+    sha256: cbad49b61feee7e29f88b1eb1510aced543db92c664a20096c2cc679a7951718
   category: main
   optional: false
 - name: libmambapy
-  version: 2.6.2
+  version: 2.7.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     fmt: '>=12.1.0,<12.2.0a0'
     libgcc: '>=14'
-    libmamba: '>=2.6.2,<2.7.0a0'
-    libmamba-spdlog: ==2.6.2
+    libmamba: '>=2.7.0,<2.8.0a0'
+    libmamba-spdlog: ==2.7.0
     libstdcxx: '>=14'
     nlohmann_json-abi: 3.12.0
     openssl: '>=3.5.6,<4.0a0'
@@ -2942,10 +2942,10 @@ package:
     spdlog: '>=1.17.0,<1.18.0a0'
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.6.2-py312h3992992_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.7.0-py312h1a86a96_0.conda
   hash:
-    md5: 0a35edd059bef7534bbaa662cfda7e43
-    sha256: 0842b16cdf4a9083070d58cb72ffcffd7c5657493589cd7f0c7a490755fae4d8
+    md5: 27609380b6e140b0fa5a4cab87913050
+    sha256: edae0cc386460f2be68cd08d17131636737fcde29ac237c51dd3adc80eb6bbf0
   category: main
   optional: false
 - name: libmsgpack-c
@@ -3036,13 +3036,13 @@ package:
   category: main
   optional: false
 - name: librsvg
-  version: 2.62.2
+  version: 2.62.3
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     cairo: '>=1.18.4,<2.0a0'
-    fontconfig: '>=2.17.1,<3.0a0'
+    fontconfig: '>=2.18.0,<3.0a0'
     fonts-conda-ecosystem: ''
     gdk-pixbuf: '>=2.44.6,<3.0a0'
     harfbuzz: '>=14.2.0'
@@ -3050,10 +3050,10 @@ package:
     libglib: '>=2.88.1,<3.0a0'
     libxml2-16: '>=2.14.6'
     pango: '>=1.56.4,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/librsvg-2.62.2-h4c96295_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/librsvg-2.62.3-h4c96295_0.conda
   hash:
-    md5: e318357f3d948cc16936d9f3b36cc7d9
-    sha256: 864d93b0385778c7495c369d9df408e2b436ef136c8f7de645e25fd461acc553
+    md5: 492c8d9b1c564c2e948b6cb4ba0f8261
+    sha256: 5571bd8239d71961d4e3ce972f865b3ea95a91ce0b53d5749fe2dd24254ddbda
   category: main
   optional: false
 - name: libsodium
@@ -3390,19 +3390,19 @@ package:
   category: main
   optional: false
 - name: mamba
-  version: 2.6.2
+  version: 2.7.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libmamba: '>=2.6.2,<2.7.0a0'
+    libmamba: '>=2.7.0,<2.8.0a0'
     reproc: '>=14.2,<15.0a0'
     reproc-cpp: '>=14.2,<15.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.6.2-hce6dcdd_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.7.0-hf2e54ce_0.conda
   hash:
-    md5: 9b990acb6110358af45d82a4897a1fee
-    sha256: e4b58ccf82678936bef02dc3f1f04f42975448a7d289363aaae382ffde4686b5
+    md5: 53ce4bece0f361c1260359674a212c83
+    sha256: 9a3cbdfba32a07683133c4570ae17c851076c9cb950dd2afcf58c77d6eac3d43
   category: main
   optional: false
 - name: markdown-it-py
@@ -3867,7 +3867,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.69.0
+  version: 0.70.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3875,10 +3875,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.6,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.69.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.70.0-ha759004_0.conda
   hash:
-    md5: 97945a6c81c3858ec5762cf70b5bc1f0
-    sha256: b6426645b55f1a20c1160635d6e2bf336889a0ccbb5db84481469c6947d9de08
+    md5: 6d0f23cd313837dd31131c535f3f320c
+    sha256: 1b820158d9ece5f49bbf052b589a6af70e3ddb5a715ce745f8339efd8bdd26ea
   category: main
   optional: false
 - name: pixman
@@ -5248,7 +5248,7 @@ package:
   category: main
   optional: false
 - name: typer
-  version: 0.26.5
+  version: 0.26.6
   manager: conda
   platform: linux-64
   dependencies:
@@ -5257,10 +5257,10 @@ package:
     python: ''
     rich: '>=13.8.0'
     shellingham: '>=1.3.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/typer-0.26.5-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/typer-0.26.6-pyhcf101f3_0.conda
   hash:
-    md5: af2517b95781c326d315514ff1460453
-    sha256: 9ae0a38b5ccf9e2cb07f7fa4f7a5b070e4e0680831abf391b7fd1be296273319
+    md5: ff174238f715539943a5e76f854e82ce
+    sha256: 0894464f0afe0ff1e92b3d78c9ceebf53e1c8e20a6532a0c83cec972e367a27e
   category: main
   optional: false
 - name: typing-extensions
