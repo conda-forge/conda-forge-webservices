@@ -45,7 +45,9 @@ def lint_via_github_actions(
     commit_msg = commit.message
 
     should_skip = any([msg in commit_msg for msg in SKIP_MSGS])
-    if should_skip:
+    # the sha is only not None if a PR is in a merge queue
+    # we never skip linting in the merge queue
+    if should_skip and sha is None:
         return False
 
     uid = uuid.uuid4().hex
