@@ -41,7 +41,7 @@ def lint_via_github_actions(
     repo_owner, repo_name = full_name.split("/")
     pr = repo.get_pull(pr_num)
     sha_to_use = sha or pr.head.sha
-    commit = gh.get_repo(pr.head.repo.full_name).get_git_commit(sha)
+    commit = gh.get_repo(pr.head.repo.full_name).get_git_commit(sha_to_use)
     commit_msg = commit.message
 
     should_skip = any([msg in commit_msg for msg in SKIP_MSGS])
@@ -74,7 +74,9 @@ def lint_via_github_actions(
             target_url = run.html_url
         else:
             target_url = None
-        _set_pr_status(repo_owner, repo_name, sha, "pending", target_url=target_url)
+        _set_pr_status(
+            repo_owner, repo_name, sha_to_use, "pending", target_url=target_url
+        )
     else:
         msg = "linting job dispatch failed"
 
