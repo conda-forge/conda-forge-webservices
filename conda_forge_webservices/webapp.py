@@ -517,8 +517,9 @@ class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
                 return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-            self.set_status(404)
-            self.write_error(404)
+
+        self.set_status(404)
+        self.write_error(404)
 
 
 class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
