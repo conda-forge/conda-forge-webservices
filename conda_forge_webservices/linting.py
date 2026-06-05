@@ -1,6 +1,5 @@
 import os
 import textwrap
-import time
 from tempfile import TemporaryDirectory
 import logging
 from pathlib import Path
@@ -12,6 +11,7 @@ import conda_smithy.lint_recipe
 
 from conda_forge_webservices.tokens import get_gh_client
 from conda_forge_webservices.utils import (
+    get_pr_is_mergeable,
     get_workflow_run_from_uid,
     log_title_and_message_at_level,
 )
@@ -237,15 +237,7 @@ def compute_lint_message(
 
     owner = gh.get_user(repo_owner)
     remote_repo = owner.get_repo(repo_name)
-
-    mergeable = None
-    while mergeable is None:
-        time.sleep(1.0)
-        pull_request = remote_repo.get_pull(pr_id)
-        if pull_request.state != "open":
-            return None
-        mergeable = pull_request.mergeable
-
+    mergeable = get_pr_is_mergeable(remote_repo, pr_id)
     tmp_dir = TemporaryDirectory(suffix="_recipe")
 
     try:

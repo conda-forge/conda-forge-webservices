@@ -279,6 +279,8 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                     or repo_name != "staged-recipes"
                 ):
                     # only do merge group events for staged recipes
+                    self.set_status(404)
+                    self.write_error(404)
                     return
                 else:
                     # format is
@@ -299,6 +301,8 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             if event == "pull_request" and (
                 body["action"] not in ["opened", "reopened", "synchronize", "unlocked"]
             ):
+                self.set_status(404)
+                self.write_error(404)
                 return
 
             if event == "pull_request" and repo_name == "staged-recipes":
