@@ -1,7 +1,10 @@
 import os
-import time
 
-from .utils import dedent_with_escaped_continue, get_gha_run_link
+from conda_forge_webservices.github_actions_integration.utils import (
+    dedent_with_escaped_continue,
+    get_gha_run_link,
+)
+from conda_forge_webservices.utils import get_pr_is_mergeable
 
 
 def get_recipes_for_linting(gh, repo, pr_id, lints, hints):
@@ -24,17 +27,6 @@ def get_recipes_for_linting(gh, repo, pr_id, lints, hints):
         recipes_to_lint = set(fnames)
 
     return recipes_to_lint, fnames
-
-
-def _is_mergeable(repo, pr_id):
-    mergeable = None
-    while mergeable is None:
-        time.sleep(1.0)
-        pull_request = repo.get_pull(pr_id)
-        if pull_request.state != "open":
-            return False
-        mergeable = pull_request.mergeable
-    return mergeable
 
 
 def _get_comment_state(comment):
@@ -102,7 +94,7 @@ def build_and_make_lint_comment(
     gh, repo, pr_id, lints, hints, skip_mergeable_check=False
 ):
     if not skip_mergeable_check:
-        mergeable = _is_mergeable(repo, pr_id)
+        mergeable = get_pr_is_mergeable(repo, pr_id)
     else:
         mergeable = True
     if not mergeable:
