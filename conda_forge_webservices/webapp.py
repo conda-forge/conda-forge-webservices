@@ -906,7 +906,11 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         )
 
         if feedstock_repo_name is not None and len(feedstock_repo_name) > 0:
-            feedstock_exists = _repo_exists(feedstock_repo_name)
+            feedstock_exists = await tornado.ioloop.IOLoop.current().run_in_executor(
+                _thread_pool(),
+                _repo_exists,
+                feedstock_repo_name,
+            )
         else:
             feedstock_exists = False
 
