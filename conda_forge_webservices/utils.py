@@ -110,5 +110,6 @@ def get_pr_is_mergeable(repo, pr_id):
             return pull_request.mergeable
 
         time.sleep(rng.uniform(0.8, 1.2))
+
     # assume true
     return True
