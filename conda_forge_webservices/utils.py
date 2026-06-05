@@ -103,11 +103,12 @@ def log_title_and_message_at_level(*, level, title, msg=None):
 def get_pr_is_mergeable(repo, pr_id):
     rng = random.SystemRandom()
     for _ in range(5):
-        time.sleep(rng.uniform(0.8, 1.2))
         pull_request = repo.get_pull(pr_id)
         if pull_request.state != "open":
             return False
         if pull_request.mergeable is not None:
             return pull_request.mergeable
+
+        time.sleep(rng.uniform(0.8, 1.2))
     # assume true
     return True
