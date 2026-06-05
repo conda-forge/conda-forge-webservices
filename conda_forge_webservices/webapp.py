@@ -872,6 +872,118 @@ def _is_valid_feedstock_token_pure_args(feedstock_repo_name, feedstock_token, pr
     )
 
 
+def _run_single_copy_job(
+    feedstock_repo_name,
+    feedstock_token,
+    provider,
+    outputs,
+    label,
+    hash_type,
+    comment_on_error,
+    git_sha,
+):
+    if feedstock_repo_name is not None and len(feedstock_repo_name) > 0:
+        feedstock_exists = _repo_exists(feedstock_repo_name)
+    else:
+        feedstock_exists = False
+
+    valid_token = False
+    if (
+        feedstock_exists
+        and feedstock_token is not None
+        and len(feedstock_token) > 0
+        and is_valid_feedstock_token(
+            "conda-forge",
+            feedstock_repo_name,
+            feedstock_token,
+            provider=provider,
+        )
+    ):
+        valid_token = True
+
+    if (
+        (not feedstock_exists)
+        or outputs is None
+        or label is None
+        or (not valid_token)
+        or hash_type not in ["md5", "sha256"]
+    ):
+        data = {
+            "feedstock_exists": feedstock_exists,
+            "valid_token": valid_token,
+            "outputs": outputs,
+            "label": label,
+            "hash_type": hash_type,
+            "provider": provider,
+        }
+        log_title_and_message_at_level(
+            level="warning",
+            title=(
+                f"invalid outputs copy request for feedstock '{feedstock_repo_name}'"
+            ),
+            msg=yaml.dump(data, default_flow_style=False, indent=2),
+        )
+        err_msgs = []
+        if outputs is None:
+            err_msgs.append("no outputs data sent for copy")
+        if label is None:
+            err_msgs.append("no label sent for copy")
+        if not valid_token:
+            err_msgs.append("invalid feedstock token")
+        if hash_type not in ["md5", "sha256"]:
+            err_msgs.append("invalid hash type")
+
+        if feedstock_exists and comment_on_error:
+            comment_on_outputs_copy(
+                feedstock_repo_name,
+                git_sha,
+                err_msgs,
+                {},
+                {},
+            )
+
+        return 403, None
+    else:
+        staging_label = STAGING_LABEL + "-h" + uuid.uuid4().hex
+        (
+            valid,
+            errors,
+            copied,
+            run_time,
+        ) = _do_copy(
+            feedstock_repo_name,
+            outputs,
+            label,
+            git_sha,
+            comment_on_error,
+            hash_type,
+            staging_label,
+            time.time(),
+        )
+
+        if not all(v for v in copied.values()):
+            status = 403
+        else:
+            status = 200
+
+        data = {
+            "feedstock_exists": feedstock_exists,
+            "errors": errors,
+            "valid": valid,
+            "copied": copied,
+            "provider": provider,
+            "run_time": run_time,
+        }
+
+        log_title_and_message_at_level(
+            level="info",
+            title=(f"copy finished for outputs for feedstock '{feedstock_repo_name}'"),
+            msg=yaml.dump(data, default_flow_style=False, indent=2),
+        )
+
+        return status, json.dumps(data)
+
+
 class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -905,119 +1017,24 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             title=f"copy started for outputs for feedstock '{feedstock_repo_name}'",
         )
 
-        if feedstock_repo_name is not None and len(feedstock_repo_name) > 0:
-            feedstock_exists = await tornado.ioloop.IOLoop.current().run_in_executor(
-                _thread_pool(),
-                _repo_exists,
-                feedstock_repo_name,
-            )
+        status, data = await tornado.ioloop.IOLoop.current().run_in_executor(
+            _worker_pool("upload"),
+            _run_single_copy_job,
+            feedstock_repo_name,
+            feedstock_token,
+            provider,
+            outputs,
+            label,
+            hash_type,
+            comment_on_error,
+            git_sha,
+        )
+
+        self.set_status(status)
+        if data is None:
+            self.write_error(status)
         else:
-            feedstock_exists = False
-
-        valid_token = False
-        if (
-            feedstock_exists
-            and feedstock_token is not None
-            and len(feedstock_token) > 0
-        ):
-            token_validation_check = (
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _thread_pool(),
-                    _is_valid_feedstock_token_pure_args,
-                    feedstock_repo_name,
-                    feedstock_token,
-                    provider,
-                )
-            )
-            if token_validation_check:
-                valid_token = True
-
-        if (
-            (not feedstock_exists)
-            or outputs is None
-            or label is None
-            or (not valid_token)
-            or hash_type not in ["md5", "sha256"]
-        ):
-            data = {
-                "feedstock_exists": feedstock_exists,
-                "valid_token": valid_token,
-                "outputs": outputs,
-                "label": label,
-                "hash_type": hash_type,
-                "provider": provider,
-            }
-            log_title_and_message_at_level(
-                level="warning",
-                title=(
-                    f"invalid outputs copy request for "
-                    f"feedstock '{feedstock_repo_name}'"
-                ),
-                msg=yaml.dump(data, default_flow_style=False, indent=2),
-            )
-            err_msgs = []
-            if outputs is None:
-                err_msgs.append("no outputs data sent for copy")
-            if label is None:
-                err_msgs.append("no label sent for copy")
-            if not valid_token:
-                err_msgs.append("invalid feedstock token")
-            if hash_type not in ["md5", "sha256"]:
-                err_msgs.append("invalid hash type")
-
-            if feedstock_exists and comment_on_error:
-                tornado.ioloop.IOLoop.current().spawn_callback(
-                    comment_on_outputs_copy,
-                    feedstock_repo_name,
-                    git_sha,
-                    err_msgs,
-                    {},
-                    {},
-                )
-
-            self.set_status(403)
-            self.write_error(403)
-        else:
-            staging_label = STAGING_LABEL + "-h" + uuid.uuid4().hex
-            (
-                valid,
-                errors,
-                copied,
-                run_time,
-            ) = await tornado.ioloop.IOLoop.current().run_in_executor(
-                _worker_pool("upload"),
-                _do_copy,
-                feedstock_repo_name,
-                outputs,
-                label,
-                git_sha,
-                comment_on_error,
-                hash_type,
-                staging_label,
-                time.time(),
-            )
-
-            if not all(v for v in copied.values()):
-                self.set_status(403)
-
-            data = {
-                "feedstock_exists": feedstock_exists,
-                "errors": errors,
-                "valid": valid,
-                "copied": copied,
-                "provider": provider,
-                "run_time": run_time,
-            }
-
-            self.write(json.dumps(data))
-
-            log_title_and_message_at_level(
-                level="info",
-                title=(
-                    f"copy finished for outputs for feedstock '{feedstock_repo_name}'"
-                ),
-                msg=yaml.dump(data, default_flow_style=False, indent=2),
-            )
+            self.write(data)
 
         return
 
