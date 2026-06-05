@@ -727,8 +727,8 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
 
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-            self.set_status(404)
-            self.write_error(404)
+        self.set_status(404)
+        self.write_error(404)
 
 
 def _get_current_versions():
