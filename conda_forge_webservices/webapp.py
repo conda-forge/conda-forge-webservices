@@ -251,6 +251,10 @@ class WriteErrorAsJSONRequestHandler(tornado.web.RequestHandler):
         self.finish(json.dumps(reply))
 
 
+def _run_gha_linting_pure_args(full_name, pr_id, sha):
+    linting.lint_via_github_actions(full_name, pr_id, sha=sha)
+
+
 class LintingHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -317,14 +321,13 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             if is_open and owner == "conda-forge" and not stale:
                 if linting.LINT_VIA_GHA:
                     # for merge groups, we pass the SHA of the merge commit
-                    linting.lint_via_github_actions(
+                    tornado.ioloop.IOLoop.current().spawn_callback(
+                        _run_gha_linting_pure_args,
                         body["repository"]["full_name"],
                         pr_id,
-                        sha=(
-                            None
-                            if event == "pull_request"
-                            else body["merge_group"]["head_sha"]
-                        ),
+                        None
+                        if event == "pull_request"
+                        else body["merge_group"]["head_sha"],
                     )
                 else:
                     log_title_and_message_at_level(
@@ -358,6 +361,19 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             LOGGER.info(f'Unhandled event "{event}".')
             self.set_status(404)
             self.write_error(404)
+
+
+def _staged_recipes_label_pure_args(
+    full_name, pr_id, action, curr_label_names, comment, label
+):
+    staged_recipes.label_pr(
+        full_name,
+        pr_id,
+        action,
+        curr_label_names,
+        comment=comment,
+        label=label,
+    )
 
 
 class StagedRecipesLabelerHandler(WriteErrorAsJSONRequestHandler):
@@ -430,19 +446,27 @@ class StagedRecipesLabelerHandler(WriteErrorAsJSONRequestHandler):
                     f"current labels: {curr_label_names!r}\n"
                 ),
             )
-            staged_recipes.label_pr(
+            tornado.ioloop.IOLoop.current().spawn_callback(
+                _staged_recipes_label_pure_args,
                 f"{owner}/{repo_name}",
                 pr_id,
                 action,
                 curr_label_names,
-                comment=comment,
-                label=label,
+                comment,
+                label,
             )
 
         else:
             LOGGER.info(f'Unhandled event "{event}".')
             self.set_status(404)
             self.write_error(404)
+
+
+def _complete_future(fut):
+    try:
+        fut.result()
+    except Exception:
+        LOGGER.exception("Background task exception!")
 
 
 class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
@@ -483,16 +507,17 @@ class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
                     level="info",
                     title=f"feedstocks service: {body['repository']['full_name']}",
                 )
-                handled = await tornado.ioloop.IOLoop.current().run_in_executor(
+                handled = tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool("command"),
                     feedstocks_service.handle_feedstock_event,
                     owner,
                     repo_name,
                 )
-                if handled:
-                    return
+                tornado.ioloop.IOLoop.current().add_future(handled, _complete_future)
+                return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
+
         self.set_status(404)
         self.write_error(404)
 
@@ -536,13 +561,14 @@ class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
                     level="info",
                     title=f"update teams: {body['repository']['full_name']}",
                 )
-                await tornado.ioloop.IOLoop.current().run_in_executor(
+                fut = tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),  # always threads due to expensive lru_cache
                     update_teams.update_team,
                     owner,
                     repo_name,
                     commit,
                 )
+                tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                 return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
@@ -613,7 +639,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     title=f"PR command: {body['repository']['full_name']}",
                 )
 
-                await tornado.ioloop.IOLoop.current().run_in_executor(
+                fut = tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool("command"),
                     commands.pr_detailed_comment,
                     owner,
@@ -626,6 +652,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment_id,
                     review_id,
                 )
+                tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                 return
 
         elif event == "issue_comment" or event == "issues":
@@ -654,7 +681,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     title=f"PR command: {body['repository']['full_name']}",
                 )
 
-                await tornado.ioloop.IOLoop.current().run_in_executor(
+                fut = tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool("command"),
                     commands.pr_comment,
                     owner,
@@ -663,6 +690,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment,
                     comment_id,
                 )
+                tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                 return
 
             if not pull_request and action in [
@@ -684,7 +712,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     title=f"issue command: {body['repository']['full_name']}",
                 )
 
-                await tornado.ioloop.IOLoop.current().run_in_executor(
+                fut = tornado.ioloop.IOLoop.current().run_in_executor(
                     _worker_pool("command"),
                     commands.issue_comment,
                     owner,
@@ -694,11 +722,11 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment,
                     comment_id,
                 )
+                tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                 return
 
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-
         self.set_status(404)
         self.write_error(404)
 
@@ -720,7 +748,11 @@ def _get_current_versions():
 
 class UpdateWebservicesVersionsHandler(WriteErrorAsJSONRequestHandler):
     async def get(self):
-        self.write(json.dumps(_get_current_versions()))
+        vers = await tornado.ioloop.IOLoop.current().run_in_executor(
+            None,
+            _get_current_versions,
+        )
+        self.write(json.dumps(vers))
 
 
 def _repo_exists(feedstock):
@@ -831,6 +863,15 @@ def _do_copy(
     return valid, errors, copied, time.time() - start_time
 
 
+def _is_valid_feedstock_token_pure_args(feedstock_repo_name, feedstock_token, provider):
+    return is_valid_feedstock_token(
+        "conda-forge",
+        feedstock_repo_name,
+        feedstock_token,
+        provider=provider,
+    )
+
+
 class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -865,7 +906,11 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         )
 
         if feedstock_repo_name is not None and len(feedstock_repo_name) > 0:
-            feedstock_exists = _repo_exists(feedstock_repo_name)
+            feedstock_exists = await tornado.ioloop.IOLoop.current().run_in_executor(
+                _thread_pool(),
+                _repo_exists,
+                feedstock_repo_name,
+            )
         else:
             feedstock_exists = False
 
@@ -874,14 +919,18 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             feedstock_exists
             and feedstock_token is not None
             and len(feedstock_token) > 0
-            and is_valid_feedstock_token(
-                "conda-forge",
-                feedstock_repo_name,
-                feedstock_token,
-                provider=provider,
-            )
         ):
-            valid_token = True
+            token_validation_check = (
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),
+                    _is_valid_feedstock_token_pure_args,
+                    feedstock_repo_name,
+                    feedstock_token,
+                    provider,
+                )
+            )
+            if token_validation_check:
+                valid_token = True
 
         if (
             (not feedstock_exists)
@@ -917,7 +966,14 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                 err_msgs.append("invalid hash type")
 
             if feedstock_exists and comment_on_error:
-                comment_on_outputs_copy(feedstock_repo_name, git_sha, err_msgs, {}, {})
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    comment_on_outputs_copy,
+                    feedstock_repo_name,
+                    git_sha,
+                    err_msgs,
+                    {},
+                    {},
+                )
 
             self.set_status(403)
             self.write_error(403)
@@ -1068,7 +1124,8 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and (body["action"] in ["closed", "labeled", "reopened"])
                 and head_owner.startswith("regro-cf-autotick-bot/")
             ):
-                _dispatch_autotickbot_job(
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _dispatch_autotickbot_job,
                     body["repository"]["full_name"],
                     "pr",
                     body["pull_request"]["id"],
@@ -1091,7 +1148,8 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and "[cf admin skip]" not in commit_msg
                 and repo_name.endswith("-feedstock")
             ):
-                _dispatch_autotickbot_job(
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _dispatch_autotickbot_job,
                     body["repository"]["full_name"],
                     "push",
                     repo_name.rsplit("-feedstock", 1)[0],
@@ -1187,7 +1245,8 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             if body["action"] == "completed" and body["repository"][
                 "full_name"
             ].endswith("-feedstock"):
-                _dispatch_automerge_job(
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["check_suite"]["head_sha"],
                 )
@@ -1204,7 +1263,8 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 status_monitor.update_data_status(body)
 
             if body["repository"]["full_name"].endswith("-feedstock"):
-                _dispatch_automerge_job(
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["sha"],
                 )
@@ -1220,7 +1280,8 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             # )
 
             if body["repository"]["full_name"].endswith("-feedstock"):
-                _dispatch_automerge_job(
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
                 )
@@ -1284,13 +1345,14 @@ class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
                     level="info",
                     title=f"update teams endpoint: conda-forge/{feedstock}",
                 )
-                await tornado.ioloop.IOLoop.current().run_in_executor(
+                fut = tornado.ioloop.IOLoop.current().run_in_executor(
                     _thread_pool(),  # always threads due to expensive lru_cache
                     update_teams.update_team,
                     "conda-forge",
                     feedstock,
                     None,
                 )
+                tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                 return
 
         self.set_status(404)
