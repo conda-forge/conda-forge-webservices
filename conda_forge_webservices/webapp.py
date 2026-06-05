@@ -862,6 +862,15 @@ def _do_copy(
     return valid, errors, copied, time.time() - start_time
 
 
+def _is_valid_feedstock_token_pure_args(feedstock_repo_name, feedstock_token, provider):
+    return is_valid_feedstock_token(
+        "conda-forge",
+        feedstock_repo_name,
+        feedstock_token,
+        provider=provider,
+    )
+
+
 class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -905,14 +914,18 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             feedstock_exists
             and feedstock_token is not None
             and len(feedstock_token) > 0
-            and is_valid_feedstock_token(
-                "conda-forge",
-                feedstock_repo_name,
-                feedstock_token,
-                provider=provider,
-            )
         ):
-            valid_token = True
+            token_validation_check = (
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _thread_pool(),
+                    _is_valid_feedstock_token_pure_args,
+                    feedstock_repo_name,
+                    feedstock_token,
+                    provider,
+                )
+            )
+            if token_validation_check:
+                valid_token = True
 
         if (
             (not feedstock_exists)
