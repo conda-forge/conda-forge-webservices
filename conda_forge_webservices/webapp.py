@@ -1,3 +1,14 @@
+"""the main webserver event handlers and IO loop.
+
+We use the following HTTP status codes for events:
+
+- 400: used for failed output uploads
+- 401: used if the webhook event fails validation w/ the webhook secret
+- 200: used for an event that is successfully processed completely
+- 202: used for events that launch a background task, but are not done processing
+- 204: used for unhandled webhook events
+"""
+
 import functools
 import time
 import os
@@ -194,7 +205,9 @@ class WriteErrorAsJSONRequestHandler(tornado.web.RequestHandler):
     """The write_error method below was pulled from jupyter under
     the license below.
 
-    https://github.com/jupyter-server/jupyter_server/blob/132cf044cc969fb70063666919b4d9ad3349c5d1/jupyter_server/base/handlers.py#L756-L776
+    https://github.com/jupyter-server/jupyter_server
+    /blob/132cf044cc969fb70063666919b4d9ad3349c5d1/jupyter_server
+    /base/handlers.py#L756-L776
 
     BSD 3-Clause License
 
@@ -264,8 +277,8 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
             self.request.body,
             headers.get("X-Hub-Signature", ""),
         ):
-            self.set_status(403)
-            self.write_error(403)
+            self.set_status(401)
+            self.write_error(401)
             return
 
         if event == "ping":
@@ -283,8 +296,7 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                     or repo_name != "staged-recipes"
                 ):
                     # only do merge group events for staged recipes
-                    self.set_status(404)
-                    self.write_error(404)
+                    self.set_status(204)
                     return
                 else:
                     # format is
@@ -295,72 +307,85 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
                     )
                     is_open = True
 
-            if owner != "conda-forge" or not (
-                repo_name == "staged-recipes" or repo_name.endswith("-feedstock")
-            ):
-                self.set_status(404)
-                self.write_error(404)
+            # we skip events where
+            #
+            # - the PR is closed
+            # - the org is not conda-forge
+            # - the repo is not staged-recipes or a feedstock
+            # - the PR is not updated in content
+            # - the repo is staged-recipes and the PR has a 'stale' label
+
+            if not is_open:
+                self.set_status(204)
+                return
+
+            if owner != "conda-forge":
+                self.set_status(204)
+                return
+
+            if not (repo_name == "staged-recipes" or repo_name.endswith("-feedstock")):
+                self.set_status(204)
                 return
 
             if event == "pull_request" and (
                 body["action"] not in ["opened", "reopened", "synchronize", "unlocked"]
             ):
-                self.set_status(404)
-                self.write_error(404)
+                self.set_status(204)
                 return
 
-            if event == "pull_request" and repo_name == "staged-recipes":
-                stale = any(
+            if (
+                event == "pull_request"
+                and repo_name == "staged-recipes"
+                and any(
                     label["name"] == "stale" for label in body["pull_request"]["labels"]
                 )
+            ):
+                self.set_status(204)
+                return
+
+            if linting.LINT_VIA_GHA:
+                # for merge groups, we pass the SHA of the merge commit
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _run_gha_linting_pure_args,
+                    body["repository"]["full_name"],
+                    pr_id,
+                    None
+                    if event == "pull_request"
+                    else body["merge_group"]["head_sha"],
+                )
+                self.set_status(202)
             else:
-                stale = False
+                log_title_and_message_at_level(
+                    level="info",
+                    title=f"linting: {body['repository']['full_name']}#{pr_id}",
+                )
 
-            # Only do anything if we are working with conda-forge,
-            # and an open PR.
-            if is_open and owner == "conda-forge" and not stale:
-                if linting.LINT_VIA_GHA:
-                    # for merge groups, we pass the SHA of the merge commit
-                    tornado.ioloop.IOLoop.current().spawn_callback(
-                        _run_gha_linting_pure_args,
-                        body["repository"]["full_name"],
-                        pr_id,
-                        None
-                        if event == "pull_request"
-                        else body["merge_group"]["head_sha"],
-                    )
-                else:
-                    log_title_and_message_at_level(
-                        level="info",
-                        title=f"linting: {body['repository']['full_name']}#{pr_id}",
-                    )
-
-                    lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
-                        _worker_pool("command"),
-                        linting.compute_lint_message,
+                lint_info = await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool("command"),
+                    linting.compute_lint_message,
+                    owner,
+                    repo_name,
+                    pr_id,
+                    repo_name == "staged-recipes",
+                )
+                if lint_info:
+                    msg = linting.comment_on_pr(
                         owner,
                         repo_name,
                         pr_id,
-                        repo_name == "staged-recipes",
+                        lint_info["message"],
+                        search="conda-forge-linting service",
                     )
-                    if lint_info:
-                        msg = linting.comment_on_pr(
-                            owner,
-                            repo_name,
-                            pr_id,
-                            lint_info["message"],
-                            search="conda-forge-linting service",
-                        )
-                        linting.set_pr_status(
-                            owner,
-                            repo_name,
-                            lint_info,
-                            target_url=msg.html_url,
-                        )
+                    linting.set_pr_status(
+                        owner,
+                        repo_name,
+                        lint_info,
+                        target_url=msg.html_url,
+                    )
+                self.set_status(200)
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-            self.set_status(404)
-            self.write_error(404)
+            self.set_status(204)
 
 
 def _staged_recipes_label_pure_args(
@@ -385,8 +410,8 @@ class StagedRecipesLabelerHandler(WriteErrorAsJSONRequestHandler):
             self.request.body,
             headers.get("X-Hub-Signature", ""),
         ):
-            self.set_status(403)
-            self.write_error(403)
+            self.set_status(401)
+            self.write_error(401)
             return
 
         if event == "ping":
@@ -434,6 +459,7 @@ class StagedRecipesLabelerHandler(WriteErrorAsJSONRequestHandler):
                 or (not is_pr)
                 or (not is_open)
             ):
+                self.set_status(204)
                 return
 
             log_title_and_message_at_level(
@@ -455,11 +481,10 @@ class StagedRecipesLabelerHandler(WriteErrorAsJSONRequestHandler):
                 comment,
                 label,
             )
-
+            self.set_status(202)
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-            self.set_status(404)
-            self.write_error(404)
+            self.set_status(204)
 
 
 def _complete_future(fut):
@@ -478,13 +503,12 @@ class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
             self.request.body,
             headers.get("X-Hub-Signature", ""),
         ):
-            self.set_status(403)
-            self.write_error(403)
+            self.set_status(401)
+            self.write_error(401)
             return
 
         if event == "ping":
             self.write("pong")
-            return
         elif event == "push":
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body["repository"]["name"]
@@ -514,12 +538,12 @@ class UpdateFeedstockHookHandler(WriteErrorAsJSONRequestHandler):
                     repo_name,
                 )
                 tornado.ioloop.IOLoop.current().add_future(handled, _complete_future)
-                return
+                self.set_status(202)
+            else:
+                self.set_status(204)
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-
-        self.set_status(404)
-        self.write_error(404)
+            self.set_status(204)
 
 
 class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
@@ -531,13 +555,12 @@ class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
             self.request.body,
             headers.get("X-Hub-Signature", ""),
         ):
-            self.set_status(403)
-            self.write_error(403)
+            self.set_status(401)
+            self.write_error(401)
             return
 
         if event == "ping":
             self.write("pong")
-            return
         elif event == "push":
             body = tornado.escape.json_decode(self.request.body)
             repo_name = body["repository"]["name"]
@@ -569,12 +592,12 @@ class UpdateTeamHookHandler(WriteErrorAsJSONRequestHandler):
                     commit,
                 )
                 tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
-                return
+                self.set_status(202)
+            else:
+                self.set_status(204)
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-
-        self.set_status(404)
-        self.write_error(404)
+            self.set_status(204)
 
 
 class CommandHookHandler(WriteErrorAsJSONRequestHandler):
@@ -590,13 +613,12 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
             self.request.body,
             headers.get("X-Hub-Signature", ""),
         ):
-            self.set_status(403)
-            self.write_error(403)
+            self.set_status(401)
+            self.write_error(401)
             return
 
         if event == "ping":
             self.write("pong")
-            return
         elif (
             event == "pull_request_review"
             or event == "pull_request"
@@ -611,8 +633,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                 repo_name in ALLOWED_CMD_NON_FEEDSTOCKS
                 or repo_name.endswith("-feedstock")
             ):
-                self.set_status(404)
-                self.write_error(404)
+                self.set_status(204)
                 return
 
             pr_repo = body["pull_request"]["head"]["repo"]
@@ -653,7 +674,9 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     review_id,
                 )
                 tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
-                return
+                self.set_status(202)
+            else:
+                self.set_status(204)
 
         elif event == "issue_comment" or event == "issues":
             body = tornado.escape.json_decode(self.request.body)
@@ -667,68 +690,72 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                 repo_name in ALLOWED_CMD_NON_FEEDSTOCKS
                 or repo_name.endswith("-feedstock")
             ):
-                self.set_status(404)
-                self.write_error(404)
+                self.set_status(204)
                 return
+
             pull_request = False
             if "pull_request" in body["issue"]:
                 pull_request = True
-            if pull_request and action != "deleted":
-                comment = body["comment"]["body"]
-                comment_id = body["comment"]["id"]
-                log_title_and_message_at_level(
-                    level="info",
-                    title=f"PR command: {body['repository']['full_name']}",
-                )
 
-                fut = tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool("command"),
-                    commands.pr_comment,
-                    owner,
-                    repo_name,
-                    issue_num,
-                    comment,
-                    comment_id,
-                )
-                tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
-                return
-
-            if not pull_request and action in [
-                "opened",
-                "edited",
-                "created",
-                "reopened",
-            ]:
-                title = body["issue"]["title"] if event == "issues" else ""
-                if "comment" in body:
+            if pull_request:
+                if action != "deleted":
                     comment = body["comment"]["body"]
                     comment_id = body["comment"]["id"]
+                    log_title_and_message_at_level(
+                        level="info",
+                        title=f"PR command: {body['repository']['full_name']}",
+                    )
+
+                    fut = tornado.ioloop.IOLoop.current().run_in_executor(
+                        _worker_pool("command"),
+                        commands.pr_comment,
+                        owner,
+                        repo_name,
+                        issue_num,
+                        comment,
+                        comment_id,
+                    )
+                    tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
+                    self.set_status(202)
                 else:
-                    comment = body["issue"]["body"]
-                    comment_id = -1  # will react to issue/PR description #issue_num
+                    self.set_status(204)
+            else:
+                if action in [
+                    "opened",
+                    "edited",
+                    "created",
+                    "reopened",
+                ]:
+                    title = body["issue"]["title"] if event == "issues" else ""
+                    if "comment" in body:
+                        comment = body["comment"]["body"]
+                        comment_id = body["comment"]["id"]
+                    else:
+                        comment = body["issue"]["body"]
+                        comment_id = -1  # will react to issue/PR description #issue_num
 
-                log_title_and_message_at_level(
-                    level="info",
-                    title=f"issue command: {body['repository']['full_name']}",
-                )
+                    log_title_and_message_at_level(
+                        level="info",
+                        title=f"issue command: {body['repository']['full_name']}",
+                    )
 
-                fut = tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool("command"),
-                    commands.issue_comment,
-                    owner,
-                    repo_name,
-                    issue_num,
-                    title,
-                    comment,
-                    comment_id,
-                )
-                tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
-                return
-
+                    fut = tornado.ioloop.IOLoop.current().run_in_executor(
+                        _worker_pool("command"),
+                        commands.issue_comment,
+                        owner,
+                        repo_name,
+                        issue_num,
+                        title,
+                        comment,
+                        comment_id,
+                    )
+                    tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
+                    self.set_status(202)
+                else:
+                    self.set_status(204)
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-        self.set_status(404)
-        self.write_error(404)
+            self.set_status(204)
 
 
 def _get_current_versions():
@@ -942,7 +969,7 @@ def _run_single_copy_job(
                 {},
             )
 
-        return 403, None
+        return 400, None
     else:
         staging_label = STAGING_LABEL + "-h" + uuid.uuid4().hex
         (
@@ -962,7 +989,7 @@ def _run_single_copy_job(
         )
 
         if not all(v for v in copied.values()):
-            status = 403
+            status = 400
         else:
             status = 200
 
@@ -1124,8 +1151,8 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             self.request.body,
             headers.get("X-Hub-Signature", ""),
         ):
-            self.set_status(403)
-            self.write_error(403)
+            self.set_status(401)
+            self.write_error(401)
             return
 
         if event == "ping":
@@ -1147,6 +1174,10 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                     "pr",
                     body["pull_request"]["id"],
                 )
+                self.set_status(202)
+            else:
+                self.set_status(204)
+
             return
         elif event == "push":
             repo_name = body["repository"]["name"]
@@ -1171,13 +1202,14 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                     "push",
                     repo_name.rsplit("-feedstock", 1)[0],
                 )
+                self.set_status(202)
+            else:
+                self.set_status(204)
 
             return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-
-        self.set_status(404)
-        self.write_error(404)
+            self.set_status(204)
 
 
 def _dispatch_automerge_job(repo, sha):
@@ -1230,8 +1262,8 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             self.request.body,
             headers.get("X-Hub-Signature", ""),
         ):
-            self.set_status(403)
-            self.write_error(403)
+            self.set_status(401)
+            self.write_error(401)
             return
 
         if event == "ping":
@@ -1267,6 +1299,9 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                     body["repository"]["name"],
                     body["check_suite"]["head_sha"],
                 )
+                self.set_status(202)
+            else:
+                self.set_status(204)
 
             return
         elif event == "status":
@@ -1285,6 +1320,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                     body["repository"]["name"],
                     body["sha"],
                 )
+                self.set_status(202)
 
             return
         elif event in ["pull_request", "pull_request_review"]:
@@ -1302,12 +1338,14 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
                 )
+                self.set_status(202)
+            else:
+                self.set_status(204)
+
             return
         else:
             LOGGER.info(f'Unhandled event "{event}".')
-
-        self.set_status(404)
-        self.write_error(404)
+            self.set_status(204)
 
 
 class StatusMonitorAzureHandler(WriteErrorAsJSONRequestHandler):
@@ -1370,10 +1408,12 @@ class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
                     None,
                 )
                 tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
-                return
-
-        self.set_status(404)
-        self.write_error(404)
+                self.set_status(202)
+            else:
+                self.set_status(204)
+        else:
+            self.set_status(401)
+            self.write_error(401)
 
 
 def create_webapp():
