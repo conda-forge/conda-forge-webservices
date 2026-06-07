@@ -31,7 +31,7 @@ class TestBucketHandler(TestHandlerBase):
             body=urlencode({"a": 1}),
             headers={"X-Hub-Signature": f"sha1={hash}"},
         )
-        self.assertEqual(response.code, 404)
+        self.assertEqual(response.code, 204)
 
     def test_bad_hash(self):
         response = self.fetch(
@@ -43,7 +43,7 @@ class TestBucketHandler(TestHandlerBase):
                 "X-Hub-Signature": "sha1=43abf34",
             },
         )
-        self.assertIn(response.code, [403, 500])
+        self.assertIn(response.code, [401, 500])
 
     @mock.patch(
         "conda_forge_webservices.linting.lint_via_github_actions",
@@ -97,14 +97,13 @@ class TestBucketHandler(TestHandlerBase):
             },
         )
 
-        self.assertEqual(response.code, 200)
-
         if linting.LINT_VIA_GHA:
             lint_via_gha.assert_called_once_with(
                 "conda-forge/repo_name-feedstock",
                 PR_number,
                 sha=None,
             )
+            self.assertEqual(response.code, 202)
         else:
             compute_lint_message.assert_called_once_with(
                 "conda-forge", "repo_name-feedstock", PR_number, False
@@ -124,6 +123,8 @@ class TestBucketHandler(TestHandlerBase):
                 {"message": mock.sentinel.message},
                 target_url=mock.sentinel.html_url,
             )
+
+            self.assertEqual(response.code, 200)
 
     @mock.patch(
         "conda_forge_webservices.linting.lint_via_github_actions", return_value=None
@@ -180,7 +181,9 @@ class TestBucketHandler(TestHandlerBase):
                         "pull_request": {
                             "number": 16,
                             "state": "open",
-                            "labels": [{"name": "stale"}],
+                            "labels": [{"name": "stale"}]
+                            if name != "staged-recipes"
+                            else [],
                             "head": {
                                 "repo": {
                                     "name": "pr_repo_name",
@@ -225,13 +228,13 @@ class TestBucketHandler(TestHandlerBase):
                         ):
                             self.assertEqual(
                                 response.code,
-                                200,
+                                202,
                                 msg=f"event: {event}, slug: {slug}, hook: {hook}",
                             )
                         else:
-                            self.assertNotEqual(
+                            self.assertEqual(
                                 response.code,
-                                200,
+                                204,
                                 msg=f"event: {event}, slug: {slug}, hook: {hook}",
                             )
 
@@ -327,13 +330,13 @@ class TestBucketHandler(TestHandlerBase):
                                 assert commit_msg == "blah"
                                 self.assertEqual(
                                     response.code,
-                                    200,
+                                    202,
                                     msg=f"event: {event}, slug: {slug}, hook: {hook}",
                                 )
                             else:
-                                self.assertNotEqual(
+                                self.assertEqual(
                                     response.code,
-                                    200,
+                                    204,
                                     msg=f"event: {event}, slug: {slug}, hook: {hook}",
                                 )
 
@@ -385,13 +388,13 @@ class TestBucketHandler(TestHandlerBase):
             },
         )
 
-        self.assertEqual(response.code, 200)
         if linting.LINT_VIA_GHA:
             lint_via_gha.assert_called_once_with(
                 "conda-forge/staged-recipes",
                 PR_number,
                 sha=None,
             )
+            self.assertEqual(response.code, 202)
         else:
             compute_lint_message.assert_called_once_with(
                 "conda-forge", "staged-recipes", PR_number, True
@@ -411,6 +414,7 @@ class TestBucketHandler(TestHandlerBase):
                 {"message": mock.sentinel.message},
                 target_url=mock.sentinel.html_url,
             )
+            self.assertEqual(response.code, 200)
 
     @mock.patch(
         "conda_forge_webservices.linting.lint_via_github_actions",
@@ -460,14 +464,15 @@ class TestBucketHandler(TestHandlerBase):
             },
         )
 
-        self.assertEqual(response.code, 200)
         if linting.LINT_VIA_GHA:
             lint_via_gha.assert_called_once_with(
                 "conda-forge/staged-recipes",
                 PR_number,
                 sha=sha,
             )
+            self.assertEqual(response.code, 202)
         else:
+            self.assertEqual(response.code, 200)
             assert False, "Cannot process merge group events without GHA linting"
 
     @mock.patch(
@@ -514,7 +519,7 @@ class TestBucketHandler(TestHandlerBase):
             },
         )
 
-        self.assertEqual(response.code, 200)
+        self.assertEqual(response.code, 204)
         compute_lint_message.assert_not_called()
 
         comment_on_pr.assert_not_called()
@@ -526,10 +531,10 @@ class TestBucketHandler(TestHandlerBase):
         hook = "/conda-forge-teams/update"
 
         for token, feedstock, expected_code in [
-            (os.environ["CF_WEBSERVICES_TOKEN"], "repo-feedstock", 200),
-            ("dummy", "repo-feedstock", 404),
-            (os.environ["CF_WEBSERVICES_TOKEN"], None, 404),
-            (None, "repo-feedstock", 404),
+            (os.environ["CF_WEBSERVICES_TOKEN"], "repo-feedstock", 202),
+            ("dummy", "repo-feedstock", 401),
+            (os.environ["CF_WEBSERVICES_TOKEN"], None, 204),
+            (None, "repo-feedstock", 401),
         ]:
             if feedstock is not None:
                 body = {"feedstock": feedstock}

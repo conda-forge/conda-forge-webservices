@@ -95,7 +95,7 @@ def test_feedstock_outputs_copy_bad_token():
         },
     )
 
-    assert r.status_code == 403, r.status_code
+    assert r.status_code == 400, r.status_code
 
 
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
@@ -113,7 +113,7 @@ def test_feedstock_outputs_copy_missing_token():
         },
     )
 
-    assert r.status_code == 403, r.status_code
+    assert r.status_code == 400, r.status_code
 
 
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
@@ -131,7 +131,7 @@ def test_feedstock_outputs_copy_missing_data(key):
         headers=headers,
         json=json_data,
     )
-    assert r.status_code == 403, r.status_code
+    assert r.status_code == 400, r.status_code
 
 
 @pytest.mark.skipif(headers is None, reason="No feedstock token for testing!")
@@ -152,7 +152,7 @@ def test_feedstock_outputs_copy_bad_hash():
             headers=headers,
             json=json_data,
         )
-        assert r.status_code == 403, r.status_code
+        assert r.status_code == 400, r.status_code
     finally:
         _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/{name}.json")
 
@@ -174,6 +174,6 @@ def test_feedstock_outputs_copy_bad_data():
             headers=headers,
             json=json_data,
         )
-        assert r.status_code == 403, r.status_code
+        assert r.status_code == 400, r.status_code
     finally:
         _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/{name}.json")
