@@ -565,3 +565,46 @@ class TestBucketHandler(TestHandlerBase):
                     feedstock,
                     None,  # this sets the commit hash to None so no comments are made
                 )
+
+    @mock.patch(
+        "conda_forge_webservices.linting.lint_via_github_actions",
+        return_value=None,
+    )
+    def test_staged_recipes_merge_queue_linting_hook(self, linting_mock):
+        hook = "/staged-recipes/merge-queue-linting-hook"
+
+        for token, full_name, expected_code in [
+            (os.environ["CF_WEBSERVICES_TOKEN"], "repo-feedstock", 202),
+            ("dummy", "repo-feedstock", 401),
+            (os.environ["CF_WEBSERVICES_TOKEN"], None, 204),
+            (None, "repo-feedstock", 401),
+        ]:
+            if full_name is not None:
+                body = {
+                    "full_name": full_name,
+                    "head_ref": "gh-readonly-queue/base/bla-10",
+                    "head_sha": "xyz3123",
+                }
+            else:
+                body = {}
+
+            if token is not None:
+                headers = {
+                    "CF_WEBSERVICES_TOKEN": token,
+                }
+            else:
+                headers = {}
+
+            response = self.fetch(
+                hook,
+                method="POST",
+                body=json.dumps(body),
+                headers=headers,
+            )
+            self.assertEqual(
+                response.code,
+                expected_code,
+                msg=f"token: {token}, full_name: {full_name}, hook: {hook}",
+            )
+            if full_name is not None and token is not None:
+                linting_mock.assert_any_call(full_name, 10, sha="xyz3123")
