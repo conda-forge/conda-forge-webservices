@@ -113,6 +113,7 @@ atexit.register(_shutdown_worker_pools)
 
 THREAD_POOL = None
 STATUS_DATA_LOCK = threading.RLock()
+CACHE_SATAUS_DATA_LOCK = threading.RLock()
 
 
 def _thread_pool():
@@ -1485,7 +1486,7 @@ async def _cache_data():
         await tornado.ioloop.IOLoop.current().run_in_executor(
             _thread_pool(),
             _cache_status_data,
-            STATUS_DATA_LOCK,
+            CACHE_SATAUS_DATA_LOCK,
         )
 
 
