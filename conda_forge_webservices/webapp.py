@@ -1383,6 +1383,47 @@ class AliveHandler(WriteErrorAsJSONRequestHandler):
         self.write(json.dumps({"status": "operational"}))
 
 
+class StagedRecipesMergeQueueLintingEndpointHandler(WriteErrorAsJSONRequestHandler):
+    async def post(self):
+        headers = self.request.headers
+        true_token = os.environ["CF_WEBSERVICES_TOKEN"].encode("utf-8")
+        header_token = headers.get("CF_WEBSERVICES_TOKEN", None)
+
+        if header_token is not None and hmac.compare_digest(
+            header_token.encode("utf-8"), true_token
+        ):
+            data = tornado.escape.json_decode(self.request.body)
+            full_name = data.get("full_name", None)
+            head_ref = data.get("head_ref", None)
+            head_sha = data.get("head_sha", None)
+            try:
+                pr_id = int(
+                    head_ref.split("gh-readonly-queue/")[1].split("/")[1].split("-")[1]
+                )
+            except Exception:
+                pr_id = None
+
+            if full_name is None or pr_id is None or head_sha is None:
+                self.set_status(204)
+                return
+
+            if linting.LINT_VIA_GHA:
+                # for merge groups, we pass the SHA of the merge commit
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _run_gha_linting_pure_args,
+                    full_name,
+                    pr_id,
+                    head_sha,
+                )
+                self.set_status(202)
+            else:
+                self.set_status(501)
+                self.write_error(501)
+        else:
+            self.set_status(401)
+            self.write_error(401)
+
+
 class UpdateTeamsEndpointHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -1420,6 +1461,10 @@ def create_webapp():
     application = tornado.web.Application(
         [
             (r"/staged-recipes/labeler-hook", StagedRecipesLabelerHandler),
+            (
+                r"/staged-recipes/merge-queue-linting-hook",
+                StagedRecipesMergeQueueLintingEndpointHandler,
+            ),
             (r"/conda-linting/org-hook", LintingHookHandler),
             (r"/conda-forge-feedstocks/org-hook", UpdateFeedstockHookHandler),
             (r"/conda-forge-teams/org-hook", UpdateTeamHookHandler),
