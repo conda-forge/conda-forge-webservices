@@ -19,7 +19,6 @@ import tornado.escape
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
-import tornado.locks
 import hmac
 import hashlib
 import uuid
@@ -58,11 +57,7 @@ from conda_forge_webservices import status_monitor
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     get_gh_client,
-    inject_app_token_into_feedstock,
-    inject_app_token_into_feedstock_readonly,
 )
-
-STATUS_DATA_LOCK = tornado.locks.Lock()
 
 LOGGER = logging.getLogger("conda_forge_webservices")
 
@@ -117,6 +112,7 @@ atexit.register(_shutdown_worker_pools)
 
 
 THREAD_POOL = None
+STATUS_DATA_LOCK = threading.RLock()
 
 
 def _thread_pool():
@@ -1253,6 +1249,14 @@ def _dispatch_automerge_job(repo, sha):
     )
 
 
+def _update_status_data(body, lock, is_check_run):
+    with lock:
+        if is_check_run:
+            status_monitor.update_data_check_run(body)
+        else:
+            status_monitor.update_data_status(body)
+
+
 class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -1271,26 +1275,26 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             return
 
         body = tornado.escape.json_decode(self.request.body)
-        if event == "check_run":
-            # log_title_and_message_at_level(
-            #     level="info",
-            #     title=f"check run: {body['repository']['full_name']}",
-            # )
-            inject_app_token_into_feedstock(body["repository"]["full_name"])
-            inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
-            async with STATUS_DATA_LOCK:
-                status_monitor.update_data_check_run(body)
+        if event == "check_run" or event == "status":
+            tornado.ioloop.IOLoop.current().spawn_callback(
+                _update_status_data,
+                body,
+                STATUS_DATA_LOCK,
+                event == "check_run",
+            )
 
+            if event == "status" and body["repository"]["full_name"].endswith(
+                "-feedstock"
+            ):
+                tornado.ioloop.IOLoop.current().spawn_callback(
+                    _dispatch_automerge_job,
+                    body["repository"]["name"],
+                    body["sha"],
+                )
+
+            self.set_status(202)
             return
         elif event == "check_suite":
-            inject_app_token_into_feedstock(body["repository"]["full_name"])
-            inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
-
-            # log_title_and_message_at_level(
-            #     level="info",
-            #     title=f"check suite: {body['repository']['full_name']}",
-            # )
-
             if body["action"] == "completed" and body["repository"][
                 "full_name"
             ].endswith("-feedstock"):
@@ -1302,25 +1306,6 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 self.set_status(202)
             else:
                 self.set_status(204)
-
-            return
-        elif event == "status":
-            # log_title_and_message_at_level(
-            #     level="info",
-            #     title=f"status: {body['repository']['full_name']}",
-            # )
-            inject_app_token_into_feedstock(body["repository"]["full_name"])
-            inject_app_token_into_feedstock_readonly(body["repository"]["full_name"])
-            async with STATUS_DATA_LOCK:
-                status_monitor.update_data_status(body)
-
-            if body["repository"]["full_name"].endswith("-feedstock"):
-                tornado.ioloop.IOLoop.current().spawn_callback(
-                    _dispatch_automerge_job,
-                    body["repository"]["name"],
-                    body["sha"],
-                )
-                self.set_status(202)
 
             return
         elif event in ["pull_request", "pull_request_review"]:
@@ -1486,17 +1471,22 @@ def create_webapp():
     return application
 
 
+def _cache_status_data(lock):
+    with lock:
+        status_monitor.cache_status_data()
+
+
 async def _cache_data():
     if "CF_WEBSERVICES_TEST" not in os.environ:
         log_title_and_message_at_level(
             level="info",
             title="caching status data",
         )
-        async with STATUS_DATA_LOCK:
-            await tornado.ioloop.IOLoop.current().run_in_executor(
-                _thread_pool(),
-                status_monitor.cache_status_data,
-            )
+        await tornado.ioloop.IOLoop.current().run_in_executor(
+            _thread_pool(),
+            _cache_status_data,
+            STATUS_DATA_LOCK,
+        )
 
 
 async def _print_token_info():
