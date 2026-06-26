@@ -3071,12 +3071,13 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
+    icu: '>=78.3,<79.0a0'
     libgcc: '>=14'
     libzlib: '>=1.3.2,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.53.2-h0c1763c_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libsqlite-3.53.2-hf4e2dac_1.conda
   hash:
-    md5: 062b0ac602fb0adf250e3dfa86f221c4
-    sha256: 1ab603b6ec93933e76027e1f23b21b22b858ba1b56f1e1695ef6fe5e80cb7358
+    md5: f283e98005089bf29ac5774c2e209fbf
+    sha256: f2ad4d3abd4ed7a6a0d28c0ff153e27cb45c406814faa2570bc2581804283674
   category: main
   optional: false
 - name: libssh2
@@ -3441,17 +3442,17 @@ package:
   category: main
   optional: false
 - name: menuinst
-  version: 2.5.0
+  version: 2.5.1
   manager: conda
   platform: linux-64
   dependencies:
     python: ''
     python_abi: 3.12.*
     tomli-w: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.5.0-py312h20c3967_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.5.1-py312h20c3967_0.conda
   hash:
-    md5: 51f7dbb776273db3ba44d1e510f30467
-    sha256: e49edfde734855c1b7cf6ede4a63f7b941cb948e902a4567ac73a3173fb31393
+    md5: a923777183e909f460ba5f9eb875f3eb
+    sha256: ae2866ae9213c068862c3cd52c956e03ef37bff56b589b4d6cfe8ef5aed0dc1b
   category: main
   optional: false
 - name: mock
@@ -3837,7 +3838,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.71.0
+  version: 0.71.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -3845,10 +3846,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.7,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.71.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.71.1-ha759004_0.conda
   hash:
-    md5: f26c784b0382092cc40ee8260aab37fa
-    sha256: 0a64277bfc0c9ae103abaef49f574637e2dfc64ef58a5960a7d1c1b76a104879
+    md5: 7e4b6377533e22fb603cebea5e26a6e6
+    sha256: 4a659805b7f9eb5d820beeec69ef2da01d0d8806f6660c2115b39fd97989a8ac
   category: main
   optional: false
 - name: pixman
@@ -4833,7 +4834,7 @@ package:
   category: main
   optional: false
 - name: setuptools-scm
-  version: 10.1.2
+  version: 10.2.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4843,22 +4844,22 @@ package:
     tomli: '>=1'
     typing_extensions: ''
     vcs_versioning: '>=2.0.0.dev0'
-  url: https://conda.anaconda.org/conda-forge/noarch/setuptools-scm-10.1.2-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/setuptools-scm-10.2.0-pyhcf101f3_0.conda
   hash:
-    md5: 01e4f42b457f48ee8930e1eb61d749f1
-    sha256: 96a017d8edec2bf561585613e122d3d5a06683c360aefa9a41fd12ddf0c7672e
+    md5: 224418e442ea786882979fbd2b36061f
+    sha256: 8272686bacba85b683bf4ad1fedde16203b7610276074e22593a275b0ce3c017
   category: main
   optional: false
 - name: setuptools_scm
-  version: 10.1.2
+  version: 10.2.0
   manager: conda
   platform: linux-64
   dependencies:
-    setuptools-scm: ==10.1.2
-  url: https://conda.anaconda.org/conda-forge/noarch/setuptools_scm-10.1.2-hc34e891_0.conda
+    setuptools-scm: ==10.2.0
+  url: https://conda.anaconda.org/conda-forge/noarch/setuptools_scm-10.2.0-he0c3440_0.conda
   hash:
-    md5: c2e0782d623a5c181cc83b19cfcc0b56
-    sha256: 3ff569f739c3ae549ed450feab3d47f9de5183c37a591403be0f46228641af65
+    md5: cc27f4be260e32227b41d00e87d16b32
+    sha256: da16cd83d7bb21dc9cedab0cb140dfe1e2d3e5cfac0ba3996539e8f67f08dfda
   category: main
   optional: false
 - name: sgmllib3k
