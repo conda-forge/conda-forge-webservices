@@ -563,7 +563,7 @@ package:
   category: main
   optional: false
 - name: cffi
-  version: 2.0.0
+  version: 2.1.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -573,10 +573,10 @@ package:
     pycparser: ''
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/cffi-2.0.0-py312h460c074_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/cffi-2.1.0-py312h460c074_0.conda
   hash:
-    md5: 648ee28dcd4e07a1940a17da62eccd40
-    sha256: 7dafe8173d5f94e46cf9cd597cc8ff476a8357fbbd4433a8b5697b2864845d9c
+    md5: 0e336c897248bad80548df3414599254
+    sha256: bdbc5810ea52e38b6b95e84826d818194ccfbe401a48c0d3829b8b7bb9093af5
   category: main
   optional: false
 - name: chardet
@@ -592,15 +592,15 @@ package:
   category: main
   optional: false
 - name: charset-normalizer
-  version: 3.4.7
+  version: 3.4.8
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/charset-normalizer-3.4.7-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/charset-normalizer-3.4.8-pyhd8ed1ab_0.conda
   hash:
-    md5: a9167b9571f3baa9d448faa2139d1089
-    sha256: 3f9483d62ce24ecd063f8a5a714448445dc8d9e201147c46699fc0033e824457
+    md5: b2e6755844f4c74239dff62f1cb4adda
+    sha256: a51c9aed4a0f364fe72f4730a19daef7370446b107cd5dd9a5d7ad6d00895de1
   category: main
   optional: false
 - name: cirun
@@ -790,14 +790,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.06.12.58.49
+  version: 2026.07.07.06.32.36
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.06.12.58.49-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.07.06.32.36-hd8ed1ab_0.conda
   hash:
-    md5: 49c4e0929b6721be568a287f373c0a2e
-    sha256: 437cba3e09487b323cb0ad8b03d4a0c65b20af786052fa7cb7f824ab85d1463a
+    md5: d4b027e87e105b09ad53819928b21fc2
+    sha256: b08ce1f0fc23b81279ed997874c883a6ffcfe61ed0f7653162aaecf03fbfcbbd
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1486,15 +1486,15 @@ package:
   category: main
   optional: false
 - name: filelock
-  version: 3.29.5
+  version: 3.29.6
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.29.5-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.29.6-pyhd8ed1ab_0.conda
   hash:
-    md5: 288126f559a8a6cacabe59c73327fe1f
-    sha256: aa1035fbdc0c8fbe66a82ae4630b6ed73b832c2c0c52bd7b45b5f3bd54f51df6
+    md5: 374f68c78b1e704c004cdba2c75e9732
+    sha256: 030c4daf3a7686d47393e8bc851b0b1bca8560bdf1c285a626cc5216ed128be6
   category: main
   optional: false
 - name: flaky
@@ -3900,7 +3900,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.72.0
+  version: 0.72.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -3908,10 +3908,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.7,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.72.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.72.1-ha759004_0.conda
   hash:
-    md5: 610343299121d146d31c621f731683e3
-    sha256: 1d012544a5faeeb91a88c21f25e4f3b7b237e6d6093a56e0e322ba2cde7cc241
+    md5: 8db53a303cefaa35089f9c7414de54fb
+    sha256: 4827990abcc46f412eaa1652b89da5a67bbb2d15ca01e5fb7845043ba1eae8b1
   category: main
   optional: false
 - name: pixman
@@ -5389,17 +5389,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.11.26
+  version: 0.11.27
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.11.26-h26efc2c_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.11.27-h26efc2c_0.conda
   hash:
-    md5: f34a1bce60a945c8dac9784ebb495d62
-    sha256: fc2567e4507d436c247e0d175991c5929011a3141f4a0fabff515ce6328bb3a0
+    md5: 6957a13b5edaa9c5a14d15b46c23c92c
+    sha256: cf0b84f1b16be454cff42166e021cdf73d033416ac0fecf93ff5750c884ec3a8
   category: main
   optional: false
 - name: vcs_versioning
