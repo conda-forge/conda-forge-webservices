@@ -790,18 +790,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.09.17.03.16
+  version: 2026.07.10.00.39.32
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.09.17.03.16-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.10.00.39.32-hd8ed1ab_0.conda
   hash:
-    md5: b37db431673c3e89c0b502c75d196d9d
-    sha256: 58c2d0acb075e197d65e79c2063f860f12fea6eb14a01053dfe674ee3cc45892
+    md5: d773986ee4a683e7768a9e567698337a
+    sha256: 1aeb58b24f51ec5556f818f1143eb46507f08535674cac10aed8a877834ad54a
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.6.69
+  version: 2026.7.12
   manager: conda
   platform: linux-64
   dependencies:
@@ -861,10 +861,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.6.69-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.7.12-pyhd8ed1ab_0.conda
   hash:
-    md5: 2deed8e63e51d534fca14b4c250d2eb3
-    sha256: c3d96126914e1d73e272f4022ec48593d14a9be8e6461284e757a69d8becac8c
+    md5: f46e31073d4dbb530eefc7e5221c3e32
+    sha256: 88d97cac86b8ec8f859afed2f2d4478ac89fd4567647e9ec1083521a468dbb15
   category: main
   optional: false
 - name: conda-index
