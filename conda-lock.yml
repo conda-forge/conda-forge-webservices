@@ -160,7 +160,7 @@ package:
   category: main
   optional: false
 - name: anyio
-  version: 4.14.1
+  version: 4.14.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -168,10 +168,10 @@ package:
     idna: '>=2.8'
     python: '>=3.10'
     typing_extensions: '>=4.5'
-  url: https://conda.anaconda.org/conda-forge/noarch/anyio-4.14.1-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/anyio-4.14.2-pyhcf101f3_0.conda
   hash:
-    md5: 7498bb2648f852c6a3cd5724ca80bdeb
-    sha256: 6119355a0b2a33e7b0dd31a740dbe01df66ffee0a643f80968afb1d53e7dbdb3
+    md5: fb568fbae6908ba86a090a85a089d11f
+    sha256: e36998c5e860e26b22e5dbcd5726dd0c4eabad949c84d383cad8512757bbf6a1
   category: main
   optional: false
 - name: appdirs
@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.43.44
+  version: 1.43.46
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.44-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.46-pyhd8ed1ab_0.conda
   hash:
-    md5: c873adea97c6572ec1bc15f74bfe09e1
-    sha256: 042ab63c321dbc0ed505f9de2c04f21c16833fa492af5cd05efbdfc4687afeed
+    md5: d8760823ce858e6c8d74f56e5ffab734
+    sha256: a12cc129c8a4cfb9025bb89a53dd4faac464170d7d24f308e00eb8753904aba1
   category: main
   optional: false
 - name: brotli-python
@@ -790,14 +790,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.10.00.39.32
+  version: 2026.07.13.10.00.16
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.10.00.39.32-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.13.10.00.16-hd8ed1ab_0.conda
   hash:
-    md5: d773986ee4a683e7768a9e567698337a
-    sha256: 1aeb58b24f51ec5556f818f1143eb46507f08535674cac10aed8a877834ad54a
+    md5: f4223ada2dda10a25ccf7b8ba850ecd6
+    sha256: 9820bef833837c4d8127ac406fda226393d4ed508775d4b4ec30f1bc6c3b5fe4
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1031,7 +1031,7 @@ package:
   category: main
   optional: false
 - name: conda-recipe-manager
-  version: 0.10.4
+  version: 0.10.5
   manager: conda
   platform: linux-64
   dependencies:
@@ -1044,10 +1044,10 @@ package:
     python: '>=3.11'
     pyyaml: ''
     requests: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.10.4-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-recipe-manager-0.10.5-pyhd8ed1ab_0.conda
   hash:
-    md5: e757fe16ca8d9efa322a270b9921d596
-    sha256: b8bb4ab8daa295bfc9ae67e2713161a1b62649c103e14155a94ae326869324e1
+    md5: e7704645375abf8594ddcabb2e2bff43
+    sha256: 2911d489ae9b87dfb6069d25778877fd4561c725201e8e13badb6b7edcb548ee
   category: main
   optional: false
 - name: conda-self
@@ -1730,17 +1730,17 @@ package:
   category: main
   optional: false
 - name: gitpython
-  version: 3.1.50
+  version: 3.1.51
   manager: conda
   platform: linux-64
   dependencies:
     gitdb: '>=4.0.1,<5'
     python: '>=3.10'
     typing_extensions: '>=3.10.0.2'
-  url: https://conda.anaconda.org/conda-forge/noarch/gitpython-3.1.50-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/gitpython-3.1.51-pyhd8ed1ab_0.conda
   hash:
-    md5: 98958318a01373a615f119b1040b3027
-    sha256: 718c9d0cc287ffda978996c4105ddd2863dd7bad7fb5794cdd365bd809ef2fa5
+    md5: 69ab1d45a59133692ccad36f67011b8d
+    sha256: cecca441a75e4643f1d98b08c10ac6e7b08be0e498001b069b05ec4400544978
   category: main
   optional: false
 - name: glib-tools
@@ -2857,16 +2857,16 @@ package:
   category: main
   optional: false
 - name: libjpeg-turbo
-  version: 3.1.4.1
+  version: 3.2.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libjpeg-turbo-3.1.4.1-hb03c661_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libjpeg-turbo-3.2.0-hb03c661_0.conda
   hash:
-    md5: 6178c6f2fb254558238ef4e6c56fb782
-    sha256: 10056646c28115b174de81a44e23e3a0a3b95b5347d2e6c45cc6d49d35294256
+    md5: 466badda5536d85ddc63ee9404f29735
+    sha256: 716332fd31b3808da7a4235a05212a9e9da05e854864c3def2dea0b5d2bf7610
   category: main
   optional: false
 - name: liblapack
@@ -3073,10 +3073,10 @@ package:
     icu: '>=78.3,<79.0a0'
     libgcc: '>=14'
     libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libpsl-0.22.0-hd9031aa_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libpsl-0.22.0-h49b2146_1.conda
   hash:
-    md5: e2834a423b3967e7b3b1e901c4a5f42f
-    sha256: cd11890a2c1f14d0342bfcbd81f97152d61dc71c27c7085efc13705a8f64f7c9
+    md5: af5ddfb52ad25d833c70c7511478d4eb
+    sha256: 71118885feab91c61bea4e9532ec46e0653b24f02e563681f822915aee8435bb
   category: main
   optional: false
 - name: librsvg
@@ -4644,7 +4644,7 @@ package:
   category: main
   optional: false
 - name: regex
-  version: 2026.6.28
+  version: 2026.7.10
   manager: conda
   platform: linux-64
   dependencies:
@@ -4652,10 +4652,10 @@ package:
     libgcc: '>=14'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/regex-2026.6.28-py312h4c3975b_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/regex-2026.7.10-py312h4c3975b_0.conda
   hash:
-    md5: 6a5e4e0d9e5e03621aa2fdf44244db66
-    sha256: 75d6b6a85799e9e27ee133aa76538ab989f74f89b483da1fe7f1100dfb843e64
+    md5: fb3a22c4e2b17bc646059c4873daa978
+    sha256: 24c8711448f9d02ebaf9e9e11e338051fc1b3d341f07fa2ee4b75d76896f8cc2
   category: main
   optional: false
 - name: reproc
