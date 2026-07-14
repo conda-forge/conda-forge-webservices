@@ -790,18 +790,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.13.10.00.16
+  version: 2026.07.14.11.07.55
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.13.10.00.16-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.14.11.07.55-hd8ed1ab_0.conda
   hash:
-    md5: f4223ada2dda10a25ccf7b8ba850ecd6
-    sha256: 9820bef833837c4d8127ac406fda226393d4ed508775d4b4ec30f1bc6c3b5fe4
+    md5: 025d23ee6bed38977944bf51237f9452
+    sha256: 04c27cd76f0e28767aed15618f7fa0d525a1ba58b9e09a4f72ab7e7f29c1efc4
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.7.12
+  version: 2026.7.22
   manager: conda
   platform: linux-64
   dependencies:
@@ -861,10 +861,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.7.12-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.7.22-pyhd8ed1ab_0.conda
   hash:
-    md5: f46e31073d4dbb530eefc7e5221c3e32
-    sha256: 88d97cac86b8ec8f859afed2f2d4478ac89fd4567647e9ec1083521a468dbb15
+    md5: afc4f1aa30cd2bf7552d393b4ebd3ebf
+    sha256: 084fddebdf2e201a20c3971d413f98a14290dcc54346b03b118337f8b3942948
   category: main
   optional: false
 - name: conda-index
@@ -1685,7 +1685,7 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    __glibc: '>=2.28,<3.0.a0'
+    __glibc: '>=2.17,<3.0.a0'
     libcurl: '>=8.21.0,<9.0a0'
     libexpat: '>=2.8.1,<3.0a0'
     libgcc: '>=14'
@@ -1694,10 +1694,10 @@ package:
     openssl: '>=3.5.7,<4.0a0'
     pcre2: '>=10.47,<10.48.0a0'
     perl: 5.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.55.0-pl5321hc575239_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.55.0-pl5321h5685339_1.conda
   hash:
-    md5: f7302ea5f77189667c1035a8824179ca
-    sha256: 0b6a49c481ea5556e2f260cc376ecb9a8e9e7bcf4a2cf370a571b5c61e9dd898
+    md5: da325124b01b7b88e7374d160d02698b
+    sha256: ffe825e3ff78876dc5aa28eee791d8d9be4a47157761aa38dbff79e9222b3b8e
   category: main
   optional: false
 - name: gitdb
@@ -2167,16 +2167,16 @@ package:
   category: main
   optional: false
 - name: jaraco.functools
-  version: 4.5.0
+  version: 4.6.0
   manager: conda
   platform: linux-64
   dependencies:
     more-itertools: ''
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/jaraco.functools-4.5.0-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/jaraco.functools-4.6.0-pyhcf101f3_0.conda
   hash:
-    md5: 8e33f6f90e5de5efd971840c7634d954
-    sha256: 8bc317fe1e93dec7350b460f7b4e82ea9c3d157c278219bfc6a95b7a51007fdd
+    md5: 8665b873062a31a90b563bf493f9fb2c
+    sha256: d23b9e8e8d5968699ec2bc9f8d182598e86e494dbe8a3a71b4a53b1be9a3cb16
   category: main
   optional: false
 - name: jeepney
