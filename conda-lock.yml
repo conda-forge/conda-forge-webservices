@@ -432,16 +432,16 @@ package:
   category: main
   optional: false
 - name: c-ares
-  version: 1.34.7
+  version: 1.34.8
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.34.7-hb03c661_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/c-ares-1.34.8-hb03c661_0.conda
   hash:
-    md5: 9baa084a2da406026ab2ce423c9930c1
-    sha256: 2492fb98e8460765b7c32df1e910029c5a7d7298ab598e6df483e66e113fad2f
+    md5: 6130ad6705adc993b5d8482b7f66e01f
+    sha256: dee93a82d045f9aa8277829aa465224afa3c7a6ac18388de66099b2be7f705e7
   category: main
   optional: false
 - name: ca-certificates
@@ -790,14 +790,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.14.22.10.40
+  version: 2026.07.15.02.44.34
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.14.22.10.40-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.15.02.44.34-hd8ed1ab_0.conda
   hash:
-    md5: 49bf5074473b3ca35c9ac341cda016b9
-    sha256: 16cfed4dae79d3281c0f91afed41a12aa7b2e23530559deb2213c4b180638fed
+    md5: dec212dab3ca6a3220bfd0e62e39236a
+    sha256: b43d51b5c29156fb419978c630af0af5542bf01962e1ff94011f35d6f8c3084f
   category: main
   optional: false
 - name: conda-forge-tick
@@ -4568,7 +4568,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.68.0
+  version: 0.69.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4577,10 +4577,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.7,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.68.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.69.0-ha759004_0.conda
   hash:
-    md5: a39a9fda2fae3493214e97a5dcd34b9c
-    sha256: 0627d021b37293211bf843dd3b1e91ea1689143f61cade4ea83eb0126053551f
+    md5: 79565744fc9cb77245f8ea57358618c7
+    sha256: 9e93828ab94ccc3200c3b0f3bfacfa7bb1bff959a3a84dde5892f83db6b516c0
   category: main
   optional: false
 - name: rattler-build-conda-compat
