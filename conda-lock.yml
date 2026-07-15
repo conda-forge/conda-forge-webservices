@@ -790,14 +790,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.15.02.44.34
+  version: 2026.07.15.16.57.46
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.15.02.44.34-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.15.16.57.46-hd8ed1ab_0.conda
   hash:
-    md5: dec212dab3ca6a3220bfd0e62e39236a
-    sha256: b43d51b5c29156fb419978c630af0af5542bf01962e1ff94011f35d6f8c3084f
+    md5: af20b03ba344ebbd91af07fcdead0e6b
+    sha256: 07bd9da0ad083912b48200b38583f5ae777c65b0121cc596b573a6aa2eb4a3de
   category: main
   optional: false
 - name: conda-forge-tick
@@ -3900,7 +3900,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.72.2
+  version: 0.73.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3908,10 +3908,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.7,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.72.2-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.73.0-ha759004_0.conda
   hash:
-    md5: 99d09e0770a125141899f627e5960abb
-    sha256: a118db7544e7798b4d17ea9ce15526d8484bd94a88833a83ee155a799ec8b391
+    md5: 8dbda4992b469fb1847f908cb0c52158
+    sha256: 5bbb69b301b028e4f90ac61b335e3378c577e1839cfe4d625000e933d940faf6
   category: main
   optional: false
 - name: pixman
@@ -4064,7 +4064,7 @@ package:
   category: main
   optional: false
 - name: py-rattler-build
-  version: 0.68.0
+  version: 0.69.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4074,10 +4074,10 @@ package:
     libgcc: '>=14'
     openssl: '>=3.5.7,<4.0a0'
     python: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/py-rattler-build-0.68.0-py310hb823017_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/py-rattler-build-0.69.0-py310hb823017_0.conda
   hash:
-    md5: d6b9f24dcb9e8eadfd93fdf7a976c9f2
-    sha256: dcb2ae715331af64feed3fedc5061c09c31bef65f064d9bab151483d47da1084
+    md5: 0a7c7a286e5d8f865bc4e8cc00620a16
+    sha256: d0c34dd8c587091b8c90b4e5cc5eb9f15a1cf29aa436317d29e8baf118cb8079
   category: main
   optional: false
 - name: pybind11-abi
