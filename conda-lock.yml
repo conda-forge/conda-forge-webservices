@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.43.53
+  version: 1.43.54
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.53-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.54-pyhd8ed1ab_0.conda
   hash:
-    md5: cdfac606ea0e83507790bcc7ca3e4af5
-    sha256: 450477ca800ec413ec1dca528fe2f2f3a50bca7632836203e4283129a895b965
+    md5: 45b6331f2b96828b2ca7fa5b71a12a04
+    sha256: bf8c12fea0cc2aa2f40fd55e84be6e55837e995b205b95dcc58f7b1ce986256c
   category: main
   optional: false
 - name: brotli-python
@@ -445,15 +445,15 @@ package:
   category: main
   optional: false
 - name: ca-certificates
-  version: 2026.6.17
+  version: 2026.7.22
   manager: conda
   platform: linux-64
   dependencies:
     __unix: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.6.17-hbd8a1cb_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2026.7.22-hbd8a1cb_0.conda
   hash:
-    md5: a9965dd99f683c5f444428f896635716
-    sha256: f8e3c730fa14ee3f170493779f06522c4acf89169f43db4f039727709b6419cf
+    md5: 0f51e2391ade309db462a55611263e9c
+    sha256: 0a0544cf95f64394fe4959286f5c71f5444ad58feb0602e53becb27448d24da6
   category: main
   optional: false
 - name: cachecontrol
@@ -509,15 +509,15 @@ package:
   category: main
   optional: false
 - name: cachetools
-  version: 7.1.4
+  version: 7.1.6
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.1.4-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.1.6-pyhd8ed1ab_0.conda
   hash:
-    md5: fbaa0445bcf8ba9e808c90cbc1235090
-    sha256: de5e4deaa31b748502339ed2d725233af94f6db2fe1b414608bcb34581e8dd6b
+    md5: b3bb29ee0df44b08bb005ce0f576f84c
+    sha256: 3705f855a35c8fb466f31d021af9e0400a3fdf48b8b9f989225553b86e71bd2d
   category: main
   optional: false
 - name: cairo
@@ -790,14 +790,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.22.02.10.31
+  version: 2026.07.24.00.22.40
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.22.02.10.31-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.24.00.22.40-hd8ed1ab_0.conda
   hash:
-    md5: 02296f169f426a3ea3159afa16daa69f
-    sha256: 40d6bdad6a757e573e1853a143b60e6a2d63caca729786d4d5995582f3d7d87a
+    md5: 13fa41e9874a0333095d5388cf297a19
+    sha256: 86208c3d0c0fd3cdc375027260a6caafa28379e15f8982b002e9ca7736247b1d
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1567,7 +1567,7 @@ package:
   category: main
   optional: false
 - name: fontconfig
-  version: 2.18.1
+  version: 2.18.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -1576,12 +1576,12 @@ package:
     libfreetype: '>=2.14.3'
     libfreetype6: '>=2.14.3'
     libgcc: '>=14'
-    libuuid: '>=2.42.1,<3.0a0'
+    libuuid: '>=2.42.2,<3.0a0'
     libzlib: '>=1.3.2,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/fontconfig-2.18.1-h27c8c51_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/fontconfig-2.18.2-h27c8c51_0.conda
   hash:
-    md5: e0e050cfa9fa85fe39632ab11cb7f3e0
-    sha256: 2e50bdcebdf70a865b81f2456bbc586386451ec601c60f2b6cd22b8c40a2d384
+    md5: 3c702747058a5d0af93fe71e559327f3
+    sha256: d77a47bc2b340b997c680241751e581672d1d0377a680eaf0b19026f013f56b7
   category: main
   optional: false
 - name: fonts-conda-ecosystem
@@ -4567,7 +4567,7 @@ package:
   category: main
   optional: false
 - name: rattler-build
-  version: 0.70.0
+  version: 0.70.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -4576,10 +4576,10 @@ package:
     libstdcxx: '>=14'
     openssl: '>=3.5.7,<4.0a0'
     patchelf: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.70.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rattler-build-0.70.1-ha759004_0.conda
   hash:
-    md5: 7e6fa15b0e581afc6315d972c4833be7
-    sha256: f59bde8dfe740c2de8ec24556aa31c8b3bc2bdc6a0c8e0f42503b233304f7d3c
+    md5: 92cdf8b9257406c4845d91a44be14c04
+    sha256: ff6a3211256ec3366bce1bdb81537740eab179dfabf0966a4560426912b33ef7
   category: main
   optional: false
 - name: rattler-build-conda-compat
