@@ -790,14 +790,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.07.27.08.57.42
+  version: 2026.07.27.13.49.45
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.27.08.57.42-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.07.27.13.49.45-hd8ed1ab_0.conda
   hash:
-    md5: f2a441f611957c65156c72e9f8b24140
-    sha256: 7ac58ab9165c31cf3d1db320206aa92fcdf0886672b988a5872b2e23b5469c52
+    md5: f96ecbd2abb87f3d3cb3604586231028
+    sha256: 78fcf203676220926811d4b8b0acb6def66cd01ae721092e40eac8f7f517abcf
   category: main
   optional: false
 - name: conda-forge-tick
@@ -4584,7 +4584,7 @@ package:
   category: main
   optional: false
 - name: rattler-build-conda-compat
-  version: 1.4.16
+  version: 1.4.17
   manager: conda
   platform: linux-64
   dependencies:
@@ -4596,10 +4596,10 @@ package:
     ruamel.yaml: ''
     tomli: ''
     typing-extensions: '>=4.12.2,<5'
-  url: https://conda.anaconda.org/conda-forge/noarch/rattler-build-conda-compat-1.4.16-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/rattler-build-conda-compat-1.4.17-pyhd8ed1ab_0.conda
   hash:
-    md5: 73756bfeace28a6a55e5ea45a0dcd2d2
-    sha256: 1ecd2fb2863d04ee2028b515177c3ce932a419d07a630d65e8c8e2dc23bae8ea
+    md5: 0387171acdb6ae57d80bbf3a6d585f59
+    sha256: d2f32c15257b0dc0e76aae820887b49032ff303bb2095fc0d1c48dc2eeb59168
   category: main
   optional: false
 - name: readchar
