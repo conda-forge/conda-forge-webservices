@@ -141,7 +141,7 @@ def build_and_make_lint_comment(
                 messages.append(
                     "\nFor **{}**:\n\n{}".format(
                         fname,
-                        "\n".join(f" * ℹ️ {hint}" for hint in fname_hints),  # noqa: RUF001
+                        "\n".join(f" * ℹ️ {hint}" for hint in fname_hints),  # ruff: ignore[ambiguous-unicode-character-string]
                     )
                 )
 

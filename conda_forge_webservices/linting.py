@@ -151,7 +151,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
             messages.append(
                 "\nFor **{}**:\n\n{}".format(
                     rel_path,
-                    "\n".join(f" * ℹ️ {hint}" for hint in hints),  # noqa: RUF001
+                    "\n".join(f" * ℹ️ {hint}" for hint in hints),  # ruff: ignore[ambiguous-unicode-character-string]
                 )
             )
 
@@ -164,7 +164,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
 
     I just wanted to let you know that I linted all conda-recipes in your PR ({recipe_code_blocks}) and found it was in an excellent condition.
 
-    """  # noqa: E501
+    """  # ruff: ignore[line-too-long]
     )
 
     mixed = good + textwrap.dedent("""
@@ -182,7 +182,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
     Here's what I've got...
 
     {{}}
-    """  # noqa: E501
+    """  # ruff: ignore[line-too-long]
     ).format("\n".join(messages))
 
     if not pr_recipes:
@@ -191,7 +191,7 @@ def lint_all_recipes(all_recipe_dir: Path, base_recipes: list[Path]) -> tuple[st
 
             I was trying to look for recipes to lint for you, but couldn't find any.
             Please ping the 'conda-forge/core' team (using the `@` notation in a comment) if you believe this is a bug.
-            """)  # noqa
+            """)  # ruff: ignore[line-too-long]
         status = "no recipes"
     elif all_pass and hints_found:
         message = mixed
@@ -282,7 +282,7 @@ def compute_lint_message(
                 Please try to merge or rebase with the base branch to resolve this conflict.
 
                 Please ping the 'conda-forge/core' team (using the `@` notation in a comment) if you believe this is a bug.
-                """)  # noqa
+                """)  # ruff: ignore[line-too-long]
             status = "merge_conflict"
 
             return {"message": message, "status": status, "sha": sha}

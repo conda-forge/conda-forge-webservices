@@ -772,7 +772,7 @@ Common ways to fix this problem include:
 
 If you have any issues or questions, you can find us on Zulip in the
 community [channel](https://conda-forge.zulipchat.com/#narrow/channel/457337-general) or you can bump us right here.
-"""  # noqa
+"""  # ruff: ignore[line-too-long]
 
     is_all_valid = True
     if len(copied) > 0:
