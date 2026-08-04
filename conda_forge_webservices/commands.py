@@ -240,7 +240,7 @@ def pr_detailed_comment(
                         Please close this pull request and remake it from a fork of this feedstock.
 
                         Have a great day!
-                        """)  # noqa
+                        """)  # ruff: ignore[line-too-long]
                 try:
                     pull.create_issue_comment(message)
                 except github.GithubException:
@@ -352,7 +352,7 @@ def pr_detailed_comment(
 
                         I tried to {} for you, but it looks like I wasn't able to push to the {} branch of {}/{}.
                         Did you check the "Allow edits from maintainers" box?
-                        """).format(changes_str, pr_branch, pr_owner, pr_repo)  # noqa
+                        """).format(changes_str, pr_branch, pr_owner, pr_repo)  # ruff: ignore[line-too-long]
                     pull.create_issue_comment(message)
             else:
                 message = textwrap.dedent("""
@@ -382,7 +382,7 @@ def pr_detailed_comment(
 
                 I tried to rerender for you but ran into an issue with kicking GitHub Actions to do the rerender.
                 Please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
-                """).format(doc_url)  # noqa
+                """).format(doc_url)  # ruff: ignore[line-too-long]
 
         if message is not None:
             gh = get_gh_client()
@@ -461,7 +461,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
             Hi! This is the friendly automated conda-forge-webservice.
 
             I just wanted to let you know that I updated the team with maintainers from {default_branch}.
-            """  # noqa
+            """  # ruff: ignore[line-too-long]
         )
         app_issue.create_comment(message)
         if UPDATE_TEAM_MSG.search(title):
@@ -630,10 +630,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                                 title
                             )
                             extra_msg = (
-                                f"\n\nMerge this PR to {verb} the user. Please do not rerender "  # noqa
-                                "this PR or change it in any way. It has `[ci skip]` in "  # noqa
-                                "the commit message to avoid pushing a new build and so "  # noqa
-                                "the build configuration in the feedstock should not be "  # noqa
+                                f"\n\nMerge this PR to {verb} the user. Please do not rerender "  # ruff: ignore[line-too-long]
+                                "this PR or change it in any way. It has `[ci skip]` in "  # ruff: ignore[line-too-long]
+                                "the commit message to avoid pushing a new build and so "  # ruff: ignore[line-too-long]
+                                "the build configuration in the feedstock should not be "  # ruff: ignore[line-too-long]
                                 "changed.\n\nPlease contact [conda-forge/core](https://"
                                 "conda-forge.org/docs/maintainer/maintainer_faq.html"
                                 "#mfaq-contact-core) to have this PR merged, if the "
@@ -693,7 +693,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
 
                             I tried to rerender for you but ran into an issue with kicking GitHub Actions to do the rerender.
                             Please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
-                            """).format(doc_url)  # noqa
+                            """).format(doc_url)  # ruff: ignore[line-too-long]
 
                         pr.create_issue_comment(message)
 
@@ -714,7 +714,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
 
                             I tried to update the version for you but ran into an issue with kicking GitHub Actions to do
                             the update. Please ping conda-forge/core for further assistance.
-                            """)  # noqa
+                            """)  # ruff: ignore[line-too-long]
 
                         pr.create_issue_comment(message)
             else:
@@ -766,7 +766,7 @@ def _sync_default_branch(
                 break
             else:
                 raise RuntimeError(
-                    f"Forked repo branch {forked_default_branch} could not be renamed to {default_branch} for repo {repo_name}"  # noqa
+                    f"Forked repo branch {forked_default_branch} could not be renamed to {default_branch} for repo {repo_name}"  # ruff: ignore[line-too-long]
                 )
         except Exception as e:
             if i < 4:

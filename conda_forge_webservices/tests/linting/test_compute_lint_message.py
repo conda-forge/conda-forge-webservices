@@ -45,7 +45,7 @@ def test_good_recipe(skip_if_linting_via_gha):
 
     I just wanted to let you know that I linted all conda-recipes in your PR (```recipes/good_recipe/meta.yaml```) and found it was in an excellent condition.
 
-    """  # noqa
+    """  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 16, set_pending_status=False
@@ -60,7 +60,7 @@ def test_ok_recipe_above_good_recipe(skip_if_linting_via_gha):
 
     I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```, ```recipes/recipe/meta.yaml```) and found it was in an excellent condition.
 
-    """)  # noqa
+    """)  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 54, set_pending_status=False
@@ -74,7 +74,7 @@ def test_ok_recipe_beside_good_recipe(skip_if_linting_via_gha):
 
     I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/blah/meta.yaml```, ```recipe/meta.yaml```, ```recipes/recipe/meta.yaml```) and found it was in an excellent condition.
 
-    """)  # noqa
+    """)  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 62, set_pending_status=False
@@ -88,7 +88,7 @@ def test_ok_recipe_above_ignored_good_recipe(skip_if_linting_via_gha):
 
     I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/meta.yaml```) and found it was in an excellent condition.
 
-    """)  # noqa
+    """)  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 54, True, set_pending_status=False
@@ -102,7 +102,7 @@ def test_ok_recipe_beside_ignored_good_recipe(skip_if_linting_via_gha):
 
     I just wanted to let you know that I linted all conda-recipes in your PR (```recipe/blah/meta.yaml```, ```recipe/meta.yaml```) and found it was in an excellent condition.
 
-    """)  # noqa
+    """)  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 62, True, set_pending_status=False
@@ -118,7 +118,7 @@ def test_conflict_ok_recipe(skip_if_linting_via_gha):
     Please try to merge or rebase with the base branch to resolve this conflict.
 
     Please ping the 'conda-forge/core' team (using the `@` notation in a comment) if you believe this is a bug.
-    """)  # noqa
+    """)  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 56, set_pending_status=False
@@ -135,7 +135,7 @@ def test_conflict_2_ok_recipe(skip_if_linting_via_gha):
     Please try to merge or rebase with the base branch to resolve this conflict.
 
     Please ping the 'conda-forge/core' team (using the `@` notation in a comment) if you believe this is a bug.
-    """)  # noqa
+    """)  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 57, set_pending_status=False
@@ -177,7 +177,7 @@ def test_bad_recipe(skip_if_linting_via_gha):
         * There are 2 too many lines.  There should be one empty line at the end of the file.
         * Feedstock with the same name exists in conda-forge
         * Recipe maintainer "support" does not exist
-    """  # noqa
+    """  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 17, set_pending_status=False
@@ -204,7 +204,7 @@ def test_mixed_recipe(skip_if_linting_via_gha):
     For **recipes/hints_only/meta.yaml**:
 
         * Whenever possible python packages should use pip. See https://conda-forge.org/docs/maintainer/adding_pkgs.html#use-pip
-    """  # noqa
+    """  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 217, set_pending_status=False
@@ -221,7 +221,7 @@ def test_no_recipe(skip_if_linting_via_gha):
 
     I was trying to look for recipes to lint for you, but couldn't find any.
     Please ping the 'conda-forge/core' team (using the `@` notation in a comment) if you believe this is a bug.
-    """)  # noqa
+    """)  # ruff: ignore[line-too-long]
 
     lint = compute_lint_message(
         "conda-forge", "conda-forge-webservices", 523, set_pending_status=False

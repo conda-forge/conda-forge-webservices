@@ -210,7 +210,7 @@ def update_team(org_name, repo_name, commit=None):
                     """
                     - {} {} added to conda-forge. Welcome to conda-forge!
                     Go to https://github.com/orgs/conda-forge/invitation see your invitation.
-                """.format(newm, "were" if newm.count(",") >= 1 else "was")  # noqa
+                """.format(newm, "were" if newm.count(",") >= 1 else "was")  # ruff: ignore[line-too-long]
                 )
 
             addm = get_handles(
@@ -235,7 +235,7 @@ def update_team(org_name, repo_name, commit=None):
                     NOTE: Please make sure to not push to the repository directly.
                         Use branches in your fork for any changes and send a PR.
                         More details on this are [here](https://conda-forge.org/docs/maintainer/updating_pkgs.html#forking-and-pull-requests).
-                """)  # noqa
+                """)  # ruff: ignore[line-too-long]
 
                 c = gh_repo.get_commit(commit)
                 c.create_comment(message)
