@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.43.62
+  version: 1.43.63
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.62-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.63-pyhd8ed1ab_0.conda
   hash:
-    md5: de9c0414590eff83f7354177b535007f
-    sha256: abccea110c8390da2dddd3a7af0b66abd91d5944211cee6fb3b66f12843c3cd7
+    md5: 1539d4643ec080462aab241685463490
+    sha256: 07ff77e8b3c15e32812ced96fba3e6b7636ec1de1f320db5d71f638f819b2033
   category: main
   optional: false
 - name: brotli-python
@@ -563,7 +563,7 @@ package:
   category: main
   optional: false
 - name: cffi
-  version: 2.1.0
+  version: 2.1.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -573,10 +573,10 @@ package:
     pycparser: ''
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/cffi-2.1.0-py312h460c074_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/cffi-2.1.1-py312h460c074_0.conda
   hash:
-    md5: 0e336c897248bad80548df3414599254
-    sha256: bdbc5810ea52e38b6b95e84826d818194ccfbe401a48c0d3829b8b7bb9093af5
+    md5: a9d08f233128bc42fae8fe17c13df103
+    sha256: e4e3f48195393953bfacdfd4670e1c2cf5231b7bb11f29ccc724f1697c1c4449
   category: main
   optional: false
 - name: chardet
@@ -789,14 +789,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.08.03.17.22.15
+  version: 2026.08.04.15.04.25
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.08.03.17.22.15-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.08.04.15.04.25-hd8ed1ab_0.conda
   hash:
-    md5: 710b8c803c15cf4039a2b253655d153f
-    sha256: 9e7ed1e00b05b5493eedbb262c2c01d6c1cc4880832dcd85441e46b00c0fdbce
+    md5: b0e3ff3b09200f0ff427dcb2ccf9bb4c
+    sha256: 3abad3b08535dbf867479207642475053fda195ebc7ac9238afbe8deff91c50c
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1909,17 +1909,17 @@ package:
   category: main
   optional: false
 - name: h2
-  version: 4.4.0
+  version: 4.4.1
   manager: conda
   platform: linux-64
   dependencies:
     hpack: '>=4.2,<5'
     hyperframe: '>=6.1,<7'
     python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/h2-4.4.0-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/h2-4.4.1-pyhcf101f3_0.conda
   hash:
-    md5: aae3214aab65ae635fbb3cc455596a86
-    sha256: 1bdffcb701cf1f4429733fc2e194995bab5ecc71073d84a434dcfb57049a4265
+    md5: e652ac7756069c456d0da2a922cd7df5
+    sha256: 307dd6ec90140c3cf4171071b0e5e870abec314f4565c1edd5bc433e942cdcc0
   category: main
   optional: false
 - name: harfbuzz
@@ -3899,7 +3899,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.76.0
+  version: 0.76.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -3907,10 +3907,10 @@ package:
     libgcc: '>=14'
     libstdcxx: '>=14'
     openssl: '>=3.5.7,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.76.0-ha759004_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.76.1-ha759004_0.conda
   hash:
-    md5: 3e773b458fd5816a8a384c720d5d3141
-    sha256: 33a180430644c39aca22ad06656f340bcf00dfd95682b40b5a47cfb80860f293
+    md5: 48adcf55f6dfbee32423cfa92d97c82c
+    sha256: 09d1ecbab8c4f825994fe94eafe7f1ea90450465ee77ee569d9789d29868a6b5
   category: main
   optional: false
 - name: pixman
@@ -5254,7 +5254,7 @@ package:
   category: main
   optional: false
 - name: typer
-  version: 0.27.0
+  version: 0.27.1
   manager: conda
   platform: linux-64
   dependencies:
@@ -5263,10 +5263,10 @@ package:
     python: '>=3.10'
     rich: '>=13.8.0'
     shellingham: '>=1.3.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/typer-0.27.0-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/typer-0.27.1-pyhcf101f3_0.conda
   hash:
-    md5: aa0ef00569728be93656de5f097fc81d
-    sha256: f44984374b248c45f7e3d43a2cb0bf73d1441ecea07fb73198e89f643f6c5824
+    md5: 8df7a3ee62a94dca4ea22c3f4d38d9eb
+    sha256: cfa5c42642e238e5a4200ac3ff5f46b7997fae6c6f8d4c84909be58d5356f7ce
   category: main
   optional: false
 - name: typing-extensions
