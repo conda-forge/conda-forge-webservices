@@ -1159,6 +1159,7 @@ def update_version(full_name, pr_num, input_ver):
             "container_tag": ref,
             "requested_version": str(input_ver) or "null",
             "uuid": uid,
+            "sha": sha,
         },
     )
 
