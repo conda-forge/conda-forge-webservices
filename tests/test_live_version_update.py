@@ -224,7 +224,15 @@ def _run_test(branch, version):
                 break
 
     print("checking repo for the version update...", flush=True)
-    assert _version_update_is_ok(version, verbose=True)
+    update_is_ok = _version_update_is_ok(version, verbose=True)
+    if not update_is_ok:
+        set_version_update_pr_status(
+            GH.get_repo(REPO),
+            PR_NUM,
+            "failed",
+            target_url=target_url,
+        )
+    assert update_is_ok
     print("tests passed!", flush=True)
 
 
