@@ -16,7 +16,7 @@ REPO_OWNER = "conda-forge"
 REPO_NAME = "cf-autotick-bot-test-package-feedstock"
 REPO = f"{REPO_OWNER}/{REPO_NAME}"
 BRANCH = "version-update-live-test"
-PR_NUM = 483
+PR_NUM = 1844
 GH = None
 WAIT_TIME = 300  # seconds
 
