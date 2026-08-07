@@ -555,7 +555,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
                     m = UPDATE_VERSION.search(comment)
                     input_ver = m.group("ver")
 
-                pr_title = "ENH: update package version"
+                pr_title = "chore: update package version"
                 comment_msg = "started a version update"
                 to_close = UPDATE_VERSION.search(title)
                 check_bump_build = False
@@ -1109,9 +1109,37 @@ def rerender(full_name, pr_num):
     return not running
 
 
+def set_version_update_pr_status(repo, pr_num, status, target_url=None, sha=None):
+    if target_url is not None:
+        kwargs = {"target_url": target_url}
+    else:
+        kwargs = {}
+
+    if sha is None:
+        pull = repo.get_pull(int(pr_num))
+        sha = pull.head.sha
+    commit = repo.get_commit(sha)
+
+    if status == "success":
+        msg = "Version update successful."
+    elif status == "failure" or status == "error":
+        msg = "Version update failed."
+    else:
+        msg = "Version update in progress..."
+
+    commit.create_status(
+        status,
+        description=msg,
+        context="conda-forge-version-update-service",
+        **kwargs,
+    )
+
+
 def update_version(full_name, pr_num, input_ver):
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
+    pull = repo.get_pull(int(pr_num))
+    sha = pull.head.sha
 
     inject_app_token_into_feedstock(full_name, repo=repo)
     inject_app_token_into_feedstock_readonly(full_name, repo=repo)
@@ -1133,6 +1161,18 @@ def update_version(full_name, pr_num, input_ver):
             "uuid": uid,
         },
     )
+
+    if running:
+        run = get_workflow_run_from_uid(workflow, uid, ref)
+        if run:
+            target_url = run.html_url
+        else:
+            target_url = None
+
+        set_version_update_pr_status(
+            repo, pr_num, "pending", target_url=target_url, sha=sha
+        )
+
     return not running
 
 

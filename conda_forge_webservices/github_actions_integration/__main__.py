@@ -30,7 +30,10 @@ from .linting import (
     get_recipes_for_linting,
 )
 from .version_updating import update_version, update_pr_title
-from conda_forge_webservices.commands import set_rerender_pr_status
+from conda_forge_webservices.commands import (
+    set_rerender_pr_status,
+    set_version_update_pr_status,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -130,7 +133,7 @@ def main_run_task(
 
         if version_changed:
             task_data["task_results"]["commit_message"] = (
-                f"ENH: updated version to {new_version}"
+                f"chore: update version to {new_version}"
             )
 
             rerender_changed, rerender_error, info_message, commit_message = rerender(
@@ -422,6 +425,18 @@ def main_finalize_task(task_data_dir):
                 pr_repo=pr_repo,
                 repo_name=full_repo_name,
                 close_pr_if_no_changes_or_errors=True,
+            )
+            status = "success" if not comment_push_error else "failure"
+            target_url = (
+                f"https://github.com/conda-forge/conda-forge-webservices/"
+                f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
+            )
+            set_version_update_pr_status(
+                gh_repo,
+                int(pr_number),
+                status,
+                target_url=target_url,
+                sha=sha_for_status,
             )
 
             # we always do this for versions

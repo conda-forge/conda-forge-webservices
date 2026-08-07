@@ -156,14 +156,14 @@ def _version_update_is_ok(version, verbose=False):
                 output = c.stdout.decode("utf-8")
                 if verbose:
                     print("    last commit:", output.strip(), flush=True)
-                if not ("Re-" in output or "ENH:" in output):
+                if not ("Re-" in output or "chore:" in output):
                     return False
 
     if version:
-        if _pr_title() != f"ENH: update package version to {version}":
+        if _pr_title() != f"chore: update package version to {version}":
             return False
     else:
-        if "ENH: update package version to " not in _pr_title():
+        if "chore: update package version to " not in _pr_title():
             return False
 
     repo = GH.get_repo(REPO)
@@ -229,7 +229,7 @@ def _run_test_try_finally(branch, version):
                     _change_version(new_version="0.13", branch="main")
                     _merge_main_to_branch(BRANCH, verbose=True)
                     _change_version(new_version="0.13", branch=BRANCH)
-                    original_title = _pr_title(new="ENH: update package version")
+                    original_title = _pr_title(new="chore: update package version")
                     _set_pr_draft()
                     _run_test(branch, version)
                 finally:
