@@ -189,6 +189,7 @@ def _run_test(branch, version):
             "container_tag": conda_forge_webservices.__version__.replace("+", "."),
             "requested_version": version or "null",
             "uuid": uid,
+            "sha": GH.get_repo(REPO).get_pull(PR_NUM).head.sha,
         },
     )
 
