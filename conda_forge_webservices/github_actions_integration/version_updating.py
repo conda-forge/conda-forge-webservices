@@ -161,7 +161,7 @@ def update_pr_title(
         )
         return False, True
 
-    if pr.title == "ENH: update package version":  # user didn't change the default
+    if pr.title == "chore: update package version":  # user didn't change the default
         try:
             pr.edit(title=f"{pr.title} to {found_version}")
             return True, False

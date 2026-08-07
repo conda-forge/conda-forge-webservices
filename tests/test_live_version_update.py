@@ -11,12 +11,17 @@ from flaky import flaky
 import conda_forge_webservices
 from conda_forge_webservices.utils import pushd
 from conftest import _merge_main_to_branch
+from conda_forge_webservices.commands import (
+    get_workflow_run_from_uid,
+    set_version_update_pr_status,
+)
+from conda_forge_webservices import __version__
 
 REPO_OWNER = "conda-forge"
 REPO_NAME = "cf-autotick-bot-test-package-feedstock"
 REPO = f"{REPO_OWNER}/{REPO_NAME}"
 BRANCH = "version-update-live-test"
-PR_NUM = 483
+PR_NUM = 1844
 GH = None
 WAIT_TIME = 300  # seconds
 
@@ -156,14 +161,14 @@ def _version_update_is_ok(version, verbose=False):
                 output = c.stdout.decode("utf-8")
                 if verbose:
                     print("    last commit:", output.strip(), flush=True)
-                if not ("Re-" in output or "ENH:" in output):
+                if not ("Re-" in output or "chore:" in output):
                     return False
 
     if version:
-        if _pr_title() != f"ENH: update package version to {version}":
+        if _pr_title() != f"chore: update package version to {version}":
             return False
     else:
-        if "ENH: update package version to " not in _pr_title():
+        if "chore: update package version to " not in _pr_title():
             return False
 
     repo = GH.get_repo(REPO)
@@ -177,10 +182,11 @@ def _version_update_is_ok(version, verbose=False):
 
 def _run_test(branch, version):
     print("sending workflow dispatch event to version updater...", flush=True)
+    pr_head_sha = GH.get_repo(REPO).get_pull(PR_NUM).head.sha
     uid = uuid.uuid4().hex
     repo = GH.get_repo("conda-forge/conda-forge-webservices")
     workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
-    workflow.create_dispatch(
+    running = workflow.create_dispatch(
         ref=branch,
         inputs={
             "task": "version_update",
@@ -189,8 +195,20 @@ def _run_test(branch, version):
             "container_tag": conda_forge_webservices.__version__.replace("+", "."),
             "requested_version": version or "null",
             "uuid": uid,
+            "sha": pr_head_sha,
         },
     )
+
+    if running:
+        run = get_workflow_run_from_uid(workflow, uid, __version__.replace("+", "."))
+        if run:
+            target_url = run.html_url
+        else:
+            target_url = None
+
+        set_version_update_pr_status(
+            GH.get_repo(REPO), PR_NUM, "pending", target_url=target_url, sha=pr_head_sha
+        )
 
     print(
         f"sleeping for {WAIT_TIME} seconds to let the version update happen...",
@@ -206,7 +224,15 @@ def _run_test(branch, version):
                 break
 
     print("checking repo for the version update...", flush=True)
-    assert _version_update_is_ok(version, verbose=True)
+    update_is_ok = _version_update_is_ok(version, verbose=True)
+    if not update_is_ok:
+        set_version_update_pr_status(
+            GH.get_repo(REPO),
+            PR_NUM,
+            "failed",
+            target_url=target_url,
+        )
+    assert update_is_ok
     print("tests passed!", flush=True)
 
 
@@ -229,7 +255,7 @@ def _run_test_try_finally(branch, version):
                     _change_version(new_version="0.13", branch="main")
                     _merge_main_to_branch(BRANCH, verbose=True)
                     _change_version(new_version="0.13", branch=BRANCH)
-                    original_title = _pr_title(new="ENH: update package version")
+                    original_title = _pr_title(new="chore: update package version")
                     _set_pr_draft()
                     _run_test(branch, version)
                 finally:
