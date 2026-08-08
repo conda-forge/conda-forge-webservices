@@ -1077,7 +1077,7 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 2026.8.5
+  version: 2026.8.9
   manager: conda
   platform: linux-64
   dependencies:
@@ -1108,10 +1108,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-2026.8.5-unix_pyh9ac5cc3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-2026.8.9-unix_pyh9ac5cc3_0.conda
   hash:
-    md5: 32c4f47195942f26d4e7881c85ee242b
-    sha256: b1a3952797449345348abb725fb4a96a6486539cb7f7bcf2a6e34c491cf872ef
+    md5: a23a377a1ff3645c4be5cc73cc87218c
+    sha256: faa2af15044eb31e59b5e93dbdbe165cece3e73b2745111a31dd8f4459c0d5dc
   category: main
   optional: false
 - name: conda-souschef
@@ -4223,20 +4223,20 @@ package:
   category: main
   optional: false
 - name: pygit2
-  version: 1.19.3
+  version: 1.20.0
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     cffi: ''
     libgcc: '>=14'
-    libgit2: '>=1.9.4,<1.10.0a0'
+    libgit2: '>=1.9.6,<1.10.0a0'
     python: ''
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/pygit2-1.19.3-py312h5253ce2_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pygit2-1.20.0-py312h5253ce2_0.conda
   hash:
-    md5: 3cd4ca15e58b7cbbd626bacb6efb9048
-    sha256: e1a01e8e1c550961cdfa03ed0cd9d40ebe50331f5173c12762085f9288c21882
+    md5: 5253dffc6a3ed6e6b08178dc956f960c
+    sha256: d21f399dda43ae7d7783c4332101114cabcadd11dad0830efa9b77fc2b79e912
   category: main
   optional: false
 - name: pygithub
@@ -5208,7 +5208,7 @@ package:
   category: main
   optional: false
 - name: tornado
-  version: 6.5.7
+  version: 6.5.8
   manager: conda
   platform: linux-64
   dependencies:
@@ -5216,10 +5216,10 @@ package:
     libgcc: '>=14'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/tornado-6.5.7-py312h4c3975b_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/tornado-6.5.8-py312h4c3975b_0.conda
   hash:
-    md5: 55f526c3fb5302a1ce922612348442e1
-    sha256: f54504d6eeef133ddc2b964b6a021f3faf085bb08bd70debc07f56d6b9b726f1
+    md5: 5423c2b8f82d60320e65b9ff30babbdf
+    sha256: 2ea8f8b10e869b675d2fba157b387eaf4eed1696bfc924bb7b28e67d7aa0a947
   category: main
   optional: false
 - name: tqdm
@@ -5420,7 +5420,7 @@ package:
   category: main
   optional: false
 - name: vcs_versioning
-  version: 2.2.3
+  version: 2.2.4
   manager: conda
   platform: linux-64
   dependencies:
@@ -5428,10 +5428,10 @@ package:
     python: '>=3.10'
     tomli: '>=1'
     typing_extensions: '>=4.1'
-  url: https://conda.anaconda.org/conda-forge/noarch/vcs_versioning-2.2.3-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/vcs_versioning-2.2.4-pyhcf101f3_0.conda
   hash:
-    md5: 3a8fb54b1dc8fbfdeb51083a1143edd1
-    sha256: 179dd4ed561926e5ab95934009bb4359487264de149b5274e43e9e094900dfe4
+    md5: e19dc6302c81101eb4266f863f84940d
+    sha256: b03d509de103442df978db01acb77b0c6531d75c60e4bc005b9e0793a1781499
   category: main
   optional: false
 - name: virtualenv
