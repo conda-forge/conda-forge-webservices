@@ -176,15 +176,28 @@ def test_pr_command_triggers(
 
     for msg in should:
         command.reset_mock()
+        gh.reset_mock()
         print(msg, end=" " * 30 + "\r")
         pr_detailed_comment(msg)
         command.assert_called()
+        pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
+        comment_calls = pull_calls.create_issue_comment.mock_calls
+        assert not any(
+            "find any valid commands" in call[1][0] for call in comment_calls
+        )
+        gh.reset_mock()
 
         command.reset_mock()
+        gh.reset_mock()
         print(msg, end=" " * 30 + "\r")
         pr_detailed_comment(msg, repo_name="staged-recipes")
         if on_sr:
             command.assert_called()
+            pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
+            comment_calls = pull_calls.create_issue_comment.mock_calls
+            assert not any(
+                "find any valid commands" in call[1][0] for call in comment_calls
+            )
         else:
             command.assert_not_called()
 
@@ -600,3 +613,30 @@ def test_add_and_remove_user(pillow_feedstock):
     assert remove_user(pillow_feedstock, "doesnotexist") is None
     assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
     assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
+
+
+@mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
+@mock.patch("conda_forge_webservices.commands.add_bot_rerun_label")
+@mock.patch("conda_forge_webservices.commands.rerender")
+@mock.patch("conda_forge_webservices.commands.make_noarch")
+@mock.patch("conda_forge_webservices.commands.relint")
+@mock.patch("conda_forge_webservices.commands.update_team")
+@mock.patch("conda_forge_webservices.commands.get_gh_client")
+@mock.patch("conda_forge_webservices.commands.Repo")
+def test_pr_reply_to_invalid_command(
+    repo,
+    gh,
+    update_team,
+    relint,
+    make_noarch,
+    rerender,
+    add_bot_rerun_label,
+    get_app_token_for_webservices_only,
+):
+    pr_detailed_comment("@conda-forge-admin, please reply to this invalid command")
+    for command in (update_team, relint, make_noarch, rerender):
+        command.assert_not_called()
+    pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
+    comment_calls = pull_calls.create_issue_comment.mock_calls
+    assert len(comment_calls) == 1
+    assert "find any valid commands" in comment_calls[0][1][0]
