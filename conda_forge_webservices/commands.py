@@ -212,6 +212,8 @@ def reply_no_command(
     org_name,
     repo_name,
     pr_num,
+    comment_id,
+    review_id,
 ):
     no_command_message = textwrap.dedent("""
         Hi! This is the friendly automated conda-forge-webservice.
@@ -220,6 +222,8 @@ def reply_no_command(
         """)  # ruff: ignore[line-too-long]
     gh = get_gh_client()
     repo = gh.get_repo(f"{org_name}/{repo_name}")
+    if comment_id is not None or review_id is not None:
+        add_reaction("confused", repo, pr_num, comment_id, review_id)
     pull = repo.get_pull(int(pr_num))
     pull.create_issue_comment(no_command_message)
 
@@ -316,7 +320,7 @@ def pr_detailed_comment(
     is_staged_recipes = repo_name == "staged-recipes"
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         if not command_found:
-            reply_no_command(org_name, repo_name, pr_num)
+            reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
 
     pr_commands = [LINT_MSG]
@@ -325,7 +329,7 @@ def pr_detailed_comment(
 
     if not any(command.search(comment) for command in pr_commands):
         if not command_found:
-            reply_no_command(org_name, repo_name, pr_num)
+            reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
 
     if comment_id is not None or review_id is not None:
