@@ -215,10 +215,16 @@ def reply_no_command(
     comment_id,
     review_id,
 ):
-    no_command_message = textwrap.dedent("""
+    if comment_id is not None:
+        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{pr_num}#issuecomment-{comment_id})"
+    elif review_id is not None:
+        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{pr_num}#discussion_r{review_id})"
+    else:
+        request = "request"
+    no_command_message = textwrap.dedent(f"""
         Hi! This is the friendly automated conda-forge-webservice.
 
-        I couldn't find any valid commands in the request. Please see [Admin web services](https://conda-forge.org/docs/maintainer/infrastructure/#admin-web-services) for the list of valid commands.
+        I couldn't find any valid commands in the {request}. Please see [Admin web services](https://conda-forge.org/docs/maintainer/infrastructure/#admin-web-services) for the list of valid commands.
         """)  # ruff: ignore[line-too-long]
     gh = get_gh_client()
     repo = gh.get_repo(f"{org_name}/{repo_name}")
