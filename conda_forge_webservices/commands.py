@@ -208,6 +208,22 @@ def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
     )
 
 
+def reply_no_command(
+    org_name,
+    repo_name,
+    pr_num,
+):
+    no_command_message = textwrap.dedent("""
+        Hi! This is the friendly automated conda-forge-webservice.
+
+        I couldn't find any valid commands in the request. Please see [Admin web services](https://conda-forge.org/docs/maintainer/infrastructure/#admin-web-services) for the list of valid commands.
+        """)  # ruff: ignore[line-too-long]
+    gh = get_gh_client()
+    repo = gh.get_repo(f"{org_name}/{repo_name}")
+    pull = repo.get_pull(int(pr_num))
+    pull.create_issue_comment(no_command_message)
+
+
 def pr_detailed_comment(
     org_name,
     repo_name,
@@ -219,12 +235,6 @@ def pr_detailed_comment(
     comment_id=None,
     review_id=None,
 ):
-    no_command_message = textwrap.dedent("""
-        Hi! This is the friendly automated conda-forge-webservice.
-
-        I couldn't find any valid commands in the request. Please see [Admin web services](https://conda-forge.org/docs/maintainer/infrastructure/#admin-web-services) for the list of valid commands.
-        """)  # ruff: ignore[line-too-long]
-
     is_allowed_cmd = repo_name in ALLOWED_CMD_NON_FEEDSTOCKS
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
@@ -306,10 +316,7 @@ def pr_detailed_comment(
     is_staged_recipes = repo_name == "staged-recipes"
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
         if not command_found:
-            gh = get_gh_client()
-            repo = gh.get_repo(f"{org_name}/{repo_name}")
-            pull = repo.get_pull(int(pr_num))
-            pull.create_issue_comment(no_command_message)
+            reply_no_command(org_name, repo_name, pr_num)
         return
 
     pr_commands = [LINT_MSG]
@@ -318,10 +325,7 @@ def pr_detailed_comment(
 
     if not any(command.search(comment) for command in pr_commands):
         if not command_found:
-            gh = get_gh_client()
-            repo = gh.get_repo(f"{org_name}/{repo_name}")
-            pull = repo.get_pull(int(pr_num))
-            pull.create_issue_comment(no_command_message)
+            reply_no_command(org_name, repo_name, pr_num)
         return
 
     if comment_id is not None or review_id is not None:
