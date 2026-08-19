@@ -231,7 +231,10 @@ def reply_no_command(
     if comment_id is not None or review_id is not None:
         add_reaction("confused", repo, pr_num, comment_id, review_id)
     pull = repo.get_pull(int(pr_num))
-    pull.create_issue_comment(no_command_message)
+    if review_id is not None:
+        pull.create_review_comment_reply(review_id, no_command_message)
+    else:
+        pull.create_issue_comment(no_command_message)
 
 
 def pr_detailed_comment(
