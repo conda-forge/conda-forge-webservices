@@ -191,6 +191,8 @@ def _attempt_git_clone(repo_url, feedstock_dir, pr_branch=None):
 
 
 def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
+    """Process a pull request comment"""
+
     if not COMMAND_PREFIX.search(comment):
         return
     gh = get_gh_client()
@@ -248,6 +250,14 @@ def pr_detailed_comment(
     comment_id=None,
     review_id=None,
 ):
+    """
+    Process a pull request, pull request comment or review.
+
+    For a pull request, comment is the body and comment_id is -1.
+    For a comment, comment is the comment and comment_id is its id.
+    For a review, comment is the review comment and review_id is its id.
+    """
+
     is_allowed_cmd = repo_name in ALLOWED_CMD_NON_FEEDSTOCKS
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
@@ -433,6 +443,12 @@ def pr_detailed_comment(
 
 
 def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=None):
+    """
+    Process an issue or an issue comment
+
+    For an issue, title is issue title, comment is its body and comment_id is -1.
+    For a comment, title is empty, comment is the comment and comment_id is its id.
+    """
     if not repo_name.endswith("-feedstock"):
         return
     if comment is None:
