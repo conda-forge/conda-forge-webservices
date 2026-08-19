@@ -213,14 +213,18 @@ def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
 def reply_no_command(
     org_name,
     repo_name,
-    pr_num,
+    issue_num,
     comment_id,
     review_id,
 ):
-    if comment_id is not None:
-        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{pr_num}#issuecomment-{comment_id})"
+    if comment_id == -1:
+        request = (
+            f"[request](https://github.com/{org_name}/{repo_name}/pull/{issue_num}#)"
+        )
+    elif comment_id is not None:
+        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{issue_num}#issuecomment-{comment_id})"
     elif review_id is not None:
-        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{pr_num}#discussion_r{review_id})"
+        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{issue_num}#discussion_r{review_id})"
     else:
         request = "request"
     no_command_message = textwrap.dedent(f"""
@@ -231,12 +235,13 @@ def reply_no_command(
     gh = get_gh_client()
     repo = gh.get_repo(f"{org_name}/{repo_name}")
     if comment_id is not None or review_id is not None:
-        add_reaction("confused", repo, pr_num, comment_id, review_id)
-    pull = repo.get_pull(int(pr_num))
+        add_reaction("confused", repo, issue_num, comment_id, review_id)
     if review_id is not None:
+        pull = repo.get_pull(int(issue_num))
         pull.create_review_comment_reply(review_id, no_command_message)
     else:
-        pull.create_issue_comment(no_command_message)
+        issue = repo.get_issue(int(issue_num))
+        issue.create_comment(no_command_message)
 
 
 def pr_detailed_comment(
@@ -481,6 +486,7 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
     ]
 
     if not any(command.search(text) for command in issue_commands):
+        reply_no_command(org_name, repo_name, issue_num, comment_id, None)
         return
 
     # sometimes the webhook outpaces other bits of the API so we try a bit

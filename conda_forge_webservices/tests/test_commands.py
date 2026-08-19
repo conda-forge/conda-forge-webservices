@@ -180,8 +180,8 @@ def test_pr_command_triggers(
         print(msg, end=" " * 30 + "\r")
         pr_detailed_comment(msg)
         command.assert_called()
-        pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
-        comment_calls = pull_calls.create_issue_comment.mock_calls
+        issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
+        comment_calls = issue_calls.create_comment.mock_calls
         assert not any(
             "find any valid commands" in call[1][0] for call in comment_calls
         )
@@ -193,8 +193,8 @@ def test_pr_command_triggers(
         pr_detailed_comment(msg, repo_name="staged-recipes")
         if on_sr:
             command.assert_called()
-            pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
-            comment_calls = pull_calls.create_issue_comment.mock_calls
+            issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
+            comment_calls = issue_calls.create_comment.mock_calls
             assert not any(
                 "find any valid commands" in call[1][0] for call in comment_calls
             )
@@ -636,7 +636,7 @@ def test_pr_reply_to_invalid_command(
     pr_detailed_comment("@conda-forge-admin, please reply to this invalid command")
     for command in (update_team, relint, make_noarch, rerender):
         command.assert_not_called()
-    pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
-    comment_calls = pull_calls.create_issue_comment.mock_calls
+    issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
+    comment_calls = issue_calls.create_comment.mock_calls
     assert len(comment_calls) == 1
     assert "find any valid commands" in comment_calls[0][1][0]
