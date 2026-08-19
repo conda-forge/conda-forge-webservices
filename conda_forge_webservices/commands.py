@@ -216,15 +216,17 @@ def reply_no_command(
     issue_num,
     comment_id,
     review_id,
+    kind="pull",
 ):
     if comment_id == -1:
         request = (
-            f"[request](https://github.com/{org_name}/{repo_name}/pull/{issue_num}#)"
+            f"[request](https://github.com/{org_name}/{repo_name}/{kind}/{issue_num}#)"
         )
     elif comment_id is not None:
-        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{issue_num}#issuecomment-{comment_id})"
+        request = f"[request](https://github.com/{org_name}/{repo_name}/{kind}/{issue_num}#issuecomment-{comment_id})"
     elif review_id is not None:
-        request = f"[request](https://github.com/{org_name}/{repo_name}/pull/{issue_num}#discussion_r{review_id})"
+        assert kind == "pull"
+        request = f"[request](https://github.com/{org_name}/{repo_name}/{kind}/{issue_num}#discussion_r{review_id})"
     else:
         request = "request"
     no_command_message = textwrap.dedent(f"""
@@ -486,7 +488,9 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
     ]
 
     if not any(command.search(text) for command in issue_commands):
-        reply_no_command(org_name, repo_name, issue_num, comment_id, None)
+        reply_no_command(
+            org_name, repo_name, issue_num, comment_id, None, kind="issues"
+        )
         return
 
     # sometimes the webhook outpaces other bits of the API so we try a bit
