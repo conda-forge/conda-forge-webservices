@@ -664,6 +664,8 @@ def test_pr_reply_to_invalid_command(
     path: str,
 ):
     if path == "pull":
+        issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
+        issue_calls.get_comments.return_value = []
         pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
         pull_calls.get_single_review_comments.return_value = []
         pr_detailed_comment(
