@@ -16,18 +16,32 @@ defaults:
     shell: bash -leo pipefail {0}
 
 jobs:
-  check:
-    name: check if we can skip the merge queue
+  run-merge-queue-ci-skipper:
+    name: run-merge-queue-ci-skipper
     outputs:
-      skip-check: ${{ steps.should-skip.outputs.should-skip }}
+      mq-ci-skip-check: ${{ steps.merge-queue-ci-skipper.outputs.skip-check || steps.fall-back.outputs.skip-check }}
     runs-on: ubuntu-slim
     steps:
       - name: check if we can skip the merge queue
         id: merge-queue-ci-skipper
+        if: !github.event.pull_request.head.repo.fork
         uses: cariad-tech/merge-queue-ci-skipper@cf80db21fc70244e36487acc531b3f1118889b0a
         with:
           secret: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
+      - name: fall back step for forks
+        id: fall-back
+        if: github.event.pull_request.head.repo.fork
+        run: |
+          "skip-check=false" >> "$GITHUB_OUTPUT"
 
+  check:
+    name: check if we can skip the merge queue
+    needs:
+      - run-merge-queue-ci-skipper
+    outputs:
+      skip-check: ${{ steps.should-skip.outputs.should-skip }}
+    runs-on: ubuntu-slim
+    steps:
       - name: get PR number
         id: pr-number
         # this appears to be busted now so using my own code based on the merge_group
@@ -77,7 +91,7 @@ jobs:
           echo "merge queue CI needs to run: ${MQ_CI_SKIP}"
           echo "should run: ${final_should_run}"
         env:
-          MQ_CI_SKIP: ${{ steps.merge-queue-ci-skipper.outputs.skip-check != 'true' }}
+          MQ_CI_SKIP: ${{ needs.run-merge-queue-ci-skipper.outputs.mq-ci-skip-check != 'true' }}
           PR_NUMBER: ${{ steps.pr-number.outputs.pr }}
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 
