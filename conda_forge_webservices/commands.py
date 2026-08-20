@@ -240,10 +240,23 @@ def reply_no_command(
         add_reaction("confused", repo, issue_num, comment_id, review_id)
     if review_id is not None:
         pull = repo.get_pull(int(issue_num))
-        pull.create_review_comment_reply(review_id, no_command_message)
+        make_comment = False
+        for possible_comment in pull.get_single_review_comments(int(review_id)):
+            if "I couldn't find any valid commands in the" in possible_comment.body:
+                make_comment = False
+                break
+        if make_comment:
+            pull.create_review_comment_reply(review_id, no_command_message)
     else:
         issue = repo.get_issue(int(issue_num))
-        issue.create_comment(no_command_message)
+        make_comment = True
+        for possible_comment in issue.get_comments():
+            if "I couldn't find any valid commands in the" in possible_comment.body:
+                make_comment = False
+                break
+
+        if make_comment:
+            issue.create_comment(no_command_message)
 
 
 def pr_detailed_comment(
