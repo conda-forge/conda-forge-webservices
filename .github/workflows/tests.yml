@@ -24,13 +24,13 @@ jobs:
     steps:
       - name: check if we can skip the merge queue
         id: merge-queue-ci-skipper
-        if: !github.event.pull_request.head.repo.fork
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: cariad-tech/merge-queue-ci-skipper@cf80db21fc70244e36487acc531b3f1118889b0a
         with:
           secret: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
       - name: fall back step for forks
         id: fall-back
-        if: github.event.pull_request.head.repo.fork
+        if: ${{ github.event.pull_request.head.repo.fork }}
         run: |
           "skip-check=false" >> "$GITHUB_OUTPUT"
 
