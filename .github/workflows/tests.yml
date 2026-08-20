@@ -32,7 +32,7 @@ jobs:
         id: fall-back
         if: ${{ github.event.pull_request.head.repo.fork }}
         run: |
-          "skip-check=false" >> "$GITHUB_OUTPUT"
+          echo "skip-check=false" >> "$GITHUB_OUTPUT"
 
   check:
     name: check if we can skip the merge queue
