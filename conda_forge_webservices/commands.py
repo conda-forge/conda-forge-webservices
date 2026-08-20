@@ -351,6 +351,9 @@ def pr_detailed_comment(
             "conda-forge-admin",
             "conda-forge-bot",
             "ghost",
+            "conda-forge-webservices",
+            "conda-forge-webservices[bot]",
+            "conda-forge-webservices [bot]",
         ]:
             reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
@@ -364,6 +367,9 @@ def pr_detailed_comment(
             "conda-forge-admin",
             "conda-forge-bot",
             "ghost",
+            "conda-forge-webservices",
+            "conda-forge-webservices[bot]",
+            "conda-forge-webservices [bot]",
         ]:
             reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
@@ -503,6 +509,9 @@ def issue_comment(
         "conda-forge-admin",
         "conda-forge-bot",
         "ghost",
+        "conda-forge-webservices",
+        "conda-forge-webservices[bot]",
+        "conda-forge-webservices [bot]",
     ]:
         reply_no_command(
             org_name, repo_name, issue_num, comment_id, None, kind="issues"
