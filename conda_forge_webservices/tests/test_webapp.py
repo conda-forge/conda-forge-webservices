@@ -172,6 +172,7 @@ class TestBucketHandler(TestHandlerBase):
                 for main_or_master_branch in ["main", "master"]:
                     body = {
                         "after": "324234fdf",
+                        "actor": {"login": "conda-forge-bot"},
                         "repository": {
                             "name": name,
                             "full_name": f"{owner}/{name}",
