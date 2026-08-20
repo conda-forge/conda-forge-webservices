@@ -622,7 +622,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
             or event == "pull_request_review_comment"
         ):
             body = tornado.escape.json_decode(self.request.body)
-            actor = body["actor"]["login"]
             action = body["action"]
             repo_name = body["repository"]["name"]
             owner = body["repository"]["owner"]["login"]
@@ -670,7 +669,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment,
                     comment_id,
                     review_id,
-                    actor,
                 )
                 tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                 self.set_status(202)
@@ -679,7 +677,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
 
         elif event == "issue_comment" or event == "issues":
             body = tornado.escape.json_decode(self.request.body)
-            actor = body["actor"]["login"]
             action = body["action"]
             repo_name = body["repository"]["name"]
             owner = body["repository"]["owner"]["login"]
@@ -714,7 +711,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                         issue_num,
                         comment,
                         comment_id,
-                        actor,
                     )
                     tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                     self.set_status(202)
@@ -749,7 +745,6 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                         title,
                         comment,
                         comment_id,
-                        actor,
                     )
                     tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                     self.set_status(202)

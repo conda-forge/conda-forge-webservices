@@ -190,9 +190,7 @@ def _attempt_git_clone(repo_url, feedstock_dir, pr_branch=None):
     return repo
 
 
-def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None, actor=None):
-    """Process a pull request comment"""
-
+def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
     if not COMMAND_PREFIX.search(comment):
         return
     gh = get_gh_client()
@@ -206,45 +204,8 @@ def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None, actor=N
         pr.head.ref,
         issue_num,
         comment,
-        comment_id=comment_id,
-        actor=actor,
+        comment_id,
     )
-
-
-def reply_no_command(
-    org_name,
-    repo_name,
-    issue_num,
-    comment_id,
-    review_id,
-    kind="pull",
-):
-    if comment_id == -1:
-        request = (
-            f"[request](https://github.com/{org_name}/{repo_name}/{kind}/{issue_num}#)"
-        )
-    elif comment_id is not None:
-        request = f"[request](https://github.com/{org_name}/{repo_name}/{kind}/{issue_num}#issuecomment-{comment_id})"
-    elif review_id is not None:
-        assert kind == "pull"
-        request = f"[request](https://github.com/{org_name}/{repo_name}/{kind}/{issue_num}#discussion_r{review_id})"
-    else:
-        request = "request"
-    no_command_message = textwrap.dedent(f"""
-        Hi! This is the friendly automated conda-forge-webservice.
-
-        I couldn't find any valid commands in the {request}. Please see [Admin web services](https://conda-forge.org/docs/maintainer/infrastructure/#admin-web-services) for the list of valid commands.
-        """)  # ruff: ignore[line-too-long]
-    gh = get_gh_client()
-    repo = gh.get_repo(f"{org_name}/{repo_name}")
-    if comment_id is not None or review_id is not None:
-        add_reaction("confused", repo, issue_num, comment_id, review_id)
-    if review_id is not None:
-        pull = repo.get_pull(int(issue_num))
-        pull.create_review_comment_reply(review_id, no_command_message)
-    else:
-        issue = repo.get_issue(int(issue_num))
-        issue.create_comment(no_command_message)
 
 
 def pr_detailed_comment(
@@ -257,21 +218,11 @@ def pr_detailed_comment(
     comment,
     comment_id=None,
     review_id=None,
-    actor=None,
 ):
-    """
-    Process a pull request, pull request comment or review.
-
-    For a pull request, comment is the body and comment_id is -1.
-    For a comment, comment is the comment and comment_id is its id.
-    For a review, comment is the review comment and review_id is its id.
-    """
-
     is_allowed_cmd = repo_name in ALLOWED_CMD_NON_FEEDSTOCKS
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
 
-    command_found = False
     if not is_allowed_cmd:
         gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
@@ -300,7 +251,6 @@ def pr_detailed_comment(
                 return
 
     if RESTART_CI.search(comment):
-        command_found = True
         gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
@@ -308,7 +258,6 @@ def pr_detailed_comment(
         restart_pull_request_ci(repo, int(pr_num))
 
     if PING_TEAM.search(comment):
-        command_found = True
         # get the team
         m = PING_TEAM.search(comment)
         if m.group("team"):
@@ -336,7 +285,6 @@ def pr_detailed_comment(
         pull.create_issue_comment(message)
 
     if not is_allowed_cmd and RERUN_BOT.search(comment):
-        command_found = True
         gh = get_gh_client()
         repo = gh.get_repo(f"{org_name}/{repo_name}")
         if comment_id is not None or review_id is not None:
@@ -347,11 +295,6 @@ def pr_detailed_comment(
     # below here we only allow staged recipes + feedstocks
     is_staged_recipes = repo_name == "staged-recipes"
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
-        if (not command_found) and actor not in [
-            "conda-forge-admin",
-            "conda-forge-bot",
-        ]:
-            reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
 
     pr_commands = [LINT_MSG]
@@ -359,11 +302,6 @@ def pr_detailed_comment(
         pr_commands += [ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG]
 
     if not any(command.search(comment) for command in pr_commands):
-        if (not command_found) and actor not in [
-            "conda-forge-admin",
-            "conda-forge-bot",
-        ]:
-            reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
 
     if comment_id is not None or review_id is not None:
@@ -457,15 +395,7 @@ def pr_detailed_comment(
             shutil.rmtree(tmp_dir)
 
 
-def issue_comment(
-    org_name, repo_name, issue_num, title, comment, comment_id=None, actor=None
-):
-    """
-    Process an issue or an issue comment
-
-    For an issue, title is issue title, comment is its body and comment_id is -1.
-    For a comment, title is empty, comment is the comment and comment_id is its id.
-    """
+def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=None):
     if not repo_name.endswith("-feedstock"):
         return
     if comment is None:
@@ -497,13 +427,7 @@ def issue_comment(
         UPDATE_VERSION,
     ]
 
-    if (not any(command.search(text) for command in issue_commands)) and actor not in [
-        "conda-forge-admin",
-        "conda-forge-bot",
-    ]:
-        reply_no_command(
-            org_name, repo_name, issue_num, comment_id, None, kind="issues"
-        )
+    if not any(command.search(text) for command in issue_commands):
         return
 
     # sometimes the webhook outpaces other bits of the API so we try a bit
