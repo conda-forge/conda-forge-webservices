@@ -190,7 +190,7 @@ def _attempt_git_clone(repo_url, feedstock_dir, pr_branch=None):
     return repo
 
 
-def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
+def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None, actor=None):
     """Process a pull request comment"""
 
     if not COMMAND_PREFIX.search(comment):
@@ -206,7 +206,8 @@ def pr_comment(org_name, repo_name, issue_num, comment, comment_id=None):
         pr.head.ref,
         issue_num,
         comment,
-        comment_id,
+        comment_id=comment_id,
+        actor=actor,
     )
 
 
@@ -240,23 +241,10 @@ def reply_no_command(
         add_reaction("confused", repo, issue_num, comment_id, review_id)
     if review_id is not None:
         pull = repo.get_pull(int(issue_num))
-        make_comment = True
-        for possible_comment in pull.get_single_review_comments(int(review_id)):
-            if "I couldn't find any valid commands in the" in possible_comment.body:
-                make_comment = False
-                break
-        if make_comment:
-            pull.create_review_comment_reply(review_id, no_command_message)
+        pull.create_review_comment_reply(review_id, no_command_message)
     else:
         issue = repo.get_issue(int(issue_num))
-        make_comment = True
-        for possible_comment in issue.get_comments():
-            if "I couldn't find any valid commands in the" in possible_comment.body:
-                make_comment = False
-                break
-
-        if make_comment:
-            issue.create_comment(no_command_message)
+        issue.create_comment(no_command_message)
 
 
 def pr_detailed_comment(
@@ -269,6 +257,7 @@ def pr_detailed_comment(
     comment,
     comment_id=None,
     review_id=None,
+    actor=None,
 ):
     """
     Process a pull request, pull request comment or review.
@@ -358,7 +347,10 @@ def pr_detailed_comment(
     # below here we only allow staged recipes + feedstocks
     is_staged_recipes = repo_name == "staged-recipes"
     if not (repo_name.endswith("-feedstock") or is_staged_recipes):
-        if not command_found:
+        if (not command_found) and actor not in [
+            "conda-forge-admin",
+            "conda-forge-bot",
+        ]:
             reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
 
@@ -367,7 +359,10 @@ def pr_detailed_comment(
         pr_commands += [ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG]
 
     if not any(command.search(comment) for command in pr_commands):
-        if not command_found:
+        if (not command_found) and actor not in [
+            "conda-forge-admin",
+            "conda-forge-bot",
+        ]:
             reply_no_command(org_name, repo_name, pr_num, comment_id, review_id)
         return
 
@@ -462,7 +457,9 @@ def pr_detailed_comment(
             shutil.rmtree(tmp_dir)
 
 
-def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=None):
+def issue_comment(
+    org_name, repo_name, issue_num, title, comment, comment_id=None, actor=None
+):
     """
     Process an issue or an issue comment
 
@@ -500,7 +497,10 @@ def issue_comment(org_name, repo_name, issue_num, title, comment, comment_id=Non
         UPDATE_VERSION,
     ]
 
-    if not any(command.search(text) for command in issue_commands):
+    if (not any(command.search(text) for command in issue_commands)) and actor not in [
+        "conda-forge-admin",
+        "conda-forge-bot",
+    ]:
         reply_no_command(
             org_name, repo_name, issue_num, comment_id, None, kind="issues"
         )
