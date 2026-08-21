@@ -483,6 +483,9 @@ def issue_comment(
 
     text = comment + title
 
+    if not COMMAND_PREFIX.search(text):
+        return
+
     issue_commands = [
         UPDATE_TEAM_MSG,
         ADD_NOARCH_MSG,
