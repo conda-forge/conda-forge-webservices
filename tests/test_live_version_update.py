@@ -154,6 +154,11 @@ def _version_update_is_ok(version, verbose=False):
                     check=True,
                 )
 
+                subprocess.run(
+                    ["git", "pull", BRANCH],
+                    check=True,
+                )
+
                 with open("recipe/meta.yaml") as fp:
                     test_line = None
                     for line in fp.readlines():
