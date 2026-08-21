@@ -41,7 +41,7 @@ LOGGER = logging.getLogger("conda_forge_webservices.commands")
 NUM_GIT_CLONE_TRIES = 10
 NUM_GH_API_TRIES = 10
 
-pre = r"@conda-forge-(admin|linter)\s*[,:]?\s*"
+pre = r"(?<!<space/>)@conda-forge-(admin|linter)\s*[,:]?\s*"
 COMMAND_PREFIX = re.compile(pre, re.I)
 ADD_NOARCH_MSG = re.compile(pre + "(please )?(add|make) `?noarch:? python`?", re.I)
 RERENDER_MSG = re.compile(pre + "(please )?re-?render", re.I)
