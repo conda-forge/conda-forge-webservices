@@ -498,7 +498,7 @@ jobs:
           export CF_FEEDSTOCK_OPS_CONTAINER_TAG="${version}"
 
           cd tests
-          pytest -vvs --branch=${branch} test_live_version_update.py
+          pytest -vvsx --dist no --branch=${branch} test_live_version_update.py
         env:
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
 

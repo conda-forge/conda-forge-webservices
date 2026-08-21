@@ -278,7 +278,7 @@ def _run_test_try_finally(branch, version):
                     _set_pr_not_draft()
 
 
-@flaky
+# @flaky
 def test_live_version_update_with_finding_version(pytestconfig, skip_if_no_tokens):
     global GH
     GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
@@ -286,7 +286,7 @@ def test_live_version_update_with_finding_version(pytestconfig, skip_if_no_token
     _run_test_try_finally(branch, None)
 
 
-@flaky
+# @flaky
 def test_live_version_update_with_input_version(pytestconfig, skip_if_no_tokens):
     global GH
     GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
