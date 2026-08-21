@@ -149,9 +149,8 @@ def _version_update_is_ok(version, verbose=False):
             with pushd(REPO_NAME):
                 if verbose:
                     print("checkout branch...", flush=True)
-
                 subprocess.run(
-                    ["git", "pull", BRANCH],
+                    ["git", "checkout", BRANCH],
                     check=True,
                 )
 
