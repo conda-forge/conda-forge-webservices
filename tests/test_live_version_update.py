@@ -7,7 +7,7 @@ import uuid
 import github
 import requests
 
-# from flaky import flaky
+from flaky import flaky
 import pytest
 
 import conda_forge_webservices
@@ -398,7 +398,7 @@ def _run_test_try_finally(branch, version, schema_version):
                     _set_pr_not_draft()
 
 
-# @flaky
+@flaky
 @pytest.mark.parametrize("schema_version", [0, 1])
 def test_live_version_update_with_finding_version(
     pytestconfig, skip_if_no_tokens, schema_version
@@ -409,7 +409,7 @@ def test_live_version_update_with_finding_version(
     _run_test_try_finally(branch, None, schema_version)
 
 
-# @flaky
+@flaky
 @pytest.mark.parametrize("schema_version", [0, 1])
 def test_live_version_update_with_input_version(
     pytestconfig, skip_if_no_tokens, schema_version
