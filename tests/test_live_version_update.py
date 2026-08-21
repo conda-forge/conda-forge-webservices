@@ -149,10 +149,6 @@ def _version_update_is_ok(version, verbose=False):
             with pushd(REPO_NAME):
                 if verbose:
                     print("checkout branch...", flush=True)
-                subprocess.run(
-                    ["git", "checkout", BRANCH],
-                    check=True,
-                )
 
                 subprocess.run(
                     ["git", "pull", BRANCH],
@@ -165,8 +161,11 @@ def _version_update_is_ok(version, verbose=False):
                         if line.startswith("  number:"):
                             test_line = line
                             break
-                assert test_line is not None
-                assert test_line.strip() == "number: 0"
+                if test_line is None:
+                    return False
+
+                if test_line.strip() != "number: 0":
+                    return False
 
                 if verbose:
                     print("checking the git history", flush=True)
@@ -277,11 +276,10 @@ def _run_test_try_finally(branch, version):
                     _set_pr_draft()
                     _run_test(branch, version)
                 finally:
-                    pass
-                    # _change_version(new_version="0.14", branch="main", build_number=0)
-                    # _merge_main_to_branch(BRANCH, verbose=True)
-                    # _pr_title(new=original_title)
-                    # _set_pr_not_draft()
+                    _change_version(new_version="0.14", branch="main", build_number=0)
+                    _merge_main_to_branch(BRANCH, verbose=True)
+                    _pr_title(new=original_title)
+                    _set_pr_not_draft()
 
 
 # @flaky
