@@ -337,7 +337,7 @@ def _run_test(branch, version, schema_version):
         set_version_update_pr_status(
             GH.get_repo(REPO),
             PR_NUM,
-            "failed",
+            "failure",
             target_url=target_url,
         )
     assert update_is_ok
