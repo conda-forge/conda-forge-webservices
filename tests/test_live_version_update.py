@@ -354,7 +354,13 @@ def _run_test_try_finally(branch, version, schema_version):
                         build_number=4312,
                     )
                     _change_to_schema(schema_version, BRANCH)
-                    _merge_main_to_branch(BRANCH, verbose=True)
+                    _change_version(
+                        schema_version,
+                        new_version="0.13",
+                        branch=BRANCH,
+                        build_number=4312,
+                    )
+                    # _merge_main_to_branch(BRANCH, verbose=True)
                     original_title = _pr_title(new="chore: update package version")
                     _set_pr_draft()
                     _run_test(branch, version, schema_version)
@@ -367,7 +373,13 @@ def _run_test_try_finally(branch, version, schema_version):
                         build_number=0,
                     )
                     _change_to_schema(0, BRANCH)
-                    _merge_main_to_branch(BRANCH, verbose=True)
+                    _change_version(
+                        schema_version,
+                        new_version="0.14",
+                        branch=BRANCH,
+                        build_number=0,
+                    )
+                    # _merge_main_to_branch(BRANCH, verbose=True)
                     _pr_title(new=original_title)
                     _set_pr_not_draft()
 
