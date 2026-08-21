@@ -12,7 +12,6 @@ import pytest
 
 import conda_forge_webservices
 from conda_forge_webservices.utils import pushd
-from conftest import _merge_main_to_branch
 from conda_forge_webservices.commands import (
     get_workflow_run_from_uid,
     set_version_update_pr_status,
@@ -301,9 +300,7 @@ def _change_to_schema(schema_version, branch):
         check=True,
     )
 
-    with open(
-        os.path.join(os.path.dirname(__file__), os.path.basename(cfy))
-    ) as fp:
+    with open(os.path.join(os.path.dirname(__file__), os.path.basename(cfy))) as fp:
         new_cfy = fp.read()
 
     with open("conda-forge.yml", "w") as fp:
@@ -367,14 +364,14 @@ def _run_test_try_finally(branch, version, schema_version):
                 finally:
                     _change_to_schema(0, "main")
                     _change_version(
-                        schema_version,
+                        0,
                         new_version="0.14",
                         branch="main",
                         build_number=0,
                     )
                     _change_to_schema(0, BRANCH)
                     _change_version(
-                        schema_version,
+                        0,
                         new_version="0.14",
                         branch=BRANCH,
                         build_number=0,
