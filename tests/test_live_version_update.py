@@ -272,10 +272,11 @@ def _run_test_try_finally(branch, version):
                     _set_pr_draft()
                     _run_test(branch, version)
                 finally:
-                    _change_version(new_version="0.14", branch="main", build_number=0)
-                    _merge_main_to_branch(BRANCH, verbose=True)
-                    _pr_title(new=original_title)
-                    _set_pr_not_draft()
+                    pass
+                    # _change_version(new_version="0.14", branch="main", build_number=0)
+                    # _merge_main_to_branch(BRANCH, verbose=True)
+                    # _pr_title(new=original_title)
+                    # _set_pr_not_draft()
 
 
 # @flaky
