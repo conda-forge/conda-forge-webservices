@@ -277,7 +277,7 @@ def _run_test_try_finally(branch, version):
                     _change_version(new_version="0.14", branch="main", build_number=0)
                     _merge_main_to_branch(BRANCH, verbose=True)
                     _change_version(
-                        new_version="0.13", branch=BRANCH, build_number=4312
+                        new_version="0.13", branch=BRANCH, build_number=0
                     )
                     _pr_title(new=original_title)
                     _set_pr_not_draft()
