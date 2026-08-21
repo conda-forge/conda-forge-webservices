@@ -78,7 +78,7 @@ def _set_pr_not_draft():
         raise ValueError(req.json()["errors"])
 
 
-def _change_version(new_version="0.13", branch="main"):
+def _change_version(new_version="0.13", branch="main", build_number=0):
     import random
 
     new_sha = "".join(random.choices("0123456789abcdef", k=64))
@@ -98,7 +98,7 @@ def _change_version(new_version="0.13", branch="main"):
             elif line.startswith("  sha256: "):
                 new_lines.append(f"  sha256: {new_sha}\n")
             elif line.startswith("  number:"):
-                new_lines.append("  number: 4352342\n")
+                new_lines.append(f"  number: {build_number}\n")
             else:
                 new_lines.append(line)
     with open("recipe/meta.yaml", "w") as fp:
@@ -263,16 +263,22 @@ def _run_test_try_finally(branch, version):
 
             with pushd(REPO_NAME):
                 try:
-                    _change_version(new_version="0.13", branch="main")
+                    _change_version(
+                        new_version="0.13", branch="main", build_number=4312
+                    )
                     _merge_main_to_branch(BRANCH, verbose=True)
-                    _change_version(new_version="0.13", branch=BRANCH)
+                    _change_version(
+                        new_version="0.13", branch=BRANCH, build_number=4312
+                    )
                     original_title = _pr_title(new="chore: update package version")
                     _set_pr_draft()
                     _run_test(branch, version)
                 finally:
-                    _change_version(new_version="0.14", branch="main")
+                    _change_version(new_version="0.14", branch="main", build_number=0)
                     _merge_main_to_branch(BRANCH, verbose=True)
-                    _change_version(new_version="0.13", branch=BRANCH)
+                    _change_version(
+                        new_version="0.13", branch=BRANCH, build_number=4312
+                    )
                     _pr_title(new=original_title)
                     _set_pr_not_draft()
 
