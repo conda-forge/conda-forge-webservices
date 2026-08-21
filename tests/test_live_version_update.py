@@ -337,6 +337,10 @@ def _change_to_schema(schema_version, branch):
                     check=True,
                 )
 
+                print("push to origin...", flush=True)
+                subprocess.run(["git", "pull"], check=True)
+                subprocess.run(["git", "push"], check=True)
+
 
 def _run_test_try_finally(branch, version, schema_version):
     print("making an edit to the head ref...", flush=True)
