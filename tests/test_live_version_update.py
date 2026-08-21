@@ -97,6 +97,8 @@ def _change_version(new_version="0.13", branch="main"):
                 new_lines.append(f'{{% set version = "{new_version}" %}}\n')
             elif line.startswith("  sha256: "):
                 new_lines.append(f"  sha256: {new_sha}\n")
+            elif line.startswith("  build:"):
+                new_lines.append("  build: 4352342\n")
             else:
                 new_lines.append(line)
     with open("recipe/meta.yaml", "w") as fp:
@@ -150,6 +152,15 @@ def _version_update_is_ok(version, verbose=False):
                     ["git", "checkout", BRANCH],
                     check=True,
                 )
+
+                with open("recipe/meta.yaml") as fp:
+                    test_line = None
+                    for line in fp.readlines():
+                        if line.startswith("  build:"):
+                            test_line = line
+                            break
+                assert test_line is not None
+                assert test_line.strip() == "  build: 0"
 
                 if verbose:
                     print("checking the git history", flush=True)
