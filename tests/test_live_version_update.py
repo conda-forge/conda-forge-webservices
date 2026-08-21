@@ -81,6 +81,7 @@ def _set_pr_not_draft():
 def _change_version(new_version="0.13", branch="main", build_number=0):
     import random
 
+    random.seed(new_version)
     new_sha = "".join(random.choices("0123456789abcdef", k=64))
     if new_version == "0.14":
         new_sha = "f6c45d5788f51dbe1cc55e1010f3e9ebd18b6c0f21907fc35499468a59827eef"
@@ -160,7 +161,7 @@ def _version_update_is_ok(version, verbose=False):
                             test_line = line
                             break
                 assert test_line is not None
-                assert test_line.strip() == "  number: 0"
+                assert test_line.strip() == "number: 0"
 
                 if verbose:
                     print("checking the git history", flush=True)
