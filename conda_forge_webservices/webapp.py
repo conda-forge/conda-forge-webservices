@@ -622,6 +622,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
             or event == "pull_request_review_comment"
         ):
             body = tornado.escape.json_decode(self.request.body)
+            actor = body["sender"]["login"]
             action = body["action"]
             repo_name = body["repository"]["name"]
             owner = body["repository"]["owner"]["login"]
@@ -654,7 +655,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
             if comment:
                 log_title_and_message_at_level(
                     level="info",
-                    title=f"PR command: {body['repository']['full_name']}",
+                    title=(f"PR command: {body['repository']['full_name']} by {actor}"),
                 )
 
                 fut = tornado.ioloop.IOLoop.current().run_in_executor(
@@ -669,6 +670,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment,
                     comment_id,
                     review_id,
+                    actor,
                 )
                 tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                 self.set_status(202)
@@ -677,6 +679,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
 
         elif event == "issue_comment" or event == "issues":
             body = tornado.escape.json_decode(self.request.body)
+            actor = body["sender"]["login"]
             action = body["action"]
             repo_name = body["repository"]["name"]
             owner = body["repository"]["owner"]["login"]
@@ -700,7 +703,9 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                     comment_id = body["comment"]["id"]
                     log_title_and_message_at_level(
                         level="info",
-                        title=f"PR command: {body['repository']['full_name']}",
+                        title=(
+                            f"PR command: {body['repository']['full_name']} by {actor}"
+                        ),
                     )
 
                     fut = tornado.ioloop.IOLoop.current().run_in_executor(
@@ -711,6 +716,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                         issue_num,
                         comment,
                         comment_id,
+                        actor,
                     )
                     tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                     self.set_status(202)
@@ -733,7 +739,10 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
 
                     log_title_and_message_at_level(
                         level="info",
-                        title=f"issue command: {body['repository']['full_name']}",
+                        title=(
+                            f"issue command: {body['repository']['full_name']}"
+                            f" by {actor}"
+                        ),
                     )
 
                     fut = tornado.ioloop.IOLoop.current().run_in_executor(
@@ -745,6 +754,7 @@ class CommandHookHandler(WriteErrorAsJSONRequestHandler):
                         title,
                         comment,
                         comment_id,
+                        actor,
                     )
                     tornado.ioloop.IOLoop.current().add_future(fut, _complete_future)
                     self.set_status(202)
