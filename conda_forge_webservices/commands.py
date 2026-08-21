@@ -267,6 +267,9 @@ def pr_detailed_comment(
     For a review, comment is the review comment and review_id is its id.
     """
 
+    if not COMMAND_PREFIX.search(comment):
+        return
+
     is_allowed_cmd = repo_name in ALLOWED_CMD_NON_FEEDSTOCKS
     if not (repo_name.endswith("-feedstock") or is_allowed_cmd):
         return
