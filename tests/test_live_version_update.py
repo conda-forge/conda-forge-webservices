@@ -106,8 +106,8 @@ def _change_version(schema_version, new_version="0.13", branch="main", build_num
                 new_lines.append(f"  sha256: {new_sha}\n")
             elif line.startswith("  number:"):
                 new_lines.append(f"  number: {build_number}\n")
-            elif line.startswith("  version: "):
-                new_lines.append(f'  version: "{new_version}"')
+            elif line.startswith('  version: "'):
+                new_lines.append(f'  version: "{new_version}"\n')
             else:
                 new_lines.append(line)
     with open(filename, "w") as fp:
@@ -122,6 +122,68 @@ def _change_version(schema_version, new_version="0.13", branch="main", build_num
             "--allow-empty",
             "-m",
             f"[ci skip] moved version to {new_version}",
+        ],
+        check=True,
+    )
+
+    print("push to origin...", flush=True)
+    subprocess.run(["git", "pull"], check=True)
+    subprocess.run(["git", "push"], check=True)
+
+
+def _change_to_schema(schema_version, branch):
+
+    if schema_version == 0:
+        filename = "recipe/meta.yaml"
+        filename_to_remove = "recipe/recipe.yaml"
+        cfy = "conda-forge.yml"
+    else:
+        filename = "recipe/recipe.yaml"
+        filename_to_remove = "recipe/meta.yaml"
+        cfy = "conda-forge-for-recipe.yml"
+
+    subprocess.run(
+        ["git", "checkout", branch],
+        check=True,
+    )
+    subprocess.run(["git", "pull"], check=True)
+
+    if os.path.exists(filename_to_remove):
+        subprocess.run(
+            ["git", "rm", filename_to_remove],
+            check=True,
+        )
+    with open(
+        os.path.join(os.path.dirname(__file__), os.path.basename(filename))
+    ) as fp:
+        new_recipe = fp.read()
+
+    with open(filename, "w") as fp:
+        fp.write(new_recipe)
+
+    subprocess.run(
+        ["git", "add", filename],
+        check=True,
+    )
+
+    with open(os.path.join(os.path.dirname(__file__), os.path.basename(cfy))) as fp:
+        new_cfy = fp.read()
+
+    with open("conda-forge.yml", "w") as fp:
+        fp.write(new_cfy)
+
+    subprocess.run(
+        ["git", "add", "conda-forge.yml"],
+        check=True,
+    )
+
+    subprocess.run(
+        [
+            "git",
+            "commit",
+            "--allow-empty",
+            "-m",
+            f"[ci skip] moved schema to {schema_version}",
         ],
         check=True,
     )
@@ -263,68 +325,6 @@ def _run_test(branch, version, schema_version):
         )
     assert update_is_ok
     print("tests passed!", flush=True)
-
-
-def _change_to_schema(schema_version, branch):
-
-    if schema_version == 0:
-        filename = "recipe/meta.yaml"
-        filename_to_remove = "recipe/recipe.yaml"
-        cfy = "conda-forge.yml"
-    else:
-        filename = "recipe/recipe.yaml"
-        filename_to_remove = "recipe/meta.yaml"
-        cfy = "conda-forge-for-recipe.yml"
-
-    subprocess.run(
-        ["git", "checkout", branch],
-        check=True,
-    )
-    subprocess.run(["git", "pull"], check=True)
-
-    if os.path.exists(filename_to_remove):
-        subprocess.run(
-            ["git", "rm", filename_to_remove],
-            check=True,
-        )
-    with open(
-        os.path.join(os.path.dirname(__file__), os.path.basename(filename))
-    ) as fp:
-        new_recipe = fp.read()
-
-    with open(filename, "w") as fp:
-        fp.write(new_recipe)
-
-    subprocess.run(
-        ["git", "add", filename],
-        check=True,
-    )
-
-    with open(os.path.join(os.path.dirname(__file__), os.path.basename(cfy))) as fp:
-        new_cfy = fp.read()
-
-    with open("conda-forge.yml", "w") as fp:
-        fp.write(new_cfy)
-
-    subprocess.run(
-        ["git", "add", "conda-forge.yml"],
-        check=True,
-    )
-
-    subprocess.run(
-        [
-            "git",
-            "commit",
-            "--allow-empty",
-            "-m",
-            f"[ci skip] moved schema to {schema_version}",
-        ],
-        check=True,
-    )
-
-    print("push to origin...", flush=True)
-    subprocess.run(["git", "pull"], check=True)
-    subprocess.run(["git", "push"], check=True)
 
 
 def _run_test_try_finally(branch, version, schema_version):
