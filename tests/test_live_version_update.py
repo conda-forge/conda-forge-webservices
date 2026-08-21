@@ -277,69 +277,57 @@ def _change_to_schema(schema_version, branch):
         filename_to_remove = "recipe/meta.yaml"
         cfy = "conda-forge-for-recipe.yml"
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        with pushd(tmpdir):
-            print("cloning...", flush=True)
-            subprocess.run(
-                [
-                    "git",
-                    "clone",
-                    f"https://x-access-token:{os.environ['GH_TOKEN']}@github.com/{REPO}.git",
-                ],
-                check=True,
-            )
+    subprocess.run(
+        ["git", "checkout", branch],
+        check=True,
+    )
+    subprocess.run(["git", "pull"], check=True)
 
-            with pushd(REPO_NAME):
-                subprocess.run(
-                    ["git", "checkout", branch],
-                    check=True,
-                )
+    if os.path.exists(filename_to_remove):
+        subprocess.run(
+            ["git", "rm", filename_to_remove],
+            check=True,
+        )
+    with open(
+        os.path.join(os.path.dirname(__file__), os.path.basename(filename))
+    ) as fp:
+        new_recipe = fp.read()
 
-                if os.path.exists(filename_to_remove):
-                    subprocess.run(
-                        ["git", "rm", filename_to_remove],
-                        check=True,
-                    )
-                with open(
-                    os.path.join(os.path.dirname(__file__), os.path.basename(filename))
-                ) as fp:
-                    new_recipe = fp.read()
+    with open(filename, "w") as fp:
+        fp.write(new_recipe)
 
-                with open(filename, "w") as fp:
-                    fp.write(new_recipe)
+    subprocess.run(
+        ["git", "add", filename],
+        check=True,
+    )
 
-                subprocess.run(
-                    ["git", "add", filename],
-                    check=True,
-                )
+    with open(
+        os.path.join(os.path.dirname(__file__), os.path.basename(cfy))
+    ) as fp:
+        new_cfy = fp.read()
 
-                with open(
-                    os.path.join(os.path.dirname(__file__), os.path.basename(cfy))
-                ) as fp:
-                    new_cfy = fp.read()
+    with open("conda-forge.yml", "w") as fp:
+        fp.write(new_cfy)
 
-                with open("conda-forge.yml", "w") as fp:
-                    fp.write(new_cfy)
+    subprocess.run(
+        ["git", "add", "conda-forge.yml"],
+        check=True,
+    )
 
-                subprocess.run(
-                    ["git", "add", "conda-forge.yml"],
-                    check=True,
-                )
+    subprocess.run(
+        [
+            "git",
+            "commit",
+            "--allow-empty",
+            "-m",
+            f"[ci skip] moved schema to {schema_version}",
+        ],
+        check=True,
+    )
 
-                subprocess.run(
-                    [
-                        "git",
-                        "commit",
-                        "--allow-empty",
-                        "-m",
-                        f"[ci skip] moved schema to {schema_version}",
-                    ],
-                    check=True,
-                )
-
-                print("push to origin...", flush=True)
-                subprocess.run(["git", "pull"], check=True)
-                subprocess.run(["git", "push"], check=True)
+    print("push to origin...", flush=True)
+    subprocess.run(["git", "pull"], check=True)
+    subprocess.run(["git", "push"], check=True)
 
 
 def _run_test_try_finally(branch, version, schema_version):
