@@ -106,7 +106,7 @@ def _change_version(schema_version, new_version="0.13", branch="main", build_num
                 new_lines.append(f"  sha256: {new_sha}\n")
             elif line.startswith("  number:"):
                 new_lines.append(f"  number: {build_number}\n")
-            elif line.startswith('  version: "'):
+            elif line.startswith('  version: "') and "{{" not in line:
                 new_lines.append(f'  version: "{new_version}"\n')
             else:
                 new_lines.append(line)
