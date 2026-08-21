@@ -442,7 +442,7 @@ jobs:
       - tests
       - docker-build
     concurrency:
-      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-version-update' || format('{0}-{1}', github.workflow, github.ref) }}
+      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-main-test-feedstock' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
@@ -508,8 +508,9 @@ jobs:
     needs:
       - check
       - tests
+      - live-tests-version-update
     concurrency:
-      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-automerge' || format('{0}-{1}', github.workflow, github.ref) }}
+      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-main-test-feedstock' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
