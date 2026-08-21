@@ -177,6 +177,23 @@ def _change_to_schema(schema_version, branch):
         check=True,
     )
 
+    print("rerendering...", flush=True)
+    subprocess.run(
+        [
+            "conda-smithy",
+            "rerender",
+            "-c",
+            "auto",
+            "--no-check-uptodate",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "add", "."],
+        check=True,
+    )
+
+    print("making a commit...", flush=True)
     subprocess.run(
         [
             "git",
