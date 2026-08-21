@@ -25,18 +25,33 @@ def pr_detailed_comment(
     pr_owner="some-user",
     pr_branch="master",
     pr_num=1,
+    comment_id=None,
+    review_id=None,
 ):
     if pr_repo is None:
         pr_repo = repo_name
     return _pr_detailed_comment(
-        org_name, repo_name, pr_owner, pr_repo, pr_branch, pr_num, comment
+        org_name,
+        repo_name,
+        pr_owner,
+        pr_repo,
+        pr_branch,
+        pr_num,
+        comment,
+        comment_id,
+        review_id,
     )
 
 
 def issue_comment(
-    title, comment, issue_num=1, org_name="conda-forge", repo_name="python-feedstock"
+    title,
+    comment,
+    issue_num=1,
+    org_name="conda-forge",
+    repo_name="python-feedstock",
+    comment_id=None,
 ):
-    return _issue_comment(org_name, repo_name, issue_num, title, comment)
+    return _issue_comment(org_name, repo_name, issue_num, title, comment, comment_id)
 
 
 @pytest.fixture
@@ -176,15 +191,28 @@ def test_pr_command_triggers(
 
     for msg in should:
         command.reset_mock()
+        gh.reset_mock()
         print(msg, end=" " * 30 + "\r")
         pr_detailed_comment(msg)
         command.assert_called()
+        issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
+        comment_calls = issue_calls.create_comment.mock_calls
+        assert not any(
+            "find any valid commands" in call[1][0] for call in comment_calls
+        )
+        gh.reset_mock()
 
         command.reset_mock()
+        gh.reset_mock()
         print(msg, end=" " * 30 + "\r")
         pr_detailed_comment(msg, repo_name="staged-recipes")
         if on_sr:
             command.assert_called()
+            issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
+            comment_calls = issue_calls.create_comment.mock_calls
+            assert not any(
+                "find any valid commands" in call[1][0] for call in comment_calls
+            )
         else:
             command.assert_not_called()
 
@@ -600,3 +628,76 @@ def test_add_and_remove_user(pillow_feedstock):
     assert remove_user(pillow_feedstock, "doesnotexist") is None
     assert "@doesnotexist" not in _read_codeowners_words(pillow_feedstock)
     assert "- doesnotexist" not in _read_recipe_stripped_lines(pillow_feedstock)
+
+
+@mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
+@mock.patch("conda_forge_webservices.commands.add_bot_rerun_label")
+@mock.patch("conda_forge_webservices.commands.rerender")
+@mock.patch("conda_forge_webservices.commands.make_noarch")
+@mock.patch("conda_forge_webservices.commands.relint")
+@mock.patch("conda_forge_webservices.commands.update_team")
+@mock.patch("conda_forge_webservices.commands.get_gh_client")
+@mock.patch("conda_forge_webservices.commands.Repo")
+@pytest.mark.parametrize(
+    "comment_id,review_id,path",
+    [
+        (None, None, "pull"),
+        (-1, None, "pull"),
+        (12345, None, "pull"),
+        (None, 12345, "pull"),
+        (None, None, "issues"),
+        (-1, None, "issues"),
+        (12345, None, "issues"),
+    ],
+)
+def test_pr_reply_to_invalid_command(
+    repo,
+    gh,
+    update_team,
+    relint,
+    make_noarch,
+    rerender,
+    add_bot_rerun_label,
+    get_app_token_for_webservices_only,
+    comment_id: int | None,
+    review_id: int | None,
+    path: str,
+):
+    if path == "pull":
+        pr_detailed_comment(
+            "@conda-forge-admin, please reply to this invalid command",
+            pr_num=999,
+            comment_id=comment_id,
+            review_id=review_id,
+        )
+    elif path == "issues":
+        assert review_id is None
+        issue_comment(
+            "@conda-forge-admin, please reply to this invalid command",
+            "",
+            issue_num=999,
+            comment_id=comment_id,
+        )
+    else:
+        assert False, f"{path}"
+
+    for command in (update_team, relint, make_noarch, rerender):
+        command.assert_not_called()
+    if review_id is None:
+        issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
+        comment_calls = issue_calls.create_comment.mock_calls
+        arg_index = 0
+        if comment_id == -1:
+            expected_url = f"/{path}/999#"
+        elif comment_id is not None:
+            expected_url = f"/{path}/999#issuecomment-{comment_id}"
+        else:
+            expected_url = ""
+    else:
+        pull_calls = gh.return_value.get_repo.return_value.get_pull.return_value
+        comment_calls = pull_calls.create_review_comment_reply.mock_calls
+        arg_index = 1
+        expected_url = f"/{path}/999#discussion_r{review_id}"
+    assert len(comment_calls) == 1
+    assert "find any valid commands" in comment_calls[0][1][arg_index]
+    assert expected_url in comment_calls[0][1][arg_index]
