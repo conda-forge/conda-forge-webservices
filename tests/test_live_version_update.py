@@ -6,11 +6,12 @@ import uuid
 
 import github
 import requests
+
 from flaky import flaky
+import pytest
 
 import conda_forge_webservices
 from conda_forge_webservices.utils import pushd
-from conftest import _merge_main_to_branch
 from conda_forge_webservices.commands import (
     get_workflow_run_from_uid,
     set_version_update_pr_status,
@@ -78,9 +79,10 @@ def _set_pr_not_draft():
         raise ValueError(req.json()["errors"])
 
 
-def _change_version(new_version="0.13", branch="main"):
+def _change_version(schema_version, new_version="0.13", branch="main", build_number=0):
     import random
 
+    random.seed(new_version)
     new_sha = "".join(random.choices("0123456789abcdef", k=64))
     if new_version == "0.14":
         new_sha = "f6c45d5788f51dbe1cc55e1010f3e9ebd18b6c0f21907fc35499468a59827eef"
@@ -90,20 +92,29 @@ def _change_version(new_version="0.13", branch="main"):
 
     subprocess.run(["git", "pull"], check=True)
 
+    if schema_version == 0:
+        filename = "recipe/meta.yaml"
+    else:
+        filename = "recipe/recipe.yaml"
+
     new_lines = []
-    with open("recipe/meta.yaml") as fp:
+    with open(filename) as fp:
         for line in fp.readlines():
             if line.startswith("{% set version ="):
                 new_lines.append(f'{{% set version = "{new_version}" %}}\n')
             elif line.startswith("  sha256: "):
                 new_lines.append(f"  sha256: {new_sha}\n")
+            elif line.startswith("  number:"):
+                new_lines.append(f"  number: {build_number}\n")
+            elif line.startswith('  version: "') and "{{" not in line:
+                new_lines.append(f'  version: "{new_version}"\n')
             else:
                 new_lines.append(line)
-    with open("recipe/meta.yaml", "w") as fp:
+    with open(filename, "w") as fp:
         fp.write("".join(new_lines))
 
     print("committing file...", flush=True)
-    subprocess.run(["git", "add", "recipe/meta.yaml"], check=True)
+    subprocess.run(["git", "add", filename], check=True)
     subprocess.run(
         [
             "git",
@@ -111,6 +122,85 @@ def _change_version(new_version="0.13", branch="main"):
             "--allow-empty",
             "-m",
             f"[ci skip] moved version to {new_version}",
+        ],
+        check=True,
+    )
+
+    print("push to origin...", flush=True)
+    subprocess.run(["git", "pull"], check=True)
+    subprocess.run(["git", "push"], check=True)
+
+
+def _change_to_schema(schema_version, branch):
+
+    if schema_version == 0:
+        filename = "recipe/meta.yaml"
+        filename_to_remove = "recipe/recipe.yaml"
+        cfy = "conda-forge.yml"
+    else:
+        filename = "recipe/recipe.yaml"
+        filename_to_remove = "recipe/meta.yaml"
+        cfy = "conda-forge-for-recipe.yml"
+
+    subprocess.run(
+        ["git", "checkout", branch],
+        check=True,
+    )
+    subprocess.run(["git", "pull"], check=True)
+
+    if os.path.exists(filename_to_remove):
+        subprocess.run(
+            ["git", "rm", filename_to_remove],
+            check=True,
+        )
+    with open(
+        os.path.join(os.path.dirname(__file__), os.path.basename(filename))
+    ) as fp:
+        new_recipe = fp.read()
+
+    with open(filename, "w") as fp:
+        fp.write(new_recipe)
+
+    subprocess.run(
+        ["git", "add", filename],
+        check=True,
+    )
+
+    with open(os.path.join(os.path.dirname(__file__), os.path.basename(cfy))) as fp:
+        new_cfy = fp.read()
+
+    with open("conda-forge.yml", "w") as fp:
+        fp.write(new_cfy)
+
+    subprocess.run(
+        ["git", "add", "conda-forge.yml"],
+        check=True,
+    )
+
+    print("rerendering...", flush=True)
+    subprocess.run(
+        [
+            "conda-smithy",
+            "rerender",
+            "-c",
+            "auto",
+            "--no-check-uptodate",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "add", "."],
+        check=True,
+    )
+
+    print("making a commit...", flush=True)
+    subprocess.run(
+        [
+            "git",
+            "commit",
+            "--allow-empty",
+            "-m",
+            f"[ci skip] moved schema to {schema_version}",
         ],
         check=True,
     )
@@ -129,7 +219,13 @@ def _pr_title(new=None):
     return old
 
 
-def _version_update_is_ok(version, verbose=False):
+def _version_update_is_ok(version, schema_version, verbose=False):
+
+    if schema_version == 0:
+        filename = "recipe/meta.yaml"
+    else:
+        filename = "recipe/recipe.yaml"
+
     with tempfile.TemporaryDirectory() as tmpdir:
         with pushd(tmpdir):
             if verbose:
@@ -150,6 +246,18 @@ def _version_update_is_ok(version, verbose=False):
                     ["git", "checkout", BRANCH],
                     check=True,
                 )
+
+                with open(filename) as fp:
+                    test_line = None
+                    for line in fp.readlines():
+                        if line.startswith("  number:"):
+                            test_line = line
+                            break
+                if test_line is None:
+                    return False
+
+                if test_line.strip() != "number: 0":
+                    return False
 
                 if verbose:
                     print("checking the git history", flush=True)
@@ -180,7 +288,7 @@ def _version_update_is_ok(version, verbose=False):
     return True
 
 
-def _run_test(branch, version):
+def _run_test(branch, version, schema_version):
     print("sending workflow dispatch event to version updater...", flush=True)
     pr_head_sha = GH.get_repo(REPO).get_pull(PR_NUM).head.sha
     uid = uuid.uuid4().hex
@@ -220,23 +328,23 @@ def _run_test(branch, version):
         tot += 10
         print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
         if tot % 30 == 0 and tot > 0:
-            if _version_update_is_ok(version):
+            if _version_update_is_ok(version, schema_version):
                 break
 
     print("checking repo for the version update...", flush=True)
-    update_is_ok = _version_update_is_ok(version, verbose=True)
+    update_is_ok = _version_update_is_ok(version, schema_version, verbose=True)
     if not update_is_ok:
         set_version_update_pr_status(
             GH.get_repo(REPO),
             PR_NUM,
-            "failed",
+            "failure",
             target_url=target_url,
         )
     assert update_is_ok
     print("tests passed!", flush=True)
 
 
-def _run_test_try_finally(branch, version):
+def _run_test_try_finally(branch, version, schema_version):
     print("making an edit to the head ref...", flush=True)
     with tempfile.TemporaryDirectory() as tmpdir:
         with pushd(tmpdir):
@@ -252,31 +360,61 @@ def _run_test_try_finally(branch, version):
 
             with pushd(REPO_NAME):
                 try:
-                    _change_version(new_version="0.13", branch="main")
-                    _merge_main_to_branch(BRANCH, verbose=True)
-                    _change_version(new_version="0.13", branch=BRANCH)
+                    _change_to_schema(schema_version, "main")
+                    _change_version(
+                        schema_version,
+                        new_version="0.13",
+                        branch="main",
+                        build_number=4312,
+                    )
+                    _change_to_schema(schema_version, BRANCH)
+                    _change_version(
+                        schema_version,
+                        new_version="0.13",
+                        branch=BRANCH,
+                        build_number=4312,
+                    )
+                    # _merge_main_to_branch(BRANCH, verbose=True)
                     original_title = _pr_title(new="chore: update package version")
                     _set_pr_draft()
-                    _run_test(branch, version)
+                    _run_test(branch, version, schema_version)
                 finally:
-                    _change_version(new_version="0.14", branch="main")
-                    _merge_main_to_branch(BRANCH, verbose=True)
-                    _change_version(new_version="0.13", branch=BRANCH)
+                    _change_to_schema(0, "main")
+                    _change_version(
+                        0,
+                        new_version="0.14",
+                        branch="main",
+                        build_number=0,
+                    )
+                    _change_to_schema(0, BRANCH)
+                    _change_version(
+                        0,
+                        new_version="0.14",
+                        branch=BRANCH,
+                        build_number=0,
+                    )
+                    # _merge_main_to_branch(BRANCH, verbose=True)
                     _pr_title(new=original_title)
                     _set_pr_not_draft()
 
 
 @flaky
-def test_live_version_update_with_finding_version(pytestconfig, skip_if_no_tokens):
+@pytest.mark.parametrize("schema_version", [0, 1])
+def test_live_version_update_with_finding_version(
+    pytestconfig, skip_if_no_tokens, schema_version
+):
     global GH
     GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     branch = pytestconfig.getoption("branch")
-    _run_test_try_finally(branch, None)
+    _run_test_try_finally(branch, None, schema_version)
 
 
 @flaky
-def test_live_version_update_with_input_version(pytestconfig, skip_if_no_tokens):
+@pytest.mark.parametrize("schema_version", [0, 1])
+def test_live_version_update_with_input_version(
+    pytestconfig, skip_if_no_tokens, schema_version
+):
     global GH
     GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     branch = pytestconfig.getoption("branch")
-    _run_test_try_finally(branch, "0.14")
+    _run_test_try_finally(branch, "0.14", schema_version)

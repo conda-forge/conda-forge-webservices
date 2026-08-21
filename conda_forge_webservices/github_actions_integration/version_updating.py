@@ -107,10 +107,11 @@ def update_version(
             )
             meta_yaml_path.write_text(new_meta_yaml)
         elif recipe_yaml_path.exists():
-            v1_recipe.update_build_number(
+            new_recipe_yaml = v1_recipe.update_build_number(
                 recipe_yaml_path,
                 0,
             )
+            recipe_yaml_path.write_text(new_recipe_yaml)
             schema_version = 1
         else:
             raise FileNotFoundError("Could not find meta.yaml or recipe.yaml!")
