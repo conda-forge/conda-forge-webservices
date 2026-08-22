@@ -804,7 +804,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.8.77
+  version: 2026.8.78
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +864,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.8.77-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.8.78-pyhd8ed1ab_0.conda
   hash:
-    md5: 198d1437b2e8cde03277eeaade360678
-    sha256: 93920ec90f6432685c49bdcffa796032b2cc32e8400cdb0316297c1658304f08
+    md5: b43953c3be31726f925f065b07d76f08
+    sha256: 2b347c61108dd23a2d7b457aee1357555268705e42c3bf657766264fb1b9365e
   category: main
   optional: false
 - name: conda-index
@@ -3808,12 +3808,12 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=14'
-    libstdcxx: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/patchelf-0.19.1-h54a6638_0.conda
+    libgcc: '>=15'
+    libstdcxx: '>=15'
+  url: https://conda.anaconda.org/conda-forge/linux-64/patchelf-0.19.1-hee9eb32_1.conda
   hash:
-    md5: 3e5497d26c401e0a1988d9e1e7350cdb
-    sha256: b7aa09d35683572245285f0d26bc6654f65a9cc833a645cb28a7f33c27b37bdc
+    md5: 21ce762527ea167059a17516773a8cc4
+    sha256: f138da28cd92824eb58ca11b3f9d5d6d32e1cbd31d7f5589ccda1a7398522b6b
   category: main
   optional: false
 - name: pathspec
