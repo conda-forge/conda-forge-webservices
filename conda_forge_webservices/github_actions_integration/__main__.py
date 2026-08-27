@@ -5,7 +5,6 @@ import pprint
 import subprocess
 import sys
 import tempfile
-import traceback
 
 import click
 from conda_forge_feedstock_ops import setup_logging
@@ -166,8 +165,7 @@ def main_run_task(
                 lints, hints, errors = res
             lint_error = False
         except Exception as err:
-            LOGGER.warning("LINTING ERROR: %r", err)
-            LOGGER.warning("LINTING ERROR TRACEBACK: %s", traceback.format_exc())
+            LOGGER.exception("LINTING ERROR: %r", err)
             lint_error = True
             lints = None
             hints = None
