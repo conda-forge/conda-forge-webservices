@@ -81,7 +81,7 @@ def comment_and_push_if_changed(
             git_repo.remotes.origin.push()
         except GitCommandError as e:
             push_error = True
-            LOGGER.critical(repr(e))
+            LOGGER.exception("Error pushing to %s/%s: %r", pr_owner, pr_repo, e)
             message = dedent_with_escaped_continue(f"""
                 Hi! This is the friendly automated conda-forge-webservice.
 

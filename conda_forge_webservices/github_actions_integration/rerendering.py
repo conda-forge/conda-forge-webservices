@@ -26,7 +26,7 @@ def rerender(git_repo):
             use_container=True,
         )
     except ContainerRuntimeError as e:
-        LOGGER.error(f"Rerendering failed: {e}")
+        LOGGER.exception("Rerendering failed: %r", e)
         ret = 1
     else:
         ret = 0
