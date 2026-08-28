@@ -474,7 +474,7 @@ def pr_detailed_comment(
 
                 I tried to convert the recipe to v1 for you but ran into an issue with kicking GitHub Actions.
                 Please ping conda-forge/core for further assistance.
-                """).format(doc_url)  # ruff: ignore[line-too-long]
+                """)  # ruff: ignore[line-too-long]
 
         if message is not None:
             gh = get_gh_client()
