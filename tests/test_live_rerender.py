@@ -48,7 +48,7 @@ def _rerender_is_ok(verbose=False):
                 output = c.stdout.decode("utf-8")
                 if verbose:
                     print("    last commit:", output.strip(), flush=True)
-                if "MNT:" not in output:
+                if "chore:" not in output:
                     return False
 
                 if verbose:
