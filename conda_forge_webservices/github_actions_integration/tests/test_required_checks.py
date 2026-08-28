@@ -49,7 +49,7 @@ def test_all_statuses_and_checks_ok(val):
 )
 @pytest.mark.parametrize("ignore_linter", ["conda-forge-linter", "linter", None])
 @mock.patch(
-    "conda_forge_webservices.github_actions_integration.automerge._run_git_command"
+    "conda_forge_webservices.github_actions_integration.automerge.run_git_command"
 )
 @mock.patch("conda_forge_webservices.github_actions_integration.automerge.tempfile")
 def test_get_required_checks_and_statuses(
