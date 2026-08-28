@@ -746,7 +746,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
-  version: 0.17.1
+  version: 0.18.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -768,10 +768,10 @@ package:
     ruamel.yaml.jinja2: ''
     wurlitzer: ''
     zstandard: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.17.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.18.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 539a67023909f78244d05e15fcc6cdc5
-    sha256: 5a5d5f0272824caddd387bf3c743aa860b829d09c9a4a8535d9660c8ca8ef52f
+    md5: 9ebf9a2ee3195888584c7898b94c4ab2
+    sha256: 95f3e1ea22b3c2ff5737f786e159c590af421e93225bb67403bf13819050f97f
   category: main
   optional: false
 - name: conda-forge-metadata
@@ -804,7 +804,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.8.78
+  version: 2026.8.89
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +864,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.8.78-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.8.89-pyhd8ed1ab_0.conda
   hash:
-    md5: b43953c3be31726f925f065b07d76f08
-    sha256: 2b347c61108dd23a2d7b457aee1357555268705e42c3bf657766264fb1b9365e
+    md5: ef9361e0b1bafcf8e8546c1dcbfc1d52
+    sha256: 82fa47ef92bc5eeb427057d02c4d1a8b9e3238424b67ba149e045b0dec68bfa1
   category: main
   optional: false
 - name: conda-index
@@ -1224,7 +1224,7 @@ package:
   category: main
   optional: false
 - name: dask-core
-  version: 2026.7.1
+  version: 2026.8.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -1237,10 +1237,10 @@ package:
     python: '>=3.10'
     pyyaml: '>=5.4.1'
     toolz: '>=0.12.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/dask-core-2026.7.1-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/dask-core-2026.8.0-pyhc364b38_0.conda
   hash:
-    md5: 7e9fcc61c119f585f2b7b491147df821
-    sha256: feef96841d636fc35c3fef7c7276fa9c175baf4444896073bee65f08abe6ac91
+    md5: 2ccdf45d2372e15c7edcb7a72d573e76
+    sha256: 1126e38c6763e5c9ab3885f859c0111bd5e7abcf346a9037655177ef7ae06909
   category: main
   optional: false
 - name: dateparser
@@ -1328,14 +1328,14 @@ package:
   category: main
   optional: false
 - name: distributed
-  version: 2026.7.1
+  version: 2026.8.0
   manager: conda
   platform: linux-64
   dependencies:
     click: '>=8.0'
     cloudpickle: '>=3.0.0'
     cytoolz: '>=0.12.0'
-    dask-core: '>=2026.7.1,<2026.7.2.0a0'
+    dask-core: '>=2026.8.0,<2026.8.1.0a0'
     jinja2: '>=2.10.3'
     locket: '>=1.0.0'
     msgpack-python: '>=1.0.2'
@@ -1348,10 +1348,10 @@ package:
     toolz: '>=0.12.0'
     tornado: '>=6.2.0'
     zict: '>=3.0.0'
-  url: https://conda.anaconda.org/conda-forge/noarch/distributed-2026.7.1-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/distributed-2026.8.0-pyhc364b38_0.conda
   hash:
-    md5: f06a1abc946ca9b6107851cf148621f3
-    sha256: bae0d85df264228cbd485b444bd1f5135e32093e32503aa72e4b4b61636d12b2
+    md5: f382c4eed5376ee372a6e67a0f6cd4d9
+    sha256: 3dd953eba3c59ecfac0e8cdaa47d5017f48a1843c8b0ad07cb743563e9d64bc6
   category: main
   optional: false
 - name: distro
@@ -3550,19 +3550,19 @@ package:
   category: main
   optional: false
 - name: msgpack-python
-  version: 1.2.1
+  version: 1.2.2
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=14'
-    libstdcxx: '>=14'
+    libgcc: '>=15'
+    libstdcxx: '>=15'
     python: ''
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.2.1-py312h0a2e395_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/msgpack-python-1.2.2-py312h9be0db6_0.conda
   hash:
-    md5: a142257c1b69e37cfefc66dc228a4d93
-    sha256: c9764c77dd7f9c581c1d8a24c3024edf777cacfb5a4180de5badc6638dc8590f
+    md5: 881c695332c119ffd74b0a856f2c8fba
+    sha256: ecc6920ef31af5a646ee162dd5ee0b0096a5b9ec07a6377aaf6715a0b9dd502d
   category: main
   optional: false
 - name: msrest
