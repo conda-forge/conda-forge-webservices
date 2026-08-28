@@ -114,7 +114,10 @@ def main_run_task(
         task_data["task_results"]["convert_changed"] = convert_changed
         task_data["task_results"]["convert_error"] = convert_error
         if convert_info_message is not None:
-            task_data["task_results"]["info_message"] = convert_info_message
+            task_data["task_results"]["info_message"] = (
+                "Recipe conversion error:\n"
+                f"<details/>\n{convert_info_message}\n<details/>\n"
+            )
         else:
             task_data["task_results"]["info_message"] = ""
         task_data["task_results"]["patch"] = None
