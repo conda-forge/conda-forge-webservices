@@ -134,7 +134,7 @@ def update_version(
         run_git_command(
             "commit",
             "-m",
-            f"ENH updated version to {new_version}",
+            f"chore: updated version to {new_version}",
             cwd=git_repo.working_dir,
             check=True,
             env=os.environ,
