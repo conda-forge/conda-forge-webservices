@@ -6,6 +6,7 @@ import uuid
 
 import github
 import requests
+from flaky import flaky
 
 import conda_forge_webservices
 from conda_forge_webservices.utils import pushd
@@ -292,7 +293,7 @@ def _run_test_try_finally(branch):
                     _set_pr_not_draft()
 
 
-# @flaky
+@flaky
 def test_live_convert_recipe_to_vi(pytestconfig, skip_if_no_tokens):
     global GH
     GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
