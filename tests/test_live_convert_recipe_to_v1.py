@@ -11,7 +11,7 @@ import conda_forge_webservices
 from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.commands import (
     get_workflow_run_from_uid,
-    set_version_update_pr_status,
+    set_convert_v1_pr_status,
 )
 from conda_forge_webservices import __version__
 
@@ -243,7 +243,7 @@ def _run_test(branch):
         else:
             target_url = None
 
-        set_version_update_pr_status(
+        set_convert_v1_pr_status(
             GH.get_repo(REPO), PR_NUM, "pending", target_url=target_url, sha=pr_head_sha
         )
 
@@ -263,7 +263,7 @@ def _run_test(branch):
     print("checking repo for the conversion...", flush=True)
     update_is_ok = _conversion_is_ok(verbose=True)
     if not update_is_ok:
-        set_version_update_pr_status(
+        set_convert_v1_pr_status(
             GH.get_repo(REPO),
             PR_NUM,
             "failure",
