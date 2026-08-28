@@ -13,7 +13,7 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: a59cb45417da23ad5cd098ca72529e836372d4cfb6b918af7029966295d6c09c
+    linux-64: c47cd955a98aeda7d3a9fee6cac209233c3f0f2bab0df05d06f617400aec717d
   channels:
   - url: conda-forge
     used_env_vars: []

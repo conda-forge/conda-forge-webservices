@@ -1,13 +1,12 @@
 import logging
 import os
 import pprint
-import subprocess
 from pathlib import Path
 
 from conda.models.version import VersionOrder
 
 from .api_sessions import create_api_sessions
-
+from .utils import run_git_command
 
 LOGGER = logging.getLogger(__name__)
 
@@ -124,15 +123,18 @@ def update_version(
         recipe_path = (
             "recipe/meta.yaml" if schema_version == 0 else "recipe/recipe.yaml"
         )
-        subprocess.run(
-            ["git", "add", recipe_path],
+        run_git_command(
+            "add",
+            recipe_path,
             cwd=git_repo.working_dir,
             check=True,
             env=os.environ,
         )
 
-        subprocess.run(
-            ["git", "commit", "-m", f"ENH updated version to {new_version}"],
+        run_git_command(
+            "commit",
+            "-m",
+            f"chore: updated version to {new_version}",
             cwd=git_repo.working_dir,
             check=True,
             env=os.environ,

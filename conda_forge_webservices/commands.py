@@ -48,9 +48,7 @@ RERENDER_MSG = re.compile(pre + "(please )?re-?render", re.I)
 RESTART_CI = re.compile(pre + "(please )?restart (build|builds|ci)", re.I)
 LINT_MSG = re.compile(pre + "(please )?(re-?)?lint", re.I)
 UPDATE_TEAM_MSG = re.compile(pre + "(please )?(update|refresh) (the )?team", re.I)
-UPDATE_CB3_MSG = re.compile(
-    pre + "(please )?update (for )?(cb|conda[- ]build)[- ]?3", re.I
-)
+CONVERT_V1_MSG = re.compile(pre + "(please )?convert (feedstock |recipe )?to v1", re.I)
 PING_TEAM = re.compile(pre + r"(please )?ping (?P<team>\S+)", re.I)
 RERUN_BOT = re.compile(pre + "(please )?rerun (the )?bot", re.I)
 ADD_BOT_AUTOMERGE = re.compile(pre + "(please )?(add|enable) bot auto-?merge", re.I)
@@ -363,7 +361,7 @@ def pr_detailed_comment(
 
     pr_commands = [LINT_MSG]
     if not is_staged_recipes:
-        pr_commands += [ADD_NOARCH_MSG, RERENDER_MSG, UPDATE_CB3_MSG]
+        pr_commands += [ADD_NOARCH_MSG, RERENDER_MSG, CONVERT_V1_MSG]
 
     if not any(command.search(comment) for command in pr_commands):
         if (not command_found) and actor not in [
@@ -399,12 +397,14 @@ def pr_detailed_comment(
         changed_anything = False
         expected_changes = []
         if not is_staged_recipes:
-            do_noarch = do_rerender = False
+            do_noarch = do_rerender = do_convert_v1 = False
             if ADD_NOARCH_MSG.search(comment):
                 do_noarch = do_rerender = True
                 expected_changes.append("add noarch")
             if RERENDER_MSG.search(comment):
                 do_rerender = True
+            if CONVERT_V1_MSG.search(comment):
+                do_convert_v1 = True
 
             if do_noarch:
                 changed_anything |= make_noarch(repo)
@@ -457,6 +457,25 @@ def pr_detailed_comment(
                 Please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
                 """).format(doc_url)  # ruff: ignore[line-too-long]
 
+        convert_v1_error = False
+        if not is_staged_recipes and do_convert_v1:
+            try:
+                convert_v1_error = convert_v1(org_name + "/" + repo_name, int(pr_num))
+            except RequestException:
+                convert_v1_error = True
+
+        if convert_v1_error:
+            if message is None:
+                message = textwrap.dedent("""
+                    Hi! This is the friendly automated conda-forge-webservice.
+                    """)
+
+            message += textwrap.dedent("""
+
+                I tried to convert the recipe to v1 for you but ran into an issue with kicking GitHub Actions.
+                Please ping conda-forge/core for further assistance.
+                """)  # ruff: ignore[line-too-long]
+
         if message is not None:
             gh = get_gh_client()
             gh_repo = gh.get_repo(f"{org_name}/{repo_name}")
@@ -493,7 +512,7 @@ def issue_comment(
         UPDATE_TEAM_MSG,
         ADD_NOARCH_MSG,
         RERENDER_MSG,
-        UPDATE_CB3_MSG,
+        CONVERT_V1_MSG,
         ADD_BOT_AUTOMERGE,
         ADD_USER,
         REMOVE_USER,
@@ -503,7 +522,7 @@ def issue_comment(
     send_pr_commands = [
         ADD_NOARCH_MSG,
         RERENDER_MSG,
-        UPDATE_CB3_MSG,
+        CONVERT_V1_MSG,
         ADD_BOT_AUTOMERGE,
         ADD_USER,
         REMOVE_USER,
@@ -619,10 +638,11 @@ def issue_comment(
             check_bump_build = True
             do_rerender = False
             do_version_update = False
+            do_convert_v1 = False
             extra_msg = ""
             input_ver = None
             if ADD_NOARCH_MSG.search(text):
-                pr_title = "MNT: Add noarch: python"
+                pr_title = "chore: Add noarch: python"
                 comment_msg = "made the recipe `noarch: python`"
                 to_close = ADD_NOARCH_MSG.search(title)
 
@@ -630,7 +650,7 @@ def issue_comment(
                 do_rerender = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
             elif RERENDER_MSG.search(text):
-                pr_title = "MNT: rerender"
+                pr_title = "chore: rerender"
                 comment_msg = "started rerendering the recipe"
                 to_close = RERENDER_MSG.search(title)
                 extra_msg = (
@@ -640,6 +660,18 @@ def issue_comment(
                 )
 
                 do_rerender = True
+                changed_anything |= make_rerender_dummy_commit(git_repo)
+            elif CONVERT_V1_MSG.search(text):
+                pr_title = "chore: convert recipe to v1"
+                comment_msg = "started converting the recipe to v1"
+                to_close = CONVERT_V1_MSG.search(title)
+                extra_msg = (
+                    "\n\nIf I find any needed changes to the recipe, "
+                    "I'll push them to this PR shortly. Thank you for "
+                    "waiting!\n"
+                )
+
+                do_convert_v1 = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
             elif UPDATE_VERSION.search(text):
                 if UPDATE_VERSION.search(title):
@@ -788,6 +820,26 @@ def issue_comment(
                             I tried to rerender for you but ran into an issue with kicking GitHub Actions to do the rerender.
                             Please ping conda-forge/core for further assistance. You can also try [re-rendering locally]({}).
                             """).format(doc_url)  # ruff: ignore[line-too-long]
+
+                        pr.create_issue_comment(message)
+
+                if do_convert_v1:
+                    convert_v1_error = False
+                    try:
+                        convert_v1_error = convert_v1(
+                            org_name + "/" + repo_name,
+                            pr.number,
+                        )
+                    except RequestException:
+                        convert_v1_error = True
+
+                    if convert_v1_error:
+                        message = textwrap.dedent("""
+                            Hi! This is the friendly automated conda-forge-webservice.
+
+                            I tried to convert the recipe to v1 for you but ran into an issue with kicking GitHub Actions.
+                            Please ping conda-forge/core for further assistance.
+                            """)  # ruff: ignore[line-too-long]
 
                         pr.create_issue_comment(message)
 
@@ -1199,6 +1251,72 @@ def rerender(full_name, pr_num):
             target_url = None
 
         set_rerender_pr_status(repo, pr_num, "pending", target_url=target_url, sha=sha)
+
+    return not running
+
+
+def set_convert_v1_pr_status(repo, pr_num, status, target_url=None, sha=None):
+    if target_url is not None:
+        kwargs = {"target_url": target_url}
+    else:
+        kwargs = {}
+
+    if sha is None:
+        pull = repo.get_pull(int(pr_num))
+        sha = pull.head.sha
+    commit = repo.get_commit(sha)
+
+    if status == "success":
+        msg = "Converting recipe to v1 successful."
+    elif status == "failure" or status == "error":
+        msg = "Converting recipe to v1 failed."
+    else:
+        msg = "Converting recipe to v1 in progress..."
+
+    commit.create_status(
+        status,
+        description=msg,
+        context="conda-forge-v1-conversion-service",
+        **kwargs,
+    )
+
+
+def convert_v1(full_name, pr_num):
+    gh = get_gh_client()
+    repo = gh.get_repo(full_name)
+    pull = repo.get_pull(int(pr_num))
+    sha = pull.head.sha
+
+    inject_app_token_into_feedstock(full_name, repo=repo)
+    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
+
+    _, repo_name = full_name.split("/")
+    uid = uuid.uuid4().hex
+    ref = __version__.replace("+", ".")
+    workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
+        "webservices-workflow-dispatch.yml"
+    )
+    running = workflow.create_dispatch(
+        ref=ref,
+        inputs={
+            "task": "convert_v1",
+            "repo": repo_name,
+            "pr_number": str(pr_num),
+            "container_tag": ref,
+            "uuid": uid,
+            "sha": sha,
+        },
+    )
+    if running:
+        run = get_workflow_run_from_uid(workflow, uid, ref)
+        if run:
+            target_url = run.html_url
+        else:
+            target_url = None
+
+        set_convert_v1_pr_status(
+            repo, pr_num, "pending", target_url=target_url, sha=sha
+        )
 
     return not running
 
