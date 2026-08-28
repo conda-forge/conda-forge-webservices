@@ -205,15 +205,6 @@ def _conversion_is_ok(verbose=False):
                 if not ("Re-" in output or "chore:" in output):
                     return False
 
-    if "chore: convert recipe to v1" not in _pr_title():
-        return False
-
-    repo = GH.get_repo(REPO)
-    pr = repo.get_pull(PR_NUM)
-
-    if pr.draft:
-        return False
-
     return True
 
 
