@@ -116,7 +116,7 @@ def main_run_task(
         if convert_info_message is not None:
             task_data["task_results"]["info_message"] = (
                 "Recipe conversion error:\n"
-                f"<details/>\n{convert_info_message}\n<details/>\n"
+                f"<details/>\n```\n{convert_info_message}```\n\n<details/>\n"
             )
         else:
             task_data["task_results"]["info_message"] = ""
@@ -275,7 +275,8 @@ def _push_changes(
         repo_name=repo_name,
         close_pr_if_no_changes_or_errors=close_pr_if_no_changes_or_errors,
         help_message=(
-            " or you can try [rerendering locally]"
+            " or, if there was a rerendering error, "
+            "you can try [rerendering locally]"
             "(https://conda-forge.org/docs/maintainer/updating_pkgs.html"
             "#rerendering-with-conda-smithy-locally)"
         ),
