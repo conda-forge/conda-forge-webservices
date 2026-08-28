@@ -19,6 +19,7 @@ from .utils import (
     get_gha_run_link,
     get_git_patch_relative_to_commit,
     mark_pr_as_ready_for_review,
+    run_git_command,
 )
 from .api_sessions import create_api_sessions, create_api_sessions_for_admin
 from .rerendering import rerender
@@ -29,7 +30,9 @@ from .linting import (
     get_recipes_for_linting,
 )
 from .version_updating import update_version, update_pr_title
+from .converting import convert_to_v1
 from conda_forge_webservices.commands import (
+    set_convert_v1_pr_status,
     set_rerender_pr_status,
     set_version_update_pr_status,
 )
@@ -106,6 +109,44 @@ def main_run_task(
         task_data["task_results"]["info_message"] = info_message
         task_data["task_results"]["commit_message"] = commit_message
         task_data["task_results"]["patch"] = patch
+    elif task == "convert_v1":
+        _pull_docker_image()
+        convert_changed, convert_error, convert_info_message = convert_to_v1(git_repo)
+        if convert_info_message is not None:
+            convert_info_message = convert_info_message.encode("utf-8").decode(
+                "unicode_escape"
+            )
+        task_data["task_results"]["convert_changed"] = convert_changed
+        task_data["task_results"]["convert_error"] = convert_error
+        if convert_info_message is not None:
+            task_data["task_results"]["info_message"] = (
+                "Recipe conversion error:\n"
+                f"<details/>\n\n```\n{convert_info_message}\n```\n\n</details>\n"
+            )
+        else:
+            task_data["task_results"]["info_message"] = ""
+        task_data["task_results"]["patch"] = None
+
+        if convert_changed and not convert_error:
+            task_data["task_results"]["commit_message"] = "chore: convert recipe to v1"
+
+            rerender_changed, rerender_error, info_message, commit_message = rerender(
+                git_repo
+            )
+            task_data["task_results"]["rerender_changed"] = rerender_changed
+            task_data["task_results"]["rerender_error"] = rerender_error
+            if info_message is not None:
+                task_data["task_results"]["info_message"] += "\n" + info_message
+            if rerender_changed:
+                task_data["task_results"]["commit_message"] += (
+                    " & " + commit_message[len("chore: ") :]
+                )
+            patch = get_git_patch_relative_to_commit(git_repo, prev_head)
+            task_data["task_results"]["patch"] = patch
+        else:
+            task_data["task_results"]["rerender_changed"] = False
+            task_data["task_results"]["rerender_error"] = False
+            task_data["task_results"]["commit_message"] = None
     elif task == "version_update":
         if (
             requested_version.lower() == "null"
@@ -143,7 +184,7 @@ def main_run_task(
             task_data["task_results"]["info_message"] = info_message
             if rerender_changed:
                 task_data["task_results"]["commit_message"] += (
-                    " & " + commit_message[len("MNT: ") :]
+                    " & " + commit_message[len("chore: ") :]
                 )
             patch = get_git_patch_relative_to_commit(git_repo, prev_head)
             task_data["task_results"]["patch"] = patch
@@ -239,7 +280,8 @@ def _push_changes(
         repo_name=repo_name,
         close_pr_if_no_changes_or_errors=close_pr_if_no_changes_or_errors,
         help_message=(
-            " or you can try [rerendering locally]"
+            " or, if there was a rerendering error, "
+            "you can try [rerendering locally]"
             "(https://conda-forge.org/docs/maintainer/updating_pkgs.html"
             "#rerendering-with-conda-smithy-locally)"
         ),
@@ -285,7 +327,7 @@ def main_finalize_task(task_data_dir):
                 return
 
         # commit the changes if needed
-        if task in ["rerender", "version_update"]:
+        if task in ["rerender", "version_update", "convert_v1"]:
             pr_branch = pr.head.ref
             pr_owner = pr.head.repo.owner.login
             pr_repo = pr.head.repo.name
@@ -314,26 +356,27 @@ def main_finalize_task(task_data_dir):
                 patch_file = os.path.join(tmpdir, "rerender-diff.patch")
                 with open(patch_file, "w") as fp:
                     fp.write(task_results["patch"])
-                subprocess.run(
-                    ["git", "apply", "--allow-empty", patch_file],
-                    check=True,
+                run_git_command(
+                    "apply",
+                    "--allow-empty",
+                    patch_file,
                     cwd=feedstock_dir,
+                    check=True,
                 )
-                subprocess.run(
-                    ["git", "add", "-f", "."],
+                run_git_command(
+                    "add",
+                    "-f",
+                    ".",
                     cwd=feedstock_dir,
                     check=True,
                 )
 
             if task_results["commit_message"] is not None:
-                subprocess.run(
-                    [
-                        "git",
-                        "commit",
-                        "-m",
-                        task_results["commit_message"],
-                        "--allow-empty",
-                    ],
+                run_git_command(
+                    "commit",
+                    "-m",
+                    task_results["commit_message"],
+                    "--allow-empty",
                     cwd=feedstock_dir,
                     check=True,
                 )
@@ -369,7 +412,7 @@ def main_finalize_task(task_data_dir):
             # if the pr was made by the bot, mark it as ready for review
             if (
                 (not comment_push_error)
-                and pr.title == "MNT: rerender"
+                and pr.title == "chore: rerender"
                 and pr.user.login == "conda-forge-admin"
             ):
                 mark_pr_as_ready_for_review(pr)
@@ -380,7 +423,60 @@ def main_finalize_task(task_data_dir):
                     "Check the workflow logs of the `run task` job for more details!",
                 )
                 sys.exit(1)
+        elif task == "convert_v1":
+            if task_results["convert_error"]:
+                action_error = True
+            else:
+                if task_results["convert_changed"]:
+                    # if there is no convert error and the conversion happened
+                    # then we can report if rerendering failed
+                    action_error = task_results["rerender_error"]
+                else:
+                    # if the conversion did not happen, we can ignore the rerendering
+                    # error if any
+                    action_error = False
 
+            comment_push_error = _push_changes(
+                action="convert recipe to v1 and rerender",
+                action_error=action_error,
+                info_message=task_results["info_message"],
+                changed=task_results["convert_changed"],
+                git_repo=git_repo,
+                pr=pr,
+                pr_branch=pr_branch,
+                pr_owner=pr_owner,
+                pr_repo=pr_repo,
+                repo_name=full_repo_name,
+                close_pr_if_no_changes_or_errors=False,
+            )
+            status = "success" if not comment_push_error else "failure"
+            target_url = (
+                f"https://github.com/conda-forge/conda-forge-webservices/"
+                f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
+            )
+            set_convert_v1_pr_status(
+                gh_repo,
+                int(pr_number),
+                status,
+                target_url=target_url,
+                sha=sha_for_status,
+            )
+
+            # if the pr was made by the bot, mark it as ready for review
+            if (
+                (not comment_push_error)
+                and pr.title == "chore: convert recipe to v1"
+                and pr.user.login == "conda-forge-admin"
+            ):
+                mark_pr_as_ready_for_review(pr)
+
+            if comment_push_error:
+                LOGGER.error(
+                    "Error in converting recipe to v1 "
+                    f"for {full_repo_name}#{pr_number}! "
+                    "Check the workflow logs of the `run task` job for more details!",
+                )
+                sys.exit(1)
         elif task == "version_update":
             if (
                 (not task_results["version_error"])

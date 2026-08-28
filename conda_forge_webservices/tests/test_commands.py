@@ -154,11 +154,33 @@ def set_dummy_gh_token():
                 "rerun bot, @conda-forge-admin",
             ],
         ),
+        (
+            "convert_v1",
+            False,
+            [
+                "@conda-forge-admin, please convert to v1",
+                "@conda-forge-admin, please convert recipe to v1"
+                "@conda-forge-admin, please convert feedstock to v1"
+                "@conda-forge-admin, convert to v1",
+                "@conda-forge-admin, convert recipe to v1"
+                "@conda-forge-admin, convert feedstock to v1"
+                "@conda-forge-admin: CONVERT TO V1",
+                "something something. @conda-forge-admin: please convert to v1",
+            ],
+            [
+                "@conda-forge admin is pretty cool. please convert to v1 for me?",
+                "@conda-forge admin is pretty cool. convert to v1 for me?",
+                "@conda-forge-admin, go ahead and convert to v1 for me",
+                "please convert to v1, @conda-forge-admin",
+                "convert to v1, @conda-forge-admin",
+            ],
+        ),
     ],
 )
 @mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
 @mock.patch("conda_forge_webservices.commands.add_bot_rerun_label")
 @mock.patch("conda_forge_webservices.commands.rerender")
+@mock.patch("conda_forge_webservices.commands.convert_v1")
 @mock.patch("conda_forge_webservices.commands.make_noarch")
 @mock.patch("conda_forge_webservices.commands.relint")
 @mock.patch("conda_forge_webservices.commands.update_team")
@@ -170,6 +192,7 @@ def test_pr_command_triggers(
     update_team,
     relint,
     make_noarch,
+    convert_v1,
     rerender,
     add_bot_rerun_label,
     get_app_token_for_webservices_only,
@@ -186,6 +209,8 @@ def test_pr_command_triggers(
         command = make_noarch
     elif command == "relint":
         command = relint
+    elif command == "convert_v1":
+        command = convert_v1
     else:
         raise ValueError(f"Unknown command: {command}")
 
@@ -352,6 +377,26 @@ def test_pr_command_triggers(
                 "remove user @blah, @conda-forge-admin",
             ],
         ),
+        (
+            "convert_v1",
+            [
+                "@conda-forge-admin, please convert to v1",
+                "@conda-forge-admin, please convert recipe to v1"
+                "@conda-forge-admin, please convert feedstock to v1"
+                "@conda-forge-admin, convert to v1",
+                "@conda-forge-admin, convert recipe to v1"
+                "@conda-forge-admin, convert feedstock to v1"
+                "@conda-forge-admin: CONVERT TO V1",
+                "something something. @conda-forge-admin: please convert to v1",
+            ],
+            [
+                "@conda-forge admin is pretty cool. please convert to v1 for me?",
+                "@conda-forge admin is pretty cool. convert to v1 for me?",
+                "@conda-forge-admin, go ahead and convert to v1 for me",
+                "please convert to v1, @conda-forge-admin",
+                "convert to v1, @conda-forge-admin",
+            ],
+        ),
     ],
 )
 @mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
@@ -361,6 +406,7 @@ def test_pr_command_triggers(
 @mock.patch("conda_forge_webservices.commands.make_rerender_dummy_commit")
 @mock.patch("conda_forge_webservices.commands.add_bot_automerge")
 @mock.patch("conda_forge_webservices.commands.rerender")
+@mock.patch("conda_forge_webservices.commands.convert_v1")
 @mock.patch("conda_forge_webservices.commands.make_noarch")
 @mock.patch("conda_forge_webservices.commands.relint")
 @mock.patch("conda_forge_webservices.commands.update_team")
@@ -374,6 +420,7 @@ def test_issue_command_triggers(
     update_team,
     relint,
     make_noarch,
+    convert_v1,
     rerender,
     add_bot_automerge,
     rerender_dummy_commit,
@@ -402,6 +449,8 @@ def test_issue_command_triggers(
         command = add_user
     elif command == "remove_user":
         command = remove_user
+    elif command == "convert_v1":
+        command = convert_v1
     else:
         raise ValueError(f"Unknown command: {command}")
 
@@ -418,7 +467,7 @@ def test_issue_command_triggers(
         issue_comment(title="hi", comment=msg)
         command.assert_called()
         issue.edit.assert_not_called()
-        if command in (rerender, make_noarch, update_version):
+        if command in (rerender, make_noarch, update_version, convert_v1):
             rerender_dummy_commit.assert_called()
         else:
             rerender_dummy_commit.assert_not_called()
@@ -438,11 +487,12 @@ def test_issue_command_triggers(
             add_user,
             remove_user,
             update_version,
+            convert_v1,
         ):
             assert "Fixes #" in repo.create_pull.call_args.kwargs["body"]
         else:
             issue.edit.assert_called_with(state="closed")
-        if command in (rerender, make_noarch, update_version):
+        if command in (rerender, make_noarch, update_version, convert_v1):
             rerender_dummy_commit.assert_called()
         else:
             rerender_dummy_commit.assert_not_called()
@@ -543,6 +593,49 @@ def test_update_version_failure(
     )
 
 
+@mock.patch("conda_forge_webservices.commands._sync_default_branch")
+@mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
+@mock.patch("conda_forge_webservices.commands.make_rerender_dummy_commit")
+@mock.patch("conda_forge_webservices.commands.convert_v1")
+@mock.patch("conda_forge_webservices.commands.make_noarch")
+@mock.patch("conda_forge_webservices.commands.relint")
+@mock.patch("conda_forge_webservices.commands.update_team")
+@mock.patch("conda_forge_webservices.commands.get_gh_client")
+@mock.patch("github.Github")
+@mock.patch("conda_forge_webservices.commands.Repo")
+def test_convert_to_v1_failure(
+    repo,
+    gh,
+    gh_app,
+    update_team,
+    relint,
+    make_noarch,
+    convert_v1,
+    rrdc,
+    gatfwo,
+    sdb,
+    set_dummy_gh_token,
+):
+    convert_v1.side_effect = RequestException
+
+    repos = [mock.MagicMock(), mock.MagicMock(), mock.MagicMock()]
+    for repo in repos:
+        repo.default_branch = "main"
+    gh.return_value.get_repo.side_effect = repos
+    pull_create_issue = repos[0].create_pull.return_value.create_issue_comment
+
+    msg = "@conda-forge-admin, please convert to v1"
+
+    issue_comment(title=msg, comment=None)
+
+    convert_v1.assert_called()
+
+    assert "ran into an issue with" in pull_create_issue.call_args[0][0]
+    assert (
+        "conda-forge/core for further assistance" in pull_create_issue.call_args[0][0]
+    )
+
+
 @pytest.mark.parametrize(
     "number,comment_id,review_id",
     [
@@ -633,6 +726,7 @@ def test_add_and_remove_user(pillow_feedstock):
 @mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
 @mock.patch("conda_forge_webservices.commands.add_bot_rerun_label")
 @mock.patch("conda_forge_webservices.commands.rerender")
+@mock.patch("conda_forge_webservices.commands.convert_v1")
 @mock.patch("conda_forge_webservices.commands.make_noarch")
 @mock.patch("conda_forge_webservices.commands.relint")
 @mock.patch("conda_forge_webservices.commands.update_team")
@@ -656,6 +750,7 @@ def test_pr_reply_to_invalid_command(
     update_team,
     relint,
     make_noarch,
+    convert_v1,
     rerender,
     add_bot_rerun_label,
     get_app_token_for_webservices_only,
@@ -681,7 +776,7 @@ def test_pr_reply_to_invalid_command(
     else:
         assert False, f"{path}"
 
-    for command in (update_team, relint, make_noarch, rerender):
+    for command in (update_team, relint, make_noarch, rerender, convert_v1):
         command.assert_not_called()
     if review_id is None:
         issue_calls = gh.return_value.get_repo.return_value.get_issue.return_value
