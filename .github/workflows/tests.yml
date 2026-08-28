@@ -568,6 +568,7 @@ jobs:
       - check
       - tests
       - docker-build
+      # - live-tests-version-update
     concurrency:
       group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-convert-recipe-to-v1' || format('{0}-{1}', github.workflow, github.ref) }}
     steps:

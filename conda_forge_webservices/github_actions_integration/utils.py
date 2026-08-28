@@ -200,3 +200,21 @@ def get_git_patch_relative_to_commit(git_repo, prev_head):
     )
     LOGGER.info("git patch for diff %s: %s", git_sha_diff, ret.stdout)
     return ret.stdout
+
+
+def run_git_command(*args, **kwargs):
+    do_check = kwargs.pop("check", False)
+    try:
+        c = subprocess.run(
+            ["git", *list(args)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            **kwargs,
+        )
+    except subprocess.CalledProcessError as e:
+        print(c.stdout)
+        if do_check:
+            raise e
+        else:
+            return c

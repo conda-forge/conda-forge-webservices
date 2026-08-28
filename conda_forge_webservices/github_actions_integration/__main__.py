@@ -19,6 +19,7 @@ from .utils import (
     get_gha_run_link,
     get_git_patch_relative_to_commit,
     mark_pr_as_ready_for_review,
+    run_git_command,
 )
 from .api_sessions import create_api_sessions, create_api_sessions_for_admin
 from .rerendering import rerender
@@ -355,21 +356,20 @@ def main_finalize_task(task_data_dir):
                 patch_file = os.path.join(tmpdir, "rerender-diff.patch")
                 with open(patch_file, "w") as fp:
                     fp.write(task_results["patch"])
-                subprocess.run(
-                    ["git", "apply", "--allow-empty", patch_file],
-                    check=True,
+                run_git_command(
+                    ["apply", "--allow-empty", patch_file],
                     cwd=feedstock_dir,
+                    check=True,
                 )
-                subprocess.run(
-                    ["git", "add", "-f", "."],
+                run_git_command(
+                    ["add", "-f", "."],
                     cwd=feedstock_dir,
                     check=True,
                 )
 
             if task_results["commit_message"] is not None:
-                subprocess.run(
+                run_git_command(
                     [
-                        "git",
                         "commit",
                         "-m",
                         task_results["commit_message"],

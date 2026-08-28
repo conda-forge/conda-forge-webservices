@@ -1,8 +1,8 @@
 import logging
-import subprocess
 
 from conda_forge_feedstock_ops.container_utils import ContainerRuntimeError
 from conda_forge_feedstock_ops.convert import convert_feedstock_to_v1
+from .utils import run_git_command
 
 LOGGER = logging.getLogger(__name__)
 
@@ -26,13 +26,13 @@ def convert_to_v1(git_repo):
     else:
         ret = 0
         if changed:
-            subprocess.call(
-                ["git", "add", "-f", "."],
+            run_git_command(
+                ["add", "-f", "."],
                 cwd=git_repo.working_dir,
                 check=False,
             )
-            subprocess.call(
-                ["git", "commit", "--all", "-m", "chore: converted feedstock to v1"],
+            run_git_command(
+                ["commit", "--all", "-m", "chore: converted feedstock to v1"],
                 cwd=git_repo.working_dir,
                 check=False,
             )

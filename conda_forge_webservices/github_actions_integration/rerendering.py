@@ -1,10 +1,10 @@
 import logging
 import os
-import subprocess
 
 import yaml
 from conda_forge_feedstock_ops.container_utils import ContainerRuntimeError
 from conda_forge_feedstock_ops.rerender import rerender as cf_feedstock_ops_rerender
+from .utils import run_git_command
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,13 +31,15 @@ def rerender(git_repo):
     else:
         ret = 0
         if msg is not None:
-            subprocess.call(
-                ["git", "add", "-f", "."],
+            run_git_command(
+                ["add", "-f", "."],
                 cwd=git_repo.working_dir,
+                check=False,
             )
-            subprocess.call(
-                ["git", "commit", "--all", "-m", msg],
+            run_git_command(
+                ["commit", "--all", "-m", msg],
                 cwd=git_repo.working_dir,
+                check=False,
             )
 
     if ret:
@@ -64,10 +66,11 @@ def _ensure_output_validation_is_on(git_repo):
         with open(pth, "w") as fp:
             fp.write(yaml.dump(cfg, default_flow_style=False))
 
-        subprocess.run(
-            ["git", "add", "conda-forge.yml"],
+        run_git_command(
+            ["add", "conda-forge.yml"],
             cwd=git_repo.working_dir,
             env=os.environ,
+            check=True,
         )
         return True
     else:
