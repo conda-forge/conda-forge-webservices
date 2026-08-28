@@ -357,24 +357,26 @@ def main_finalize_task(task_data_dir):
                 with open(patch_file, "w") as fp:
                     fp.write(task_results["patch"])
                 run_git_command(
-                    ["apply", "--allow-empty", patch_file],
+                    "apply",
+                    "--allow-empty",
+                    patch_file,
                     cwd=feedstock_dir,
                     check=True,
                 )
                 run_git_command(
-                    ["add", "-f", "."],
+                    "add",
+                    "-f",
+                    ".",
                     cwd=feedstock_dir,
                     check=True,
                 )
 
             if task_results["commit_message"] is not None:
                 run_git_command(
-                    [
-                        "commit",
-                        "-m",
-                        task_results["commit_message"],
-                        "--allow-empty",
-                    ],
+                    "commit",
+                    "-m",
+                    task_results["commit_message"],
+                    "--allow-empty",
                     cwd=feedstock_dir,
                     check=True,
                 )

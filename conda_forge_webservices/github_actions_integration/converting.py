@@ -27,12 +27,17 @@ def convert_to_v1(git_repo):
         ret = 0
         if changed:
             run_git_command(
-                ["add", "-f", "."],
+                "add",
+                "-f",
+                ".",
                 cwd=git_repo.working_dir,
                 check=False,
             )
             run_git_command(
-                ["commit", "--all", "-m", "chore: converted feedstock to v1"],
+                "commit",
+                "--all",
+                "-m",
+                "chore: converted feedstock to v1",
                 cwd=git_repo.working_dir,
                 check=False,
             )

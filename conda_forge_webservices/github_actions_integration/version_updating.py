@@ -124,14 +124,17 @@ def update_version(
             "recipe/meta.yaml" if schema_version == 0 else "recipe/recipe.yaml"
         )
         run_git_command(
-            ["add", recipe_path],
+            "add",
+            recipe_path,
             cwd=git_repo.working_dir,
             check=True,
             env=os.environ,
         )
 
         run_git_command(
-            ["commit", "-m", f"ENH updated version to {new_version}"],
+            "commit",
+            "-m",
+            f"ENH updated version to {new_version}",
             cwd=git_repo.working_dir,
             check=True,
             env=os.environ,

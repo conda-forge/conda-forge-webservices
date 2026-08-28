@@ -32,12 +32,17 @@ def rerender(git_repo):
         ret = 0
         if msg is not None:
             run_git_command(
-                ["add", "-f", "."],
+                "add",
+                "-f",
+                ".",
                 cwd=git_repo.working_dir,
                 check=False,
             )
             run_git_command(
-                ["commit", "--all", "-m", msg],
+                "commit",
+                "--all",
+                "-m",
+                msg,
                 cwd=git_repo.working_dir,
                 check=False,
             )
@@ -67,7 +72,8 @@ def _ensure_output_validation_is_on(git_repo):
             fp.write(yaml.dump(cfg, default_flow_style=False))
 
         run_git_command(
-            ["add", "conda-forge.yml"],
+            "add",
+            "conda-forge.yml",
             cwd=git_repo.working_dir,
             env=os.environ,
             check=True,
