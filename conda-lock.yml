@@ -388,7 +388,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.43.82
+  version: 1.43.83
   manager: conda
   platform: linux-64
   dependencies:
@@ -396,10 +396,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.82-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.83-pyhd8ed1ab_0.conda
   hash:
-    md5: 6030b5a42ea92add4fa545baba0154d8
-    sha256: b56a2616e335b83f1ee310f7c049649875c8854abedb92d64ede531b85059a37
+    md5: 9a70db0ee02ef102c89131fb6b38e821
+    sha256: 2ada302fc55fcb7a77c713aaaa17e9a238444584328903b76c7f34ce85b9b2ed
   category: main
   optional: false
 - name: brotli-python
@@ -746,7 +746,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
-  version: 0.18.2
+  version: 0.18.3
   manager: conda
   platform: linux-64
   dependencies:
@@ -768,10 +768,10 @@ package:
     ruamel.yaml.jinja2: ''
     wurlitzer: ''
     zstandard: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.18.2-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.18.3-pyhd8ed1ab_0.conda
   hash:
-    md5: 561d573c0e77a8d3bbb1023ffd1df471
-    sha256: e1f5f2a6cae4e42551199fdba9571db9c40f61b9bcb5130c9afb8c218890766f
+    md5: e6ec1119faadeb768e6ab455986391e8
+    sha256: a1b3b35688b92ce980325049ca43eeb138c6a826bd74f2801c9ab21da5165a9b
   category: main
   optional: false
 - name: conda-forge-metadata
@@ -793,14 +793,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.08.28.18.38.52
+  version: 2026.08.29.19.07.05
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.08.28.18.38.52-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.08.29.19.07.05-hd8ed1ab_0.conda
   hash:
-    md5: 2d6a27dc6536d18550b6b5ed23bd8c4d
-    sha256: 042a078bc73dcc354faeb23d2c6501b7d20d69a1bf041c4269af9afb36ff5c73
+    md5: 70733ffbce573fe1f0e3bd00051138db
+    sha256: 9eee1777c6ed27b51ce310810749cbf0a4ea23be5b2f753edac97834d8408a40
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1177,14 +1177,14 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     cffi: '>=2.0'
-    libgcc: '>=14'
-    openssl: '>=3.5.7,<4.0a0'
+    libgcc: '>=15'
+    openssl: '>=3.5.8,<4.0a0'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/cryptography-50.0.0-py312ha4b625e_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/cryptography-50.0.0-py312h89f293a_0.conda
   hash:
-    md5: 67ef0ac81eef7c40a62b938acac84cad
-    sha256: 72f6f9e4ba27a6e247da7d2351ec074df5f49a6b53c468fdd833dfbda386aeb9
+    md5: 0cbe168d805dd3e1050fbe47ca8d96c8
+    sha256: 8acfce48ada31d9f3bb6000fc529387b8428b128869459bc25d28b75dc3fdbd6
   category: main
   optional: false
 - name: curl
@@ -3519,10 +3519,10 @@ package:
     python: ''
     python_abi: 3.12.*
     tomli-w: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.5.2-py312h20c3967_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.5.2-py312h20c3967_2.conda
   hash:
-    md5: b020052753d777ac1e2b77ed1628e989
-    sha256: 4cc9465451511d3b5781f07c21359897a167d2adfd71161e9f8ba31909349ec7
+    md5: 54a2bb444362732cf80e546c337c761c
+    sha256: 20644178f848dc8f3ad6289b0eaa6b6c1ce60ad33f22fcdad89bb0534c2cdb7b
   category: main
   optional: false
 - name: mock
