@@ -114,7 +114,7 @@ jobs:
           fetch-depth: 0
 
       - name: setup conda
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         if: ${{ needs.check.outputs.skip-check != 'true' }}
         with:
           micromamba-version: "2.7.0-0"
@@ -189,7 +189,7 @@ jobs:
           fetch-depth: 0
 
       - name: setup conda
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         if: ${{ needs.check.outputs.skip-check != 'true' }}
         with:
           micromamba-version: "2.7.0-0"
@@ -215,7 +215,7 @@ jobs:
 
       - name: build docker image
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
-        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
+        uses: redhat-actions/buildah-build@719e3c40d8af9790c23eca13f7daa339f2867034 # v3.1.0
         with:
           image: webservices-dispatch-action
           tags: ${{ steps.install-code.outputs.version }}
@@ -226,7 +226,7 @@ jobs:
 
       - name: push docker image to quay.io
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
-        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2.8
+        uses: redhat-actions/push-to-registry@94ade333c38ecc0e60e94785125d9a52ca423b37 # v3.0.0
         with:
           image: webservices-dispatch-action
           tags: ${{ steps.install-code.outputs.version }}
@@ -250,7 +250,7 @@ jobs:
 
       - name: setup conda
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
@@ -315,7 +315,7 @@ jobs:
 
       - name: setup conda
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
@@ -383,7 +383,7 @@ jobs:
 
       - name: setup conda
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
@@ -451,7 +451,7 @@ jobs:
 
       - name: setup conda
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
@@ -518,7 +518,7 @@ jobs:
 
       - name: setup conda
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
@@ -579,7 +579,7 @@ jobs:
 
       - name: setup conda
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: mamba-org/setup-micromamba@ce51e99f4bb8a82ab7158c4dc59ef4634c59c4f9 # v3.1.0
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
           micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
