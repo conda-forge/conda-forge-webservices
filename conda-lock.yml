@@ -804,7 +804,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.8.95
+  version: 2026.9.5
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +864,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.8.95-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.5-pyhd8ed1ab_0.conda
   hash:
-    md5: 5f046ec76d81acc9aa5c3a7725c3bc44
-    sha256: dd3c8113eb3e45f608f3e2f02175d70b021d3cebf6641aec82714131dcafd6f0
+    md5: 8913f53ffb196ff029ecb1355232e62b
+    sha256: 845b598b57afce5ef958d45462b1902e6e3bfc536569f14ea750486e9a23391d
   category: main
   optional: false
 - name: conda-index
@@ -4529,10 +4529,10 @@ package:
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.12-8_cp312.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.12-9_cp312.conda
   hash:
-    md5: c3efd25ac4d74b1584d2f7a57195ddf1
-    sha256: 80677180dd3c22deb7426ca89d6203f1c7f1f256f2d5a94dc210f6e758229809
+    md5: 4c32076993e6270825441d059ab5c18b
+    sha256: ee9c2922e07afc85fc82d5fa82c9ac2c79da3be3283a5e17bf2f2ae38dbd02fb
   category: main
   optional: false
 - name: pytz
@@ -5391,17 +5391,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.12.8
+  version: 0.12.9
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=15'
     libstdcxx: '>=15'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.8-h86a270d_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.9-h86a270d_0.conda
   hash:
-    md5: 14825dfe9cb93713a2eedfefbf15cd11
-    sha256: 9e4bcd3beeebebaf43a693438642ade7ddfd34d265398f6b8e07398f33767dec
+    md5: 9e70c78fa60e890a2f29af40d4fa7bde
+    sha256: 3cf1d821c0cf527eea0c1d06ce9160aab9405db26329f14c44175f6a28f15064
   category: main
   optional: false
 - name: vcs_versioning
