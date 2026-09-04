@@ -101,33 +101,32 @@ def comment_and_push_if_changed(
                 f"https://github.com/{pr_owner}/{pr_repo}.git",
                 push=True,
             )
-    else:
-        if error:
-            message = dedent_with_escaped_continue(f"""
-                Hi! This is the friendly automated conda-forge-webservice.
 
-                I tried to {action} for you but ran into some issues. \\
-                Please check the [output logs]({run_link}) of the \\
-                GitHub Actions workflow \\
-                below for more details. You can also ping `conda-forge/core` \\
-                (using the `@` notation) for further assistance{help_message}.
-            """)
-        else:
-            message = dedent_with_escaped_continue(f"""
-                Hi! This is the friendly automated conda-forge-webservice.
+    if (not changed) and (not error):
+        message = dedent_with_escaped_continue(f"""
+            Hi! This is the friendly automated conda-forge-webservice.
 
-                I tried to {action} for you, but it looks like there was nothing to do.
-            """)
-            if close_pr_if_no_changes_or_errors:
-                message += "\nI'm closing this PR!"
+            I tried to {action} for you, but it looks like there was nothing to do.
+        """)
+        if close_pr_if_no_changes_or_errors:
+            message += "\nI'm closing this PR!"
+    elif error:
+        message = dedent_with_escaped_continue(f"""
+            Hi! This is the friendly automated conda-forge-webservice.
+
+            I tried to {action} for you but ran into some issues. \\
+            Please check the [output logs]({run_link}) of the \\
+            GitHub Actions workflow \\
+            below for more details. You can also ping `conda-forge/core` \\
+            (using the `@` notation) for further assistance{help_message}.
+        """)
 
     if info_message:
         if message is None:
-            message = dedent_with_escaped_continue(f"""
-                Hi! This is the friendly automated conda-forge-webservice.
-
-                {info_message}
-            """)
+            message = (
+                "Hi! This is the friendly automated "
+                f"conda-forge-webservice.\n\n{info_message}"
+            )
         else:
             message += "\n" + info_message
 
