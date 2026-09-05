@@ -674,7 +674,7 @@ package:
   category: main
   optional: false
 - name: conda
-  version: 26.7.1
+  version: 26.7.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -703,10 +703,10 @@ package:
     setuptools: '>=60.0.0'
     tqdm: '>=4'
     truststore: '>=0.8.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.7.1-py312h20c3967_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.7.2-py312h20c3967_0.conda
   hash:
-    md5: 00415808011949d33f78fed3c32c9668
-    sha256: 279ca6cd60377ef90b7de1f17c9f66b7558b068e6c1a9dc5f17ba4ad2c750349
+    md5: f4bfff6edb2d973c932ab5e51e6949f7
+    sha256: 67a268b6d66b71a6cbc49f50079daf16dee81bbf572923103d6010ec5444cb33
   category: main
   optional: false
 - name: conda-build
@@ -4294,10 +4294,10 @@ package:
     libstdcxx: '>=15'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/pymongo-4.18.0-py312ha6a3dbb_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pymongo-4.18.0-py312ha6a3dbb_1.conda
   hash:
-    md5: f7ebb63977a72af726f478d63855de85
-    sha256: e64d824c5f17d7f1ce32d51b777aa82fc9dcc38c55b1f7912309471207bbc5c1
+    md5: 1ffcbdcb07326130376bd3ca0819cf60
+    sha256: e5004be5d61cd20c0d31e6ccfb2551db58a238e77fee82b450f01504e08d2c6d
   category: main
   optional: false
 - name: pynacl
