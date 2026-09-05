@@ -160,18 +160,17 @@ package:
   category: main
   optional: false
 - name: anyio
-  version: 4.15.0
+  version: 4.15.1
   manager: conda
   platform: linux-64
   dependencies:
-    exceptiongroup: '>=1.0.2'
     idna: '>=2.8'
     python: '>=3.11'
-    typing_extensions: '>=4.5'
-  url: https://conda.anaconda.org/conda-forge/noarch/anyio-4.15.0-pyh5ded981_0.conda
+    typing_extensions: '>=4.16.0'
+  url: https://conda.anaconda.org/conda-forge/noarch/anyio-4.15.1-pyh5ded981_1.conda
   hash:
-    md5: 28190db0e223089024a41b06c11af36e
-    sha256: 35fefb7c4bc39bca28d8764b4f59bd7b739c47e3af8e5e20ee22621db0c594b3
+    md5: 33cdc5ba7c481b371f08f88e6c048c55
+    sha256: fc25a84c9c1ad4b48c136ad2363100e8b0faa3b0ab8985e61c9c8fa0b3431945
   category: main
   optional: false
 - name: appdirs
@@ -746,7 +745,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
-  version: 0.18.8
+  version: 0.18.9
   manager: conda
   platform: linux-64
   dependencies:
@@ -769,28 +768,28 @@ package:
     ruamel.yaml.jinja2: ''
     wurlitzer: ''
     zstandard: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.18.8-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.18.9-pyhd8ed1ab_0.conda
   hash:
-    md5: f2145138fec649202d330f17c7b82ef6
-    sha256: 5f301fcb80d40bfbd3c113e1ba4a4b7428c18b174af8e850428c5e0a21bc564d
+    md5: 7530b376e4bd503fa48ddb84b1c41b68
+    sha256: fcaa5420ee3fc0123ffeafe7fe7b285613e173138501afc5a744a50b0959210a
   category: main
   optional: false
 - name: conda-forge-metadata
-  version: 0.16.1
+  version: 2026.9.5
   manager: conda
   platform: linux-64
   dependencies:
     conda-oci-mirror: ''
     conda-package-streaming: '>=0.12.0'
     deprecated: ''
-    python: '>=3.10'
+    python: '>=3.11'
     requests: ''
     ruamel.yaml: ''
     typing-extensions: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-metadata-0.16.1-pyhcf101f3_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-metadata-2026.9.5-pyh5ded981_0.conda
   hash:
-    md5: 5210d1ee4602e2d30a999d9a78fc9bb0
-    sha256: 9b1fe9c74227877f62d1164ad1df4a48aed8ca4736cec1f0afdd34f8289c24f0
+    md5: d06136568d930cdb490fb0435e05e513
+    sha256: df8999449d87d52a784596389a3ae68658ff50171cf5c6dca7bf7a4f9c391f1e
   category: main
   optional: false
 - name: conda-forge-pinning
@@ -1021,15 +1020,14 @@ package:
     packaging: ''
     pip: '>=23.0.1'
     platformdirs: ''
-    python: ''
+    python: '>=3.11'
     python-build: ''
     python-installer: '>=1.0'
-    python_abi: 3.12.*
     unearth: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-pypi-0.11.0-py312h20c3967_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-pypi-0.11.0-pyh5ded981_2.conda
   hash:
-    md5: df3e518d7ed9e00758d3cefabaf4f276
-    sha256: 6ca133da0156df94bba85ed441a3a2cccca87d0f2cc03b0104f1a4cfa6f14f2f
+    md5: d00669954b34487bd3f60297d2c7e5b3
+    sha256: 57721a79a37837fc576bed40c5f927a6b9e827a9f446f0ac0132fb7503c8ac87
   category: main
   optional: false
 - name: conda-rattler-solver
@@ -3424,10 +3422,10 @@ package:
     libzlib: '>=1.3.2,<2.0a0'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/lxml-6.1.2-py312h663fcd5_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/lxml-6.1.2-py312h663fcd5_2.conda
   hash:
-    md5: 712dbe3b79a590f243da9337a730d65f
-    sha256: 5f1cbf3e4b81aadca9fb532ba56793630172656b67b5c30a20b1472f52b412de
+    md5: ca5780f80f19ffa3dd8bd325ecaf26dd
+    sha256: 9668d76e526cdd6457fe64c0ccfee6f0055980b81ad137bea0f52e8c1ebcabb0
   category: main
   optional: false
 - name: lz4-c
@@ -3904,10 +3902,10 @@ package:
     python_abi: 3.12.*
     tk: '>=8.6.13,<8.7.0a0'
     zlib-ng: '>=2.3.3,<2.4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pillow-12.3.0-py312h38079b3_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pillow-12.3.0-py312h38079b3_2.conda
   hash:
-    md5: abe0e18aba5d053232155243914a168b
-    sha256: 759861dd3f02686c51a9d1a315effef0f43697adf008e69f3574dd05f6a5dda7
+    md5: 5752c2b6fa529061baba2819e4c2b143
+    sha256: fee856a3b7492ca0c6be99525443409a4b3403de3a71242949d5e6c5c3a8b024
   category: main
   optional: false
 - name: pip
@@ -4794,10 +4792,10 @@ package:
     libgcc: '>=15'
     python: ''
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-2026.6.3-py312hc767a74_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-2026.6.3-py312hc767a74_2.conda
   hash:
-    md5: 590f306bbc6d9fde9353bcd9a19b70dc
-    sha256: a47c5947ed7168ff6e9aa8fc09aad93aa74ca42fe04695cd755d9468c433e73e
+    md5: c5e7bd18dff14e8fdc74d6e623c5fe52
+    sha256: de56267c9c6e31e02eddd3239cce36154d500b325a6cbd83d57fb32bcc2ebe11
   category: main
   optional: false
 - name: ruamel.yaml
@@ -5406,17 +5404,17 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.12.9
+  version: 0.12.10
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=15'
     libstdcxx: '>=15'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.9-h86a270d_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.10-h86a270d_0.conda
   hash:
-    md5: 9e70c78fa60e890a2f29af40d4fa7bde
-    sha256: 3cf1d821c0cf527eea0c1d06ce9160aab9405db26329f14c44175f6a28f15064
+    md5: 2d862bd3eed02d4c94dd6f6b21377a2a
+    sha256: 1f3c729e38c238bc69ace0d79e59d20a96cd15962d370458967a3bd12857ce02
   category: main
   optional: false
 - name: vcs_versioning
@@ -5891,10 +5889,10 @@ package:
     python: ''
     python_abi: 3.12.*
     zstd: '>=1.5.7,<1.5.8.0a0,>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.25.0-py312h1b36aeb_3.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.25.0-py312h1b36aeb_4.conda
   hash:
-    md5: b71258304496a49e77c66650459089d1
-    sha256: 7c2b7d721ae03896f4ac7d0d806567ba92786de94efc79e14512f355552bcdca
+    md5: 03519133f60c8fab1268a64887b518c2
+    sha256: a3183adc689cfafdaa7e6a21a2c9174894125fc838cb538955246c6543e5b8da
   category: main
   optional: false
 - name: zstd
