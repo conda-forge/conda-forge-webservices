@@ -804,7 +804,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.9.5
+  version: 2026.9.32
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +864,10 @@ package:
     wget: ''
     wurlitzer: ''
     yaml: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.5-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.32-pyhc364b38_0.conda
   hash:
-    md5: 8913f53ffb196ff029ecb1355232e62b
-    sha256: 845b598b57afce5ef958d45462b1902e6e3bfc536569f14ea750486e9a23391d
+    md5: 94ff94ebe95a9a2f2b413776c3ee241f
+    sha256: dc210d154ab73f739575a7c883e1b07ba56c55ef02e3c468f1ee082489e94dd1
   category: main
   optional: false
 - name: conda-index
@@ -3311,38 +3311,38 @@ package:
   category: main
   optional: false
 - name: libxml2
-  version: 2.15.3
+  version: 2.15.4
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     icu: '>=78.3,<79.0a0'
-    libgcc: '>=14'
+    libgcc: '>=15'
     libiconv: '>=1.18,<2.0a0'
     liblzma: '>=5.8.3,<6.0a0'
-    libxml2-16: 2.15.3
+    libxml2-16: 2.15.4
     libzlib: '>=1.3.2,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.15.3-h49c6c72_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.15.4-h7df9aa5_0.conda
   hash:
-    md5: 2d34cdb31014cbc8f1e9384c89ede0a5
-    sha256: a16a576a5844a3a0e1cdfc5e162b9fe9c64dccf6a93f44c293bb42851aebe2b4
+    md5: ea192d1ef556bf1d55de4acb8c0f5b65
+    sha256: 053d85821ce5e36b7ce03faea5930382f6af695df9e2cd68e5d8d273072d1551
   category: main
   optional: false
 - name: libxml2-16
-  version: 2.15.3
+  version: 2.15.4
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     icu: '>=78.3,<79.0a0'
-    libgcc: '>=14'
+    libgcc: '>=15'
     libiconv: '>=1.18,<2.0a0'
     liblzma: '>=5.8.3,<6.0a0'
     libzlib: '>=1.3.2,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-16-2.15.3-hca6bf5a_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-16-2.15.4-hf3af7cc_0.conda
   hash:
-    md5: 20e4d67ec908f0405124f11612c48305
-    sha256: 087d4de023f22d6a28b9e1b818961dd41e9bda6e9793590600ff16ca150bf9cb
+    md5: b7545c57a73a51d72aa6eee5695cf051
+    sha256: 9a1685c8d8b8488cd7882a9cd6e673e687211ca763ebbcd1e91b6f594eeadc45
   category: main
   optional: false
 - name: libxslt
@@ -4974,17 +4974,17 @@ package:
   category: main
   optional: false
 - name: simdjson
-  version: 4.6.10
+  version: 4.6.11
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=15'
     libstdcxx: '>=15'
-  url: https://conda.anaconda.org/conda-forge/linux-64/simdjson-4.6.10-h4dbf13b_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/simdjson-4.6.11-h4dbf13b_0.conda
   hash:
-    md5: 53ba5412feec78cdf289bcdc660bf071
-    sha256: ae6b7ec328ddb270d055835b62fe2e563251d71fb2fbae0d46e1721385649453
+    md5: a65fbdd7742df8c2e87304a988889e4f
+    sha256: e313740ff17c7912994225ad62c795ef0fdc19d7e6a08a4e6bff3e597205f79c
   category: main
   optional: false
 - name: six
