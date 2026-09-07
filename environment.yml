@@ -13,7 +13,7 @@ dependencies:
   - conda-forge-tick >=2026.9.38
   - conda-forge-feedstock-ops >=0.19.1
   - conda-recipe-manager >=0.10.6
-  - conda-smithy >=3.61.2  # this pin is for username-userid & team security fixes
+  - conda-smithy >=2026.9.1  # this pin is for username-userid & team security fixes
   - conda-souschef
   - cryptography >=39
   - python-dateutil
@@ -27,7 +27,7 @@ dependencies:
   - python =3.12.*
   - pytz
   - pyyaml
-  - rattler-build >=0.35.4
+  - rattler-build >=0.75.0
   - requests
   - ruamel.yaml >=0.16
   - ruamel.yaml.jinja2
