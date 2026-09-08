@@ -698,14 +698,14 @@ package:
     python: ''
     python_abi: 3.12.*
     requests: '>=2.28.0,<3'
-    ruamel.yaml: '>=0.11.14,<0.19'
+    ruamel.yaml: '>=0.11.14,<0.20'
     setuptools: '>=60.0.0'
     tqdm: '>=4'
     truststore: '>=0.8.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.7.2-py312h20c3967_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/conda-26.7.2-py312h20c3967_1.conda
   hash:
-    md5: f4bfff6edb2d973c932ab5e51e6949f7
-    sha256: 67a268b6d66b71a6cbc49f50079daf16dee81bbf572923103d6010ec5444cb33
+    md5: 3e7ee7a0d77e8a9f59197e6070341c10
+    sha256: e855114a4bfd1e3e5863f155e3197046e127fb21d13cf75d96e5385e0bd0e3b9
   category: main
   optional: false
 - name: conda-build
@@ -745,18 +745,19 @@ package:
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
-  version: 0.19.1
+  version: 0.20.0
   manager: conda
   platform: linux-64
   dependencies:
     boltons: '>=23.0.0'
     click: ''
-    conda: ''
-    conda-build: '>=3.27'
+    conda: '>=26'
+    conda-build: '>=26'
     conda-forge-metadata: '>=2026.9.5'
     conda-package-handling: ''
-    conda-recipe-manager: ''
+    conda-recipe-manager: '>=0.10.6'
     conda-smithy: '>=2026'
+    jinja2: ''
     orjson: ''
     pixi: ''
     py-rattler: '>=0.22.0,<0.26a0'
@@ -769,10 +770,10 @@ package:
     ruamel.yaml.jinja2: ''
     wurlitzer: ''
     zstandard: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.19.1-pyh5ded981_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.20.0-pyh5ded981_0.conda
   hash:
-    md5: a449e373b584b2c1e1bb6efd629a6aed
-    sha256: 770e9b5256a0db576fc4b704f323fe95045f6c83d89b914d4e3db030749a05a4
+    md5: e439cab5f7594c03c69c954d63dec8ae
+    sha256: 7ce85f289a8443122ba75e6a95b81f8ae897fdc1b5ef5a439f2b6e993869bc1c
   category: main
   optional: false
 - name: conda-forge-metadata
@@ -794,14 +795,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.09.07.21.55.55
+  version: 2026.09.08.14.26.08
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.09.07.21.55.55-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.09.08.14.26.08-hd8ed1ab_0.conda
   hash:
-    md5: 5f7ccbf856a29e0f991e860a4e80c546
-    sha256: 95c938ca05d3a9306fe329e9910a510f58f3e62505e1c0eee6d5db75427e3b7c
+    md5: c6e5a6b62abe5328b0a91de5e14f89a8
+    sha256: a26a96db32532b46aa13dda31c55c7e483499134a13cd79b3b3d6f280a6bf061
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1010,23 +1011,22 @@ package:
   category: main
   optional: false
 - name: conda-pypi
-  version: 0.11.0
+  version: 0.12.0
   manager: conda
   platform: linux-64
   dependencies:
-    conda-index: '>=0.11.0'
+    conda-index: '>=0.12.0'
     conda-package-streaming: '>=0.11'
     packaging: ''
-    pip: '>=23.0.1'
     platformdirs: ''
     python: '>=3.11'
     python-build: ''
     python-installer: '>=1.0'
     unearth: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-pypi-0.11.0-pyh5ded981_2.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-pypi-0.12.0-pyh5ded981_0.conda
   hash:
-    md5: d00669954b34487bd3f60297d2c7e5b3
-    sha256: 57721a79a37837fc576bed40c5f927a6b9e827a9f446f0ac0132fb7503c8ac87
+    md5: e294f0e16705c5678d8faf71636a5455
+    sha256: 5c41f9946b00966e1c216697ed34219bf054cb1c2fc9a41d2934bdce0c15c48c
   category: main
   optional: false
 - name: conda-rattler-solver
@@ -3847,12 +3847,13 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
-    libxcrypt: '>=4.4.36'
-  url: https://conda.anaconda.org/conda-forge/linux-64/perl-5.32.1-7_hd590300_perl5.conda
+    __glibc: '>=2.17,<3.0.a0'
+    libgcc: '>=14'
+    libxcrypt: '>=4.4.38'
+  url: https://conda.anaconda.org/conda-forge/linux-64/perl-5.32.1-8_hb03c661_perl5.conda
   hash:
-    md5: f2cfec9406850991f4e3d960cc9e3321
-    sha256: 9ec32b6936b0e37bcb0ed34f22ec3116e75b3c0964f9f50ecea5f58734ed6ce9
+    md5: 2d74083a0899b26de3e7fb88847ad7aa
+    sha256: c28544715a24f12409748a97412e1fa27a4a09f8d3623a629bf3486ad03b23cd
   category: main
   optional: false
 - name: pexpect
@@ -4784,19 +4785,16 @@ package:
   category: main
   optional: false
 - name: ruamel.yaml
-  version: 0.18.17
+  version: 0.19.1
   manager: conda
   platform: linux-64
   dependencies:
-    __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=14'
-    python: ''
-    python_abi: 3.12.*
+    python: '>=3.10'
     ruamel.yaml.clib: '>=0.2.15'
-  url: https://conda.anaconda.org/conda-forge/linux-64/ruamel.yaml-0.18.17-py312h5253ce2_2.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/ruamel.yaml-0.19.1-pyhcf101f3_0.conda
   hash:
-    md5: f7ddc4a83cdcceb34c851e51ea64c903
-    sha256: 3f1137747c99d79d82fe76a5ab72ed56b85ad1412f809cb721bd330095770f40
+    md5: 06ad944772941d5dae1e0d09848d8e49
+    sha256: b48bebe297a63ae60f52e50be328262e880702db4d9b4e86731473ada459c2a1
   category: main
   optional: false
 - name: ruamel.yaml.clib
@@ -4808,10 +4806,10 @@ package:
     libgcc: '>=15'
     python: ''
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/ruamel.yaml.clib-0.2.15-py312h1b36aeb_4.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/ruamel.yaml.clib-0.2.15-py312h1b36aeb_5.conda
   hash:
-    md5: bd9715f58fd5764026fc4f883ffaac4b
-    sha256: f02b4d207579119bf7b1606624e766cf06bf3855358698288855a5856fad98bd
+    md5: 47553dd4725a43ef82aadf8f74f6f89c
+    sha256: aa66c32c339873a147da91adc07c7f09fb818dc4c9d86d1173bbef00ad136f5d
   category: main
   optional: false
 - name: ruamel.yaml.jinja2
@@ -5781,10 +5779,10 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=15'
-  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-xorgproto-2025.1-hebe6cf0_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/xorg-xorgproto-2025.1-hebe6cf0_3.conda
   hash:
-    md5: 7386d38083163c5b5c4a92a1582daaef
-    sha256: 28be920cbb36bb674f66a23f368b67733dbbb89b2321e5ed7266d9b415156795
+    md5: c3d0a6f03ba3aa312777b41b20a71ec0
+    sha256: 8e9c7ca4fcfe9f0c300e4aa853b79c25411fc4e470decfe8f909b74f60dfb6dd
   category: main
   optional: false
 - name: yaml
