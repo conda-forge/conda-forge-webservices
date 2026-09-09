@@ -39,6 +39,32 @@ BAD_STATES = [
 ]
 
 
+def set_automerge_status(repo, pr_num, status, target_url=None, sha=None):
+    if target_url is not None:
+        kwargs = {"target_url": target_url}
+    else:
+        kwargs = {}
+
+    if sha is None:
+        pull = repo.get_pull(int(pr_num))
+        sha = pull.head.sha
+    commit = repo.get_commit(sha)
+
+    if status == "success":
+        msg = "Automerge job successful."
+    elif status == "failure" or status == "error":
+        msg = "Automerge job failed."
+    else:
+        msg = "Automerge job in progress..."
+
+    commit.create_status(
+        status,
+        description=msg,
+        context="conda-forge-automerge-service",
+        **kwargs,
+    )
+
+
 # https://stackoverflow.com/questions/6194499/pushd-through-os-system
 @contextlib.contextmanager
 def pushd(new_dir):

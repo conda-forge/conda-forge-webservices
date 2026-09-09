@@ -11,7 +11,7 @@ from conda_forge_feedstock_ops import setup_logging
 from conda_forge_feedstock_ops.lint import lint as lint_feedstock
 from git import Repo
 
-from .automerge import automerge_pr
+from .automerge import automerge_pr, set_automerge_status
 from .utils import (
     comment_and_push_if_changed,
     dedent_with_escaped_continue,
@@ -628,6 +628,11 @@ def main_automerge(repo, sha):
         flush=True,
     )
 
+    target_url = (
+        f"https://github.com/conda-forge/conda-forge-webservices/"
+        f"actions/runs/{os.environ['GITHUB_RUN_ID']}"
+    )
+
     found_pr = False
     full_repo_name = f"conda-forge/{repo}"
     _, gh = create_api_sessions()
@@ -637,8 +642,14 @@ def main_automerge(repo, sha):
             _, gh_for_admin = create_api_sessions_for_admin()
             gh_repo_for_admin = gh_for_admin.get_repo(full_repo_name)
             pr_for_admin = gh_repo_for_admin.get_pull(pr.number)
-            automerge_pr(gh_repo, pr, pr_for_admin)
+            did_merge, _ = automerge_pr(gh_repo, pr, pr_for_admin)
             found_pr = True
+
+            if did_merge:
+                status = "success"
+            else:
+                status = "failure"
+            set_automerge_status(gh_repo, None, status, target_url=target_url, sha=sha)
 
     if not found_pr:
         LOGGER.error(f"No PR found for {full_repo_name}@{sha}!")
@@ -647,3 +658,4 @@ def main_automerge(repo, sha):
             f"No PR found for {full_repo_name}@{sha}",
             flush=True,
         )
+        set_automerge_status(gh_repo, None, "error", target_url=target_url, sha=sha)
