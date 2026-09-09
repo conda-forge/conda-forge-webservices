@@ -647,6 +647,8 @@ def main_automerge(repo, sha):
 
             if did_merge:
                 status = "success"
+            elif did_merge is None:
+                status = "pending"
             else:
                 status = "failure"
             set_automerge_status(gh_repo, None, status, target_url=target_url, sha=sha)

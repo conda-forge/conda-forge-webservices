@@ -127,7 +127,7 @@ def test_automerge_pr_feedstock_status_or_check_fail(
 
     did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
-    assert not did_merge
+    assert did_merge is None
     assert "pending statuses" in reason
     get_cfg_mock.assert_called_once_with(pr)
     check_mock.assert_called_once_with(repo, pr)
