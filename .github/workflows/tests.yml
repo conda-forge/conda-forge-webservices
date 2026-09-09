@@ -10,6 +10,7 @@ on:
 
 env:
   PY_COLORS: 1
+  SETUPTOOLS_SCM_PRETEND_VERSION: ${{ case(github.event_name == 'pull_request', format('{0}.{1}.{2}', github.event.number, github.run_id, github.run_attempt), '') }}
 
 defaults:
   run:
