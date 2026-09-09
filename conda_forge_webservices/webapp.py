@@ -1317,7 +1317,8 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             if event == "status" and body["repository"]["full_name"].endswith(
                 "-feedstock"
             ):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool("command"),
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["sha"],
@@ -1329,7 +1330,8 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             if body["action"] == "completed" and body["repository"][
                 "full_name"
             ].endswith("-feedstock"):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool("command"),
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["check_suite"]["head_sha"],
@@ -1349,7 +1351,8 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             # )
 
             if body["repository"]["full_name"].endswith("-feedstock"):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                await tornado.ioloop.IOLoop.current().run_in_executor(
+                    _worker_pool("command"),
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
