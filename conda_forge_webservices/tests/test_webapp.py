@@ -58,8 +58,13 @@ class TestBucketHandler(TestHandlerBase):
         return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
+    @mock.patch(
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
+    )
     def test_good_header(
         self,
+        set_automerge_status,
         set_pr_status,
         comment_on_pr,
         compute_lint_message,
@@ -133,6 +138,10 @@ class TestBucketHandler(TestHandlerBase):
         "conda_forge_webservices.linting.compute_lint_message", return_value=None
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status", return_value=None)
+    @mock.patch(
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
+    )
     @mock.patch("conda_forge_webservices.linting.comment_on_pr", return_value=None)
     @mock.patch(
         "conda_forge_webservices.feedstocks_service.update_feedstock", return_value=None
@@ -354,8 +363,17 @@ class TestBucketHandler(TestHandlerBase):
         return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
+    @mock.patch(
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
+    )
     def test_staged_recipes(
-        self, set_pr_status, comment_on_pr, compute_lint_message, lint_via_gha
+        self,
+        set_automerge_status,
+        set_pr_status,
+        comment_on_pr,
+        compute_lint_message,
+        lint_via_gha,
     ):
         PR_number = 16
         body = {
@@ -430,8 +448,17 @@ class TestBucketHandler(TestHandlerBase):
         return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
+    @mock.patch(
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
+    )
     def test_staged_recipes_merge_group(
-        self, set_pr_status, comment_on_pr, compute_lint_message, lint_via_gha
+        self,
+        set_automerge_status,
+        set_pr_status,
+        comment_on_pr,
+        compute_lint_message,
+        lint_via_gha,
     ):
         PR_number = 16
         sha = "blahblahblah"
@@ -485,8 +512,12 @@ class TestBucketHandler(TestHandlerBase):
         return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
+    @mock.patch(
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
+    )
     def test_staged_recipes_stale(
-        self, set_pr_status, comment_on_pr, compute_lint_message
+        self, set_automerge_status, set_pr_status, comment_on_pr, compute_lint_message
     ):
         PR_number = 16
         body = {
