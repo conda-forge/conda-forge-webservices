@@ -126,7 +126,7 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                                 set_automerge_status(
                                     repo,
                                     None,
-                                    "pendinf",
+                                    "pending",
                                     target_url=None,
                                     sha=pr.head.sha,
                                 )
