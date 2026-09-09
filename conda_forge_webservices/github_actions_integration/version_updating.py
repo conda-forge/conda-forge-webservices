@@ -19,10 +19,9 @@ def update_version(
     """
     # these imports are guarded here in this function since the
     # conda_forge_tick package will hide sensitive env vars
-    import conda_forge_tick.update_recipe
     from conda_forge_tick.feedstock_parser import load_feedstock
-    from conda_forge_tick.update_recipe.version import update_version_feedstock_dir
-    from conda_forge_tick.update_recipe import v1_recipe
+    from conda_forge_feedstock_ops.update_version import update_version
+    from conda_forge_feedstock_ops.update_build_number import update_build_number
     from conda_forge_tick.update_upstream_versions import (
         all_version_sources,
         get_latest_version,
@@ -82,9 +81,8 @@ def update_version(
         )
         return False, False, new_version
 
-    schema_version = 0
     try:
-        updated, errors = update_version_feedstock_dir(
+        updated, errors = update_version(
             git_repo.working_dir,
             str(new_version),
             use_container=True,
@@ -99,21 +97,15 @@ def update_version(
         meta_yaml_path = workdir.joinpath("recipe", "meta.yaml")
         recipe_yaml_path = workdir.joinpath("recipe", "recipe.yaml")
         if meta_yaml_path.exists():
-            new_meta_yaml = meta_yaml_path.read_text()
-            new_meta_yaml = conda_forge_tick.update_recipe.update_build_number(
-                new_meta_yaml,
-                0,
-            )
-            meta_yaml_path.write_text(new_meta_yaml)
+            schema_version = 0
         elif recipe_yaml_path.exists():
-            new_recipe_yaml = v1_recipe.update_build_number(
-                recipe_yaml_path,
-                0,
-            )
-            recipe_yaml_path.write_text(new_recipe_yaml)
             schema_version = 1
         else:
             raise FileNotFoundError("Could not find meta.yaml or recipe.yaml!")
+
+        update_build_number(
+            meta_yaml_path if schema_version == 0 else recipe_yaml_path, 0
+        )
 
     except Exception:
         LOGGER.exception("error while updating the recipe!")
