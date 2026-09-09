@@ -22,7 +22,7 @@ def test_automerge_pr_bad_user(get_cfg_mock):
 
     did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
-    assert not did_merge
+    assert did_merge is False
     assert "user blah" in reason
     get_cfg_mock.assert_called_once_with(pr)
     pr_for_admin.create_issue_comment.assert_not_called()
@@ -47,7 +47,7 @@ def test_automerge_pr_no_title_slug(get_cfg_mock):
 
     did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
-    assert not did_merge
+    assert did_merge is False
     assert "slug in the title" in reason
     get_cfg_mock.assert_called_once_with(pr)
     pr_for_admin.create_issue_comment.assert_not_called()
@@ -80,7 +80,7 @@ def test_automerge_pr_feedstock_off(get_cfg_mock, cfg):
 
     did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
-    assert not did_merge
+    assert did_merge is False
     assert "off for this feedstock" in reason
     get_cfg_mock.assert_called_once_with(pr)
     pr_for_admin.create_issue_comment.assert_not_called()
@@ -127,7 +127,7 @@ def test_automerge_pr_feedstock_status_or_check_fail(
 
     did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
-    assert not did_merge
+    assert did_merge is False
     assert "pending statuses" in reason
     get_cfg_mock.assert_called_once_with(pr)
     check_mock.assert_called_once_with(repo, pr)
@@ -135,6 +135,56 @@ def test_automerge_pr_feedstock_status_or_check_fail(
     req_mock.assert_called_once_with(pr, get_cfg_mock.return_value)
     pr_for_admin.create_issue_comment.assert_called_once()
     pr_for_admin.get_issue_comments.assert_called()
+    pr_for_admin.merge.assert_not_called()
+
+
+@pytest.mark.parametrize("fail", ["check", "status"])
+@unittest.mock.patch(
+    "conda_forge_webservices.github_actions_integration.automerge._get_conda_forge_config"
+)
+@unittest.mock.patch(
+    "conda_forge_webservices.github_actions_integration.automerge._get_required_checks_and_statuses"
+)
+@unittest.mock.patch(
+    "conda_forge_webservices.github_actions_integration.automerge._get_github_checks"
+)
+@unittest.mock.patch(
+    "conda_forge_webservices.github_actions_integration.automerge._get_github_statuses"
+)
+def test_automerge_pr_feedstock_status_or_check_fail_and_pending(
+    stat_mock, check_mock, req_mock, get_cfg_mock, fail
+):
+    check_mock.return_value = {"check1": True, "check2": None, "check3": None}
+    stat_mock.return_value = {"status1": True, "status2": True, "status3": True}
+    req_mock.return_value = ["check1", "check2", "status1", "status3"]
+    get_cfg_mock.return_value = {"bot": {"automerge": True}}
+
+    if fail == "check":
+        check_mock.return_value["check1"] = False
+    else:
+        stat_mock.return_value["status1"] = False
+
+    repo = MagicMock()
+    repo.full_name = "go"
+
+    pr = MagicMock()
+    pr.user.login = "regro-cf-autotick-bot"
+    pr.title = "[bot-automerge] blah"
+
+    pr_for_admin = MagicMock()
+    pr_for_admin.user.login = "regro-cf-autotick-bot"
+    pr_for_admin.get_issue_comments.return_value = []
+
+    did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
+
+    assert did_merge is None
+    assert "pending statuses" in reason
+    get_cfg_mock.assert_called_once_with(pr)
+    check_mock.assert_called_once_with(repo, pr)
+    stat_mock.assert_called_once_with(repo, pr)
+    req_mock.assert_called_once_with(pr, get_cfg_mock.return_value)
+    pr_for_admin.create_issue_comment.assert_not_called()
+    pr_for_admin.get_issue_comments.assert_not_called()
     pr_for_admin.merge.assert_not_called()
 
 
@@ -170,7 +220,7 @@ def test_automerge_pr_feedstock_no_statuses_or_checks(
 
     did_merge, reason = automerge_pr(repo, pr, pr_for_admin)
 
-    assert not did_merge
+    assert did_merge is False
     assert "At least one status or check must be required" in reason
     get_cfg_mock.assert_called_once_with(pr)
     check_mock.assert_called_once_with(repo, pr)

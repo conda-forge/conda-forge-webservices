@@ -45,24 +45,37 @@ def set_automerge_status(repo, pr_num, status, target_url=None, sha=None):
     else:
         kwargs = {}
 
+    pull = None
     if sha is None:
         pull = repo.get_pull(int(pr_num))
         sha = pull.head.sha
     commit = repo.get_commit(sha)
+    if pull is None:
+        for pull in commit.get_pulls():
+            pr_num = pull.number
+            break
 
-    if status == "success":
-        msg = "Automerge job successful."
-    elif status == "failure" or status == "error":
-        msg = "Automerge job failed."
-    else:
-        msg = "Automerge job in progress..."
+    set_status = False
+    for label in pull.get_labels():
+        if label.name == "automerge":
+            set_status = True
+    if pull.user.login in ALLOWED_USERS and pull.title.startswith("[bot-automerge]"):
+        set_status = True
 
-    commit.create_status(
-        status,
-        description=msg,
-        context="conda-forge-automerge-service",
-        **kwargs,
-    )
+    if set_status:
+        if status == "success":
+            msg = "Automerge job successful."
+        elif status == "failure" or status == "error":
+            msg = "Automerge job failed."
+        else:
+            msg = "Automerge job in progress..."
+
+        commit.create_status(
+            status,
+            description=msg,
+            context="conda-forge-automerge-service",
+            **kwargs,
+        )
 
 
 # https://stackoverflow.com/questions/6194499/pushd-through-os-system
@@ -482,7 +495,7 @@ def _automerge_pr(
     repo: Repository,
     pr: PullRequest,
     pr_for_admin: PullRequest,
-) -> tuple[bool, str | None]:
+) -> tuple[bool | None, str | None]:
     cfg = _get_conda_forge_config(pr)
     allowed, msg = _check_pr(pr, pr_for_admin, cfg)
 
@@ -503,14 +516,16 @@ def _automerge_pr(
     )
     if not ok:
         _comment_on_pr(pr_for_admin, final_statuses, "not passing and not merged.")
-        return False, "PR has failing or pending statuses/checks"
+        return None if any(
+            v is None for v in final_statuses.values()
+        ) else False, "PR has failing or pending statuses/checks"
 
     # make sure PR is mergeable and not already merged
     # we have to get the PR again to ensure we have updated mergeable status
     pr = repo.get_pull(pr.number)
 
     if pr.is_merged():
-        return False, "PR has already been merged"
+        return True, "PR has already been merged"
 
     if pr.mergeable is None or not pr.mergeable:
         _comment_on_pr(
@@ -562,7 +577,7 @@ def _automerge_pr(
 
 def automerge_pr(
     repo: Repository, pr: PullRequest, pr_for_admin: PullRequest
-) -> tuple[bool, str | None]:
+) -> tuple[bool | None, str | None]:
     """Possibly automerge a PR.
 
     Parameters
@@ -578,8 +593,9 @@ def automerge_pr(
 
     Returns
     -------
-    did_merge : bool
-        If `True`, the merge was done, `False` if not.
+    did_merge : bool or None
+        If `True`, the merge was done, `False` if not. If `None`
+        checks/status are still pending.
     reason : str
         The reason the merge worked or did not work.
     """
