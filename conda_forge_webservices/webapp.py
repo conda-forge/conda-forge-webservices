@@ -58,9 +58,9 @@ from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     get_gh_client,
 )
-from conda_forge_webservices.github_actions_integration.automerge import (
-    set_automerge_status,
-)
+# from conda_forge_webservices.github_actions_integration.automerge import (
+#     set_automerge_status,
+# )
 
 LOGGER = logging.getLogger("conda_forge_webservices")
 
@@ -1250,23 +1250,23 @@ def _dispatch_automerge_job(repo, sha):
             return_run_details=True,
         )
 
-        target_url = None
+        # target_url = None
         if running:
             msg = f"automerge job dispatched: uuid={uid}"
-            target_url = running.html_url
-            status = "pending"
+            # target_url = running.html_url
+            # status = "pending"
         else:
             msg = "automerge job dispatch failed"
-            status = "error"
+            # status = "error"
 
         # set the commit status
-        set_automerge_status(
-            gh.get_repo(f"conda-forge/{repo}"),
-            None,
-            status,
-            target_url=target_url,
-            sha=sha,
-        )
+        # set_automerge_status(
+        #     gh.get_repo(f"conda-forge/{repo}"),
+        #     None,
+        #     status,
+        #     target_url=target_url,
+        #     sha=sha,
+        # )
 
     else:
         msg = "automerge job dispatch skipped for testing"
