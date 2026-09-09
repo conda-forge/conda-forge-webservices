@@ -6,6 +6,9 @@ import uuid
 
 import github
 from conda_forge_webservices.utils import pushd
+from conda_forge_webservices.github_actions_integration.automerge import (
+    set_automerge_status,
+)
 from flaky import flaky
 
 TEST_BASE_BRANCH = "automerge-live-test-base-branch"
@@ -119,6 +122,13 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                                         "sha": pr.head.sha,
                                         "uuid": uid,
                                     },
+                                )
+                                set_automerge_status(
+                                    repo,
+                                    None,
+                                    "pendinf",
+                                    target_url=None,
+                                    sha=pr.head.sha,
                                 )
 
                     if not merged:
