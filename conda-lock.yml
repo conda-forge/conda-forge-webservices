@@ -387,7 +387,7 @@ package:
   category: main
   optional: false
 - name: botocore
-  version: 1.43.89
+  version: 1.43.90
   manager: conda
   platform: linux-64
   dependencies:
@@ -395,10 +395,10 @@ package:
     python: '>=3.10'
     python-dateutil: '>=2.1,<3.0.0'
     urllib3: '>=1.25.4,!=2.2.0,<3'
-  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.89-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/botocore-1.43.90-pyhd8ed1ab_0.conda
   hash:
-    md5: 35a106b0d87e2db564cffeb977430066
-    sha256: 41548d3d6d2a1c407ff449fc849f23c85ad5c07948e1a16f71041a7ab77a1ad7
+    md5: 3968dc5ee8c18d480b44442b7460154d
+    sha256: e9a70a3d0f12115ded6a5752d9ffbbf05a710315b5ae97fe1d4f7ee448df5dc4
   category: main
   optional: false
 - name: brotli-python
@@ -795,14 +795,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.09.08.14.26.08
+  version: 2026.09.09.05.43.13
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.09.08.14.26.08-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.09.09.05.43.13-hd8ed1ab_0.conda
   hash:
-    md5: c6e5a6b62abe5328b0a91de5e14f89a8
-    sha256: a26a96db32532b46aa13dda31c55c7e483499134a13cd79b3b3d6f280a6bf061
+    md5: dc36bdcd97e0822788a9d358fe64ec4d
+    sha256: 269a1f8592ce6b66f78bd869b7ac17da4b787b6036fbebc543f0279a67f19df4
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1497,15 +1497,15 @@ package:
   category: main
   optional: false
 - name: filelock
-  version: 3.32.5
+  version: 3.32.6
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.32.5-pyhd8ed1ab_0.conda
+    python: '>=3.11'
+  url: https://conda.anaconda.org/conda-forge/noarch/filelock-3.32.6-pyhd8ed1ab_0.conda
   hash:
-    md5: 9b091d04be6b722d4ed7dfee34295dea
-    sha256: a52faa011a8176bbbf30c77f76707788be9a9e1a7e30c3753083719c093a15dc
+    md5: 42afc06f6512975dc9ee5afc15dcc3ee
+    sha256: f20f0d74a3e31131ec02e24dc555bcf1446bd275c968fc601ec86a8633f7608d
   category: main
   optional: false
 - name: flaky
@@ -3847,13 +3847,12 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=14'
-    libxcrypt: '>=4.4.38'
-  url: https://conda.anaconda.org/conda-forge/linux-64/perl-5.32.1-8_hb03c661_perl5.conda
+    libgcc-ng: '>=12'
+    libxcrypt: '>=4.4.36'
+  url: https://conda.anaconda.org/conda-forge/linux-64/perl-5.32.1-7_hd590300_perl5.conda
   hash:
-    md5: 2d74083a0899b26de3e7fb88847ad7aa
-    sha256: c28544715a24f12409748a97412e1fa27a4a09f8d3623a629bf3486ad03b23cd
+    md5: f2cfec9406850991f4e3d960cc9e3321
+    sha256: 9ec32b6936b0e37bcb0ed34f22ec3116e75b3c0964f9f50ecea5f58734ed6ce9
   category: main
   optional: false
 - name: pexpect
@@ -4290,16 +4289,17 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
+    _python_abi3_support: 1.*
     cffi: '>=2.0.0'
+    cpython: '>=3.11'
     libgcc: '>=15'
     libsodium: '>=1.0.22,<1.0.23.0a0'
-    python: '>=3.12,<3.13.0a0'
-    python_abi: 3.12.*
+    python: ''
     six: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/pynacl-1.6.2-py312h5b13502_4.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pynacl-1.6.2-py311h2d59bce_5.conda
   hash:
-    md5: a23dd5f8cc920e27c29ea68df6b3c3af
-    sha256: 7dfd0fce9409008075cc6a163ba5cc2652eaf8119b462c971ed842e9478af5b2
+    md5: cccc667190116ee0f4e1c12ec39c24c9
+    sha256: 41793c431be2fcaada58b38a6a6142b135f89fed0b724bd2f8be6d0c21b78ba5
   category: main
   optional: false
 - name: pynamodb
