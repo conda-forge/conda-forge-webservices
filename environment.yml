@@ -23,7 +23,7 @@ dependencies:
   - mock
   - parameterized
   - pip
-  - pygithub >=2.10.0  # lower bound for GH App endpoints and upper bound so making app tokens works
+  - pygithub >=2.10.0
   - python =3.12.*
   - pytz
   - pyyaml

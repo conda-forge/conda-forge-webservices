@@ -32,8 +32,6 @@ from ._version import __version__
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     get_gh_client,
-    inject_app_token_into_feedstock,
-    inject_app_token_into_feedstock_readonly,
 )
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
@@ -1222,9 +1220,6 @@ def rerender(full_name, pr_num):
     pull = repo.get_pull(int(pr_num))
     sha = pull.head.sha
 
-    inject_app_token_into_feedstock(full_name, repo=repo)
-    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
-
     _, repo_name = full_name.split("/")
     uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
@@ -1284,9 +1279,6 @@ def convert_v1(full_name, pr_num):
     repo = gh.get_repo(full_name)
     pull = repo.get_pull(int(pr_num))
     sha = pull.head.sha
-
-    inject_app_token_into_feedstock(full_name, repo=repo)
-    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
     _, repo_name = full_name.split("/")
     uid = uuid.uuid4().hex
@@ -1349,9 +1341,6 @@ def update_version(full_name, pr_num, input_ver):
     repo = gh.get_repo(full_name)
     pull = repo.get_pull(int(pr_num))
     sha = pull.head.sha
-
-    inject_app_token_into_feedstock(full_name, repo=repo)
-    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
 
     uid = uuid.uuid4().hex
     _, repo_name = full_name.split("/")
