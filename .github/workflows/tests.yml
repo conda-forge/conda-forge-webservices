@@ -220,6 +220,7 @@ jobs:
             ./Dockerfile_wda
           build-args: |
             --no-cache
+            -e SETUPTOOLS_SCM_PRETEND_VERSION
 
       - name: push docker image to quay.io
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
