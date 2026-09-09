@@ -13,7 +13,7 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 900aba3e10db32dd7c9825b82dd354d247351e8a8ace0b3d19ee2549924946a8
+    linux-64: 3ec7e7937bfab0e475c80b7cb0e38aca866e192f40658ba8c05afa0104a67b20
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -806,7 +806,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.9.42
+  version: 2026.9.46
   manager: conda
   platform: linux-64
   dependencies:
@@ -815,9 +815,9 @@ package:
     cachecontrol: ''
     cachetools: ''
     click: ''
-    conda: '>=25'
-    conda-build: '>=25'
-    conda-forge-feedstock-ops: '>=0.19.1'
+    conda: '>=26'
+    conda-build: '>=26'
+    conda-forge-feedstock-ops: '>=0.20.0'
     conda-forge-metadata: '>=2026.9.5'
     conda-forge-pinning: ''
     conda-libmamba-solver: ''
@@ -837,7 +837,7 @@ package:
     lockfile: ''
     mamba: '>=0.23'
     msgpack-python: ''
-    networkx: '!=2.8.1'
+    networkx: '>=2.8.6'
     orjson: ''
     packaging: ''
     psutil: ''
@@ -864,10 +864,10 @@ package:
     tqdm: ''
     wget: ''
     wurlitzer: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.42-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.46-pyhc364b38_0.conda
   hash:
-    md5: 5ebececf2ae82bc8cbaaf6cd4ab7be1c
-    sha256: 16f25bbfe608758148710abe6b4424d44634fff4194f1f97f11c62510236e20c
+    md5: f03a38b7788ba6124a8b731508e064d7
+    sha256: b67809eda4f7573594f899b4c7fdac6ff286b2990999ac0c9292884cdc86b85f
   category: main
   optional: false
 - name: conda-index
