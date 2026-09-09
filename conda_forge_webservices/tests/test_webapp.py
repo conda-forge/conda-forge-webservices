@@ -58,8 +58,13 @@ class TestBucketHandler(TestHandlerBase):
         return_value=mock.MagicMock(html_url=mock.sentinel.html_url),
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
+    @mock.patch(
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
+    )
     def test_good_header(
         self,
+        set_automerge_status,
         set_pr_status,
         comment_on_pr,
         compute_lint_message,
@@ -134,7 +139,8 @@ class TestBucketHandler(TestHandlerBase):
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status", return_value=None)
     @mock.patch(
-        "conda_forge_webservices.linting.set_automerge_status", return_value=None
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
     )
     @mock.patch("conda_forge_webservices.linting.comment_on_pr", return_value=None)
     @mock.patch(
@@ -358,7 +364,8 @@ class TestBucketHandler(TestHandlerBase):
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
     @mock.patch(
-        "conda_forge_webservices.linting.set_automerge_status", return_value=None
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
     )
     def test_staged_recipes(
         self,
@@ -442,7 +449,8 @@ class TestBucketHandler(TestHandlerBase):
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
     @mock.patch(
-        "conda_forge_webservices.linting.set_automerge_status", return_value=None
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
     )
     def test_staged_recipes_merge_group(
         self,
@@ -505,7 +513,8 @@ class TestBucketHandler(TestHandlerBase):
     )
     @mock.patch("conda_forge_webservices.linting.set_pr_status")
     @mock.patch(
-        "conda_forge_webservices.linting.set_automerge_status", return_value=None
+        "conda_forge_webservices.github_actions_integration.automerge.set_automerge_status",
+        return_value=None,
     )
     def test_staged_recipes_stale(
         self, set_automerge_status, set_pr_status, comment_on_pr, compute_lint_message
