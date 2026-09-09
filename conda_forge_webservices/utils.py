@@ -58,29 +58,6 @@ def with_action_url(msg: str) -> str:
     return msg
 
 
-def get_workflow_run_from_uid(workflow, uid, ref):
-    for _ in range(10):
-        time.sleep(1)
-        run = _inner_get_workflow_run_from_uid(workflow, uid, ref)
-        if run:
-            return run
-    return None
-
-
-def _inner_get_workflow_run_from_uid(workflow, uid, ref):
-    num_try = 0
-    max_try = 100
-    for run in workflow.get_runs(branch=ref, event="workflow_dispatch"):
-        if uid in run.name:
-            return run
-
-        num_try += 1
-        if num_try > max_try:
-            break
-
-    return None
-
-
 def _test_and_raise_besides_file_not_exists(e: github.GithubException):
     if isinstance(e, github.UnknownObjectException):
         return

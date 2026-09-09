@@ -13,10 +13,8 @@ import pytest
 import conda_forge_webservices
 from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.commands import (
-    get_workflow_run_from_uid,
     set_version_update_pr_status,
 )
-from conda_forge_webservices import __version__
 
 REPO_OWNER = "conda-forge"
 REPO_NAME = "cf-autotick-bot-test-package-feedstock"
@@ -305,15 +303,11 @@ def _run_test(branch, version, schema_version):
             "uuid": uid,
             "sha": pr_head_sha,
         },
+        return_run_details=True,
     )
 
     if running:
-        run = get_workflow_run_from_uid(workflow, uid, __version__.replace("+", "."))
-        if run:
-            target_url = run.html_url
-        else:
-            target_url = None
-
+        target_url = running.html_url
         set_version_update_pr_status(
             GH.get_repo(REPO), PR_NUM, "pending", target_url=target_url, sha=pr_head_sha
         )

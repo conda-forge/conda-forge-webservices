@@ -26,15 +26,12 @@ from .update_teams import update_team
 from .utils import (
     ALLOWED_CMD_NON_FEEDSTOCKS,
     with_action_url,
-    get_workflow_run_from_uid,
     _test_and_raise_besides_file_not_exists,
 )
 from ._version import __version__
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
     get_gh_client,
-    inject_app_token_into_feedstock,
-    inject_app_token_into_feedstock_readonly,
 )
 
 LOGGER = logging.getLogger("conda_forge_webservices.commands")
@@ -1223,9 +1220,6 @@ def rerender(full_name, pr_num):
     pull = repo.get_pull(int(pr_num))
     sha = pull.head.sha
 
-    inject_app_token_into_feedstock(full_name, repo=repo)
-    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
-
     _, repo_name = full_name.split("/")
     uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
@@ -1242,17 +1236,16 @@ def rerender(full_name, pr_num):
             "uuid": uid,
             "sha": sha,
         },
+        return_run_details=True,
     )
     if running:
-        run = get_workflow_run_from_uid(workflow, uid, ref)
-        if run:
-            target_url = run.html_url
-        else:
-            target_url = None
-
+        retval = False
+        target_url = running.html_url
         set_rerender_pr_status(repo, pr_num, "pending", target_url=target_url, sha=sha)
+    else:
+        retval = True
 
-    return not running
+    return retval
 
 
 def set_convert_v1_pr_status(repo, pr_num, status, target_url=None, sha=None):
@@ -1287,9 +1280,6 @@ def convert_v1(full_name, pr_num):
     pull = repo.get_pull(int(pr_num))
     sha = pull.head.sha
 
-    inject_app_token_into_feedstock(full_name, repo=repo)
-    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
-
     _, repo_name = full_name.split("/")
     uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
@@ -1306,19 +1296,18 @@ def convert_v1(full_name, pr_num):
             "uuid": uid,
             "sha": sha,
         },
+        return_run_details=True,
     )
     if running:
-        run = get_workflow_run_from_uid(workflow, uid, ref)
-        if run:
-            target_url = run.html_url
-        else:
-            target_url = None
-
+        retval = False
+        target_url = running.html_url
         set_convert_v1_pr_status(
             repo, pr_num, "pending", target_url=target_url, sha=sha
         )
+    else:
+        retval = True
 
-    return not running
+    return retval
 
 
 def set_version_update_pr_status(repo, pr_num, status, target_url=None, sha=None):
@@ -1353,9 +1342,6 @@ def update_version(full_name, pr_num, input_ver):
     pull = repo.get_pull(int(pr_num))
     sha = pull.head.sha
 
-    inject_app_token_into_feedstock(full_name, repo=repo)
-    inject_app_token_into_feedstock_readonly(full_name, repo=repo)
-
     uid = uuid.uuid4().hex
     _, repo_name = full_name.split("/")
     ref = __version__.replace("+", ".")
@@ -1373,20 +1359,19 @@ def update_version(full_name, pr_num, input_ver):
             "uuid": uid,
             "sha": sha,
         },
+        return_run_details=True,
     )
 
     if running:
-        run = get_workflow_run_from_uid(workflow, uid, ref)
-        if run:
-            target_url = run.html_url
-        else:
-            target_url = None
-
+        retval = False
+        target_url = running.html_url
         set_version_update_pr_status(
             repo, pr_num, "pending", target_url=target_url, sha=sha
         )
+    else:
+        retval = True
 
-    return not running
+    return retval
 
 
 def make_noarch(repo):

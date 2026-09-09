@@ -10,6 +10,7 @@ on:
 
 env:
   PY_COLORS: 1
+  SETUPTOOLS_SCM_PRETEND_VERSION: ${{ case(github.event_name == 'pull_request', format('{0}.{1}.{2}', github.event.number, github.run_id, github.run_attempt), '') }}
 
 defaults:
   run:
@@ -159,8 +160,6 @@ jobs:
             unset CF_WEBSERVICES_APP_ID
             unset CF_WEBSERVICES_PRIVATE_KEY
             unset GH_TOKEN
-            unset CF_WEBSERVICES_FEEDSTOCK_TOKEN
-            unset CF_WEBSERVICES_FEEDSTOCK_APP_ID
           fi
           pytest -v conda_forge_webservices
         env:
@@ -170,8 +169,6 @@ jobs:
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-          CF_WEBSERVICES_FEEDSTOCK_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
-          CF_WEBSERVICES_FEEDSTOCK_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
           ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
 
   docker-build:
@@ -223,6 +220,7 @@ jobs:
             ./Dockerfile_wda
           build-args: |
             --no-cache
+            -e SETUPTOOLS_SCM_PRETEND_VERSION
 
       - name: push docker image to quay.io
         if: ${{ needs.check.outputs.skip-check != 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'conda-forge/conda-forge-webservices') }}
