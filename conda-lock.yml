@@ -745,7 +745,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
-  version: 0.20.1
+  version: 0.20.2
   manager: conda
   platform: linux-64
   dependencies:
@@ -770,10 +770,10 @@ package:
     ruamel.yaml.jinja2: ''
     wurlitzer: ''
     zstandard: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.20.1-pyh5ded981_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.20.2-pyh5ded981_0.conda
   hash:
-    md5: dd5a790a6b4370acda6b6978f9be945e
-    sha256: 861c1888fdbe2f5dbc8e72d5d30c8fba8786a5479cbbf1fdfde2e2328d75e7df
+    md5: 5a52ad931498c69bed2834c16a0b45f1
+    sha256: b1382b883895c4557b2e945ee56ed960f026b18ef6d3f5cb9a98b8505020bf83
   category: main
   optional: false
 - name: conda-forge-metadata
@@ -2922,10 +2922,10 @@ package:
     spdlog: '>=1.17.0,<1.18.0a0'
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.9.0-py312he3a525c_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-2.9.0-py314h6ba947b_0.conda
   hash:
-    md5: aff254b57225fb76d656bbfbcbdc4e63
-    sha256: 64861bde42bbdea2564d681534d5038d3e8ab7be71883fc9ffa177094c9eb025
+    md5: 6dd4342973ab963fe98e1fcd3df5d9e2
+    sha256: 23d1709bd2db46fb58f18059064b1efce36d0b99788b440dc2e6d0b80aa23773
   category: main
   optional: false
 - name: libmamba-spdlog
@@ -2937,10 +2937,10 @@ package:
     libgcc: '>=15'
     libmamba: '>=2.9.0,<2.10.0a0'
     libstdcxx: '>=15'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-spdlog-2.9.0-hc0ddeed_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmamba-spdlog-2.9.0-h5efa3ab_0.conda
   hash:
-    md5: f77da3ac6117e41fb9fda4ed7c802793
-    sha256: fec1a23ec1f08fb1ffddb37338b7de1ae5023072408696d41fc44299f9b740a1
+    md5: ebe4fe5bfcc3e9217c94fe8926696952
+    sha256: 9830f335120fc6107bc9083ff19a87d1787439195ee63c1aa47ad122cb8014b1
   category: main
   optional: false
 - name: libmambapy
@@ -2956,16 +2956,16 @@ package:
     libstdcxx: '>=15'
     nlohmann_json-abi: 3.12.0
     openssl: '>=3.5.8,<4.0a0'
-    pybind11-abi: '4'
+    pybind11-abi: '11'
     python: ''
     python_abi: 3.12.*
     spdlog: '>=1.17.0,<1.18.0a0'
     yaml-cpp: '>=0.8.0,<0.9.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.9.0-py312had86545_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libmambapy-2.9.0-py312hf737b5e_0.conda
   hash:
-    md5: d64aba029cc9bc872c96836e8ac738b3
-    sha256: e55739b4f985585fe89c46815d885cb215298d9d28e547d1dc9a1ae520119c7d
+    md5: 0c253e8c045e8f27d683ebf450f04882
+    sha256: a132339ba4f60120179dca973adcb8cbe44b2aa551c3b440f9604030c317185c
   category: main
   optional: false
 - name: libmsgpack-c
@@ -3450,10 +3450,10 @@ package:
     reproc: '>=14.2.8.post0,<14.3.0a0'
     reproc-cpp: '>=14.2.8.post0,<14.3.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.9.0-h8a1d8a6_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/mamba-2.9.0-h9649d4f_0.conda
   hash:
-    md5: d5bb8ebdd46b246c5dd7be3668f5a9e7
-    sha256: d2e037379932434b7da418dbe85e2585a6d743c4dfa2d32e2d0b849ec4247992
+    md5: 487513b19efc67887b8c9e63932aaa2e
+    sha256: f7b0de866c9c16464ef21ae3bf9ac21f11a5619d84a2dd4ca7108c83f469285d
   category: main
   optional: false
 - name: markdown-it-py
@@ -4091,14 +4091,14 @@ package:
   category: main
   optional: false
 - name: pybind11-abi
-  version: '4'
+  version: '11'
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/pybind11-abi-4-hd8ed1ab_3.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/pybind11-abi-11-hc364b38_1.conda
   hash:
-    md5: 878f923dd6acc8aeb47a75da6c4098be
-    sha256: d4fb485b79b11042a16dc6abfb0c44c4f557707c2653ac47c81e5d32b24a3bb0
+    md5: f0599959a2447c1e544e216bddf393fa
+    sha256: 9e7fe12f727acd2787fb5816b2049cef4604b7a00ad3e408c5e709c298ce8bf1
   category: main
   optional: false
 - name: pycosat
@@ -5387,7 +5387,7 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.12.11
+  version: 0.12.12
   manager: conda
   platform: linux-64
   dependencies:
@@ -5396,10 +5396,10 @@ package:
     liblzma: '>=5.8.3,<6.0a0'
     libstdcxx: '>=15'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.11-h841d291_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.12-h841d291_0.conda
   hash:
-    md5: 4b074e99b96668f2b8833cdae16a6c63
-    sha256: 9bdfd18fbade02f12bfa1afe3b04a281c847c2b1e46eb1609408f927703d08d1
+    md5: ab48164f27bfec8d6624e2c8447e73f5
+    sha256: 0da9fba742577c9e93020e435eccfdbe62d601aa2f25314c44e2bc13341610ff
   category: main
   optional: false
 - name: vcs_versioning
