@@ -106,6 +106,13 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                             if pr.is_merged():
                                 print("PR was merged!", flush=True)
                                 merged = True
+                                set_automerge_status(
+                                    repo,
+                                    None,
+                                    "success",
+                                    target_url=None,
+                                    sha=pr.head.sha,
+                                )
                                 break
                             elif tot > 0:
                                 uid = uuid.uuid4().hex
@@ -127,9 +134,9 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                                 assert running
                                 set_automerge_status(
                                     repo,
-                                    running.html_url,
+                                    None,
                                     "pending",
-                                    target_url=None,
+                                    target_url=running.html_url,
                                     sha=pr.head.sha,
                                 )
 
