@@ -9,7 +9,7 @@ import conda_forge_webservices
 import github
 from flaky import flaky
 
-from conda_forge_webservices.utils import pushd, get_workflow_run_from_uid
+from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.commands import set_rerender_pr_status
 from conftest import _merge_main_to_branch
 
@@ -87,11 +87,10 @@ def _run_test(branch):
             "uuid": uid,
             "sha": pr_sha,
         },
+        return_run_details=True,
     )
     assert running, f"Workflow dispatch failed for rerendering on PR {pr_number}!"
-    run = get_workflow_run_from_uid(workflow, uid, branch)
-    assert run, f"Workflow run not found for rerendering on PR {pr_number}!"
-    target_url = run.html_url
+    target_url = running.html_url
     print(f"target_url for PR {pr_number}: {target_url}", flush=True)
 
     set_rerender_pr_status(

@@ -12,7 +12,6 @@ import conda_smithy.lint_recipe
 from conda_forge_webservices.tokens import get_gh_client
 from conda_forge_webservices.utils import (
     get_pr_is_mergeable,
-    get_workflow_run_from_uid,
     log_title_and_message_at_level,
 )
 from ._version import __version__
@@ -66,20 +65,18 @@ def lint_via_github_actions(
             "sha": sha_to_use,
             "merge_queue": "true" if sha is not None else "false",
         },
+        return_run_details=True,
     )
 
     if running:
         msg = f"linting job dispatched: uuid={uid}"
-
-        run = get_workflow_run_from_uid(workflow, uid, ref)
-        if run:
-            target_url = run.html_url
-        else:
-            target_url = None
+        retval = True
+        target_url = running.html_url
         _set_pr_status(
             repo_owner, repo_name, sha_to_use, "pending", target_url=target_url
         )
     else:
+        retval = False
         msg = "linting job dispatch failed"
 
     log_title_and_message_at_level(
@@ -88,7 +85,7 @@ def lint_via_github_actions(
         msg=msg,
     )
 
-    return running
+    return retval
 
 
 def find_recipes(path: Path) -> list[Path]:

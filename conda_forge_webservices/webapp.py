@@ -52,7 +52,6 @@ from conda_forge_webservices.feedstock_outputs import (
 from conda_forge_webservices.utils import (
     ALLOWED_CMD_NON_FEEDSTOCKS,
     log_title_and_message_at_level,
-    get_workflow_run_from_uid,
 )
 from conda_forge_webservices import status_monitor
 from conda_forge_webservices.tokens import (
@@ -1248,14 +1247,13 @@ def _dispatch_automerge_job(repo, sha):
                 "sha": sha,
                 "uuid": uid,
             },
+            return_run_details=True,
         )
 
         target_url = None
         if running:
             msg = f"automerge job dispatched: uuid={uid}"
-            run = get_workflow_run_from_uid(workflow, uid, ref)
-            if run:
-                target_url = run.html_url
+            target_url = running.html_url
             status = "pending"
         else:
             msg = "automerge job dispatch failed"

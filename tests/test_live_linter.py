@@ -9,7 +9,7 @@ import pytest
 from flaky import flaky
 
 import conda_forge_webservices
-from conda_forge_webservices.utils import get_workflow_run_from_uid, pushd
+from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.github_actions_integration.linting import set_pr_status
 
 
@@ -221,13 +221,10 @@ def test_linter_pr(target_pr_number, pytestconfig, skip_if_no_tokens):
                 "uuid": uid,
                 "sha": pr_sha,
             },
+            return_run_details=True,
         )
         assert workflow_ran, f"Workflow did not run for PR {pr_number}!"
-        run = get_workflow_run_from_uid(workflow, uid, branch)
-        if run:
-            target_url = run.html_url
-        else:
-            target_url = None
+        target_url = workflow_ran.html_url
         assert target_url is not None, f"target url is None for PR #{pr_number}"
         target_urls[pr_number] = target_url
         print(f"target_url for PR {pr_number}: {target_url}", flush=True)

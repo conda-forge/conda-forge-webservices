@@ -113,7 +113,7 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                                     "conda-forge/conda-forge-webservices"
                                 )
                                 workflow = cfws_repo.get_workflow("automerge.yml")
-                                workflow.create_dispatch(
+                                running = workflow.create_dispatch(
                                     ref=branch,
                                     inputs={
                                         "repo": (
@@ -122,10 +122,12 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                                         "sha": pr.head.sha,
                                         "uuid": uid,
                                     },
+                                    return_run_details=True,
                                 )
+                                assert running
                                 set_automerge_status(
                                     repo,
-                                    None,
+                                    running.html_url,
                                     "pending",
                                     target_url=None,
                                     sha=pr.head.sha,
