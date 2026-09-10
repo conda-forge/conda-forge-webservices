@@ -8,7 +8,7 @@ import unittest.mock as mock
 
 from tornado.testing import AsyncHTTPTestCase
 
-from conda_forge_webservices.webapp import create_webapp
+from conda_forge_webservices.webapp import create_webapp, _print_rate_limiting_info
 from conda_forge_webservices import linting
 
 
@@ -640,3 +640,7 @@ class TestBucketHandler(TestHandlerBase):
             )
             if full_name is not None and token is not None:
                 linting_mock.assert_any_call(full_name, 10, sha="xyz3123")
+
+
+def test_webapp_print_rate_limiting_info():
+    _print_rate_limiting_info()
