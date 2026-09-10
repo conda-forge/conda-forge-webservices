@@ -1244,7 +1244,6 @@ def _dispatch_automerge_job(repo, sha):
                 "sha": sha,
                 "uuid": uid,
             },
-            return_run_details=True,
         )
 
         if running:
@@ -1301,8 +1300,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and body["repository"]["full_name"].endswith("-feedstock")
                 and body["context"] != "conda-forge-automerge-status"
             ):
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool("command"),
+                tornado.ioloop.IOLoop.current().spawn_callback(
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["sha"],
@@ -1314,8 +1312,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             if body["action"] == "completed" and body["repository"][
                 "full_name"
             ].endswith("-feedstock"):
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool("command"),
+                tornado.ioloop.IOLoop.current().spawn_callback(
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["check_suite"]["head_sha"],
@@ -1335,8 +1332,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             # )
 
             if body["repository"]["full_name"].endswith("-feedstock"):
-                await tornado.ioloop.IOLoop.current().run_in_executor(
-                    _worker_pool("command"),
+                tornado.ioloop.IOLoop.current().spawn_callback(
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
