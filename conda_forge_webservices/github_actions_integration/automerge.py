@@ -50,36 +50,20 @@ def set_automerge_status(repo, pr_num, status, target_url=None, sha=None):
         pull = repo.get_pull(int(pr_num))
         sha = pull.head.sha
     commit = repo.get_commit(sha)
-    if pull is None:
-        for loop_pull in commit.get_pulls():
-            pr_num = loop_pull.number
-            pull = loop_pull
-            break
 
-    set_status = False
-    if pull is not None:
-        for label in pull.get_labels():
-            if label.name == "automerge":
-                set_status = True
-        if pull.user.login in ALLOWED_USERS and pull.title.startswith(
-            "[bot-automerge]"
-        ):
-            set_status = True
+    if status == "success":
+        msg = "Automerge job successful."
+    elif status == "failure" or status == "error":
+        msg = "Automerge job failed."
+    else:
+        msg = "Automerge job in progress..."
 
-    if set_status:
-        if status == "success":
-            msg = "Automerge job successful."
-        elif status == "failure" or status == "error":
-            msg = "Automerge job failed."
-        else:
-            msg = "Automerge job in progress..."
-
-        commit.create_status(
-            status,
-            description=msg,
-            context="conda-forge-automerge-service",
-            **kwargs,
-        )
+    commit.create_status(
+        status,
+        description=msg,
+        context="conda-forge-automerge-service",
+        **kwargs,
+    )
 
 
 # https://stackoverflow.com/questions/6194499/pushd-through-os-system
