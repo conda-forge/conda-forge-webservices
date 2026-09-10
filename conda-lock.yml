@@ -806,7 +806,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.9.58
+  version: 2026.9.61
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +864,10 @@ package:
     tqdm: ''
     wget: ''
     wurlitzer: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.58-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.61-pyhc364b38_0.conda
   hash:
-    md5: 37828d2ac097665437b8fbb6e2f7f160
-    sha256: b527e25aa33ebe02ae96907b440344bce4a9b9e94eeb68196163dd5831154c88
+    md5: f3631c943eaee532584da7069e3f95a7
+    sha256: d97e475ee09906eceb4f556bf3d4c8d7db149729d3d88f99995bb3dfe6edb0c1
   category: main
   optional: false
 - name: conda-index
@@ -2881,10 +2881,10 @@ package:
     libstdcxx: '>=15'
     mbedtls: '>=4.0.0,<4.1.0a0'
     spdlog: '>=1.17.0,<1.18.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/liblief-1.0.0-h4eb8af0_4.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/liblief-1.0.0-h45ba95f_5.conda
   hash:
-    md5: 872694105522448c2291d61787a94d99
-    sha256: aa008879419138a52fe55923039b1015c7527a9ec36c349ee60dfbd889cd4f20
+    md5: 4d93e518d81b5ad1db938ead45a020eb
+    sha256: bd848f40d8b994790223b50dc6ecc8bb2bb03d81a6cebdccf2558f5dc5a116f5
   category: main
   optional: false
 - name: liblzma
@@ -3395,22 +3395,22 @@ package:
   category: main
   optional: false
 - name: lxml
-  version: 6.1.2
+  version: 6.1.3
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     libgcc: '>=15'
     libxml2: ''
-    libxml2-16: '>=2.15.3'
+    libxml2-16: '>=2.15.4'
     libxslt: '>=1.1.45,<2.0a0'
     libzlib: '>=1.3.2,<2.0a0'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/lxml-6.1.2-py312h663fcd5_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/lxml-6.1.3-py312h663fcd5_0.conda
   hash:
-    md5: ca5780f80f19ffa3dd8bd325ecaf26dd
-    sha256: 9668d76e526cdd6457fe64c0ccfee6f0055980b81ad137bea0f52e8c1ebcabb0
+    md5: 208336d5a9afe597e8a6d7004b108ef0
+    sha256: 7ae87ca339fdc617c370a07da78ff8e950ceddf22f46fc2cac61c9f8ebafc84a
   category: main
   optional: false
 - name: lz4-c
@@ -3887,10 +3887,10 @@ package:
     python_abi: 3.12.*
     tk: '>=8.6.13,<8.7.0a0'
     zlib-ng: '>=2.3.3,<2.4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pillow-12.3.0-py312h38079b3_2.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pillow-12.3.0-py312h38079b3_3.conda
   hash:
-    md5: 5752c2b6fa529061baba2819e4c2b143
-    sha256: fee856a3b7492ca0c6be99525443409a4b3403de3a71242949d5e6c5c3a8b024
+    md5: 843006ead628acb2170f8773737de85e
+    sha256: c3a0473caa3cab0a7082f5d927f03165a6e4beebfe3483bd43ad65b375225adc
   category: main
   optional: false
 - name: pip
@@ -4045,15 +4045,15 @@ package:
     __glibc: '>=2.17,<3.0.a0'
     fmt: '>=12.1.0,<12.2.0a0'
     libgcc: '>=15'
-    liblief: 1.0.0
+    liblief: ==1.0.0,>=1.0.0,<1.1.0a0
     libstdcxx: '>=15'
-    python: '>=3.12,<3.13.0a0'
+    python: ''
     python_abi: 3.12.*
     spdlog: '>=1.17.0,<1.18.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/py-lief-1.0.0-py312h5d69613_4.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/py-lief-1.0.0-py312ha985511_5.conda
   hash:
-    md5: 7673ab0e978e9bbccf5e216694dd6d09
-    sha256: 258e5879593c3a6c836d77827424c6a2ee98e9a37cce55339e53dc69efd8d14a
+    md5: be82fa0c6e88ce4662a336b8453f8e92
+    sha256: f5984aeb0c0dacf8bf59f53d818599ffa4206810b372bd7194b158d8aec899ea
   category: main
   optional: false
 - name: py-rattler
@@ -4573,10 +4573,10 @@ package:
     numpy: ''
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/rapidfuzz-3.14.6-py312ha6a3dbb_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/rapidfuzz-3.14.6-py312ha6a3dbb_1.conda
   hash:
-    md5: de46b81cd531fdb99fd9f0f1ea872514
-    sha256: 8d04e009b8349dc7f6442fcb1eafecc80df34bd700595a588eb166ed6dd5efdb
+    md5: 0e3acb1665a84a2b879444285f65259d
+    sha256: ad9373e5f2393e63465af0e729ec9b94f645b6d6b8b204555bbe8b17c9c22889
   category: main
   optional: false
 - name: rattler-build
@@ -4656,7 +4656,7 @@ package:
   category: main
   optional: false
 - name: regex
-  version: 2026.9.3
+  version: 2026.9.10
   manager: conda
   platform: linux-64
   dependencies:
@@ -4664,10 +4664,10 @@ package:
     libgcc: '>=15'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/regex-2026.9.3-py312h5cc1888_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/regex-2026.9.10-py312h5cc1888_0.conda
   hash:
-    md5: 0e25557600510df9ba05b1cb8059f2cc
-    sha256: bc35a8342e82f00a71bc94a6eb60c4752eb0ab051c3c8624813bab32389d7ff2
+    md5: 5083c976e001ceebf78bf227e5a097d9
+    sha256: 3cbfc69e375ac28b3d3c1be01518737648c5cd080c94bcb48c94b2f0841eea49
   category: main
   optional: false
 - name: reproc
