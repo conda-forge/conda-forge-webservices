@@ -637,7 +637,7 @@ def main_automerge(repo, sha):
     full_repo_name = f"conda-forge/{repo}"
     _, gh = create_api_sessions()
     gh_repo = gh.get_repo(full_repo_name)
-    for pr in gh_repo.get_pulls():
+    for pr in gh_repo.get_pulls(state="all", sort="updated", direction="desc"):
         if pr.head.sha == sha:
             _, gh_for_admin = create_api_sessions_for_admin()
             gh_repo_for_admin = gh_for_admin.get_repo(full_repo_name)
