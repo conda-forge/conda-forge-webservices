@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    name: test
+  test-heroku-container-build:
+    name: test heroku container build
     runs-on: "ubuntu-latest"
     if: ${{ github.event_name == 'pull_request' }}
     defaults:
@@ -28,7 +28,7 @@ jobs:
       - name: build docker image
         uses: redhat-actions/buildah-build@719e3c40d8af9790c23eca13f7daa339f2867034 # v3.1.0
         with:
-          image: webservices-dispatch-action
+          image: webservices-heroku-container
           tags: test
           containerfiles: |
             ./Dockerfile
