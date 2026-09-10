@@ -1,4 +1,4 @@
-FROM mambaorg/micromamba:2.6.2 AS build-env
+FROM mambaorg/micromamba:2.9.0 AS build-env
 
 ENV PYTHONDONTWRITEBYTECODE=1
 USER root
@@ -23,7 +23,7 @@ RUN groupadd -g 32766 lucky && \
     mkdir -p "${MAMBA_ROOT_PREFIX}/locks" && \
     chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
 
-FROM frolvlad/alpine-glibc:alpine-3.16_glibc-2.34
+FROM frolvlad/alpine-glibc:alpine-3.22_glibc-2.42
 LABEL maintainer="conda-forge <conda-forge@googlegroups.com>"
 
 ENV LANG=en_US.UTF-8 \
