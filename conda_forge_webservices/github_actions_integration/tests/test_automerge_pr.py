@@ -120,6 +120,7 @@ def test_automerge_pr_feedstock_status_or_check_fail(
     pr = MagicMock()
     pr.user.login = "regro-cf-autotick-bot"
     pr.title = "[bot-automerge] blah"
+    pr.is_merged.return_value = False
 
     pr_for_admin = MagicMock()
     pr_for_admin.user.login = "regro-cf-autotick-bot"
@@ -170,6 +171,7 @@ def test_automerge_pr_feedstock_status_or_check_fail_and_pending(
     pr = MagicMock()
     pr.user.login = "regro-cf-autotick-bot"
     pr.title = "[bot-automerge] blah"
+    pr.is_merged.return_value = False
 
     pr_for_admin = MagicMock()
     pr_for_admin.user.login = "regro-cf-autotick-bot"
@@ -214,6 +216,7 @@ def test_automerge_pr_feedstock_no_statuses_or_checks(
     pr = MagicMock()
     pr.user.login = "regro-cf-autotick-bot"
     pr.title = "[bot-automerge] blah"
+    pr.is_merged.return_value = False
 
     pr_for_admin = MagicMock()
     pr_for_admin.user.login = "regro-cf-autotick-bot"

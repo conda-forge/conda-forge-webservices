@@ -11,7 +11,7 @@ from conda_forge_feedstock_ops import setup_logging
 from conda_forge_feedstock_ops.lint import lint as lint_feedstock
 from git import Repo
 
-from .automerge import automerge_pr, set_automerge_status
+from .automerge import automerge_pr
 from .utils import (
     comment_and_push_if_changed,
     dedent_with_escaped_continue,
@@ -642,16 +642,8 @@ def main_automerge(repo, sha):
             _, gh_for_admin = create_api_sessions_for_admin()
             gh_repo_for_admin = gh_for_admin.get_repo(full_repo_name)
             pr_for_admin = gh_repo_for_admin.get_pull(pr.number)
-            did_merge, _ = automerge_pr(gh_repo, pr, pr_for_admin)
+            automerge_pr(gh_repo, pr, pr_for_admin, target_url)
             found_pr = True
-
-            if did_merge:
-                status = "success"
-            elif did_merge is None:
-                status = "pending"
-            else:
-                status = "failure"
-            set_automerge_status(gh_repo, None, status, target_url=target_url, sha=sha)
 
     if not found_pr:
         LOGGER.error(f"No PR found for {full_repo_name}@{sha}!")
@@ -660,4 +652,3 @@ def main_automerge(repo, sha):
             f"No PR found for {full_repo_name}@{sha}",
             flush=True,
         )
-        set_automerge_status(gh_repo, None, "error", target_url=target_url, sha=sha)

@@ -6,9 +6,6 @@ import uuid
 
 import github
 from conda_forge_webservices.utils import pushd
-from conda_forge_webservices.github_actions_integration.automerge import (
-    set_automerge_status,
-)
 from flaky import flaky
 
 TEST_BASE_BRANCH = "automerge-live-test-base-branch"
@@ -106,13 +103,6 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                             if pr.is_merged():
                                 print("PR was merged!", flush=True)
                                 merged = True
-                                set_automerge_status(
-                                    repo,
-                                    None,
-                                    "success",
-                                    target_url=None,
-                                    sha=pr.head.sha,
-                                )
                                 break
                             elif tot > 0:
                                 uid = uuid.uuid4().hex
@@ -132,13 +122,6 @@ def test_live_automerge(pytestconfig, skip_if_no_tokens):
                                     return_run_details=True,
                                 )
                                 assert running
-                                set_automerge_status(
-                                    repo,
-                                    None,
-                                    "pending",
-                                    target_url=running.html_url,
-                                    sha=pr.head.sha,
-                                )
 
                     if not merged:
                         raise RuntimeError(f"PR {pr.number} was not merged!")

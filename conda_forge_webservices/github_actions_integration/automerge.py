@@ -499,12 +499,8 @@ def _automerge_pr(
     repo: Repository,
     pr: PullRequest,
     pr_for_admin: PullRequest,
+    cfg: dict,
 ) -> tuple[bool | None, str | None]:
-    cfg = _get_conda_forge_config(pr)
-    allowed, msg = _check_pr(pr, pr_for_admin, cfg)
-
-    if not allowed:
-        return False, msg
 
     # get checks and statuses
     status_states = _get_github_statuses(repo, pr)
@@ -580,7 +576,10 @@ def _automerge_pr(
 
 
 def automerge_pr(
-    repo: Repository, pr: PullRequest, pr_for_admin: PullRequest
+    repo: Repository,
+    pr: PullRequest,
+    pr_for_admin: PullRequest,
+    target_url: str | None = None,
 ) -> tuple[bool | None, str | None]:
     """Possibly automerge a PR.
 
@@ -594,6 +593,8 @@ def automerge_pr(
     pr_for_admin : github.PullRequest.PullRequest
         A `PullRequest` object for the given PR from the PyGithub package
         that is used only to comment on and/or merge the PR.
+    target_url : str | None
+        The URL used for setting the status on the commit.
 
     Returns
     -------
@@ -603,7 +604,54 @@ def automerge_pr(
     reason : str
         The reason the merge worked or did not work.
     """
-    did_merge, reason = _automerge_pr(repo, pr, pr_for_admin)
+    # check if allowed and exit if not
+    # do not set any statuses
+    cfg = _get_conda_forge_config(pr)
+    allowed, reason = _check_pr(pr, pr_for_admin, cfg)
+
+    if not allowed:
+        LOGGER.info(
+            "AUTOMERGE NOT ALLOWED FOR PR %s on %s: %s",
+            pr.number,
+            repo.full_name,
+            reason,
+        )
+        return False, reason
+
+    if pr.is_merged():
+        LOGGER.info("ALREADY MERGED PR %s on %s: %s", pr.number, repo.full_name, reason)
+        set_automerge_status(
+            repo, pr.number, "success", target_url=target_url, sha=pr.head.sha
+        )
+        return True, "PR has already been merged"
+
+    # set pending status if not already successful
+    set_pending = True
+    commit = repo.get_commit(pr.head.sha)
+    combined_status = commit.get_combined_status()
+    for status in combined_status.statuses:
+        if status.context == "conda-forge-automerge-service":
+            if status.state == "success":
+                set_pending = False
+            break
+    if set_pending:
+        set_automerge_status(
+            repo, pr.number, "pending", target_url=target_url, sha=pr.head.sha
+        )
+
+    # attempt to merge
+    did_merge, reason = _automerge_pr(repo, pr, pr_for_admin, cfg)
+
+    # set final status
+    if did_merge:
+        status = "success"
+    elif did_merge is None:
+        status = "pending"
+    else:
+        status = "failure"
+    set_automerge_status(
+        repo, pr.number, status, target_url=target_url, sha=pr.head.sha
+    )
 
     if did_merge:
         LOGGER.info("MERGED PR %s on %s: %s", pr.number, repo.full_name, reason)
