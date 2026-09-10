@@ -151,8 +151,8 @@ def _get_rate_limiting_info_for_token(token):
 
     # Get GitHub API Rate Limit usage and total
     gh = github.Github(auth=github.Auth.Token(token))
-    gh_api_remaining = gh.get_rate_limit().core.remaining
-    gh_api_total = gh.get_rate_limit().core.limit
+    gh_api_remaining = gh.get_rate_limit().rate.remaining
+    gh_api_total = gh.get_rate_limit().rate.limit
 
     try:
         user = gh.get_user().login
@@ -160,7 +160,7 @@ def _get_rate_limiting_info_for_token(token):
         user = "conda-forge-webservices[bot]"
 
     # Compute time until GitHub API Rate Limit reset
-    gh_api_reset_time = gh.get_rate_limit().core.reset
+    gh_api_reset_time = gh.get_rate_limit().rate.reset
     gh_api_reset_time -= datetime.now(timezone.utc)
     msg = f"{user} - remaining {gh_api_remaining} out of {gh_api_total}."
     msg = f"github api requests: {msg} - Will reset in {gh_api_reset_time}."
