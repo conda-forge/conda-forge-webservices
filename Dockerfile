@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-glibc:alpine-3.10
+FROM frolvlad/alpine-glibc:alpine-3.22_glibc-2.42
 
 # much of image code ripped from
 # https://github.com/Docker-Hub-frolvlad/docker-alpine-miniconda3
@@ -31,8 +31,8 @@ LABEL maintainer="conda-forge core (@conda-forge/core)"
 
 ENV LANG en_US.UTF-8
 
-ARG CONDA_INSTALLER_VERSION="24.3.0-0"
-ARG CONDA_INSTALLER_SHA256="23367676b610de826f50f7ddc91139a816d4b59bd4c69cc9b6082d9b2e7fe8a3"
+ARG CONDA_INSTALLER_VERSION="26.7.2-0"
+ARG CONDA_INSTALLER_SHA256="281b0ac7d550802efc81af633225a5e6116d29ae72f3ab4eae7168c3931a4c05"
 ARG CONDA_DIR="/opt/conda"
 
 ENV PATH="$CONDA_DIR/bin:$PATH"

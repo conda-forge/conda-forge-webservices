@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+  pull_request: null
 
 env:
   PY_COLORS: "1"
@@ -14,9 +15,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test-heroku-container-build:
+    name: test heroku container build
+    runs-on: "ubuntu-latest"
+    if: ${{ github.event_name == 'pull_request' }}
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: build docker image
+        uses: redhat-actions/buildah-build@719e3c40d8af9790c23eca13f7daa339f2867034 # v3.1.0
+        with:
+          image: webservices-heroku-container
+          tags: test
+          containerfiles: |
+            ./Dockerfile
+          build-args: |
+            --no-cache
+
   tag-and-release:
     name: tag-and-release
     runs-on: "ubuntu-slim"
+    if: ${{ github.event_name != 'pull_request' }}
     defaults:
       run:
         shell: bash -leo pipefail {0}
@@ -55,6 +77,7 @@ jobs:
   build-and-push-dispatch-container:
     name: build and push dispatch container
     runs-on: "ubuntu-latest"
+    if: ${{ github.event_name != 'pull_request' }}
     needs: tag-and-release
     defaults:
       run:
@@ -128,6 +151,7 @@ jobs:
   build-and-push-to-heroku:
     name: build and push to heroku
     runs-on: "ubuntu-latest"
+    if: ${{ github.event_name != 'pull_request' }}
     needs:
       - tag-and-release
       - build-and-push-dispatch-container
