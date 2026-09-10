@@ -1298,7 +1298,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             if (
                 event == "status"
                 and body["repository"]["full_name"].endswith("-feedstock")
-                and body["context"] != "conda-forge-automerge-status"
+                and body["context"] != "conda-forge-automerge-service"
             ):
                 tornado.ioloop.IOLoop.current().spawn_callback(
                     _dispatch_automerge_job,
