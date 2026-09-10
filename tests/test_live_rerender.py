@@ -3,7 +3,6 @@ import os
 import subprocess
 import tempfile
 import time
-import uuid
 
 import conda_forge_webservices
 import github
@@ -68,7 +67,6 @@ def _rerender_is_ok(verbose=False):
 def _run_test(branch):
     pr_number = 445
     print("sending workflow dispatch event to rerender...", flush=True)
-    uid = uuid.uuid4().hex
     gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     repo = gh.get_repo("conda-forge/conda-forge-webservices")
     workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
@@ -84,7 +82,6 @@ def _run_test(branch):
             "repo": "cf-autotick-bot-test-package-feedstock",
             "pr_number": str(pr_number),
             "container_tag": conda_forge_webservices.__version__.replace("+", "."),
-            "uuid": uid,
             "sha": pr_sha,
         },
         return_run_details=True,

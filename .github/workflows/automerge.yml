@@ -1,7 +1,7 @@
 name: automerge
 
 run-name: >-
-  automerge: conda-forge/${{ inputs.repo }}@${{ inputs.sha }} [uuid=${{ inputs.uuid }}]
+  automerge: conda-forge/${{ inputs.repo }}@${{ inputs.sha }}
 
 on:
   workflow_dispatch:
@@ -12,10 +12,6 @@ on:
         type: string
       sha:
         description: 'the commit SHA to possibly merge'
-        required: true
-        type: string
-      uuid:
-        description: 'a unique identifier for this run'
         required: true
         type: string
 
@@ -39,7 +35,6 @@ jobs:
       - name: setup conda
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
