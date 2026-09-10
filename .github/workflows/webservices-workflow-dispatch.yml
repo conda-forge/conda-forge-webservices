@@ -1,7 +1,7 @@
 name: webservices-workflow-dispatch
 
 run-name: >-
-  ${{ inputs.task }}: conda-forge/${{ inputs.repo }}#${{ inputs.pr_number }} [container=${{ inputs.container_tag }}, requested_version=${{ inputs.requested_version }}, uuid=${{ inputs.uuid }}]
+  ${{ inputs.task }}: conda-forge/${{ inputs.repo }}#${{ inputs.pr_number }} [container=${{ inputs.container_tag }}, requested_version=${{ inputs.requested_version }}]
 
 on:
   workflow_dispatch:
@@ -27,10 +27,6 @@ on:
         required: false
         type: string
         default: 'null'
-      uuid:
-        description: 'a unique identifier for this run'
-        required: true
-        type: string
       sha:
         description: 'the sha of the commit to run on'
         required: false
@@ -65,7 +61,6 @@ jobs:
       - name: setup conda
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -119,7 +114,6 @@ jobs:
       - name: setup conda
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |

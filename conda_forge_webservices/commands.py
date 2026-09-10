@@ -7,7 +7,6 @@ import time
 import shutil
 import tempfile
 import textwrap
-import uuid
 from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
@@ -1221,7 +1220,6 @@ def rerender(full_name, pr_num):
     sha = pull.head.sha
 
     _, repo_name = full_name.split("/")
-    uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
         "webservices-workflow-dispatch.yml"
@@ -1233,7 +1231,6 @@ def rerender(full_name, pr_num):
             "repo": repo_name,
             "pr_number": str(pr_num),
             "container_tag": ref,
-            "uuid": uid,
             "sha": sha,
         },
         return_run_details=True,
@@ -1281,7 +1278,6 @@ def convert_v1(full_name, pr_num):
     sha = pull.head.sha
 
     _, repo_name = full_name.split("/")
-    uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
         "webservices-workflow-dispatch.yml"
@@ -1293,7 +1289,6 @@ def convert_v1(full_name, pr_num):
             "repo": repo_name,
             "pr_number": str(pr_num),
             "container_tag": ref,
-            "uuid": uid,
             "sha": sha,
         },
         return_run_details=True,
@@ -1342,7 +1337,6 @@ def update_version(full_name, pr_num, input_ver):
     pull = repo.get_pull(int(pr_num))
     sha = pull.head.sha
 
-    uid = uuid.uuid4().hex
     _, repo_name = full_name.split("/")
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
@@ -1356,7 +1350,6 @@ def update_version(full_name, pr_num, input_ver):
             "pr_number": str(pr_num),
             "container_tag": ref,
             "requested_version": str(input_ver) or "null",
-            "uuid": uid,
             "sha": sha,
         },
         return_run_details=True,

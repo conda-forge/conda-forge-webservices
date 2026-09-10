@@ -2,7 +2,6 @@ import os
 import subprocess
 import tempfile
 import time
-import uuid
 
 import github
 import pytest
@@ -207,7 +206,6 @@ def test_linter_pr(target_pr_number, pytestconfig, skip_if_no_tokens):
 
         _make_empty_commit(pr_number)
 
-        uid = uuid.uuid4().hex
         pr = repo.get_pull(pr_number)
         pr_sha = pr.head.sha
         workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
@@ -218,7 +216,6 @@ def test_linter_pr(target_pr_number, pytestconfig, skip_if_no_tokens):
                 "repo": "conda-forge-webservices",
                 "pr_number": str(pr_number),
                 "container_tag": conda_forge_webservices.__version__.replace("+", "."),
-                "uuid": uid,
                 "sha": pr_sha,
             },
             return_run_details=True,

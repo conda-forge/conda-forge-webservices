@@ -4,7 +4,6 @@ from tempfile import TemporaryDirectory
 import logging
 from pathlib import Path
 from typing import TypedDict
-import uuid
 
 from git import GitCommandError, Repo
 import conda_smithy.lint_recipe
@@ -49,7 +48,6 @@ def lint_via_github_actions(
     if should_skip and sha is None:
         return False
 
-    uid = uuid.uuid4().hex
     ref = __version__.replace("+", ".")
     workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
         "webservices-workflow-dispatch.yml"
@@ -61,7 +59,6 @@ def lint_via_github_actions(
             "repo": repo_name,
             "pr_number": str(pr_num),
             "container_tag": ref,
-            "uuid": uid,
             "sha": sha_to_use,
             "merge_queue": "true" if sha is not None else "false",
         },
@@ -69,7 +66,7 @@ def lint_via_github_actions(
     )
 
     if running:
-        msg = f"linting job dispatched: uuid={uid}"
+        msg = f"linting job dispatched: {running.html_url}"
         retval = True
         target_url = running.html_url
         _set_pr_status(

@@ -1232,7 +1232,6 @@ def _dispatch_automerge_job(repo, sha):
                 break
 
     if not skip_test_pr:
-        uid = uuid.uuid4().hex
         ref = __version__.replace("+", ".")
         workflow = gh.get_repo("conda-forge/conda-forge-webservices").get_workflow(
             "automerge.yml"
@@ -1242,12 +1241,12 @@ def _dispatch_automerge_job(repo, sha):
             inputs={
                 "repo": repo,
                 "sha": sha,
-                "uuid": uid,
             },
+            return_run_details=True,
         )
 
         if running:
-            msg = f"automerge job dispatched: uuid={uid}"
+            msg = f"automerge job dispatched: {running.html_url}"
         else:
             msg = "automerge job dispatch failed"
 

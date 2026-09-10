@@ -118,7 +118,6 @@ jobs:
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         if: ${{ needs.check.outputs.skip-check != 'true' }}
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -189,7 +188,6 @@ jobs:
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         if: ${{ needs.check.outputs.skip-check != 'true' }}
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -250,7 +248,6 @@ jobs:
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -315,7 +312,6 @@ jobs:
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -383,7 +379,6 @@ jobs:
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -451,7 +446,6 @@ jobs:
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -518,7 +512,6 @@ jobs:
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
@@ -579,7 +572,6 @@ jobs:
         if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
         with:
-          micromamba-version: "2.7.0-0"
           environment-file: conda-lock.yml
           environment-name: webservices
           condarc: |
