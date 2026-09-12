@@ -795,18 +795,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.09.11.16.01.30
+  version: 2026.09.12.19.51.15
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.09.11.16.01.30-hd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.09.12.19.51.15-hd8ed1ab_0.conda
   hash:
-    md5: 396a66d749531a44948ad7b603dd8a6c
-    sha256: 1fb4221b29672f5b9776c33e0792c211062cf7352cfe53630f3abedddc1bbca0
+    md5: b9ac9010b57a6d5ce9c193069a530bce
+    sha256: fff56cbf97b1414ebe35605684b50673f0241bd02da2609ed7d1d78f1f14e9f3
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.9.72
+  version: 2026.9.73
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +864,10 @@ package:
     tqdm: ''
     wget: ''
     wurlitzer: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.72-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.73-pyhc364b38_0.conda
   hash:
-    md5: c468318d2fd9b34aff791c8088309554
-    sha256: 058d462ced1c9ba663e3c927e07f3e2364a44a7112138fb31279d7e16b7837e3
+    md5: 111df64fac02dcb1bac707a844b1dda7
+    sha256: 20dd0f67e42b35111443baf8205b762b3f0e76f28ad2202e9b9fbc889abcdd59
   category: main
   optional: false
 - name: conda-index
@@ -1698,18 +1698,18 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libcurl: '>=8.21.0,<9.0a0'
+    libcurl: '>=8.22.0,<9.0a0'
     libexpat: '>=2.8.1,<3.0a0'
-    libgcc: '>=14'
+    libgcc: '>=15'
     libiconv: '>=1.18,<2.0a0'
     libzlib: '>=1.3.2,<2.0a0'
-    openssl: '>=3.5.7,<4.0a0'
+    openssl: '>=3.5.8,<4.0a0'
     pcre2: '>=10.47,<10.48.0a0'
     perl: 5.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.55.0-pl5321h5685339_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/git-2.55.0-pl5321h3795e67_2.conda
   hash:
-    md5: da325124b01b7b88e7374d160d02698b
-    sha256: ffe825e3ff78876dc5aa28eee791d8d9be4a47157761aa38dbff79e9222b3b8e
+    md5: 6c2e06e5d72574700e526b860e136157
+    sha256: 762e393f66cff2f4053f986cd4eaaa93b0fd22a6decec8f9cdefe9c9e12591be
   category: main
   optional: false
 - name: gitdb
