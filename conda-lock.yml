@@ -806,7 +806,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.9.73
+  version: 2026.9.77
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +864,10 @@ package:
     tqdm: ''
     wget: ''
     wurlitzer: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.73-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.77-pyhc364b38_0.conda
   hash:
-    md5: 111df64fac02dcb1bac707a844b1dda7
-    sha256: 20dd0f67e42b35111443baf8205b762b3f0e76f28ad2202e9b9fbc889abcdd59
+    md5: a9fcdf4a4738233e590f19b1c44a8882
+    sha256: 9c465ffd6a0a72c6c49416a818e3c24db51ae47de01c75d7581588cb78d182cc
   category: main
   optional: false
 - name: conda-index
@@ -4213,14 +4213,14 @@ package:
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
     cffi: ''
-    libgcc: '>=14'
-    libgit2: '>=1.9.6,<1.10.0a0'
+    libgcc: '>=15'
+    libgit2: '>=1.9.7,<1.10.0a0'
     python: ''
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/pygit2-1.20.0-py312h5253ce2_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pygit2-1.20.0-py312h1b36aeb_1.conda
   hash:
-    md5: 5253dffc6a3ed6e6b08178dc956f960c
-    sha256: d21f399dda43ae7d7783c4332101114cabcadd11dad0830efa9b77fc2b79e912
+    md5: d64c53af195b456bf13c3a7f458b5456
+    sha256: e27e9f2c3338bd66cd16760b80cc2b279290d13eb03be516f0cc07d47afd6e93
   category: main
   optional: false
 - name: pygithub
