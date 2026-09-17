@@ -11,6 +11,7 @@ from ruamel.yaml import YAML
 import requests
 from requests.exceptions import RequestException
 import logging
+from contextlib import contextmanager
 from typing import Literal
 
 # from .utils import tmp_directory
@@ -577,58 +578,13 @@ def issue_comment(
             app_issue.edit(state="closed")
 
     if any(command.search(text) for command in send_pr_commands):
-        forked_user_gh = gh.get_user()
-        forked_user = forked_user_gh.login
-
-        # make the fork if it does not exist
-        try:
-            forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
-        except github.GithubException as e:
-            _test_and_raise_besides_file_not_exists(e)
-
-            forked_user_gh.create_fork(gh.get_repo(f"{org_name}/{repo_name}"))
-            # we have to wait since the call above is async
-            for i in range(NUM_GH_API_TRIES):
-                try:
-                    forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
-                    break
-                except Exception as e:
-                    if i < 4:
-                        time.sleep(0.050 * 2**i)
-                        continue
-                    else:
-                        raise e
-
-        tmp_dir = None
-        try:
-            tmp_dir = tempfile.mkdtemp("_recipe")
-
-            if forked_user_repo.default_branch != default_branch:
-                _sync_default_branch(
-                    repo_name,
-                    forked_user,
-                    forked_user_repo.default_branch,
-                    default_branch,
-                    gh,
-                )
-
-            gh_token = get_app_token_for_webservices_only()
-            feedstock_dir = os.path.join(tmp_dir, repo_name)
-            repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
-                os.environ["GH_TOKEN"], forked_user, repo_name
-            )
-            upstream_repo_url = f"https://x-access-token:{gh_token}@github.com/{org_name}/{repo_name}.git"
-
-            git_repo = _attempt_git_clone(repo_url, feedstock_dir, pr_branch=None)
-
-            forked_repo_branch = f"conda_forge_admin_{issue_num}"
-            upstream = git_repo.create_remote("upstream", upstream_repo_url)
-            upstream.fetch()
-            new_branch = git_repo.create_head(
-                forked_repo_branch, getattr(upstream.refs, default_branch)
-            )
-            new_branch.checkout()
-
+        forked_repo_branch = f"conda_forge_admin_{issue_num}"
+        with admin_feedstock_branch(
+            gh, org_name, repo_name, default_branch, forked_repo_branch
+        ) as (
+            git_repo,
+            forked_user,
+        ):
             err_msg = None
             changed_anything = False
             check_bump_build = True
@@ -764,7 +720,6 @@ def issue_comment(
                             changed_anything |= handled_user
 
             if changed_anything:
-                git_repo.git.push("origin", forked_repo_branch)
                 pr_message = textwrap.dedent("""
                         Hi! This is the friendly automated conda-forge-webservice.
 
@@ -780,11 +735,14 @@ def issue_comment(
                 if to_close:
                     pr_message += f"\nFixes #{issue_num}"
 
-                pr = repo.create_pull(
+                pr = open_admin_pr(
+                    repo,
+                    git_repo,
+                    forked_user,
+                    forked_repo_branch,
+                    base=default_branch,
                     title=pr_title,
                     body=pr_message,
-                    base=default_branch,
-                    head=f"{forked_user}:{forked_repo_branch}",
                     draft=do_rerender or do_version_update,
                 )
 
@@ -876,10 +834,6 @@ def issue_comment(
                 if to_close:
                     app_issue.edit(state="closed")
 
-        finally:
-            if tmp_dir is not None:
-                shutil.rmtree(tmp_dir)
-
 
 def _sync_default_branch(
     repo_name, forked_user, forked_default_branch, default_branch, gh
@@ -916,6 +870,87 @@ def _sync_default_branch(
                 continue
             else:
                 raise e
+
+
+@contextmanager
+def admin_feedstock_branch(gh, org_name, repo_name, default_branch, branch_name):
+    """Check out the bot's fork of a feedstock on a new branch cut from upstream.
+
+    Makes the fork and syncs its default branch if needed. Yields the clone and
+    the account owning it. `gh` has to be a real account rather than the app,
+    since only an account can hold a fork.
+    """
+    forked_user_gh = gh.get_user()
+    forked_user = forked_user_gh.login
+
+    # make the fork if it does not exist
+    try:
+        forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
+    except github.GithubException as e:
+        _test_and_raise_besides_file_not_exists(e)
+
+        forked_user_gh.create_fork(gh.get_repo(f"{org_name}/{repo_name}"))
+        # we have to wait since the call above is async
+        for i in range(NUM_GH_API_TRIES):
+            try:
+                forked_user_repo = gh.get_repo(f"{forked_user}/{repo_name}")
+                break
+            except Exception as e:
+                if i < 4:
+                    time.sleep(0.050 * 2**i)
+                    continue
+                else:
+                    raise e
+
+    tmp_dir = None
+    try:
+        tmp_dir = tempfile.mkdtemp("_recipe")
+
+        if forked_user_repo.default_branch != default_branch:
+            _sync_default_branch(
+                repo_name,
+                forked_user,
+                forked_user_repo.default_branch,
+                default_branch,
+                gh,
+            )
+
+        gh_token = get_app_token_for_webservices_only()
+        feedstock_dir = os.path.join(tmp_dir, repo_name)
+        repo_url = "https://x-access-token:{}@github.com/{}/{}.git".format(
+            os.environ["GH_TOKEN"], forked_user, repo_name
+        )
+        upstream_repo_url = (
+            f"https://x-access-token:{gh_token}@github.com/{org_name}/{repo_name}.git"
+        )
+
+        git_repo = _attempt_git_clone(repo_url, feedstock_dir, pr_branch=None)
+
+        upstream = git_repo.create_remote("upstream", upstream_repo_url)
+        upstream.fetch()
+        new_branch = git_repo.create_head(
+            branch_name, getattr(upstream.refs, default_branch)
+        )
+        new_branch.checkout()
+
+        yield git_repo, forked_user
+    finally:
+        if tmp_dir is not None:
+            shutil.rmtree(tmp_dir)
+
+
+def open_admin_pr(
+    repo, git_repo, forked_user, branch_name, *, base, title, body, draft
+):
+    """Push a branch made by admin_feedstock_branch and open its pull request."""
+    git_repo.git.push("origin", branch_name)
+    return repo.create_pull(
+        title=title,
+        body=body,
+        base=base,
+        head=f"{forked_user}:{branch_name}",
+        draft=draft,
+    )
 
 
 def restart_pull_request_ci(repo, pr_num):
