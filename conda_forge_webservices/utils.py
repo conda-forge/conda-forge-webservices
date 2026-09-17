@@ -11,6 +11,24 @@ import github
 ALLOWED_CMD_NON_FEEDSTOCKS = ["staged-recipes", "admin-requests"]
 LOGGER = logging.getLogger("conda_forge_webservices")
 
+# How long a client will wait for a rate limit to reset before giving up. Has to
+# be at least GithubRetry's secondary_rate_wait of 60s, or secondary rate limits
+# raise rather than wait.
+MAX_RATE_LIMIT_WAIT = 300
+
+
+def github_retry(**kwargs) -> github.GithubRetry:
+    """The retry policy our GitHub clients share.
+
+    GithubRetry knows which 403s are rate limits and which are refusals, and
+    only retries the former. It waits for as long as the reset is away, though,
+    which can be most of an hour, so cap it: a job that fails is easier to deal
+    with than one sitting idle until it times out.
+    """
+    kwargs.setdefault("total", 10)
+    kwargs.setdefault("backoff_factor", 0.1)
+    return github.GithubRetry(max_rate_limit_wait=MAX_RATE_LIMIT_WAIT, **kwargs)
+
 
 @contextmanager
 def tmp_directory():

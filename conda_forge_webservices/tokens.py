@@ -9,6 +9,8 @@ from functools import lru_cache
 
 from typing import Any
 
+from conda_forge_webservices.utils import github_retry
+
 from github import (
     Auth,
     Github,
@@ -26,7 +28,7 @@ APP_TOKEN_RESET_TIME = None
 
 @lru_cache(maxsize=1)
 def _get_gh_client(token):
-    return Github(auth=Auth.Token(token))
+    return Github(auth=Auth.Token(token), retry=github_retry())
 
 
 def get_gh_client():

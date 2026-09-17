@@ -3,7 +3,8 @@ from functools import lru_cache
 
 import github
 import requests
-import urllib3.util.retry
+
+from conda_forge_webservices.utils import github_retry
 
 
 def create_api_sessions():
@@ -61,9 +62,6 @@ def _create_api_sessions(github_token):
     sess.hooks["response"].append(raise_for_status)
 
     # build a github object too
-    gh = github.Github(
-        auth=github.Auth.Token(github_token),
-        retry=urllib3.util.retry.Retry(total=10, backoff_factor=0.1),
-    )
+    gh = github.Github(auth=github.Auth.Token(github_token), retry=github_retry())
 
     return sess, gh
