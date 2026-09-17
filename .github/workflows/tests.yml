@@ -407,6 +407,8 @@ jobs:
           pytest -vvs --branch=${branch} test_live_admin_pr.py
         env:
           GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
 
   live-tests-linter:
     name: live-tests-linter
