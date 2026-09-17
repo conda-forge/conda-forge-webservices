@@ -290,6 +290,7 @@ def _run_test(branch, version, schema_version):
     pr_head_sha = GH.get_repo(REPO).get_pull(PR_NUM).head.sha
     repo = GH.get_repo("conda-forge/conda-forge-webservices")
     workflow = repo.get_workflow("webservices-workflow-dispatch.yml")
+    target_url = None
     running = workflow.create_dispatch(
         ref=branch,
         inputs={
@@ -307,6 +308,12 @@ def _run_test(branch, version, schema_version):
         target_url = running.html_url
         set_version_update_pr_status(
             GH.get_repo(REPO), PR_NUM, "pending", target_url=target_url, sha=pr_head_sha
+        )
+
+    if not running:
+        raise AssertionError(
+            f"the version updater was not dispatched on {branch}, so there is "
+            "nothing to wait for"
         )
 
     print(
