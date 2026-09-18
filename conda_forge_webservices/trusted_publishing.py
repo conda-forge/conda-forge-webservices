@@ -199,7 +199,11 @@ def verify_token(token: str, issuers: set[str]) -> dict[str, Any]:
 def _require_complete_claims(
     claims: dict[str, Any], publishers: list[TrustedPublisher]
 ) -> None:
-    """Refuse a provider too old to send the claims we match on."""
+    """Refuse a provider too old to send the claims of its kind.
+
+    The set is a floor on the provider, not the set we match on: `ref` and
+    `repository_owner` are there to date the instance, not to be compared.
+    """
     for publisher in publishers:
         missing = REQUIRED_PROVIDER_CLAIMS[type(publisher)] - claims.keys()
         if not missing:
