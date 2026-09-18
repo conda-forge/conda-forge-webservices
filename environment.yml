@@ -13,7 +13,7 @@ dependencies:
   - conda-forge-tick >=2026.9.46
   - conda-forge-feedstock-ops >=0.20.1
   - conda-recipe-manager >=0.10.6
-  - conda-smithy >=2026.9.1  # this pin is for username-userid & team security fixes
+  - conda-smithy >2026.9.10  # for schema.TrustedPublisher; >=2026.9.1 was for username-userid & team security fixes
   - conda-souschef
   - cryptography >=39
   - python-dateutil
@@ -23,7 +23,9 @@ dependencies:
   - mock
   - parameterized
   - pip
+  - pydantic >=2.11
   - pygithub >=2.10.0
+  - pyjwt >=2.10
   - python =3.12.*
   - pytz
   - pyyaml
