@@ -18,6 +18,9 @@ GITHUB_CLAIMS = {
     "repository_owner": "DIRACGrid",
     "repository_owner_id": "1234",
     "workflow_ref": "DIRACGrid/DIRAC/.github/workflows/deploy.yml@refs/tags/v9.1.19",
+    "job_workflow_ref": (
+        "DIRACGrid/DIRAC/.github/workflows/deploy.yml@refs/tags/v9.1.19"
+    ),
     "ref": "refs/tags/v9.1.19",
     "ref_type": "tag",
     "run_id": "35107909883",
@@ -199,9 +202,27 @@ def test_gitlab_too_old_to_send_its_claims_is_refused(trusted_key):
 
 
 def test_github_token_without_the_claims_we_match_on_is_refused(trusted_key):
-    claims = {k: v for k, v in GITHUB_CLAIMS.items() if k != "workflow_ref"}
-    with pytest.raises(tp.TrustedPublishingError, match="does not carry workflow_ref"):
+    claims = {k: v for k, v in GITHUB_CLAIMS.items() if k != "job_workflow_ref"}
+    with pytest.raises(
+        tp.TrustedPublishingError, match="does not carry job_workflow_ref"
+    ):
         tp.authorize(_make_token(claims), [GITHUB_PUBLISHER])
+
+
+def test_a_workflow_called_by_the_named_one_does_not_authorize(trusted_key):
+    """job_workflow_ref, not workflow_ref, is what names the job's own workflow.
+
+    The run still starts at deploy.yml, so pinning where it started would let
+    anything it calls publish in its name.
+    """
+    token = _make_token(
+        dict(
+            GITHUB_CLAIMS,
+            job_workflow_ref="other/repo/.github/workflows/build.yml@refs/heads/main",
+        )
+    )
+    with pytest.raises(tp.TrustedPublishingError, match="matches no trusted publisher"):
+        tp.authorize(token, [GITHUB_PUBLISHER])
 
 
 def test_an_old_provider_reads_differently_from_a_mismatch(trusted_key):
@@ -222,15 +243,21 @@ def test_an_old_provider_reads_differently_from_a_mismatch(trusted_key):
     "claims",
     [
         {"repository": "DIRACGrid/DIRACX"},
-        {"workflow_ref": "DIRACGrid/DIRAC/.github/workflows/other.yml@refs/heads/main"},
+        {
+            "job_workflow_ref": (
+                "DIRACGrid/DIRAC/.github/workflows/other.yml@refs/heads/main"
+            )
+        },
         # the same workflow name, but somewhere else
         {
             "repository": "DIRACGrid/DIRAC",
-            "workflow_ref": "evil/DIRAC/.github/workflows/deploy.yml@refs/heads/main",
+            "job_workflow_ref": (
+                "evil/DIRAC/.github/workflows/deploy.yml@refs/heads/main"
+            ),
         },
         # a file whose name merely starts the same way
         {
-            "workflow_ref": (
+            "job_workflow_ref": (
                 "DIRACGrid/DIRAC/.github/workflows/deploy.yml.bak@refs/heads/main"
             )
         },

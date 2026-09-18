@@ -233,10 +233,13 @@ def _matches_github(claims: dict[str, Any], publisher: GitHubTrustedPublisher) -
     if str(claims.get("repository_owner_id")) != str(publisher.repository_owner_id):
         return False
 
-    # matching the whole "<repo>/.github/workflows/<file>@" prefix rather than
-    # the file name keeps a workflow of the same name elsewhere from matching
+    # job_workflow_ref is the workflow holding the job that asked for the token,
+    # where workflow_ref is only the one the run started from: pinning the
+    # latter would let anything that workflow calls publish in its name.
+    # Matching the whole "<repo>/.github/workflows/<file>@" prefix rather than
+    # the file name keeps a workflow of the same name elsewhere from matching.
     prefix = f"{publisher.repository}/.github/workflows/{publisher.workflow}@"
-    if not str(claims.get("workflow_ref", "")).startswith(prefix):
+    if not str(claims.get("job_workflow_ref", "")).startswith(prefix):
         return False
 
     if publisher.environment is not None:
@@ -279,7 +282,7 @@ REQUIRED_PROVIDER_CLAIMS = {
         "repository",
         "repository_owner",
         "repository_owner_id",
-        "workflow_ref",
+        "job_workflow_ref",
         "ref",
         "ref_type",
     },
@@ -328,7 +331,7 @@ def describe(claims: dict[str, Any]) -> str:
     """A short, attested description of which job a token came from."""
     issuer = claims["iss"]
     if issuer == GITHUB_ISSUER:
-        return f"{claims.get('workflow_ref')} (run {claims.get('run_id')})"
+        return f"{claims.get('job_workflow_ref')} (run {claims.get('run_id')})"
 
     host = issuer.removeprefix("https://")
     return f"{host}/{claims.get('project_path')} " + (
