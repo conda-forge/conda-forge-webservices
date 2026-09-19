@@ -135,15 +135,6 @@ jobs:
             channels:
               - conda-forge
 
-      - name: generate token
-        id: generate_token
-        if: ${{ needs.check.outputs.skip-secretless != 'true' && !github.event.pull_request.head.repo.fork }}
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          client-id: ${{ secrets.CF_CURATOR_APP_ID }}
-          private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - name: install code
         id: install-code
         if: ${{ needs.check.outputs.skip-secretless != 'true' }}
@@ -155,28 +146,16 @@ jobs:
           echo $GH_TOKEN > ~/.conda-smithy/github.token
           chmod 600 ~/.conda-smithy/github.token
           pip install --no-deps --no-build-isolation -e .
-        env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run test suite
         if: ${{ needs.check.outputs.skip-secretless != 'true' }}
         run: |
           echo "owner: ${GITHUB_REPOSITORY_OWNER}"
           export CF_WEBSERVICES_TEST=1
-          if [[ '${{ github.event.pull_request.head.repo.fork }}' == "true" ]]; then
-            unset CF_WEBSERVICES_TOKEN
-            unset CF_WEBSERVICES_APP_ID
-            unset CF_WEBSERVICES_PRIVATE_KEY
-            unset GH_TOKEN
-          fi
           pytest -v conda_forge_webservices
         env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
           PROD_BINSTAR_TOKEN: ${{ secrets.PROD_BINSTAR_TOKEN }}
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
-          CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
-          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
-          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
           ACTION_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
 
   docker-build:
