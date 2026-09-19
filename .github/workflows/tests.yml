@@ -41,6 +41,7 @@ jobs:
       - run-merge-queue-ci-skipper
     outputs:
       skip-check: ${{ steps.should-skip.outputs.should-skip }}
+      skip-secretless: ${{ steps.should-skip.outputs.skip-secretless }}
     runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -91,6 +92,14 @@ jobs:
             echo "should-skip=true" >> "$GITHUB_OUTPUT"
           fi
 
+          # a fork gets no secrets, but the unit tests are written to do
+          # without them, so being a fork is not a reason to skip those
+          if [[ ${MQ_CI_SKIP} == "true" ]]; then
+            echo "skip-secretless=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip-secretless=true" >> "$GITHUB_OUTPUT"
+          fi
+
           echo "pr number: ${PR_NUMBER}"
           echo "pr is fork: ${pr_is_fork}"
           echo "merge queue CI needs to run: ${MQ_CI_SKIP}"
@@ -110,13 +119,13 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        if: ${{ needs.check.outputs.skip-check != 'true' }}
+        if: ${{ needs.check.outputs.skip-secretless != 'true' }}
         with:
           fetch-depth: 0
 
       - name: setup conda
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
-        if: ${{ needs.check.outputs.skip-check != 'true' }}
+        if: ${{ needs.check.outputs.skip-secretless != 'true' }}
         with:
           environment-file: conda-lock.yml
           environment-name: webservices
@@ -128,7 +137,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
+        if: ${{ needs.check.outputs.skip-secretless != 'true' && !github.event.pull_request.head.repo.fork }}
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ secrets.CF_CURATOR_APP_ID }}
@@ -137,7 +146,7 @@ jobs:
 
       - name: install code
         id: install-code
-        if: ${{ needs.check.outputs.skip-check != 'true' }}
+        if: ${{ needs.check.outputs.skip-secretless != 'true' }}
         run: |
           git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
           git config --global user.name "conda-forge-curator[bot]"
@@ -150,7 +159,7 @@ jobs:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: run test suite
-        if: ${{ needs.check.outputs.skip-check != 'true' }}
+        if: ${{ needs.check.outputs.skip-secretless != 'true' }}
         run: |
           echo "owner: ${GITHUB_REPOSITORY_OWNER}"
           export CF_WEBSERVICES_TEST=1
