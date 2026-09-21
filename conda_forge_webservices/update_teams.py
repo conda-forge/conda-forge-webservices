@@ -160,11 +160,20 @@ def update_team(org_name, repo_name, commit=None):
 
     team_name = repo_name.rsplit("-feedstock", 1)[0].lower()
     if team_name in [
-        "core",
-        "bot",
-        "staged-recipes",
         "arm-arch",
+        "bioconda-recipes",
+        "bot",
+        "clifforddev",
+        "conda-forge-anvil",
+        "conda-forge-docs",
+        "conda-forge-github-io",
+        "core",
+        "emeritus-core",
+        "miniforge",
+        "perl-packagers",
+        "staged-recipes",
         "systems",
+        "test-team-team",
     ] or team_name.startswith("help-"):
         return
 
