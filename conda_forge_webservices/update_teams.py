@@ -160,6 +160,7 @@ def update_team(org_name, repo_name, commit=None):
 
     team_name = repo_name.rsplit("-feedstock", 1)[0].lower()
     if team_name in [
+        "all-members",
         "arm-arch",
         "bioconda-recipes",
         "bot",
