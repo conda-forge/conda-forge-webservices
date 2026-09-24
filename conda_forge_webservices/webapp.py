@@ -41,6 +41,7 @@ import conda_forge_webservices.staged_recipes as staged_recipes
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
 import conda_forge_webservices.trusted_publishing as trusted_publishing
+import conda_forge_webservices.trusted_version_updates as trusted_version_updates
 from conda_forge_webservices._version import __version__
 from conda_forge_webservices.update_me import WEBSERVICE_PKGS
 from conda_forge_webservices.feedstock_outputs import (
@@ -1150,6 +1151,86 @@ def _dispatch_autotickbot_job(repo_full_name, event, uid):
     )
 
 
+class TrustedPublishingVersionUpdateHandler(WriteErrorAsJSONRequestHandler):
+    """Open a version update pull request for a CI job that proved who it is.
+
+    Authorization happens on a thread and the git work in the command pool, so
+    that a request from a caller we end up refusing never occupies the single
+    process the commands share.
+    """
+
+    async def post(self):
+        token = trusted_version_updates.bearer_token(
+            self.request.headers.get("Authorization", "")
+        )
+
+        try:
+            body = tornado.escape.json_decode(self.request.body)
+            if not isinstance(body, dict):
+                raise ValueError("the body is not an object")
+        except Exception as err:
+            log_title_and_message_at_level(
+                level="info",
+                title="refused a trusted publishing version update with 400",
+                msg=f"the request body is not a json object: {err!r}",
+            )
+            self.set_status(400)
+            self.write(json.dumps({"error": "the request body is not a json object"}))
+            return
+
+        feedstock = body.get("feedstock")
+        version = body.get("version")
+
+        try:
+            request = await tornado.ioloop.IOLoop.current().run_in_executor(
+                _thread_pool(),
+                trusted_version_updates.authorize_request,
+                token,
+                feedstock,
+                version,
+                body.get("branch"),
+            )
+        except trusted_version_updates.BadRequest as err:
+            log_title_and_message_at_level(
+                level="info",
+                title=(
+                    f"refused a trusted publishing version update for {feedstock!r} "
+                    f"with {err.status}"
+                ),
+                msg=err.message,
+            )
+            self.set_status(err.status)
+            if err.retry_after is not None:
+                self.set_header("Retry-After", str(err.retry_after))
+            self.write(json.dumps({"error": err.message}))
+            return
+
+        log_title_and_message_at_level(
+            level="info",
+            title=(
+                f"version update to {version} for {feedstock} on {request.branch} "
+                f"from {trusted_publishing.describe(request.claims)}"
+            ),
+        )
+
+        try:
+            data = await tornado.ioloop.IOLoop.current().run_in_executor(
+                _worker_pool("command"),
+                trusted_version_updates.open_version_update_pr,
+                request,
+            )
+        except Exception:
+            # nothing was opened, so the feedstock branch can be asked for again
+            LOGGER.exception("could not open a version update PR for %s", feedstock)
+            trusted_version_updates.release_cooldown(request)
+            self.set_status(500)
+            self.write(json.dumps({"error": "the pull request could not be opened"}))
+            return
+
+        self.set_status(202)
+        self.write(json.dumps(data))
+
+
 class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -1472,6 +1553,10 @@ def create_webapp():
             (r"/conda-webservice-update/versions", UpdateWebservicesVersionsHandler),
             (r"/feedstock-outputs/validate", OutputsValidationHandler),
             (r"/feedstock-outputs/copy", OutputsCopyHandler),
+            (
+                r"/trusted-publishing/version-update",
+                TrustedPublishingVersionUpdateHandler,
+            ),
             (r"/autotickbot/payload", AutotickBotPayloadHookHandler),
             (r"/status-monitor/payload", StatusMonitorPayloadHookHandler),
             (r"/status-monitor/azure", StatusMonitorAzureHandler),

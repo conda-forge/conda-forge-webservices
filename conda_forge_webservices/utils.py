@@ -84,6 +84,11 @@ def _test_and_raise_besides_file_not_exists(e: github.GithubException):
     raise e
 
 
+# in the body of every pull request opened for a trusted publisher, so that
+# the version updater can tell one from a pull request opened for a command
+TRUSTED_PUBLISHING_MARKER = "<!-- conda-forge-trusted-publishing -->"
+
+
 def log_title_and_message_at_level(*, level, title, msg=None):
     func = getattr(LOGGER, level)
     total_msg = f"""

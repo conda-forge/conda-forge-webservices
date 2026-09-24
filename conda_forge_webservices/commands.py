@@ -625,11 +625,6 @@ def issue_comment(
                 do_convert_v1 = True
                 changed_anything |= make_rerender_dummy_commit(git_repo)
             elif UPDATE_VERSION.search(text):
-                if UPDATE_VERSION.search(title):
-                    m = UPDATE_VERSION.search(title)
-                elif UPDATE_VERSION.search(comment):
-                    m = UPDATE_VERSION.search(comment)
-
                 pr_title = "chore: update package version"
                 comment_msg = "started a version update"
                 to_close = UPDATE_VERSION.search(title)
@@ -800,6 +795,7 @@ def issue_comment(
                         version_update_error = update_version(
                             org_name + "/" + repo_name,
                             pr.number,
+                            None,
                         )
                     except RequestException:
                         version_update_error = True
@@ -869,12 +865,17 @@ def _sync_default_branch(
 
 
 @contextmanager
-def admin_feedstock_branch(gh, org_name, repo_name, default_branch, branch_name):
+def admin_feedstock_branch(
+    gh, org_name, repo_name, default_branch, branch_name, start_point=None
+):
     """Check out the bot's fork of a feedstock on a new branch cut from upstream.
 
     Makes the fork and syncs its default branch if needed. Yields the clone and
     the account owning it. `gh` has to be a real account rather than the app,
-    since only an account can hold a fork.
+    since only an account can hold a fork. `default_branch` has to be the
+    feedstock's real default branch, since the fork's is renamed to match it;
+    the new branch is cut from `start_point`, a commit, if given, and from
+    upstream's `default_branch` otherwise.
     """
     forked_user_gh = gh.get_user()
     forked_user = forked_user_gh.login
@@ -925,7 +926,10 @@ def admin_feedstock_branch(gh, org_name, repo_name, default_branch, branch_name)
         upstream = git_repo.create_remote("upstream", upstream_repo_url)
         upstream.fetch()
         new_branch = git_repo.create_head(
-            branch_name, getattr(upstream.refs, default_branch)
+            branch_name,
+            start_point
+            if start_point is not None
+            else getattr(upstream.refs, default_branch),
         )
         new_branch.checkout()
 
@@ -1197,7 +1201,7 @@ def remove_bot_automerge(repo):
     return True
 
 
-def make_rerender_dummy_commit(repo):
+def make_rerender_dummy_commit(repo, skip_ci=False):
     # add a dummy commit
     readme_file = os.path.join(repo.working_dir, "README.md")
     with open(readme_file, "a") as fp:
@@ -1211,8 +1215,12 @@ def make_rerender_dummy_commit(repo):
         "conda-forge-webservices[bot]",
         "121827174+conda-forge-webservices[bot]@users.noreply.github.com",
     )
+    message = "dummy commit for rerendering"
+    if skip_ci:
+        # the version update pushed after it runs CI
+        message = f"[ci skip] {message}"
     repo.index.commit(
-        with_action_url("dummy commit for rerendering"),
+        with_action_url(message),
         author=author,
     )
     return True
@@ -1362,7 +1370,23 @@ def set_version_update_pr_status(repo, pr_num, status, target_url=None, sha=None
     )
 
 
-def update_version(full_name, pr_num, input_ver=None):
+def update_version(full_name, pr_num, input_ver):
+    """Dispatch the version updater on a pull request; returns True on failure.
+
+    As dispatch_version_update, which says which run it started.
+    """
+    return dispatch_version_update(full_name, pr_num, input_ver) is None
+
+
+def dispatch_version_update(full_name, pr_num, input_ver, dispatch_ref=None):
+    """Dispatch the version updater on a pull request, returning its run's URL.
+
+    Returns None if it did not start. `input_ver` is written into the recipe
+    as it is, so the caller has to have checked it; None asks the updater to
+    find the newest version itself. The workflow is dispatched at the tag of
+    this webservices version, unless `dispatch_ref` names another ref, as a
+    live test of a branch has to.
+    """
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
     pull = repo.get_pull(int(pr_num))
@@ -1374,28 +1398,25 @@ def update_version(full_name, pr_num, input_ver=None):
         "webservices-workflow-dispatch.yml"
     )
     running = workflow.create_dispatch(
-        ref=ref,
+        ref=dispatch_ref or ref,
         inputs={
             "task": "version_update",
             "repo": repo_name,
             "pr_number": str(pr_num),
             "container_tag": ref,
-            "requested_version": str(input_ver) if input_ver else "null",
+            "requested_version": input_ver or "null",
             "sha": sha,
         },
         return_run_details=True,
     )
 
-    if running:
-        retval = False
-        target_url = running.html_url
-        set_version_update_pr_status(
-            repo, pr_num, "pending", target_url=target_url, sha=sha
-        )
-    else:
-        retval = True
+    if not running:
+        return None
 
-    return retval
+    set_version_update_pr_status(
+        repo, pr_num, "pending", target_url=running.html_url, sha=sha
+    )
+    return running.html_url
 
 
 def make_noarch(repo):

@@ -398,6 +398,63 @@ jobs:
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
 
+  live-tests-trusted-publishing:
+    name: live-tests-trusted-publishing
+    runs-on: "ubuntu-latest"
+    needs:
+      - check
+      - tests
+      # the version updater it dispatches runs in the image this builds
+      - docker-build
+    permissions:
+      # so the job can get an identity token to send to its own endpoint
+      id-token: write
+      contents: read
+    concurrency:
+      group: ${{ github.event.pull_request.head.repo.fork != 'true' && 'live-tests-trusted-publishing' || format('{0}-{1}', github.workflow, github.ref) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
+        with:
+          fetch-depth: 0
+
+      - name: setup conda
+        if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
+        with:
+          environment-file: conda-lock.yml
+          environment-name: webservices
+          condarc: |
+            show_channel_urls: true
+            channel_priority: strict
+            channels:
+              - conda-forge
+
+      - name: install code
+        if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
+        run: |
+          git config --global user.email "79913779+conda-forge-curator[bot]@users.noreply.github.com"
+          git config --global user.name "conda-forge-curator[bot]"
+          git config --global pull.rebase false
+          pip install --no-deps --no-build-isolation -e .
+
+      - name: run trusted publishing endpoint tests
+        if: ${{ needs.check.outputs.skip-check != 'true' && !github.event.pull_request.head.repo.fork }}
+        run: |
+          export CF_WEBSERVICES_TEST=1
+          # this version is not a ref, so the updater is dispatched at the
+          # branch under test, as live-tests-version-update does
+          if [[ "${GITHUB_HEAD_REF}" != "" ]]; then
+            export CF_TRUSTED_PUBLISHING_DISPATCH_REF="${GITHUB_HEAD_REF}"
+          else
+            export CF_TRUSTED_PUBLISHING_DISPATCH_REF="${GITHUB_REF_NAME}"
+          fi
+          ./scripts/run_trusted_publishing_tests.sh
+        env:
+          GH_TOKEN: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
+          CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
+          CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+
   live-tests-linter:
     name: live-tests-linter
     runs-on: "ubuntu-latest"
