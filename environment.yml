@@ -37,7 +37,7 @@ dependencies:
   - setuptools_scm >=8
   - shellcheck
   - tini
-  - tornado
+  - tornado >=6.5.9  # older reads a body that ends at close whole, past max_body_size
   - tqdm
   # dev dependencies
   - flaky

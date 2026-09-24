@@ -1,28 +1,48 @@
+import asyncio
 import base64
 import concurrent.futures
 import datetime
 import hmac
+import inspect
+import ipaddress
 import json
 import logging
+import socket
+import ssl
+import time
 import uuid
 
 import jwt
 import pydantic
 import pytest
+import tornado.httpclient
 from conda_smithy.schema import GitHubTrustedPublisher, GitLabTrustedPublisher
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 
 from conda_forge_webservices import trusted_publishing as tp
 
 
 @pytest.fixture(autouse=True)
-def _nothing_held():
-    """Every test starts holding no keys and having spent no tokens."""
-    tp._KEYS.clear()
-    tp._SPENT.clear()
+def _nothing_held(monkeypatch):
+    """Every test starts holding no keys, having spent no tokens and asked for
+    no refreshes, and nothing is fetched unless it says so."""
+    state = [tp._KEYS, tp._SPENT, tp._SERVED, tp._REFRESHING, tp._ASKED]
+    for held in state:
+        held.clear()
+    monkeypatch.setattr(tp, "_refresh_soon", None)
     yield
-    tp._KEYS.clear()
-    tp._SPENT.clear()
+    for held in state:
+        held.clear()
+
+
+@pytest.fixture
+def asked(monkeypatch):
+    """The issuers the request path asked to have refreshed, in order."""
+    asked = []
+    monkeypatch.setattr(tp, "_refresh_soon", asked.append)
+    return asked
 
 
 KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
@@ -199,6 +219,11 @@ def test_a_provider_this_version_cannot_check_is_skipped(monkeypatch):
     assert publishers == [GITHUB_PUBLISHER]
 
 
+def test_every_shipped_issuer_serves_its_keys_from_its_own_host():
+    for allowed in tp.ALLOWED_ISSUERS.values():
+        assert allowed.jwks_uri.startswith(f"{allowed.issuer}/")
+
+
 def test_the_shipped_allowlist_reads():
     assert tp.ALLOWED_ISSUERS[tp.GITHUB_ISSUER].provider == "github"
     assert tp.ALLOWED_ISSUERS["https://gitlab.com"].provider == "gitlab"
@@ -210,14 +235,70 @@ def test_the_shipped_allowlist_reads():
     [
         # listed twice
         [
-            {"issuer": "https://gitlab.com", "provider": "gitlab"},
-            {"issuer": "https://gitlab.com", "provider": "gitlab"},
+            {
+                "issuer": "https://gitlab.com",
+                "provider": "gitlab",
+                "jwks_uri": "https://gitlab.com/k",
+            },
+            {
+                "issuer": "https://gitlab.com",
+                "provider": "gitlab",
+                "jwks_uri": "https://gitlab.com/k",
+            },
         ],
         # iss is compared as written, and no issuer writes a trailing slash
-        [{"issuer": "https://gitlab.com/", "provider": "gitlab"}],
-        [{"issuer": "http://gitlab.com", "provider": "gitlab"}],
-        [{"issuer": "https://gitlab.com", "provider": "bitbucket"}],
-        [{"issuer": "https://gitlab.com", "provider": "gitlab", "namespaces": [1]}],
+        [
+            {
+                "issuer": "https://gitlab.com/",
+                "provider": "gitlab",
+                "jwks_uri": "https://gitlab.com/k",
+            }
+        ],
+        [
+            {
+                "issuer": "http://gitlab.com",
+                "provider": "gitlab",
+                "jwks_uri": "http://gitlab.com/k",
+            }
+        ],
+        [
+            {
+                "issuer": "https://gitlab.com",
+                "provider": "bitbucket",
+                "jwks_uri": "https://gitlab.com/k",
+            }
+        ],
+        [
+            {
+                "issuer": "https://gitlab.com",
+                "provider": "gitlab",
+                "jwks_uri": "https://gitlab.com/k",
+                "namespaces": [1],
+            }
+        ],
+        # keys served from anywhere but the issuer's own host
+        [
+            {
+                "issuer": "https://gitlab.com",
+                "provider": "gitlab",
+                "jwks_uri": "https://gitlab.com.evil.example/keys",
+            }
+        ],
+        [
+            {
+                "issuer": "https://gitlab.com",
+                "provider": "gitlab",
+                "jwks_uri": "https://elsewhere.example/keys",
+            }
+        ],
+        [{"issuer": "https://gitlab.com", "provider": "gitlab"}],
+        [
+            {
+                "issuer": "https://gitlab.com",
+                "provider": "gitlab",
+                "jwks_uri": "https://gitlab.com/k eys",
+            }
+        ],
     ],
 )
 def test_an_allowlist_that_says_something_unclear_does_not_load(entries):
@@ -649,26 +730,30 @@ def test_a_signature_from_another_key_fails_against_the_held_ones():
         _authorize(token, [GITHUB_PUBLISHER])
 
 
-def test_an_issuer_whose_keys_are_not_held_yet_is_retryable():
+def test_an_issuer_whose_keys_are_not_held_yet_is_retryable(asked):
     token = _make_token(GITHUB_CLAIMS, headers={"kid": "k1"})
     with pytest.raises(tp.TrustedPublishingError, match="not loaded yet") as refused:
         _authorize(token, [GITHUB_PUBLISHER])
     assert refused.value.retryable
+    assert asked == [tp.GITHUB_ISSUER]
 
 
-def test_a_key_the_issuer_does_not_publish_is_retryable():
+def test_a_key_the_issuer_does_not_publish_is_retryable(asked):
     """Usually the issuer has rotated since its keys were last fetched."""
     _hold(tp.GITHUB_ISSUER, _public_jwk(KEY, "old"))
     token = _make_token(GITHUB_CLAIMS, headers={"kid": "new"})
     with pytest.raises(tp.TrustedPublishingError, match="does not publish") as refused:
         _authorize(token, [GITHUB_PUBLISHER])
     assert refused.value.retryable
+    assert asked == [tp.GITHUB_ISSUER]
 
 
-def test_a_token_that_names_no_key_is_refused():
+def test_a_token_that_names_no_key_is_refused(asked):
     _hold(tp.GITHUB_ISSUER, _public_jwk(KEY, "k1"))
     with pytest.raises(tp.TrustedPublishingError, match="does not name a signing key"):
         _authorize(_make_token(GITHUB_CLAIMS), [GITHUB_PUBLISHER])
+    # or it would use up the issuer's early refresh
+    assert asked == []
 
 
 def test_a_kid_that_is_not_a_string_is_refused():
@@ -821,6 +906,470 @@ def test_one_token_sent_at_once_is_accepted_once(trusted_key):
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
         assert sum(pool.map(_try, range(32))) == 1
+
+
+def _self_signed(name):
+    """A certificate for `name` that is its own CA, and its key, as PEM files."""
+    key = ec.generate_private_key(ec.SECP256R1())
+    subject = x509.Name([x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, name)])
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(subject)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now - datetime.timedelta(days=1))
+        .not_valid_after(now + datetime.timedelta(days=1))
+        .add_extension(x509.SubjectAlternativeName([x509.DNSName(name)]), False)
+        .add_extension(x509.BasicConstraints(ca=True, path_length=None), True)
+        .sign(key, hashes.SHA256())
+    )
+    return (
+        cert.public_bytes(serialization.Encoding.PEM),
+        key.private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.PKCS8,
+            serialization.NoEncryption(),
+        ),
+    )
+
+
+class _LocalIssuer:
+    """A real https server on loopback, reached as issuer.test.
+
+    Only the lookup is faked, so that issuer.test answers with the server's
+    address; everything past it, from the vetting of that address to tls and
+    http, is the code that runs in production. `respond` is called with each
+    request's head and a writer to answer on.
+    """
+
+    HOST = "issuer.test"
+
+    def __init__(self, tmp_path, monkeypatch):
+        cert, key = _self_signed(self.HOST)
+        (tmp_path / "cert.pem").write_bytes(cert)
+        (tmp_path / "key.pem").write_bytes(key)
+
+        self.server_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        self.server_context.load_cert_chain(tmp_path / "cert.pem", tmp_path / "key.pem")
+        self.server_names = []
+        self.server_context.sni_callback = lambda sock, name, ctx: (
+            self.server_names.append(name)
+        )
+
+        self.requests = []
+        self.lookups = []
+        self.port = None
+        self.respond = self._json(b"{}")
+
+        monkeypatch.setattr(
+            tp,
+            "_ssl_context",
+            lambda: ssl.create_default_context(cafile=tmp_path / "cert.pem"),
+        )
+        monkeypatch.setattr(tp, "_getaddrinfo", self._getaddrinfo)
+        loopback = ipaddress.ip_address("127.0.0.1")
+        monkeypatch.setattr(tp, "_is_public", lambda address: address == loopback)
+
+    def _getaddrinfo(self, host, port, *args):
+        self.lookups.append((host, port))
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", self.port))]
+
+    @staticmethod
+    def _json(body, head=b""):
+        def _respond(request, writer):
+            writer.write(
+                b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+                + head
+                + b"Content-Length: %d\r\n\r\n" % len(body)
+                + body
+            )
+
+        return _respond
+
+    async def _serve(self, reader, writer):
+        try:
+            head = b""
+            while b"\r\n\r\n" not in head:
+                chunk = await reader.read(4096)
+                if not chunk:
+                    return
+                head += chunk
+            self.requests.append(head)
+            responded = self.respond(head, writer)
+            if inspect.isawaitable(responded):
+                await responded
+            await writer.drain()
+        except (ConnectionError, ssl.SSLError):
+            pass
+        finally:
+            writer.close()
+
+    def fetch(self, *paths, host=HOST):
+        """Fetch each path in turn, returning what the last one gave."""
+
+        async def _run():
+            server = await asyncio.start_server(
+                self._serve, "127.0.0.1", 0, ssl=self.server_context
+            )
+            self.port = server.sockets[0].getsockname()[1]
+            try:
+                for path in paths or ["/x"]:
+                    result = await tp._fetch_json(f"https://{host}{path}")
+                return result
+            finally:
+                server.close()
+
+        return asyncio.run(_run())
+
+
+@pytest.fixture
+def local_issuer(tmp_path, monkeypatch):
+    return _LocalIssuer(tmp_path, monkeypatch)
+
+
+@pytest.fixture
+def short_timeouts(monkeypatch):
+    monkeypatch.setattr(tp, "CONNECT_TIMEOUT", 0.5)
+    monkeypatch.setattr(tp, "REQUEST_TIMEOUT", 0.5)
+
+
+def test_keys_are_fetched_by_the_name_from_the_address_vetted(local_issuer):
+    local_issuer.respond = local_issuer._json(b'{"keys": []}')
+    assert local_issuer.fetch() == {"keys": []}
+    # looked up once, and the certificate asked for and checked by name while
+    # the connection went to the address the lookup gave
+    assert local_issuer.lookups == [("issuer.test", 443)]
+    assert local_issuer.server_names == ["issuer.test"]
+
+
+@pytest.mark.parametrize(
+    "addresses",
+    [
+        ["127.0.0.1"],
+        ["10.0.0.1"],
+        # where a cloud instance keeps its credentials
+        ["169.254.169.254"],
+        ["::1"],
+        # one bad address among good ones is enough
+        ["93.184.216.34", "127.0.0.1"],
+    ],
+)
+def test_a_host_off_the_public_internet_is_not_connected_to(monkeypatch, addresses):
+    monkeypatch.setattr(
+        tp,
+        "_getaddrinfo",
+        lambda host, port, *args: [
+            (
+                socket.AF_INET6 if ":" in addr else socket.AF_INET,
+                socket.SOCK_STREAM,
+                6,
+                "",
+                (addr, port),
+            )
+            for addr in addresses
+        ],
+    )
+    with pytest.raises(ValueError, match="not public"):
+        asyncio.run(tp._fetch_json("https://rebinding.invalid/keys"))
+
+
+def test_a_certificate_for_another_name_is_refused(local_issuer):
+    with pytest.raises(ssl.SSLCertVerificationError):
+        local_issuer.fetch(host="other.test")
+
+
+def test_redirects_are_not_followed(local_issuer):
+    def _redirect(request, writer):
+        writer.write(
+            b"HTTP/1.1 302 Found\r\nLocation: https://issuer.test/y\r\n"
+            b"Content-Length: 0\r\n\r\n"
+        )
+
+    local_issuer.respond = _redirect
+    with pytest.raises(tornado.httpclient.HTTPClientError, match="302"):
+        local_issuer.fetch()
+    assert len(local_issuer.requests) == 1
+
+
+def test_a_body_past_the_cap_is_refused(local_issuer, monkeypatch):
+    body = json.dumps({"keys": ["x" * 1000]}).encode()
+    local_issuer.respond = local_issuer._json(body)
+
+    monkeypatch.setattr(tp, "MAX_RESPONSE_BYTES", len(body))
+    assert local_issuer.fetch() == json.loads(body)
+
+    monkeypatch.setattr(tp, "MAX_RESPONSE_BYTES", len(body) - 1)
+    with pytest.raises(tornado.httpclient.HTTPClientError):
+        local_issuer.fetch()
+
+
+def test_a_server_that_drips_is_cut_off_at_the_deadline(local_issuer, short_timeouts):
+    """Socket timeouts are per read, so slow enough bytes never trip them."""
+
+    async def _drip(request, writer):
+        writer.write(b"HTTP/1.1 200 OK\r\n")
+        for _ in range(100):
+            writer.write(b"x")
+            await writer.drain()
+            await asyncio.sleep(0.05)
+
+    local_issuer.respond = _drip
+    started = time.monotonic()
+    with pytest.raises(tornado.httpclient.HTTPClientError, match="Timeout"):
+        local_issuer.fetch()
+    assert time.monotonic() - started < 2
+
+
+@pytest.mark.parametrize("body", [b"<html>nope</html>", b"[" * 200_000])
+def test_a_body_that_is_not_json_is_refused(local_issuer, body):
+    local_issuer.respond = local_issuer._json(body)
+    with pytest.raises((ValueError, RecursionError)):
+        local_issuer.fetch()
+
+
+_AS_USUAL = object()
+
+
+class _ServedIssuer:
+    """One issuer's key set, counting what was fetched.
+
+    Set `jwks` to serve something else, or `failure` to have the fetch fail.
+    """
+
+    def __init__(self, issuer, keys):
+        self.issuer = issuer
+        self.keys = keys
+        self.jwks = _AS_USUAL
+        self.failure = None
+        self.fetches = []
+
+    async def serve(self):
+        self.fetches.append(tp.ALLOWED_ISSUERS[self.issuer].jwks_uri)
+        if self.failure is not None:
+            raise self.failure
+        return {"keys": self.keys} if self.jwks is _AS_USUAL else self.jwks
+
+
+@pytest.fixture
+def issuers(monkeypatch):
+    """Register issuers whose keys really are fetched, parsed and held."""
+    registered = {}
+
+    async def _fetch(url):
+        for issuer, served in registered.items():
+            if url == tp.ALLOWED_ISSUERS[issuer].jwks_uri:
+                return await served.serve()
+        raise AssertionError(f"fetched a key set nobody registered: {url}")
+
+    monkeypatch.setattr(tp, "_fetch_json", _fetch)
+
+    def _register(issuer, keys):
+        registered[issuer] = _ServedIssuer(issuer, keys)
+        return registered[issuer]
+
+    return _register
+
+
+def _refresh(issuer):
+    """Run one background refresh to completion."""
+    return asyncio.run(tp.refresh_keys(issuer))
+
+
+def test_fetched_keys_verify_tokens_without_fetching_again(issuers):
+    github = issuers(tp.GITHUB_ISSUER, [_public_jwk(KEY, "k1")])
+    assert _refresh(tp.GITHUB_ISSUER)
+
+    for _ in range(3):
+        token = _make_token(GITHUB_CLAIMS, headers={"kid": "k1"})
+        assert _authorize(token, [GITHUB_PUBLISHER])[0] is GITHUB_PUBLISHER
+    assert github.fetches == [tp.ALLOWED_ISSUERS[tp.GITHUB_ISSUER].jwks_uri]
+
+
+def test_the_request_path_never_fetches(issuers, asked):
+    github = issuers(tp.GITHUB_ISSUER, [_public_jwk(KEY, "k1")])
+    _refresh(tp.GITHUB_ISSUER)
+
+    github.keys = [_public_jwk(KEY, "new")]
+    token = _make_token(GITHUB_CLAIMS, headers={"kid": "new"})
+    with pytest.raises(tp.TrustedPublishingError, match="does not publish"):
+        _authorize(token, [GITHUB_PUBLISHER])
+    assert len(github.fetches) == 1
+    assert asked == [tp.GITHUB_ISSUER]
+
+    # which is what the IOLoop then does with the ask
+    _refresh(tp.GITHUB_ISSUER)
+    assert _authorize(token, [GITHUB_PUBLISHER])[0] is GITHUB_PUBLISHER
+
+
+def test_made_up_kids_ask_once_an_interval(asked, monkeypatch):
+    _hold(tp.GITHUB_ISSUER, _public_jwk(KEY, "k1"))
+    _hold(GITLAB_PUBLISHER.url, _public_jwk(KEY, "k1"))
+    clock = [1000.0]
+    monkeypatch.setattr(tp, "_now", lambda: clock[0])
+
+    for attempt in range(5):
+        token = _make_token(GITHUB_CLAIMS, headers={"kid": f"made-up-{attempt}"})
+        with pytest.raises(tp.TrustedPublishingError, match="does not publish"):
+            _authorize(token, [GITHUB_PUBLISHER])
+    token = _make_token(GITLAB_CLAIMS, headers={"kid": "made-up"})
+    with pytest.raises(tp.TrustedPublishingError, match="does not publish"):
+        _authorize(token, [GITLAB_PUBLISHER])
+    # once for each issuer, since one's asks do not use up another's
+    assert asked == [tp.GITHUB_ISSUER, GITLAB_PUBLISHER.url]
+
+    clock[0] += tp.KEY_REFRESH_INTERVAL
+    token = _make_token(GITHUB_CLAIMS, headers={"kid": "made-up"})
+    with pytest.raises(tp.TrustedPublishingError, match="does not publish"):
+        _authorize(token, [GITHUB_PUBLISHER])
+    assert asked[-1] == tp.GITHUB_ISSUER and len(asked) == 3
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        OSError("the issuer is down"),
+        # nothing a refresh raises may escape, since nobody awaits it
+        RuntimeError("something nobody thought of"),
+    ],
+)
+def test_a_failed_refresh_keeps_the_last_good_keys(issuers, caplog, failure):
+    github = issuers(tp.GITHUB_ISSUER, [_public_jwk(KEY, "k1")])
+    gitlab = issuers(GITLAB_PUBLISHER.url, [_public_jwk(KEY, "k1")])
+    assert _refresh(tp.GITHUB_ISSUER)
+    assert _refresh(GITLAB_PUBLISHER.url)
+
+    github.failure = failure
+    assert not _refresh(tp.GITHUB_ISSUER)
+    assert str(failure) in caplog.text
+
+    for claims, publisher in [
+        (GITHUB_CLAIMS, GITHUB_PUBLISHER),
+        (GITLAB_CLAIMS, GITLAB_PUBLISHER),
+    ]:
+        token = _make_token(claims, headers={"kid": "k1"})
+        assert _authorize(token, [publisher])[0] is publisher
+    assert len(gitlab.fetches) == 1
+
+
+RSA_JWK = _public_jwk(KEY, "k1")
+EC_JWK = dict(
+    json.loads(
+        jwt.algorithms.ECAlgorithm.to_jwk(
+            ec.generate_private_key(ec.SECP256R1()).public_key()
+        )
+    ),
+    kid="k1",
+)
+
+
+@pytest.mark.parametrize(
+    "jwks",
+    [
+        [],
+        "x",
+        None,
+        {},
+        {"keys": None},
+        {"keys": {}},
+        {"keys": ["x"]},
+        {"keys": []},
+        {"keys": [{"kty": 5}]},
+        {"keys": [{"kty": "oct"}]},
+        # keys pyjwt can use, but none that signs RS256
+        {"keys": [{"kty": "oct", "kid": "k1", "k": "c2VjcmV0"}]},
+        {"keys": [dict(RSA_JWK, use="enc")]},
+        {"keys": [EC_JWK]},
+        # pyjwt raises TypeError for these, not a PyJWTError
+        {"keys": [dict(RSA_JWK, n=5)]},
+        {"keys": [dict(RSA_JWK, e=None)]},
+    ],
+)
+def test_a_key_set_of_the_wrong_shape_keeps_the_last_keys(issuers, jwks):
+    served = issuers(GITLAB_PUBLISHER.url, [RSA_JWK])
+    assert _refresh(served.issuer)
+
+    served.jwks = jwks
+    assert not _refresh(served.issuer)
+    assert tp._named_key(tp._KEYS[served.issuer], "k1") is not None
+
+
+def test_an_issuer_that_hangs_holds_up_no_other(issuers):
+    """Nor a request: tokens from other issuers verify while it hangs."""
+    github = issuers(tp.GITHUB_ISSUER, [_public_jwk(KEY, "gh")])
+    issuers(GITLAB_PUBLISHER.url, [_public_jwk(KEY, "gl")])
+    issuers(CERN, [_public_jwk(KEY, "cern")])
+
+    async def _run():
+        release = asyncio.Event()
+        serve = github.serve
+
+        async def _hang():
+            await release.wait()
+            return await serve()
+
+        github.serve = _hang
+        tasks = tp.refresh_all_keys()
+
+        for _ in range(100):
+            if GITLAB_PUBLISHER.url in tp._KEYS:
+                break
+            await asyncio.sleep(0.01)
+
+        token = _make_token(GITLAB_CLAIMS, headers={"kid": "gl"})
+        matched, _ = await asyncio.to_thread(_authorize, token, [GITLAB_PUBLISHER])
+        assert matched is GITLAB_PUBLISHER
+
+        # a second refresh of the hung issuer does not pile up behind it
+        assert not await tp.refresh_keys(tp.GITHUB_ISSUER)
+
+        release.set()
+        assert all(await asyncio.gather(*tasks))
+
+    asyncio.run(_run())
+    assert tp.GITHUB_ISSUER in tp._KEYS
+
+
+def test_an_issuer_off_the_allowlist_is_never_refreshed():
+    assert not _refresh("https://gitlab.example.org")
+
+
+def test_every_issuer_is_refreshed_at_startup_and_on_asking(monkeypatch):
+    refreshed = []
+
+    async def _refresh_keys(issuer):
+        await asyncio.sleep(0)
+        refreshed.append(issuer)
+        return True
+
+    monkeypatch.setattr(tp, "refresh_keys", _refresh_keys)
+
+    async def _start():
+        periodic = tp.start_key_refresh()
+        try:
+            # asked from a thread, as a request would
+            await asyncio.to_thread(tp._ask_for_refresh, tp.GITHUB_ISSUER)
+            for _ in range(10):
+                await asyncio.sleep(0.01)
+        finally:
+            periodic.stop()
+
+    asyncio.run(_start())
+    assert sorted(refreshed) == sorted([*tp.ALLOWED_ISSUERS, tp.GITHUB_ISSUER])
+
+
+def test_an_issuer_changing_its_keys_is_logged(issuers, caplog):
+    served = issuers(CERN, [_public_jwk(KEY, "k1"), _public_jwk(OTHER_KEY, "k2")])
+    _refresh(CERN)
+    # neither the first keys, nor the same ones in another order, are a change
+    served.keys = list(reversed(served.keys))
+    _refresh(CERN)
+    assert "now serves keys" not in caplog.text
+
+    served.keys = [_public_jwk(KEY, "k3")]
+    _refresh(CERN)
+    assert "now serves keys ['k3'], where it served ['k1', 'k2']" in caplog.text
 
 
 def test_describe_names_the_job():
