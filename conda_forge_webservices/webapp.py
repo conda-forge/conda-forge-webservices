@@ -1577,7 +1577,8 @@ def main():
 
     # fetched here and kept fresh in the background, so that checking a
     # token only ever reads keys we already hold
-    trusted_publishing.start_key_refresh()
+    # FIXME: turn this back on once it is debugged
+    # trusted_publishing.start_key_refresh()
 
     tornado.ioloop.IOLoop.instance().start()
 
