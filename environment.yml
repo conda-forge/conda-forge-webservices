@@ -13,7 +13,7 @@ dependencies:
   - conda-forge-tick >=2026.9.46
   - conda-forge-feedstock-ops >=0.20.1
   - conda-recipe-manager >=0.10.6
-  - conda-smithy >=2026.9.1  # this pin is for username-userid & team security fixes
+  - conda-smithy >=2026.9.19  # for schema.TrustedPublisher
   - conda-souschef
   - cryptography >=39
   - python-dateutil
@@ -23,7 +23,9 @@ dependencies:
   - mock
   - parameterized
   - pip
+  - pydantic >=2.11
   - pygithub >=2.10.0
+  - pyjwt >=2.10.1  # this pin is because 2.10.0 matched iss by prefix (CVE-2024-53861)
   - python =3.12.*
   - pytz
   - pyyaml
@@ -35,7 +37,7 @@ dependencies:
   - setuptools_scm >=8
   - shellcheck
   - tini
-  - tornado
+  - tornado >=6.5.9  # older reads a body that ends at close whole, past max_body_size
   - tqdm
   # dev dependencies
   - flaky

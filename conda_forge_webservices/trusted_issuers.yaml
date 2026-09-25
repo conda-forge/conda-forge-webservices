@@ -1,0 +1,20 @@
+# The OIDC issuers whose tokens conda-forge accepts for trusted publishing.
+# A feedstock's trusted_publishers can only name an issuer listed here, and
+# deleting an entry stops its tokens being accepted from the next deploy.
+#
+#   issuer    the token's `iss`, exactly as the issuer writes it
+#   provider  the kind of trusted_publishers entry that may name it
+#   jwks_uri  where the issuer publishes its signing keys, as its
+#             /.well-known/openid-configuration says
+
+- issuer: https://token.actions.githubusercontent.com
+  provider: github
+  jwks_uri: https://token.actions.githubusercontent.com/.well-known/jwks
+
+- issuer: https://gitlab.com
+  provider: gitlab
+  jwks_uri: https://gitlab.com/oauth/discovery/keys
+
+- issuer: https://gitlab.cern.ch
+  provider: gitlab
+  jwks_uri: https://gitlab.cern.ch/oauth/discovery/keys
