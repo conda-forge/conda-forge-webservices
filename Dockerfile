@@ -81,10 +81,12 @@ RUN echo "**** install dev packages ****" && \
     chmod 777 "$CONDA_DIR/locks"
 
 COPY entrypoint /opt/docker/bin/entrypoint
-RUN mkdir -p conda_forge_webservices
-COPY / conda_forge_webservices/
+# not named after the package, so that a process started from / cannot import
+# the checkout as a namespace package in place of the one inside it
+RUN mkdir -p /opt/webservices-src
+COPY / /opt/webservices-src/
 RUN echo "**** install conda-forge-webservices ****" && \
-    cd conda_forge_webservices && \
+    cd /opt/webservices-src && \
     source /opt/conda/etc/profile.d/conda.sh && \
     conda activate webservices && \
     pip install --no-deps --no-build-isolation -e .
