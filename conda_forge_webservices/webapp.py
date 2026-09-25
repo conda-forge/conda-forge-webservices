@@ -40,7 +40,8 @@ import conda_forge_webservices.feedstocks_service as feedstocks_service
 import conda_forge_webservices.staged_recipes as staged_recipes
 import conda_forge_webservices.update_teams as update_teams
 import conda_forge_webservices.commands as commands
-import conda_forge_webservices.trusted_publishing as trusted_publishing
+# FIXME: put this back
+# import conda_forge_webservices.trusted_publishing as trusted_publishing
 from conda_forge_webservices._version import __version__
 from conda_forge_webservices.update_me import WEBSERVICE_PKGS
 from conda_forge_webservices.feedstock_outputs import (
