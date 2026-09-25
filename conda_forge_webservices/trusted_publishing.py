@@ -109,13 +109,17 @@ def _load_allowed_issuers(text: str) -> dict[str, AllowedIssuer]:
     return allowed
 
 
-# A broken edit to the list stops the webapp starting, rather than quietly
-# accepting some other set of issuers.
-ALLOWED_ISSUERS = _load_allowed_issuers(
-    importlib.resources.files("conda_forge_webservices")
-    .joinpath("trusted_issuers.yaml")
-    .read_text()
-)
+# A list that cannot be read accepts no issuers at all, rather than quietly
+# accepting some other set, and leaves the rest of the webapp running.
+try:
+    ALLOWED_ISSUERS = _load_allowed_issuers(
+        importlib.resources.files("conda_forge_webservices")
+        .joinpath("trusted_issuers.yaml")
+        .read_text()
+    )
+except Exception:
+    LOGGER.exception("could not load trusted_issuers.yaml, accepting no issuers")
+    ALLOWED_ISSUERS = {}
 
 
 class TrustedPublishingError(Exception):
