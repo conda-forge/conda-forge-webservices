@@ -82,13 +82,13 @@ RUN echo "**** install dev packages ****" && \
 
 COPY entrypoint /opt/docker/bin/entrypoint
 # not named after the package, so that a process started from / cannot import
-# the checkout as a namespace package in place of the one inside it
+# the checkout as a namespace package in place of the installed one
 COPY / /opt/webservices-src/
 RUN echo "**** install conda-forge-webservices ****" && \
     cd /opt/webservices-src && \
     source /opt/conda/etc/profile.d/conda.sh && \
     conda activate webservices && \
-    pip install --no-deps --no-build-isolation -e .
+    pip install --no-deps --no-build-isolation .
 
 USER conda
 
