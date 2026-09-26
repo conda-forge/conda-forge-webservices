@@ -36,6 +36,9 @@ include-package-data = true
 [tool.setuptools.packages.find]
 include = ["conda_forge_webservices*"]
 
+[tool.setuptools.package-data]
+conda_forge_webservices = ["trusted_issuers.yaml"]
+
 [tool.setuptools_scm]
 write_to = "conda_forge_webservices/_version.py"
 write_to_template = "__version__ = '{version}'\n"
