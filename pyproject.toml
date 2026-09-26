@@ -31,8 +31,13 @@ conda-forge-webservices-finalize-task = "conda_forge_webservices.github_actions_
 conda-forge-webservices-automerge = "conda_forge_webservices.github_actions_integration.__main__:main_automerge"
 
 [tool.setuptools]
-packages = ["conda_forge_webservices"]
 include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["conda_forge_webservices*"]
+
+[tool.setuptools.package-data]
+conda_forge_webservices = ["trusted_issuers.yaml"]
 
 [tool.setuptools_scm]
 write_to = "conda_forge_webservices/_version.py"

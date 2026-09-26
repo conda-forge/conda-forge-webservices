@@ -35,6 +35,19 @@ jobs:
           build-args: |
             --no-cache
 
+      - name: check the webapp starts in the image
+        run: |
+          podman run -d --name webapp -e PORT=8080 -p 8080:8080 \
+            localhost/webservices-heroku-container:test
+          for i in $(seq 90); do
+            if curl -fsS http://127.0.0.1:8080/alive; then break; fi
+            if [ "$(podman inspect -f '{{.State.Running}}' webapp)" != true ] || [ "$i" = 90 ]; then
+              podman logs webapp
+              exit 1
+            fi
+            sleep 2
+          done
+
   tag-and-release:
     name: tag-and-release
     runs-on: "ubuntu-slim"
