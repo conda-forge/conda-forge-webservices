@@ -83,7 +83,6 @@ RUN echo "**** install dev packages ****" && \
 COPY entrypoint /opt/docker/bin/entrypoint
 # not named after the package, so that a process started from / cannot import
 # the checkout as a namespace package in place of the one inside it
-RUN mkdir -p /opt/webservices-src
 COPY / /opt/webservices-src/
 RUN echo "**** install conda-forge-webservices ****" && \
     cd /opt/webservices-src && \
