@@ -8,6 +8,8 @@ import pytest
 from requests.exceptions import RequestException
 
 from conda_forge_webservices.commands import (
+    dispatch_version_update,
+    update_version,
     pr_detailed_comment as _pr_detailed_comment,
     issue_comment as _issue_comment,
     _find_reactable_comment,
@@ -796,3 +798,52 @@ def test_pr_reply_to_invalid_command(
     assert len(comment_calls) == 1
     assert "find any valid commands" in comment_calls[0][1][arg_index]
     assert expected_url in comment_calls[0][1][arg_index]
+
+
+@mock.patch("conda_forge_webservices.commands.set_version_update_pr_status")
+@mock.patch("conda_forge_webservices.commands.get_gh_client")
+def test_update_version_says_whether_the_updater_started(gh, set_status):
+    workflow = gh.return_value.get_repo.return_value.get_workflow.return_value
+    workflow.create_dispatch.return_value.html_url = "https://x/runs/9"
+
+    assert dispatch_version_update("conda-forge/foo-feedstock", 1, "1.2.3") == (
+        "https://x/runs/9"
+    )
+    assert update_version("conda-forge/foo-feedstock", 1, "1.2.3") is False
+
+    workflow.create_dispatch.return_value = None
+    assert dispatch_version_update("conda-forge/foo-feedstock", 1, "1.2.3") is None
+    assert update_version("conda-forge/foo-feedstock", 1, "1.2.3") is True
+
+
+@mock.patch("conda_forge_webservices.commands.get_gh_client")
+def test_update_version_lets_the_updater_find_the_version(gh):
+    workflow = gh.return_value.get_repo.return_value.get_workflow.return_value
+    workflow.create_dispatch.return_value = None
+    assert update_version("conda-forge/foo-feedstock", 1, None) is True
+    inputs = workflow.create_dispatch.call_args.kwargs["inputs"]
+    assert inputs["requested_version"] == "null"
+
+
+@mock.patch("conda_forge_webservices.commands.get_app_token_for_webservices_only")
+@mock.patch("conda_forge_webservices.commands.update_version")
+@mock.patch("conda_forge_webservices.commands.make_rerender_dummy_commit")
+@mock.patch("conda_forge_webservices.commands.github.Github")
+@mock.patch("conda_forge_webservices.commands.get_gh_client")
+@mock.patch("conda_forge_webservices.commands.Repo")
+def test_a_command_asks_for_the_newest_version(
+    git_repo,
+    gh_app,
+    gh,
+    rerender_dummy_commit,
+    update_version,
+    get_app_token_for_webservices_only,
+    set_dummy_gh_token,
+):
+    update_version.return_value = False
+    rerender_dummy_commit.return_value = True
+    gh.return_value.get_repo.return_value.default_branch = "main"
+
+    issue_comment(title="hi", comment="@conda-forge-admin, please update version")
+
+    assert update_version.call_args.args[2] is None
