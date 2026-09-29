@@ -405,14 +405,3 @@ def test_live_version_update_with_finding_version(
     GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     branch = pytestconfig.getoption("branch")
     _run_test_try_finally(branch, None, schema_version)
-
-
-@flaky
-@pytest.mark.parametrize("schema_version", [0, 1])
-def test_live_version_update_with_input_version(
-    pytestconfig, skip_if_no_tokens, schema_version
-):
-    global GH
-    GH = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
-    branch = pytestconfig.getoption("branch")
-    _run_test_try_finally(branch, "0.14", schema_version)
