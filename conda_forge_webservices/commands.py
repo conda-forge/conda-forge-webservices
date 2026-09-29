@@ -55,7 +55,7 @@ REMOVE_BOT_AUTOMERGE = re.compile(
 ADD_USER = re.compile(pre + r"(please )?add user @(?P<user>\S+)$", re.I)
 REMOVE_USER = re.compile(pre + r"(please )?remove user @(?P<user>\S+)$", re.I)
 UPDATE_VERSION = re.compile(
-    pre + r"(please )?update (the )?version( to (?P<ver>\S+))?",
+    pre + r"(please )?update (the )?version",
     re.I,
 )
 
@@ -592,7 +592,6 @@ def issue_comment(
             do_version_update = False
             do_convert_v1 = False
             extra_msg = ""
-            input_ver = None
             if ADD_NOARCH_MSG.search(text):
                 pr_title = "chore: Add noarch: python"
                 comment_msg = "made the recipe `noarch: python`"
@@ -628,10 +627,8 @@ def issue_comment(
             elif UPDATE_VERSION.search(text):
                 if UPDATE_VERSION.search(title):
                     m = UPDATE_VERSION.search(title)
-                    input_ver = m.group("ver")
                 elif UPDATE_VERSION.search(comment):
                     m = UPDATE_VERSION.search(comment)
-                    input_ver = m.group("ver")
 
                 pr_title = "chore: update package version"
                 comment_msg = "started a version update"
@@ -803,7 +800,6 @@ def issue_comment(
                         version_update_error = update_version(
                             org_name + "/" + repo_name,
                             pr.number,
-                            input_ver,
                         )
                     except RequestException:
                         version_update_error = True
@@ -1366,7 +1362,7 @@ def set_version_update_pr_status(repo, pr_num, status, target_url=None, sha=None
     )
 
 
-def update_version(full_name, pr_num, input_ver):
+def update_version(full_name, pr_num, input_ver=None):
     gh = get_gh_client()
     repo = gh.get_repo(full_name)
     pull = repo.get_pull(int(pr_num))
@@ -1384,7 +1380,7 @@ def update_version(full_name, pr_num, input_ver):
             "repo": repo_name,
             "pr_number": str(pr_num),
             "container_tag": ref,
-            "requested_version": str(input_ver) or "null",
+            "requested_version": str(input_ver) if input_ver else "null",
             "sha": sha,
         },
         return_run_details=True,
