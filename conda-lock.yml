@@ -594,15 +594,19 @@ package:
   category: main
   optional: false
 - name: charset-normalizer
-  version: 3.5.1
+  version: 3.5.2
   manager: conda
   platform: linux-64
   dependencies:
-    python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/charset-normalizer-3.5.1-pyhd8ed1ab_0.conda
+    __glibc: '>=2.17,<3.0.a0'
+    _python_abi3_support: 1.*
+    cpython: '>=3.9'
+    libgcc: '>=15'
+    python: ''
+  url: https://conda.anaconda.org/conda-forge/linux-64/charset-normalizer-3.5.2-h1114479_0.conda
   hash:
-    md5: e0ac3accc64e23e40969d660e5f58ac8
-    sha256: cb60ef3e0631c8bacb4f7057196dee4496091a22baa3bb4b9bccb12c7e1c921b
+    md5: 78d5c6112c9320a1a797935cecfec7c2
+    sha256: e4f04b45d68716fcc47c808aeacbf165f6f295fb91bd20b91aa38942b8d2cdc6
   category: main
   optional: false
 - name: cirun
@@ -806,7 +810,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.9.77
+  version: 2026.9.183
   manager: conda
   platform: linux-64
   dependencies:
@@ -864,10 +868,10 @@ package:
     tqdm: ''
     wget: ''
     wurlitzer: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.77-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.9.183-pyhc364b38_0.conda
   hash:
-    md5: a9fcdf4a4738233e590f19b1c44a8882
-    sha256: 9c465ffd6a0a72c6c49416a818e3c24db51ae47de01c75d7581588cb78d182cc
+    md5: 1eb07875063b856938d95b856782028c
+    sha256: 7d5106de8be56c8ccb27ba3960d5bd4d3be13551390888241d446462edc80363
   category: main
   optional: false
 - name: conda-index
@@ -1011,7 +1015,7 @@ package:
   category: main
   optional: false
 - name: conda-pypi
-  version: 0.12.0
+  version: 0.13.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -1023,10 +1027,10 @@ package:
     python-build: ''
     python-installer: '>=1.0'
     unearth: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-pypi-0.12.0-pyh5ded981_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-pypi-0.13.0-pyh5ded981_0.conda
   hash:
-    md5: 6341bcf79e7fe3ab5d12a20fdc524188
-    sha256: 595b3cb9d5d2f0ecda0bbd0583bcdfe6ecbb00c7d7d8dfdc80635df3b6ee0bb3
+    md5: dd3434a97de7de0b8996f7cdc777601d
+    sha256: b95c9f3be8859b37433520f95fe5c0d788c1dc089b295bb23f9824176ceaf509
   category: main
   optional: false
 - name: conda-rattler-solver
@@ -1828,7 +1832,7 @@ package:
   category: main
   optional: false
 - name: grayskull
-  version: 3.1.1
+  version: 3.2.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -1848,10 +1852,10 @@ package:
     setuptools: '>=30.3.0'
     stdlib-list: ''
     tomli-w: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/grayskull-3.1.1-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/grayskull-3.2.0-pyhc364b38_0.conda
   hash:
-    md5: 0e7873aa5c4bb20851965053909b6134
-    sha256: 88329b02e3f7cdb200e0e01a919fe8400a1fc906a768f050385fc9f8b8c27f87
+    md5: a36e10523b14ec53911011e1399d6c5d
+    sha256: e1763fa0be1517bfdf171fd2927b8b238846a732b8a9e837227a91e74f2f030b
   category: main
   optional: false
 - name: gtk3
@@ -3517,13 +3521,13 @@ package:
   manager: conda
   platform: linux-64
   dependencies:
-    python: ''
-    python_abi: 3.12.*
+    python: '>=3.11'
+    tomli: ''
     tomli-w: ''
-  url: https://conda.anaconda.org/conda-forge/linux-64/menuinst-2.5.2-py312h20c3967_2.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/menuinst-2.5.2-pyhba3e0a1_3.conda
   hash:
-    md5: 54a2bb444362732cf80e546c337c761c
-    sha256: 20644178f848dc8f3ad6289b0eaa6b6c1ce60ad33f22fcdad89bb0534c2cdb7b
+    md5: 2ee3eb3b78f61066534c7a64fd476392
+    sha256: adfcd5d6e3f2dbcdd17316d9d33434b8754b758444417bcc9a1f157f3f76bf9c
   category: main
   optional: false
 - name: mock
@@ -3964,15 +3968,15 @@ package:
   category: main
   optional: false
 - name: platformdirs
-  version: 4.12.1
+  version: 4.12.2
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.11'
-  url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.12.1-pyh5ded981_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.12.2-pyh5ded981_0.conda
   hash:
-    md5: c2718a0d7dc28faf28e714807604a60d
-    sha256: d49105f431c6468ec3546d3f9eb08ce99c3426671312f307b46bf428df01dbc1
+    md5: 4b76957bed5e02e067a348eda60c6f94
+    sha256: f23f022bbbf809cd248940eca853d1132f05752e0404984cde7b014fd6384c97
   category: main
   optional: false
 - name: pluggy
@@ -4940,10 +4944,10 @@ package:
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/linux-64/shellcheck-0.11.0-ha770c72_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/shellcheck-0.11.0-ha770c72_2.conda
   hash:
-    md5: 59f8f9cfb1dc2f62abdca662823e052a
-    sha256: 09335c4ce927c3c47ffbe4f13c18b21cc0bf7b661dba8f7caba699f9e9f26bf3
+    md5: 3a5216c61edcf3924bccd8b6f56b283c
+    sha256: cae8d3c46451ee64c61f1266fbe775807192fc98b9fb5027434d25e57d6c83d8
   category: main
   optional: false
 - name: shellingham
@@ -5400,7 +5404,7 @@ package:
   category: main
   optional: false
 - name: uv
-  version: 0.12.20
+  version: 0.12.21
   manager: conda
   platform: linux-64
   dependencies:
@@ -5409,10 +5413,10 @@ package:
     liblzma: '>=5.8.3,<6.0a0'
     libstdcxx: '>=15'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.20-h841d291_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/uv-0.12.21-h841d291_0.conda
   hash:
-    md5: 2bf4d15c28d9b16fd59abb5dbdd6b230
-    sha256: d69123461bb1321d9c5b0f099f319d9fb3f1f16bb78f58713b433879b0d7974d
+    md5: 2204e44142337b0848eba0236d12beb1
+    sha256: 89dae92f8e08497e363634fb3906c62a2b09c8831845ad724a1d1e7a13acfdde
   category: main
   optional: false
 - name: vcs_versioning
