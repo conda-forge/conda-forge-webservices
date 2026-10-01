@@ -25,13 +25,13 @@ jobs:
     steps:
       - name: check if we can skip the merge queue
         id: merge-queue-ci-skipper
-        if: ${{ !github.event.pull_request.head.repo.fork }}
+        if: ${{ (!github.event.pull_request.head.repo.fork) && (github.actor != 'dependabot[bot]') }}
         uses: cariad-tech/merge-queue-ci-skipper@cf80db21fc70244e36487acc531b3f1118889b0a
         with:
           secret: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
       - name: fall back step for forks
         id: fall-back
-        if: ${{ github.event.pull_request.head.repo.fork }}
+        if: ${{ github.event.pull_request.head.repo.fork || github.actor == 'dependabot[bot]' }}
         run: |
           echo "skip-check=false" >> "$GITHUB_OUTPUT"
 
@@ -68,7 +68,7 @@ jobs:
       - name: check if we should run rest of tests
         id: should-skip
         run: |
-          if [[ ${GITHUB_EVENT_NAME} == "workflow_dispatch" ]]; then
+          if [[ (${GITHUB_EVENT_NAME} == "workflow_dispatch") ]]; then
             pr_is_fork=false
           else
             pr_is_fork=$(gh pr view ${PR_NUMBER} --json headRepositoryOwner | jq '.headRepositoryOwner.login != "conda-forge"')
@@ -107,7 +107,7 @@ jobs:
         env:
           MQ_CI_SKIP: ${{ needs.run-merge-queue-ci-skipper.outputs.mq-ci-skip-check != 'true' }}
           PR_NUMBER: ${{ steps.pr-number.outputs.pr }}
-          GH_TOKEN: ${{ github.event.pull_request.head.repo.fork && github.token || secrets.CF_ADMIN_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ case(github.event.pull_request.head.repo.fork || github.actor == 'dependabot[bot]', github.token, secrets.CF_ADMIN_GITHUB_TOKEN) }}
 
   tests:
     name: tests
