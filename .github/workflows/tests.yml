@@ -70,8 +70,6 @@ jobs:
         run: |
           if [[ (${GITHUB_EVENT_NAME} == "workflow_dispatch") ]]; then
             pr_is_fork=false
-          elif [[ (${GITHUB_ACTOR} == "dependabot[bot]") ]]; then
-            pr_is_fork=true
           else
             pr_is_fork=$(gh pr view ${PR_NUMBER} --json headRepositoryOwner | jq '.headRepositoryOwner.login != "conda-forge"')
           fi
