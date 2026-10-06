@@ -23,7 +23,7 @@ import hmac
 import hashlib
 import uuid
 import json
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 from http.client import responses
 import atexit
 
@@ -136,7 +136,7 @@ atexit.register(_shutdown_thread_pool)
 
 BACKGROUND_POOL = None
 # what _run_in_background has started and not yet finished, for tests to wait on
-BACKGROUND_FUTURES = set()
+BACKGROUND_FUTURES: set[Future] = set()
 
 
 def _background_pool():
