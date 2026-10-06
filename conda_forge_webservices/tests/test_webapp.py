@@ -641,6 +641,43 @@ class TestBucketHandler(TestHandlerBase):
             if full_name is not None and token is not None:
                 linting_mock.assert_any_call(full_name, 10, sha="xyz3123")
 
+    @mock.patch("conda_forge_webservices.webapp._dispatch_automerge_job")
+    def test_automerge_dispatch_skips_pending_statuses(self, dispatch):
+        for state, dispatched in [
+            ("pending", False),
+            ("success", True),
+            ("failure", True),
+            ("error", True),
+        ]:
+            dispatch.reset_mock()
+            body = {
+                "repository": {
+                    "name": "repo-feedstock",
+                    "full_name": "conda-forge/repo-feedstock",
+                },
+                "sha": "abc123",
+                "context": "some-ci",
+                "state": state,
+            }
+            hash = hmac.new(
+                os.environ["CF_WEBSERVICES_TOKEN"].encode("utf-8"),
+                json.dumps(body).encode("utf-8"),
+                hashlib.sha1,
+            ).hexdigest()
+
+            response = self.fetch(
+                "/status-monitor/payload",
+                method="POST",
+                body=json.dumps(body),
+                headers={
+                    "X-GitHub-Event": "status",
+                    "X-Hub-Signature": f"sha1={hash}",
+                },
+            )
+
+            self.assertEqual(response.code, 202, msg=state)
+            self.assertEqual(dispatch.called, dispatched, msg=state)
+
 
 def test_webapp_print_rate_limiting_info():
     _print_rate_limiting_info()
