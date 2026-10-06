@@ -23,7 +23,7 @@ import hmac
 import hashlib
 import uuid
 import json
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 from http.client import responses
 import atexit
 
@@ -132,6 +132,49 @@ def _shutdown_thread_pool():
 
 
 atexit.register(_shutdown_thread_pool)
+
+
+BACKGROUND_POOL = None
+# what _run_in_background has started and not yet finished, for tests to wait on
+BACKGROUND_FUTURES: set[Future] = set()
+
+
+def _background_pool():
+    global BACKGROUND_POOL
+    if BACKGROUND_POOL is None:
+        BACKGROUND_POOL = ThreadPoolExecutor(
+            max_workers=4, thread_name_prefix="background"
+        )
+    return BACKGROUND_POOL
+
+
+def _shutdown_background_pool():
+    global BACKGROUND_POOL
+    if BACKGROUND_POOL is not None:
+        BACKGROUND_POOL.shutdown(wait=False)
+
+
+atexit.register(_shutdown_background_pool)
+
+
+def _background_done(fut):
+    BACKGROUND_FUTURES.discard(fut)
+    if not fut.cancelled() and fut.exception() is not None:
+        LOGGER.error("background job failed", exc_info=fut.exception())
+
+
+def _run_in_background(func, *args):
+    """Run a blocking function on a worker thread without waiting for it.
+
+    Not IOLoop.spawn_callback, which runs a plain function on the IOLoop's
+    own thread: a GitHub call there stalls every request the webapp serves.
+    These get a pool of their own so that a burst of them cannot hold up the
+    handlers that wait on _thread_pool.
+    """
+    fut = _background_pool().submit(func, *args)
+    BACKGROUND_FUTURES.add(fut)
+    fut.add_done_callback(_background_done)
+    return fut
 
 
 def get_commit_message(full_name, commit):
@@ -344,7 +387,7 @@ class LintingHookHandler(WriteErrorAsJSONRequestHandler):
 
             if linting.LINT_VIA_GHA:
                 # for merge groups, we pass the SHA of the merge commit
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                _run_in_background(
                     _run_gha_linting_pure_args,
                     body["repository"]["full_name"],
                     pr_id,
@@ -471,7 +514,7 @@ class StagedRecipesLabelerHandler(WriteErrorAsJSONRequestHandler):
                     f"current labels: {curr_label_names!r}\n"
                 ),
             )
-            tornado.ioloop.IOLoop.current().spawn_callback(
+            _run_in_background(
                 _staged_recipes_label_pure_args,
                 f"{owner}/{repo_name}",
                 pr_id,
@@ -1257,7 +1300,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and (body["action"] in ["closed", "labeled", "reopened"])
                 and head_owner.startswith("regro-cf-autotick-bot/")
             ):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                _run_in_background(
                     _dispatch_autotickbot_job,
                     body["repository"]["full_name"],
                     "pr",
@@ -1285,7 +1328,7 @@ class AutotickBotPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 and "[cf admin skip]" not in commit_msg
                 and repo_name.endswith("-feedstock")
             ):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                _run_in_background(
                     _dispatch_autotickbot_job,
                     body["repository"]["full_name"],
                     "push",
@@ -1369,7 +1412,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
 
         body = tornado.escape.json_decode(self.request.body)
         if event == "check_run" or event == "status":
-            tornado.ioloop.IOLoop.current().spawn_callback(
+            _run_in_background(
                 _update_status_data,
                 body,
                 STATUS_DATA_LOCK,
@@ -1384,7 +1427,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 # job reads every status afresh when one finishes
                 and body.get("state") != "pending"
             ):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                _run_in_background(
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["sha"],
@@ -1396,7 +1439,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             if body["action"] == "completed" and body["repository"][
                 "full_name"
             ].endswith("-feedstock"):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                _run_in_background(
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["check_suite"]["head_sha"],
@@ -1416,7 +1459,7 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
             # )
 
             if body["repository"]["full_name"].endswith("-feedstock"):
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                _run_in_background(
                     _dispatch_automerge_job,
                     body["repository"]["name"],
                     body["pull_request"]["head"]["sha"],
@@ -1492,7 +1535,7 @@ class StagedRecipesMergeQueueLintingEndpointHandler(WriteErrorAsJSONRequestHandl
 
             if linting.LINT_VIA_GHA:
                 # for merge groups, we pass the SHA of the merge commit
-                tornado.ioloop.IOLoop.current().spawn_callback(
+                _run_in_background(
                     _run_gha_linting_pure_args,
                     full_name,
                     pr_id,

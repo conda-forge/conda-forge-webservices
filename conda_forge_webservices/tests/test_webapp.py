@@ -1,7 +1,9 @@
+import concurrent.futures
 import json
 import hmac
 import os
 import hashlib
+import threading
 
 from urllib.parse import urlencode
 import unittest.mock as mock
@@ -9,12 +11,19 @@ import unittest.mock as mock
 from tornado.testing import AsyncHTTPTestCase
 
 from conda_forge_webservices.webapp import create_webapp, _print_rate_limiting_info
-from conda_forge_webservices import linting
+from conda_forge_webservices import linting, webapp
 
 
 class TestHandlerBase(AsyncHTTPTestCase):
     def get_app(self):
         return create_webapp()
+
+    def fetch(self, *args, **kwargs):
+        # the handlers hand their GitHub calls to worker threads and respond
+        # straight away, so wait for those before anything is asserted
+        response = super().fetch(*args, **kwargs)
+        concurrent.futures.wait(list(webapp.BACKGROUND_FUTURES), timeout=10)
+        return response
 
 
 class TestBucketHandler(TestHandlerBase):
@@ -640,6 +649,36 @@ class TestBucketHandler(TestHandlerBase):
             )
             if full_name is not None and token is not None:
                 linting_mock.assert_any_call(full_name, 10, sha="xyz3123")
+
+    @mock.patch("conda_forge_webservices.webapp._dispatch_automerge_job")
+    def test_automerge_dispatch_runs_off_the_ioloop(self, dispatch):
+        threads = []
+        dispatch.side_effect = lambda *args: threads.append(threading.get_ident())
+        body = {
+            "repository": {
+                "name": "repo-feedstock",
+                "full_name": "conda-forge/repo-feedstock",
+            },
+            "sha": "abc123",
+            "context": "some-ci",
+        }
+        hash = hmac.new(
+            os.environ["CF_WEBSERVICES_TOKEN"].encode("utf-8"),
+            json.dumps(body).encode("utf-8"),
+            hashlib.sha1,
+        ).hexdigest()
+
+        response = self.fetch(
+            "/status-monitor/payload",
+            method="POST",
+            body=json.dumps(body),
+            headers={"X-GitHub-Event": "status", "X-Hub-Signature": f"sha1={hash}"},
+        )
+
+        self.assertEqual(response.code, 202)
+        dispatch.assert_called_once_with("repo-feedstock", "abc123")
+        # the IOLoop runs on the test's thread
+        self.assertNotEqual(threads, [threading.get_ident()])
 
     @mock.patch("conda_forge_webservices.webapp._dispatch_automerge_job")
     def test_automerge_dispatch_skips_pending_statuses(self, dispatch):
