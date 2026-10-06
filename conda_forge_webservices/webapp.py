@@ -1380,6 +1380,9 @@ class StatusMonitorPayloadHookHandler(WriteErrorAsJSONRequestHandler):
                 event == "status"
                 and body["repository"]["full_name"].endswith("-feedstock")
                 and body["context"] != "conda-forge-automerge-service"
+                # a pending status is never what makes a PR mergeable, and the
+                # job reads every status afresh when one finishes
+                and body.get("state") != "pending"
             ):
                 tornado.ioloop.IOLoop.current().spawn_callback(
                     _dispatch_automerge_job,
