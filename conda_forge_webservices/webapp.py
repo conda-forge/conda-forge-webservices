@@ -1083,7 +1083,7 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         # the old default was to comment only if the git sha was not None
         # so we keep that here
         comment_on_error = data.get("comment_on_error", git_sha is not None)
-        # if the called requests it, the endpoint will return a 202 if the copy
+        # if the caller requests it, the endpoint will return a 202 if the copy
         # doesn't complete in ~20 seconds
         # old default was False so keep that here
         run_async = data.get("async", False)
