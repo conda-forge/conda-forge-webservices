@@ -16,6 +16,7 @@ import threading
 import subprocess
 import asyncio
 import tornado.escape
+import tornado.gen
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
@@ -1082,6 +1083,10 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         # the old default was to comment only if the git sha was not None
         # so we keep that here
         comment_on_error = data.get("comment_on_error", git_sha is not None)
+        # if the called requests it, the endpoint will return a 202 if the copy
+        # doesn't complete in ~20 seconds
+        # old default was False so keep that here
+        run_async = data.get("async", False)
 
         # uncomment this to turn off uploads
         # if feedstock not in [
@@ -1096,7 +1101,8 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             title=f"copy started for outputs for feedstock '{feedstock_repo_name}'",
         )
 
-        status, data = await tornado.ioloop.IOLoop.current().run_in_executor(
+        io_loop = tornado.ioloop.IOLoop.current()
+        copy_future = io_loop.run_in_executor(
             _worker_pool("upload"),
             _run_single_copy_job,
             feedstock_repo_name,
@@ -1108,6 +1114,25 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
             comment_on_error,
             git_sha,
         )
+
+        if run_async:
+            try:
+                status, data = await tornado.gen.with_timeout(
+                    io_loop.time() + 20, copy_future
+                )
+            except tornado.gen.TimeoutError:
+                log_title_and_message_at_level(
+                    level="info",
+                    title=(
+                        "copy still running for outputs "
+                        f"for feedstock '{feedstock_repo_name}'"
+                    ),
+                    msg="async copy requested so returning w/ HTTP code 202",
+                )
+                status = 202
+                data = {}
+        else:
+            status, data = await copy_future
 
         self.set_status(status)
         if data is None:
