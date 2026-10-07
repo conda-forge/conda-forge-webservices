@@ -1064,6 +1064,15 @@ def _run_single_copy_job(
         return status, json.dumps(data)
 
 
+COPY_FUTURES: set[asyncio.Future] = set()
+
+
+def _copy_done(fut: asyncio.Future) -> None:
+    COPY_FUTURES.discard(fut)
+    if not fut.cancelled() and fut.exception() is not None:
+        LOGGER.error("copy job failed", exc_info=fut.exception())
+
+
 class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
     async def post(self):
         headers = self.request.headers
@@ -1129,6 +1138,8 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
                     ),
                     msg="async copy requested so returning w/ HTTP code 202",
                 )
+                COPY_FUTURES.add(copy_future)
+                copy_future.add_done_callback(_copy_done)
                 status = 202
                 data = {}
         else:
