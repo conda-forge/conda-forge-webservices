@@ -49,6 +49,8 @@ from conda_forge_webservices.feedstock_outputs import (
     is_valid_feedstock_token,
     comment_on_outputs_copy,
     stage_dist_to_post_staging_and_possibly_copy_to_prod,
+    _is_valid_output_hash,
+    PROD,
     STAGING_LABEL,
 )
 from conda_forge_webservices.utils import (
@@ -951,7 +953,7 @@ def _is_valid_feedstock_token_pure_args(feedstock_repo_name, feedstock_token, pr
     )
 
 
-def _run_single_copy_job(
+def _check_copy_request(
     feedstock_repo_name,
     feedstock_token,
     provider,
@@ -961,6 +963,11 @@ def _run_single_copy_job(
     comment_on_error,
     git_sha,
 ):
+    """Check who is asking for a copy, and that the request is complete.
+
+    Returns whether the feedstock exists and whether the copy may go ahead,
+    having logged and commented on a request that may not.
+    """
     if feedstock_repo_name is not None and len(feedstock_repo_name) > 0:
         feedstock_exists = _repo_exists(feedstock_repo_name)
     else:
@@ -1021,6 +1028,32 @@ def _run_single_copy_job(
                 {},
             )
 
+        return feedstock_exists, False
+
+    return feedstock_exists, True
+
+
+def _run_single_copy_job(
+    feedstock_repo_name,
+    feedstock_token,
+    provider,
+    outputs,
+    label,
+    hash_type,
+    comment_on_error,
+    git_sha,
+):
+    feedstock_exists, ok = _check_copy_request(
+        feedstock_repo_name,
+        feedstock_token,
+        provider,
+        outputs,
+        label,
+        hash_type,
+        comment_on_error,
+        git_sha,
+    )
+    if not ok:
         return 400, None
     else:
         staging_label = STAGING_LABEL + "-h" + uuid.uuid4().hex
@@ -1155,6 +1188,265 @@ class OutputsCopyHandler(WriteErrorAsJSONRequestHandler):
         #     self.write_error(403)
         #
         # return
+
+
+# Copies started by /feedstock-outputs/copy-async, by id. They are only kept in
+# memory, so a restart forgets them. A client told that its copy is unknown
+# sends the request again, which is safe: an output stays on cf-staging until
+# it has been copied, and one already on conda-forge counts as copied.
+ASYNC_COPIES: dict[str, dict] = {}
+# the copy each request started, so that sending it again joins that copy
+ASYNC_COPY_IDS: dict[tuple, str] = {}
+# held only around changes to the two dicts, never across a network call
+ASYNC_COPIES_LOCK = threading.Lock()
+# how long a finished copy can still be asked about
+ASYNC_COPY_KEEP = 3600
+
+
+def _async_copy_key(feedstock_repo_name, outputs, label, hash_type):
+    return (feedstock_repo_name, label, hash_type, tuple(sorted(outputs.items())))
+
+
+def _async_copy_status(copy):
+    return {k: copy[k] for k in ("id", "state", "errors", "valid", "copied")}
+
+
+def _live_async_copy(key):
+    """The copy a request already started, unless it failed or was forgotten.
+
+    Call with ASYNC_COPIES_LOCK held.
+    """
+    now = time.time()
+    for copy_id, copy in list(ASYNC_COPIES.items()):
+        if (
+            copy["finished_at"] is not None
+            and now - copy["finished_at"] > ASYNC_COPY_KEEP
+        ):
+            del ASYNC_COPIES[copy_id]
+            if ASYNC_COPY_IDS.get(copy["key"]) == copy_id:
+                del ASYNC_COPY_IDS[copy["key"]]
+
+    copy_id = ASYNC_COPY_IDS.get(key)
+    if copy_id is None or ASYNC_COPIES[copy_id]["state"] == "failed":
+        return None
+    return ASYNC_COPIES[copy_id]
+
+
+def _start_async_copy(
+    feedstock_repo_name,
+    feedstock_token,
+    provider,
+    outputs,
+    label,
+    hash_type,
+    comment_on_error,
+    git_sha,
+):
+    _, ok = _check_copy_request(
+        feedstock_repo_name,
+        feedstock_token,
+        provider,
+        outputs,
+        label,
+        hash_type,
+        comment_on_error,
+        git_sha,
+    )
+    if not ok:
+        return 400, None
+
+    key = _async_copy_key(feedstock_repo_name, outputs, label, hash_type)
+    with ASYNC_COPIES_LOCK:
+        copy = _live_async_copy(key)
+        if copy is not None:
+            return 202, _async_copy_status(copy)
+
+    # outputs that an earlier request, perhaps one whose reply was lost, has
+    # already copied are no longer on cf-staging to be validated
+    on_prod = _is_valid_output_hash(outputs, hash_type, PROD, label)
+    to_copy = {k: v for k, v in outputs.items() if not on_prod[k]}
+    if to_copy:
+        valid, errors = validate_feedstock_outputs(
+            feedstock_repo_name, to_copy, hash_type, label
+        )
+    else:
+        valid, errors = {}, []
+    valid.update({k: True for k in outputs if on_prod[k]})
+    copied = {k: on_prod[k] for k in outputs}
+
+    if not all(valid.values()):
+        if comment_on_error:
+            comment_on_outputs_copy(feedstock_repo_name, git_sha, errors, valid, copied)
+        return 400, {"errors": errors, "valid": valid, "copied": copied}
+
+    copy = {
+        "id": uuid.uuid4().hex,
+        "key": key,
+        "state": "queued" if to_copy else "done",
+        "errors": [],
+        "valid": valid,
+        "copied": copied,
+        "finished_at": None if to_copy else time.time(),
+    }
+    with ASYNC_COPIES_LOCK:
+        # the same request may have been sent again while this one validated
+        live = _live_async_copy(key)
+        if live is not None:
+            return 202, _async_copy_status(live)
+        ASYNC_COPIES[copy["id"]] = copy
+        ASYNC_COPY_IDS[key] = copy["id"]
+        status = _async_copy_status(copy)
+
+    log_title_and_message_at_level(
+        level="info",
+        title=f"copy queued for outputs for feedstock '{feedstock_repo_name}'",
+        msg=yaml.dump(status, default_flow_style=False, indent=2),
+    )
+
+    if to_copy:
+        _worker_pool("upload").submit(
+            _run_async_copy,
+            copy["id"],
+            feedstock_repo_name,
+            to_copy,
+            label,
+            hash_type,
+            comment_on_error,
+            git_sha,
+        )
+
+    return 202, status
+
+
+def _run_async_copy(
+    copy_id,
+    feedstock_repo_name,
+    outputs,
+    label,
+    hash_type,
+    comment_on_error,
+    git_sha,
+):
+    with ASYNC_COPIES_LOCK:
+        copy = ASYNC_COPIES[copy_id]
+        copy["state"] = "copying"
+        valid = dict(copy["valid"])
+        copied = dict(copy["copied"])
+
+    start_time = time.time()
+    errors = []
+    try:
+        for dist, hash_value in outputs.items():
+            with COPYLOCK:
+                (
+                    dist_copied,
+                    dist_errors,
+                ) = stage_dist_to_post_staging_and_possibly_copy_to_prod(
+                    dist, label, hash_type, hash_value
+                )
+                # a copy for the same output started by an earlier request may
+                # have taken it off cf-staging first
+                if not dist_copied:
+                    dist_copied = _is_valid_output_hash(
+                        {dist: hash_value}, hash_type, PROD, label
+                    )[dist]
+            copied[dist] = dist_copied
+            if not dist_copied:
+                valid[dist] = False
+                errors.extend(dist_errors)
+                errors.append(
+                    f"failed to stage {dist} to "
+                    f"cf-pre-staging and then copy to conda-forge"
+                )
+    except Exception as e:
+        LOGGER.exception("copy %s failed", copy_id)
+        errors.append(f"the copy failed: {e!r}")
+
+    with ASYNC_COPIES_LOCK:
+        copy.update(
+            state="done" if all(copied.values()) else "failed",
+            errors=errors,
+            valid=valid,
+            copied=copied,
+            finished_at=time.time(),
+        )
+        status = _async_copy_status(copy)
+
+    if status["state"] == "failed" and comment_on_error:
+        comment_on_outputs_copy(feedstock_repo_name, git_sha, errors, valid, copied)
+
+    log_title_and_message_at_level(
+        level="info",
+        title=f"copy finished for outputs for feedstock '{feedstock_repo_name}'",
+        msg=yaml.dump(
+            {**status, "run_time": time.time() - start_time},
+            default_flow_style=False,
+            indent=2,
+        ),
+    )
+
+
+def _copy_request_args(handler):
+    headers = handler.request.headers
+    data = tornado.escape.json_decode(handler.request.body)
+    git_sha = data.get("git_sha", None)
+    return dict(
+        feedstock_repo_name=data.get("feedstock", None),
+        feedstock_token=headers.get("FEEDSTOCK_TOKEN", None),
+        provider=data.get("provider", None),
+        outputs=data.get("outputs", None),
+        # the API calls the label a channel, see OutputsCopyHandler
+        label=data.get("channel", None),
+        hash_type=data.get("hash_type", "md5"),
+        # the old default was to comment only if the git sha was not None
+        comment_on_error=data.get("comment_on_error", git_sha is not None),
+        git_sha=git_sha,
+    )
+
+
+class OutputsAsyncCopyHandler(WriteErrorAsJSONRequestHandler):
+    """Queue a copy and reply at once, rather than once it is done.
+
+    A burst of uploads can keep a copy waiting on COPYLOCK for longer than
+    Heroku lets a request run, and a client cut off cannot tell a copy that
+    will still happen from one that never will. Here it gets an id to ask
+    about at /feedstock-outputs/copy-async/<id> instead.
+    """
+
+    async def post(self):
+        args = _copy_request_args(self)
+        log_title_and_message_at_level(
+            level="info",
+            title=(
+                "async copy requested for outputs for feedstock "
+                f"'{args['feedstock_repo_name']}'"
+            ),
+        )
+
+        status, data = await tornado.ioloop.IOLoop.current().run_in_executor(
+            _thread_pool(),
+            functools.partial(_start_async_copy, **args),
+        )
+
+        self.set_status(status)
+        if data is None:
+            self.write_error(status)
+        else:
+            self.write(json.dumps(data))
+
+
+class OutputsAsyncCopyStatusHandler(WriteErrorAsJSONRequestHandler):
+    def get(self, copy_id):
+        with ASYNC_COPIES_LOCK:
+            copy = ASYNC_COPIES.get(copy_id)
+            data = None if copy is None else _async_copy_status(copy)
+
+        if data is None:
+            # never started, or forgotten in a restart: send the request again
+            self.set_status(404)
+            self.write_error(404)
+        else:
+            self.write(json.dumps(data))
 
 
 @functools.lru_cache(maxsize=1)
@@ -1599,6 +1891,11 @@ def create_webapp():
             (r"/conda-webservice-update/versions", UpdateWebservicesVersionsHandler),
             (r"/feedstock-outputs/validate", OutputsValidationHandler),
             (r"/feedstock-outputs/copy", OutputsCopyHandler),
+            (r"/feedstock-outputs/copy-async", OutputsAsyncCopyHandler),
+            (
+                r"/feedstock-outputs/copy-async/([0-9a-f]{32})",
+                OutputsAsyncCopyStatusHandler,
+            ),
             (
                 r"/trusted-publishing/version-update",
                 TrustedPublishingVersionUpdateHandler,
