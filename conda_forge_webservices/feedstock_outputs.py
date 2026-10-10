@@ -273,46 +273,6 @@ def _copy_feedstock_outputs_between_channels(
     return copied
 
 
-def _copy_feedstock_outputs_from_staging_to_prod(
-    outputs, src_label, dest_label, delete=True
-):
-    """Copy outputs from one chanel to another.
-
-    Parameters
-    ----------
-    outputs : list of str
-        A list of outputs to copy. These should be the full names with the
-        platform directory, version/build info, and file extension (e.g.,
-        `noarch/blah-fa31b0-2020.04.13.15.54.07-py_0.conda`).
-    src_label : str
-        The source label for the packages on the STAGING channel.
-    dest_label : str
-        The destination label for the packages on the PROD channel.
-    delete : bool, optional
-        If True, delete the artifact from STAGING if the copy is successful.
-        Default is True.
-
-    Returns
-    -------
-    copied : dict
-        A dict keyed on the output name with True if the copy worked and False
-        otherwise.
-    """
-    ac_prod = _get_ac_api_prod()
-    ac_staging = _get_ac_api_staging()
-
-    return _copy_feedstock_outputs_between_channels(
-        outputs=outputs,
-        src_ac=ac_staging,
-        src_channel=STAGING,
-        src_label=src_label,
-        dest_ac=ac_prod,
-        dest_channel=PROD,
-        dest_label=dest_label,
-        delete=delete,
-    )
-
-
 def _is_valid_output_hash(outputs, hash_type, channel, label):
     """Test if a set of outputs have valid hashes on the staging channel.
 
