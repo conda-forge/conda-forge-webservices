@@ -12,21 +12,37 @@ import pytest
 from binstar_client import BinstarError
 
 from conda_forge_webservices.feedstock_outputs import (
-    _copy_feedstock_outputs_from_staging_to_prod,
+    _copy_feedstock_outputs_between_channels,
     _get_ac_api_prod,
     _get_dist,
     _is_valid_feedstock_output,
     validate_feedstock_outputs,
+    PROD,
+    STAGING,
 )
+
+
+def _copy_feedstock_outputs_from_staging_to_prod(
+    outputs, src_label, dest_label, ac_prod_fun, ac_staging_fun, delete=True
+):
+    ac_prod = ac_prod_fun()
+    ac_staging = ac_staging_fun()
+
+    return _copy_feedstock_outputs_between_channels(
+        outputs=outputs,
+        src_ac=ac_staging,
+        src_channel=STAGING,
+        src_label=src_label,
+        dest_ac=ac_prod,
+        dest_channel=PROD,
+        dest_label=dest_label,
+        delete=delete,
+    )
 
 
 @pytest.mark.parametrize("remove", [True, False])
 @mock.patch("conda_forge_webservices.feedstock_outputs._dist_exists")
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_staging")
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
-def test_copy_feedstock_outputs_from_staging_to_prod_exists(
-    ac_prod, ac_staging, dist_exists, remove
-):
+def test_copy_feedstock_outputs_from_staging_to_prod_exists(dist_exists, remove):
     name = "boo"
     version = "0.1"
     dist = f"noarch/{name}-{version}-py_10.conda"
@@ -38,10 +54,15 @@ def test_copy_feedstock_outputs_from_staging_to_prod_exists(
     outputs = OrderedDict()
     outputs[dist] = "sdasDsa"
 
+    ac_prod = mock.MagicMock()
+    ac_staging = mock.MagicMock()
+
     copied = _copy_feedstock_outputs_from_staging_to_prod(
         outputs,
         src_label,
         dest_label,
+        ac_prod,
+        ac_staging,
         delete=remove,
     )
 
@@ -68,16 +89,17 @@ def test_copy_feedstock_outputs_from_staging_to_prod_exists(
 @pytest.mark.parametrize("error", [False, True])
 @pytest.mark.parametrize("remove", [True, False])
 @mock.patch("conda_forge_webservices.feedstock_outputs._dist_exists")
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_staging")
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
 def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
-    ac_prod, ac_staging, dist_exists, remove, error
+    dist_exists, remove, error
 ):
     name = "boo"
     version = "0.1"
     dist = f"noarch/{name}-{version}-py_10.conda"
     src_label = "foo"
     dest_label = "bar"
+
+    ac_prod = mock.MagicMock()
+    ac_staging = mock.MagicMock()
 
     dist_exists.side_effect = [False, remove]
     if error:
@@ -90,6 +112,8 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
         outputs,
         src_label,
         dest_label,
+        ac_prod,
+        ac_staging,
         delete=remove,
     )
 
@@ -129,15 +153,11 @@ def test_copy_feedstock_outputs_from_staging_to_prod_not_exists(
 @pytest.mark.parametrize("valid_copy", [True])
 @pytest.mark.parametrize("valid_staging_hash", [True, False])
 @pytest.mark.parametrize("valid_prod_hash", [True])
-@mock.patch(
-    "conda_forge_webservices.feedstock_outputs._copy_feedstock_outputs_from_staging_to_prod"
-)
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
 @mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_feedstock_output")
 def test_validate_feedstock_outputs_badoutputhash(
     valid_out,
     valid_hash,
-    copy_fo,
     valid_output,
     valid_staging_hash,
     valid_copy,
@@ -157,10 +177,6 @@ def test_validate_feedstock_outputs_badoutputhash(
             "noarch/b-0.1-py_0.conda": valid_prod_hash,
         },
     ]
-    copy_fo.return_value = {
-        "noarch/a-0.1-py_0.conda": valid_copy,
-        "noarch/b-0.1-py_0.conda": valid_copy,
-    }
     staging_label = "cf-staging-do-not-use-h" + uuid.uuid4().hex
     valid, errs = validate_feedstock_outputs(
         "bar-feedstock",
