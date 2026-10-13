@@ -16,6 +16,7 @@ dependencies:
   - conda-smithy >=2026.9.19  # for schema.TrustedPublisher
   - conda-souschef
   - cryptography >=39
+  - mamba >=2.9.0
   - python-dateutil
   - git
   - gitpython
