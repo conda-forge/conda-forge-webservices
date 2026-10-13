@@ -322,6 +322,7 @@ def _attempt_copy_prod(outputs, hash_type, should_fail):
         "feedstock": "staged-recipes",
         "outputs": outputs,
         "channel": "main",
+        "async": True,
     }
     if hash_type is not None:
         json_data["hash_type"] = hash_type
