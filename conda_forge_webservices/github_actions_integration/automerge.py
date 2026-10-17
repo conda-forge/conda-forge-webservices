@@ -212,38 +212,6 @@ def _get_github_statuses(repo, pr):
     return {k: v[0] for k, v in status_states.items()}
 
 
-def _circle_is_active():
-    """check if circle is active"""
-    if os.path.exists(".circleci/checkout_merge_commit.sh"):
-        return True
-
-    if os.path.exists(".circleci/fast_finish_ci_pr_build.sh"):
-        return True
-
-    # we now look for this sentinel text
-    #      filters:
-    #        branches:
-    #          ignore:
-    #            - /.*/
-    with open(".circleci/config.yml") as fp:
-        start = False
-        ind = 0
-        sentinels = ["filters:", "branches:", "ignore:", "- /.*/"]
-        found_sentinels = [False] * len(sentinels)
-        for line in fp.readlines():
-            if line.strip() == "filters:":
-                start = True
-            if start and ind < len(sentinels):
-                if line.strip() == sentinels[ind]:
-                    found_sentinels[ind] = True
-                ind += 1
-
-    if all(found_sentinels):
-        return False
-    else:
-        return True
-
-
 def _github_is_active():
     """check if github is active"""
 
@@ -274,15 +242,6 @@ def _get_required_checks_and_statuses(pr, cfg):
         with pushd(tmpdir):
             run_git_command("checkout", pr.head.sha)
 
-            if os.path.exists("appveyor.yml") or os.path.exists(".appveyor.yml"):
-                required.append("appveyor")
-
-            if os.path.exists(".drone.yml"):
-                required.append("drone")
-
-            if os.path.exists(".travis.yml"):
-                required.append("travis")
-
             if os.path.exists("azure-pipelines.yml"):
                 required.append("azure")
 
@@ -291,11 +250,6 @@ def _get_required_checks_and_statuses(pr, cfg):
                 and _github_is_active()
             ):
                 required.append("github-actions")
-
-            # smithy writes this config even if circle is off, but we can check
-            # for other things
-            if os.path.exists(".circleci/config.yml") and _circle_is_active():
-                required.append("circle")
 
     return [
         r.lower()

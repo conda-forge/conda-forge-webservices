@@ -1,4 +1,3 @@
-import os
 from unittest import mock
 
 import pytest
@@ -39,12 +38,7 @@ def test_all_statuses_and_checks_ok(val):
 @pytest.mark.parametrize(
     "fname",
     [
-        "appveyor.yml",
-        ".appveyor.yml",
-        ".drone.yml",
-        ".travis.yml",
         "azure-pipelines.yml",
-        ".circleci/config.yml",
     ],
 )
 @pytest.mark.parametrize("ignore_linter", ["conda-forge-linter", "linter", None])
@@ -64,22 +58,13 @@ def test_get_required_checks_and_statuses(
         cfg = {}
 
     with pushd(tmpdir):
-        os.makedirs(".circleci")
         with open(fname, "w") as fp:
             fp.write("dummy")
 
     req = _get_required_checks_and_statuses(pr, cfg)
 
-    if fname in ["appveyor.yml", ".appveyor.yml"]:
-        name = "appveyor"
-    elif fname == ".drone.yml":
-        name = "drone"
-    elif fname == ".travis.yml":
-        name = "travis"
-    elif fname == "azure-pipelines.yml":
+    if fname == "azure-pipelines.yml":
         name = "azure"
-    else:
-        name = "circle"
 
     assert name in req
     if ignore_linter is None:
