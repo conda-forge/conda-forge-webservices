@@ -5,6 +5,8 @@ platforms:
   - linux-64
 dependencies:
   - anaconda-client >=1.8.0
+  - certifi >=2026.10.19
+  - ca-certificates >=2026.10.19
   - cachetools
   - conda >=25.9.0
   - conda-build >=25.9.0
