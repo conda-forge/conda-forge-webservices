@@ -28,23 +28,7 @@ APP_DATA: dict = {
         "repos": cachetools.LRUCache(maxsize=128),
         "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
-    "travis-ci": {
-        "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
-    },
     "github-actions": {
-        "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
-    },
-    "appveyor": {
-        "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
-    },
-    "circleci": {
-        "repos": cachetools.LRUCache(maxsize=128),
-        "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
-    },
-    "drone": {
         "repos": cachetools.LRUCache(maxsize=128),
         "rates": cachetools.LRUCache(maxsize=NUM_STATUS_SLOTS),
     },
@@ -265,19 +249,12 @@ def get_docker_status():
 def update_data_status(event_data):
     global APP_DATA
 
-    repo = event_data["repository"]["full_name"]
+    # TODO: this is no longer expected, should we remove it entirely?
+    LOGGER.warning("    context not found: %s", event_data["context"])
+    return
 
-    if "circleci" in event_data["context"]:
-        slug = "circleci"
-    elif "appveyor" in event_data["context"]:
-        slug = "appveyor"
-    elif "travis" in event_data["context"]:
-        slug = "travis-ci"
-    elif "drone" in event_data["context"]:
-        slug = "drone"
-    else:
-        LOGGER.warning("    context not found: %s", event_data["context"])
-        return
+    repo = event_data["repository"]["full_name"]
+    slug = "TODO"
 
     LOGGER.debug("    repo: %s", repo)
     LOGGER.debug("    app: %s", slug)

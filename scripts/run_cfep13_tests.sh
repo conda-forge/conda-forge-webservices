@@ -14,10 +14,7 @@ secret=`cat ~/.conda-smithy/conda-forge_staged-recipes.token`
 echo "::add-mask::$secret"
 
 conda-smithy register-feedstock-token \
-  --without-circle \
-  --without-drone \
   --without-azure \
-  --without-travis \
   --without-github-actions \
   --token_repo='https://x-access-token:${GH_TOKEN}@github.com/conda-forge/feedstock-tokens' \
   --feedstock_directory staged-recipes
