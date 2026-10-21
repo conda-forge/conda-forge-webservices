@@ -26,6 +26,7 @@ dependencies:
   - mock
   - parameterized
   - pip
+  - pixi >=0.82.1
   - pydantic >=2.11
   - pygithub >=2.10.0
   - pyjwt >=2.10.1  # this pin is because 2.10.0 matched iss by prefix (CVE-2024-53861)
