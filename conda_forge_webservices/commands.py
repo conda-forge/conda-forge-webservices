@@ -955,22 +955,6 @@ def open_admin_pr(
 
 def restart_pull_request_ci(repo, pr_num):
     pull = repo.get_pull(pr_num)
-    commit = repo.get_commit(pull.head.sha)
-    statuses = commit.get_statuses()
-    drone_status = None
-    for status in statuses:
-        if "continuous-integration/drone" in status.context:
-            drone_status = status
-            break
-
-    if drone_status:
-        drone_build = drone_status.target_url.split("/")[-1]
-        from conda_smithy.ci_register import drone_session
-
-        session = drone_session()
-        session.post(
-            f"/api/repos/conda-forge/{repo.name}/builds/{drone_build}",
-        )
 
     pull.edit(state="closed")
     time.sleep(1)  # wait a bit to be sure things are ok
