@@ -17,7 +17,7 @@ jobs:
 
       - name: relock
         id: relock
-        uses: conda-incubator/relock-conda@a2bc3539342497f43c9f13d322b24d8f17276f6e # v28
+        uses: conda-incubator/relock-conda@6e786987474b00b431666d1b84c123414f9884e3 # 2026.10.13
         with:
           github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
           automerge: true
