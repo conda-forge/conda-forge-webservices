@@ -315,10 +315,10 @@ package:
     python: ''
     python_abi: 3.12.*
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/backports.zstd-1.8.0-py312h3f22e6b_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/backports.zstd-1.8.0-py312hf114f2f_1.conda
   hash:
-    md5: 0f5fe32a47138697efdd6d8ee40a00d0
-    sha256: cc868eb4cf1fba1b4ff6686250136d0cf4cfedec9b4029b6e3b3f592da1cac97
+    md5: 74bdbdc14677bccd670c2f07168985d7
+    sha256: f3d597ccd76e058a040520432c699dc338d46968621a083418f0e985c110d060
   category: main
   optional: false
 - name: bcrypt
@@ -799,14 +799,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.10.21.08.25.13
+  version: 2026.10.22.19.59.50
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.10.21.08.25.13-hd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.10.22.19.59.50-hd8ed1ab_1.conda
   hash:
-    md5: 4c714b8309970b7bb8768a5dd35e6b05
-    sha256: b4c0dbc14e28b0dcb41336fb8d54bd342f50aec6be520364f8ab2cad7c3c68c6
+    md5: 8540071de5c2c01c72835c3dbdcbde72
+    sha256: 92b454ec590c2a9f9c713651e427bd5066c883fc8cd54ef62df75bde543f89bf
   category: main
   optional: false
 - name: conda-forge-tick
@@ -3863,7 +3863,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.82.1
+  version: 0.83.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -3871,10 +3871,10 @@ package:
     libgcc: '>=15'
     libstdcxx: '>=15'
     openssl: '>=3.5.9,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.82.1-hb5a6893_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.83.0-hb5a6893_0.conda
   hash:
-    md5: 52701fa85cebdb1460be5ba7f2ab641f
-    sha256: 21a05b208a3e2a921c910aaef301d52ed195ff40886455be943266877dbd8370
+    md5: 03bff0bbb7fdc7123d329b4da7d18909
+    sha256: 3c893c6112d64f12eb4455097dc3d1b9b581091f0ea97a847898e334d8adab1f
   category: main
   optional: false
 - name: pixman
@@ -4060,15 +4060,15 @@ package:
   category: main
   optional: false
 - name: pycparser
-  version: '3.11'
+  version: '3.12'
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.11'
-  url: https://conda.anaconda.org/conda-forge/noarch/pycparser-3.11-pyh5ded981_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/pycparser-3.12-pyh5ded981_1.conda
   hash:
-    md5: 3cd164745122ab557cc30879390089e8
-    sha256: 99af7c6061d7aa73cfcef615500ddf3e9f4a58c844646b7d7ce58147fb5758d7
+    md5: 3c2d671ef0bc5a0e8d1f7e6c4286af0b
+    sha256: eefb1b2140c1a6c33a85186f954e857e1a824365deeda4e11db9b99c1b5950aa
   category: main
   optional: false
 - name: pycryptodome
@@ -4112,11 +4112,11 @@ package:
     libgcc: '>=15'
     python: ''
     python_abi: 3.12.*
-    typing-extensions: '>=4.6.0,!=4.7.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pydantic-core-2.50.1-py312hc767a74_0.conda
+    typing-extensions: '>=4.16.0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/pydantic-core-2.50.1-py312hc767a74_1.conda
   hash:
-    md5: b0cafd267ef198ad8b689d8383b2c909
-    sha256: f8efd457003b59e0872236e537d7fd13ed8d49f8b9b65a364ee3501406db1a15
+    md5: c533dc1b0b0b264e4e8022a3abb879cb
+    sha256: e91ded8bea7b08e66873374100b000bb326fbfad64a2446d7820ce74fa325338
   category: main
   optional: false
 - name: pydantic-extra-types
@@ -5271,16 +5271,16 @@ package:
   category: main
   optional: false
 - name: tzlocal
-  version: 5.4.4
+  version: 5.4.5
   manager: conda
   platform: linux-64
   dependencies:
     __unix: ''
-    python: '>=3.10'
-  url: https://conda.anaconda.org/conda-forge/noarch/tzlocal-5.4.4-pyh8f84b5b_0.conda
+    python: '>=3.11'
+  url: https://conda.anaconda.org/conda-forge/noarch/tzlocal-5.4.5-pyhfa0c392_0.conda
   hash:
-    md5: cbd15812c946aecc2d9479318aca450f
-    sha256: 5d693f6f22b584fb69bac52e716872a1432c50527ced54d66064cc27e5946c0b
+    md5: 0ef97db8bef5d3ddd614170d78d46fd9
+    sha256: bbffdc66892e25d4ada9a124eb369ab10f249c0c2f03ca10d2e2a45516a7118f
   category: main
   optional: false
 - name: unearth
@@ -5453,12 +5453,12 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=14'
-    xorg-libx11: '>=1.8.13,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.48-h280c20c_0.conda
+    libgcc: '>=15'
+    xorg-libx11: '>=1.8.14,<2.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.48-hebe6cf0_1.conda
   hash:
-    md5: b233b41be0bf210989d57160ed39b394
-    sha256: 3b04afd5d1a65d2d27ac2d49a63b01ab8bcd875776779ec63e337370ed38afdc
+    md5: 1d0383de55470a551d61ccdc225c0d88
+    sha256: 5d803109509756b39e018b780746ed4210cff640eb428fd58fa6c64c9c15ae6b
   category: main
   optional: false
 - name: xorg-libice
