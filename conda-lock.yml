@@ -799,14 +799,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.10.23.11.47.31
+  version: 2026.10.24.05.42.06
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.10.23.11.47.31-hd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.10.24.05.42.06-hd8ed1ab_1.conda
   hash:
-    md5: a14f15d37006ef9511aaa43c1cd311d6
-    sha256: cda0dd39a9f458b46c78ca8261c985e1066aff0c761a2a594563420fd833b069
+    md5: 313402855c32728277dd250dac5563a2
+    sha256: 75ff437979853d7d986987229b09eb972806c2b023f26e7bd8aa2e8583ab505d
   category: main
   optional: false
 - name: conda-forge-tick
@@ -1094,7 +1094,7 @@ package:
   category: main
   optional: false
 - name: conda-smithy
-  version: 2026.10.21
+  version: 2026.10.24
   manager: conda
   platform: linux-64
   dependencies:
@@ -1127,10 +1127,10 @@ package:
     tomli: '>=1.0.0'
     toolz: ''
     vsts-python-api: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-2026.10.21-unix_pyh707e725_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-smithy-2026.10.24-unix_pyh707e725_0.conda
   hash:
-    md5: 000388ccc2fc9503f9e28a521ae2daf2
-    sha256: adb9f074349430724ffc31165bd9efe2631be0602292fecaeff37426e7b68bf4
+    md5: 0901af17eff7141b843c644ccc7e3442
+    sha256: da86448ddd620ca48e73132b8b9f5c135a1fab79bea69e87950ca9153dae25e0
   category: main
   optional: false
 - name: conda-souschef
@@ -2050,16 +2050,16 @@ package:
   category: main
   optional: false
 - name: importlib-metadata
-  version: 9.1.0
+  version: 10.0.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.11'
     zipp: '>=3.20'
-  url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-9.1.0-pyh5ded981_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-10.0.0-pyh5ded981_0.conda
   hash:
-    md5: e382279821a43230da19787559a3d047
-    sha256: efa8481068db967f5190393935cb72c7a2c575dc58b056a5b74db1d485a8a1d5
+    md5: 8401f0ee3de84b5a549c47cf3038909b
+    sha256: 43151c94c02fa67e8105cfe64c8c27a1b260b22bae6ddbe9c33b56a9c302e459
   category: main
   optional: false
 - name: importlib_resources
@@ -3272,17 +3272,17 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=14'
-    libstdcxx: '>=14'
+    libgcc: '>=15'
+    libstdcxx: '>=15'
     libxcb: '>=1.17.0,<2.0a0'
     libxml2: ''
-    libxml2-16: '>=2.14.6'
+    libxml2-16: '>=2.15.4'
     xkeyboard-config: ''
     xorg-libxau: '>=1.0.12,<2.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libxkbcommon-1.13.2-h51789e4_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxkbcommon-1.13.2-h59c2f34_2.conda
   hash:
-    md5: f888787e0eab7a8076a67d197e155ffc
-    sha256: d44878d396713ccf3b355df617f61c40a1442fffcf134392bc6ce0e6c2219369
+    md5: b85ed11539022fbbf4e63117692179ec
+    sha256: 156fdf41b9f3efc54c077b5b8570b810a87800b978c12348c27ec6e0ddc20359
   category: main
   optional: false
 - name: libxml2
