@@ -508,15 +508,15 @@ package:
   category: main
   optional: false
 - name: cachetools
-  version: 7.2.4
+  version: 7.2.5
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.11'
-  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.2.4-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.2.5-pyhd8ed1ab_0.conda
   hash:
-    md5: 78c5e19e08fd35829827b82d861dab7f
-    sha256: 858950fc80be5cb9068a417bd99762e5e0c319f1052d5448e38b651f41a80e0e
+    md5: 67bdefa29ebd3151e6fbef69e2d0eac7
+    sha256: c2f027aaf1234bc3092151417c2bddfecfcfbe608dcc1914457da28835ee1508
   category: main
   optional: false
 - name: cairo
@@ -799,18 +799,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.10.24.05.42.06
+  version: 2026.10.25.07.44.23
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.10.24.05.42.06-hd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.10.25.07.44.23-hd8ed1ab_1.conda
   hash:
-    md5: 313402855c32728277dd250dac5563a2
-    sha256: 75ff437979853d7d986987229b09eb972806c2b023f26e7bd8aa2e8583ab505d
+    md5: 12284e62e74e73454c2df83e2c303e89
+    sha256: 53fe892d6772cd4a0615fab63534ca9c80a7c6f806fb86a23aa4989ece2f46ea
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.10.55
+  version: 2026.10.97
   manager: conda
   platform: linux-64
   dependencies:
@@ -868,10 +868,10 @@ package:
     tqdm: ''
     wget: ''
     wurlitzer: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.10.55-pyhc364b38_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.10.97-pyhc364b38_0.conda
   hash:
-    md5: 381091eccb3b4a76c18b95f678f4674c
-    sha256: 6a7cf0ec5ab237a05aa1c0a65159e6398ddab003f5ac91b8b9e532d5def8bd74
+    md5: ab52e53a1bbdc2d981e6308a950fbf6e
+    sha256: 464a09838dcec756fdc8756a1471f17f98a531071076a48c353fa09a18aeb212
   category: main
   optional: false
 - name: conda-index
@@ -4783,10 +4783,10 @@ package:
     numpy: <2.8,>=1.25,<3,>=2.0.0
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.18.1-py312h106c528_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.18.1-py312h106c528_2.conda
   hash:
-    md5: 73cc9629383ee4e1f2166b314527b324
-    sha256: d080762a708a0c885814995470d6fb186cec366acb080913584127e94ed031d5
+    md5: 79a06f2b1bbde26138a137d691227e8e
+    sha256: 44127a4dc06a4cfb8fc888196363becfb2fe09fa1f3660f86a61b218f3c45107
   category: main
   optional: false
 - name: scrypt
