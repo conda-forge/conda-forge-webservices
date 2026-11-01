@@ -17,7 +17,7 @@ jobs:
 
       - name: relock
         id: relock
-        uses: conda-incubator/relock-conda@6e786987474b00b431666d1b84c123414f9884e3 # 2026.10.13
+        uses: conda-incubator/relock-conda@1d6a65e4f7caa9cb53573af00fa3e4f959cba572 # 2026.10.22
         with:
           github-token: ${{ secrets.CF_ADMIN_GITHUB_TOKEN }}
           automerge: true
@@ -42,7 +42,7 @@ jobs:
       - name: generate token
         id: generate_token
         if: github.event_name != 'issue_comment' && steps.relock.outputs.relocked == 'true'
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
@@ -88,7 +88,7 @@ jobs:
 
       - name: generate token
         id: generate_token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ secrets.CF_CURATOR_APP_ID }}
           private-key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
