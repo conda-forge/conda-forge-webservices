@@ -4,7 +4,7 @@ channels:
 platforms:
   - linux-64
 dependencies:
-  - anaconda-client >=1.8.0
+  - anaconda-client >=1.8.0,<1.16.0a0
   - certifi >=2026.10.19
   - ca-certificates >=2026.10.19
   - cachetools
