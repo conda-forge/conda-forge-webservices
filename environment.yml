@@ -33,7 +33,7 @@ dependencies:
   - python =3.12.*
   - pytz
   - pyyaml
-  - rattler-build >=0.75.0
+  - rattler-build >=0.80.0
   - requests
   - ruamel.yaml >=0.16
   - ruamel.yaml.jinja2
