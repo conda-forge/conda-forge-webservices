@@ -750,7 +750,7 @@ package:
   category: main
   optional: false
 - name: conda-forge-feedstock-ops
-  version: 0.20.3
+  version: 0.20.4
   manager: conda
   platform: linux-64
   dependencies:
@@ -775,10 +775,10 @@ package:
     ruamel.yaml.jinja2: ''
     wurlitzer: ''
     zstandard: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.20.3-pyh5ded981_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-feedstock-ops-0.20.4-pyh5ded981_0.conda
   hash:
-    md5: d3c3658459a80bb477545e08dd114372
-    sha256: 98faff2a780ea5aa7df2db7c1853d828493e1031f5e8a638f4083fd52972d23a
+    md5: d41d822e3a531f8e5d4588bdf6847e59
+    sha256: 45b4cdd5c603f5d648fed0c0bd3dc4219aa1471dffb44dadb5e7ac4043306f32
   category: main
   optional: false
 - name: conda-forge-metadata
