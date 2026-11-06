@@ -8,6 +8,8 @@ import conda_forge_webservices
 import github
 from flaky import flaky
 
+import pytest
+
 from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.commands import set_rerender_pr_status
 from conftest import _merge_main_to_branch
@@ -15,7 +17,7 @@ from conftest import _merge_main_to_branch
 WAIT_TIME = 600  # seconds
 
 
-def _rerender_is_ok(verbose=False):
+def _rerender_is_ok(target_pr_branch, verbose=False):
     with tempfile.TemporaryDirectory() as tmpdir:
         with pushd(tmpdir):
             if verbose:
@@ -33,7 +35,7 @@ def _rerender_is_ok(verbose=False):
                 if verbose:
                     print("checkout branch...", flush=True)
                 subprocess.run(
-                    ["git", "checkout", "rerender-live-test"],
+                    ["git", "checkout", target_pr_branch],
                     check=True,
                 )
 
@@ -64,8 +66,7 @@ def _rerender_is_ok(verbose=False):
     return True
 
 
-def _run_test(branch):
-    pr_number = 445
+def _run_test(branch, target_pr_branch, pr_number):
     print("sending workflow dispatch event to rerender...", flush=True)
     gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
     repo = gh.get_repo("conda-forge/conda-forge-webservices")
@@ -109,13 +110,56 @@ def _run_test(branch):
                 break
 
     print("checking repo for the rerender...", flush=True)
-    assert _rerender_is_ok(verbose=True)
+    assert _rerender_is_ok(target_pr_branch, verbose=True)
     print("tests passed!")
 
 
+def _convert_to_schema(schema_version):
+    if schema_version == 0:
+        recipe_file = os.path.join(os.path.dirname(__file__), "meta.yaml")
+        cf_yaml = os.path.join(os.path.dirname(__file__), "conda-forge.yml")
+    else:
+        recipe_file = os.path.join(os.path.dirname(__file__), "recipe.yaml")
+        cf_yaml = os.path.join(os.path.dirname(__file__), "conda-forge-for-recipe.yml")
+
+    # copy in proper recipe
+    subprocess.run(
+        ["git", "rm", "-f", "recipe/meta.yaml"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "rm", "-f", "recipe/recipe.yaml"],
+        check=True,
+    )
+    subprocess.run(
+        ["cp", recipe_file, f"recipe/{os.path.basename(recipe_file)}"],
+        check=True,
+    )
+    subprocess.run(
+        ["cp", cf_yaml, "conda-forge.yml"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "add", "-f", "conda-forge.yml"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "add", "-f", f"recipe/{os.path.basename(recipe_file)}"],
+        check=True,
+    )
+
+
 @flaky
-def test_live_rerender(pytestconfig, skip_if_no_tokens):
+@pytest.mark.parametrize("schema_version", [0, 1])
+def test_live_rerender(pytestconfig, skip_if_no_tokens, schema_version):
     branch = pytestconfig.getoption("branch")
+
+    if schema_version == 0:
+        target_pr_branch = "rerender-live-test"
+        pr_number = 445
+    else:
+        target_pr_branch = "rerender-live-test-recipe-yaml"
+        pr_number = 2323
 
     print("\nmaking an edit to the head ref...", flush=True)
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -134,7 +178,7 @@ def test_live_rerender(pytestconfig, skip_if_no_tokens):
                 try:
                     print("checkout branch...", flush=True)
                     subprocess.run(
-                        ["git", "checkout", "rerender-live-test"],
+                        ["git", "checkout", target_pr_branch],
                         check=True,
                     )
 
@@ -150,6 +194,9 @@ def test_live_rerender(pytestconfig, skip_if_no_tokens):
                             ["git", "add", "-f", ".github/workflows/automerge.yml"],
                             check=True,
                         )
+
+                        # copy in proper recipe
+                        _convert_to_schema(schema_version)
 
                         print("git status...", flush=True)
                         subprocess.run(["git", "status"], check=True)
@@ -168,12 +215,12 @@ def test_live_rerender(pytestconfig, skip_if_no_tokens):
                         print("push to origin...", flush=True)
                         subprocess.run(["git", "push"], check=True)
 
-                    _run_test(branch)
+                    _run_test(branch, target_pr_branch, pr_number)
 
                 finally:
                     print("checkout branch...", flush=True)
                     subprocess.run(
-                        ["git", "checkout", "rerender-live-test"],
+                        ["git", "checkout", target_pr_branch],
                         check=True,
                     )
                     subprocess.run(
@@ -187,6 +234,9 @@ def test_live_rerender(pytestconfig, skip_if_no_tokens):
                             ["git", "rm", "-f", ".github/workflows/automerge.yml"],
                             check=True,
                         )
+
+                        # convert back to v0
+                        _convert_to_schema(0)
 
                         print("committing...", flush=True)
                         subprocess.run(
@@ -203,4 +253,4 @@ def test_live_rerender(pytestconfig, skip_if_no_tokens):
                         print("push to origin...", flush=True)
                         subprocess.run(["git", "push"], check=True)
 
-                    _merge_main_to_branch("rerender-live-test", verbose=True)
+                    _merge_main_to_branch(target_pr_branch, verbose=True)
