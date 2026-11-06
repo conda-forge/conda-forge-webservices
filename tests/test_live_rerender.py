@@ -106,7 +106,7 @@ def _run_test(branch, target_pr_branch, pr_number):
         tot += 10
         print(f"    slept {tot} seconds out of {WAIT_TIME}", flush=True)
         if tot % 30 == 0 and tot > 0:
-            if _rerender_is_ok():
+            if _rerender_is_ok(target_pr_branch):
                 break
 
     print("checking repo for the rerender...", flush=True)
