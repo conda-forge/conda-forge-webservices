@@ -124,11 +124,11 @@ def _convert_to_schema(schema_version):
 
     # copy in proper recipe
     subprocess.run(
-        ["git", "rm", "-f", "recipe/meta.yaml"],
+        ["git", "rm", "--ignore-unmatch", "-f", "recipe/meta.yaml"],
         check=True,
     )
     subprocess.run(
-        ["git", "rm", "-f", "recipe/recipe.yaml"],
+        ["git", "rm", "--ignore-unmatch", "-f", "recipe/recipe.yaml"],
         check=True,
     )
     subprocess.run(
