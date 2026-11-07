@@ -222,10 +222,26 @@ def test_live_rerender(pytestconfig, skip_if_no_tokens, schema_version):
                         ["git", "checkout", target_pr_branch],
                         check=True,
                     )
+
+                    print("reset to main...", flush=True)
                     subprocess.run(
                         ["git", "reset", "--hard", "main"],
                         check=True,
                     )
+
+                    print("committing...", flush=True)
+                    subprocess.run(
+                        [
+                            "git",
+                            "commit",
+                            "--allow-empty",
+                            "-m",
+                            "[ci skip] reset branch",
+                        ],
+                        check=True,
+                    )
+
+                    print("push to origin...", flush=True)
                     subprocess.run(
                         ["git", "push", "--force", "origin", target_pr_branch],
                         check=True,
