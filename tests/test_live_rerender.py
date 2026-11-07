@@ -149,7 +149,7 @@ def _convert_to_schema(schema_version):
 
 
 @flaky
-@pytest.mark.parametrize("schema_version", [0, 1])
+@pytest.mark.parametrize("schema_version", [1, 0])
 def test_live_rerender(pytestconfig, skip_if_no_tokens, schema_version):
     branch = pytestconfig.getoption("branch")
 
