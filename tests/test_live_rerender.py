@@ -88,7 +88,7 @@ def _run_test(branch, target_pr_branch, pr_number):
     )
     assert running, f"Workflow dispatch failed for rerendering on PR {pr_number}!"
     target_url = running.html_url
-    print(f"target_url for PR {pr_number}: {target_url}", flush=True)
+    print(f"target_url for PR {pr_number} at sha {pr_sha}: {target_url}", flush=True)
 
     set_rerender_pr_status(
         gh.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock"),
