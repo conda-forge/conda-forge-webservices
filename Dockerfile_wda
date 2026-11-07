@@ -32,7 +32,7 @@ ENV LANG=en_US.UTF-8 \
     CF_FEEDSTOCK_OPS_DIR=/opt/cf-feedstock-ops \
     CF_FEEDSTOCK_OPS_ENV=cf-feedstock-ops
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash tzdata
 
 COPY --from=build-env /opt/conda /opt/conda
 COPY --from=build-env /usr/bin/micromamba /usr/bin/micromamba

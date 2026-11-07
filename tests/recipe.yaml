@@ -2,6 +2,7 @@ schema_version: 1
 
 context:
   version: "0.14"
+  timestamp: "${{ now() | datetimeformat(format='%Y%m%d.%H.%M.%S', tz='Etc/UTC') }}"
 
 package:
   name: cf-autotick-bot-test-package
@@ -27,6 +28,7 @@ requirements:
 tests:
   - script:
       - echo "works!"
+      - echo '${{ timestamp }}'
 
 about:
   license: BSD-3-Clause
