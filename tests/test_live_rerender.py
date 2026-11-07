@@ -12,7 +12,6 @@ import pytest
 
 from conda_forge_webservices.utils import pushd
 from conda_forge_webservices.commands import set_rerender_pr_status
-from conftest import _merge_main_to_branch
 
 WAIT_TIME = 600  # seconds
 
@@ -224,33 +223,10 @@ def test_live_rerender(pytestconfig, skip_if_no_tokens, schema_version):
                         check=True,
                     )
                     subprocess.run(
-                        ["git", "pull"],
+                        ["git", "reset", "--hard", "main"],
                         check=True,
                     )
-
-                    if os.path.exists(".github/workflows/automerge.yml"):
-                        print("removing old workflow file...", flush=True)
-                        subprocess.run(
-                            ["git", "rm", "-f", ".github/workflows/automerge.yml"],
-                            check=True,
-                        )
-
-                        # convert back to v0
-                        _convert_to_schema(0)
-
-                        print("committing...", flush=True)
-                        subprocess.run(
-                            [
-                                "git",
-                                "commit",
-                                "--allow-empty",
-                                "-m",
-                                "[ci skip] remove workflow changes if any",
-                            ],
-                            check=True,
-                        )
-
-                        print("push to origin...", flush=True)
-                        subprocess.run(["git", "push"], check=True)
-
-                    _merge_main_to_branch(target_pr_branch, verbose=True)
+                    subprocess.run(
+                        ["git", "push", "--force", "origin", target_pr_branch],
+                        check=True,
+                    )
