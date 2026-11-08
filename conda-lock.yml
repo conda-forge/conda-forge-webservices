@@ -528,15 +528,15 @@ package:
   category: main
   optional: false
 - name: cachetools
-  version: 7.3.0
+  version: 8.0.0
   manager: conda
   platform: linux-64
   dependencies:
     python: '>=3.11'
-  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-7.3.0-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/cachetools-8.0.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 3bcfa89219c46a5b7c047eca5ece20bf
-    sha256: bca3b83480983877e94e771141a77974721fa298f343bd79de04af96bdc98b82
+    md5: b629bd95e5995a70212e499122347d06
+    sha256: fdf5e5758262ba96c6256ddbcc309b7ed4740d5ebebab453490e647dc8ae348c
   category: main
   optional: false
 - name: cairo
@@ -820,18 +820,18 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.11.05.10.09.12
+  version: 2026.11.07.21.50.48
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.11.05.10.09.12-hd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.11.07.21.50.48-hd8ed1ab_1.conda
   hash:
-    md5: c8f59fc167c20329d0b259409276980b
-    sha256: e54d41f9d53739873fb2d7a9359066c9a5e1e63e6dfd148698b9e99b2f116e06
+    md5: 941d792b355d06bd1bca1e8790426cd7
+    sha256: d26ce51c093f8ab820943189d8d7accac85e036a9e888188fd0455c3470d002b
   category: main
   optional: false
 - name: conda-forge-tick
-  version: 2026.11.24
+  version: 2026.11.43
   manager: conda
   platform: linux-64
   dependencies:
@@ -889,10 +889,10 @@ package:
     tqdm: ''
     wget: ''
     wurlitzer: ''
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.11.24-pyhc364b38_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-tick-2026.11.43-pyhc364b38_0.conda
   hash:
-    md5: 5c58014c2ce39cc0fb9e706badb8f065
-    sha256: 614d4fdb4ac4f34439eae3143ea8a519c03e5a6a0cc461d78b05ad4e66d41805
+    md5: 80dc84b0d0b4c3ec7e07bd8b409a801f
+    sha256: cd4b07468bc92009e550002e447d93adcf113de8a37261bae2480f9c9c31190f
   category: main
   optional: false
 - name: conda-index
@@ -2492,16 +2492,16 @@ package:
   category: main
   optional: false
 - name: libdeflate
-  version: '1.25'
+  version: '1.26'
   manager: conda
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=14'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.25-hd45a770_1.conda
+    libgcc: '>=15'
+  url: https://conda.anaconda.org/conda-forge/linux-64/libdeflate-1.26-h351257e_0.conda
   hash:
-    md5: 40f9b31aa9cf007789867df0decd0492
-    sha256: 82e134c8a08b1eed9a2ed8ab578b89aa1730dcde3dea8dd87645ed0637878e54
+    md5: d0c17fc12939a990f0865b7a14b49cfe
+    sha256: f437f68abb1fa1dededd082a0c2800bec40495e01cf9ec46f4e693e34d60b644
   category: main
   optional: false
 - name: libdrm
@@ -3362,19 +3362,19 @@ package:
   platform: linux-64
   dependencies:
     __glibc: '>=2.17,<3.0.a0'
-    lerc: '>=4.2.0,<5.0a0'
-    libdeflate: '>=1.25,<1.26.0a0'
+    lerc: '>=4.3.0,<5.0a0'
+    libdeflate: '>=1.26,<1.27.0a0'
     libgcc: '>=15'
-    libjpeg-turbo: '>=3.2.0,<4.0a0'
+    libjpeg-turbo: '>=3.2.1,<4.0a0'
     liblzma: '>=5.8.3,<6.0a0'
     libstdcxx: '>=15'
     libwebp-base: '>=1.6.0,<2.0a0'
     libzlib: '>=1.3.2,<2.0a0'
     zstd: '>=1.5.7,<1.6.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.7.2-hcc2c06a_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.7.2-h6d37cbf_2.conda
   hash:
-    md5: 0907d876f460ebc941ae590338b6102f
-    sha256: 10e125da82ca93e09191e66e5a94d566b2cf8d4024e2a0db3a9114297447e0d9
+    md5: 18023fe8fbec4f031ca88444572590e4
+    sha256: 3406eed96ee929309ecd3937308d5a81302f4ca2eddd30e832071cbe9121a6c7
   category: main
   optional: false
 - name: libunistring
@@ -4917,7 +4917,7 @@ package:
   category: main
   optional: false
 - name: regex
-  version: 2026.9.29
+  version: 2026.11.7
   manager: conda
   platform: linux-64
   dependencies:
@@ -4925,10 +4925,10 @@ package:
     libgcc: '>=15'
     python: '>=3.12,<3.13.0a0'
     python_abi: 3.12.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/regex-2026.9.29-py312h5cc1888_0.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/regex-2026.11.7-py312h5cc1888_0.conda
   hash:
-    md5: 1d56961a5fd459581aec61f7d3c8f137
-    sha256: a333c7936e02d5a6f605eb530385240f262e3df2459635d889f18816bb24088c
+    md5: 957a426dfa7674a8033046354c9c023d
+    sha256: c56d73c396bd403c6ec7eadc816dc4756604e41638b1a8dc84ed98993debbc8f
   category: main
   optional: false
 - name: reproc
