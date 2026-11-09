@@ -17,6 +17,7 @@ ALL_TEAMS = [
     "@conda-forge/help-perl",
     "@conda-forge/help-python",
     "@conda-forge/help-python-c",
+    "@conda-forge/help-python-rust",
     "@conda-forge/help-r",
     "@conda-forge/help-ruby",
     "@conda-forge/help-rust",
