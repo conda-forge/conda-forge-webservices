@@ -3,10 +3,10 @@ Mirror packages copied to conda-forge into a channel on prefix.dev.
 
 After a package has been validated and copied from `cf-staging` to `conda-forge`,
 we ask prefix.dev to copy the same file into a (shadow) channel. prefix.dev
-downloads the file from `cf-staging`, which serves it immediately, unlike the
-`conda-forge` channel on anaconda.org, which is behind a CDN that can lag for
-hours. The SHA-256 that we already validated is sent along, and prefix.dev
-refuses any file that does not match it.
+downloads the file from `conda-web.anaconda.org`, which is not behind a CDN and
+serves new packages immediately (`conda.anaconda.org` can lag for hours). The
+SHA-256 that we already validated is sent along, and prefix.dev refuses any
+file that does not match it.
 
 The feature is enabled by setting `PREFIX_DEV_TOKEN` and `PREFIX_DEV_CHANNEL`.
 It must never get in the way of the copy to conda-forge:
@@ -28,7 +28,7 @@ import requests
 LOGGER = logging.getLogger("conda_forge_webservices.prefix_dev")
 
 DEFAULT_PREFIX_DEV_URL = "https://prefix.dev"
-STAGING_DOWNLOAD_URL = "https://conda.anaconda.org/cf-staging"
+DOWNLOAD_URL = "https://conda-web.anaconda.org/conda-forge"
 
 # prefix.dev rejects larger requests
 MAX_PACKAGES_PER_REQUEST = 500
@@ -81,14 +81,14 @@ def is_prefix_dev_copy_enabled(label, hash_type):
         return False
 
 
-def _staging_url(dist):
-    # `dist` is `<subdir>/<filename>`. Package files on cf-staging are served
-    # directly without a redirect, which prefix.dev requires.
-    return f"{STAGING_DOWNLOAD_URL}/{dist}"
+def _download_url(dist):
+    # `dist` is `<subdir>/<filename>`. conda-web.anaconda.org serves package
+    # files directly without a redirect, which prefix.dev requires.
+    return f"{DOWNLOAD_URL}/{dist}"
 
 
 def request_prefix_dev_copy(outputs):
-    """Ask prefix.dev to copy the given packages from cf-staging.
+    """Ask prefix.dev to copy the given packages from conda-forge.
 
     Parameters
     ----------
@@ -115,7 +115,7 @@ def request_prefix_dev_copy(outputs):
     for start in range(0, len(items), MAX_PACKAGES_PER_REQUEST):
         batch = items[start : start + MAX_PACKAGES_PER_REQUEST]
         packages = [
-            {"url": _staging_url(dist), "sha256": sha256} for dist, sha256 in batch
+            {"url": _download_url(dist), "sha256": sha256} for dist, sha256 in batch
         ]
         try:
             resp = requests.post(

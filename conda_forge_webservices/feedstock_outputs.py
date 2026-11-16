@@ -25,7 +25,6 @@ from conda_forge_metadata.feedstock_outputs import (
 )
 from conda_forge_metadata.feedstock_outputs import sharded_path as _get_sharded_path
 
-from .prefix_dev import is_prefix_dev_copy_enabled
 from .utils import parse_conda_pkg, _test_and_raise_besides_file_not_exists
 from conda_forge_webservices.tokens import (
     get_app_token_for_webservices_only,
@@ -677,10 +676,8 @@ def stage_dist_to_post_staging_and_possibly_copy_to_prod(
         # always remove the dist from pre-staging
         _remove_dist(ac_post_staging, POST_STAGING, dist, force=True)
 
-        # if we copied the dist to prod, remove it from staging. When the dist
-        # is also copied to prefix.dev, it is downloaded from staging, so we
-        # leave it there. The hourly clean-up job removes it after 2 hours.
-        if copied and not is_prefix_dev_copy_enabled(dest_label, hash_type):
+        # if we copied the dist to prod, remove it from staging
+        if copied:
             _remove_dist(ac_staging, STAGING, dist, force=True)
 
     return pre_copied and copied, errors

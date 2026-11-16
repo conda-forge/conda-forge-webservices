@@ -3,11 +3,6 @@ from unittest import mock
 
 import pytest
 
-from conda_forge_webservices.feedstock_outputs import (
-    POST_STAGING,
-    STAGING,
-    stage_dist_to_post_staging_and_possibly_copy_to_prod,
-)
 from conda_forge_webservices import prefix_dev
 from conda_forge_webservices.prefix_dev import (
     COPY_MUTATION,
@@ -86,7 +81,7 @@ def test_request_copy(prefix_env):
             "channelName": "conda-forge-shadow",
             "packages": [
                 {
-                    "url": f"https://conda.anaconda.org/cf-staging/{DIST}",
+                    "url": f"https://conda-web.anaconda.org/conda-forge/{DIST}",
                     "sha256": SHA,
                 }
             ],
@@ -146,47 +141,6 @@ def test_request_copy_network_error_is_not_raised(prefix_env):
         job_ids, errors = request_prefix_dev_copy({DIST: SHA})
     assert job_ids == []
     assert "boom" in errors[0]
-
-
-@pytest.mark.parametrize("prefix_enabled", [True, False])
-@mock.patch("conda_forge_webservices.feedstock_outputs._remove_dist")
-@mock.patch("conda_forge_webservices.feedstock_outputs._is_valid_output_hash")
-@mock.patch(
-    "conda_forge_webservices.feedstock_outputs._copy_feedstock_outputs_between_channels"
-)
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_prod")
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_post_staging")
-@mock.patch("conda_forge_webservices.feedstock_outputs._get_ac_api_staging")
-def test_staging_kept_when_prefix_dev_enabled(
-    ac_staging,
-    ac_post_staging,
-    ac_prod,
-    copy_between,
-    valid_hash,
-    remove_dist,
-    prefix_enabled,
-    monkeypatch,
-):
-    if prefix_enabled:
-        monkeypatch.setenv("PREFIX_DEV_TOKEN", "pfx_token")
-        monkeypatch.setenv("PREFIX_DEV_CHANNEL", "conda-forge-shadow")
-    else:
-        monkeypatch.delenv("PREFIX_DEV_TOKEN", raising=False)
-
-    copy_between.return_value = {DIST: True}
-    valid_hash.return_value = {DIST: True}
-
-    copied, errors = stage_dist_to_post_staging_and_possibly_copy_to_prod(
-        DIST, "main", "sha256", SHA
-    )
-
-    assert copied
-    assert errors == []
-    removed_from = [c.args[1] for c in remove_dist.call_args_list]
-    # post-staging is always cleaned up
-    assert POST_STAGING in removed_from
-    # staging is kept for prefix.dev to download from
-    assert (STAGING in removed_from) is (not prefix_enabled)
 
 
 def test_enabled_check_never_raises(prefix_env):
