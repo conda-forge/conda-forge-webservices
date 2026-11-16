@@ -52,6 +52,10 @@ from conda_forge_webservices.feedstock_outputs import (
     stage_dist_to_post_staging_and_possibly_copy_to_prod,
     STAGING_LABEL,
 )
+from conda_forge_webservices.prefix_dev import (
+    is_prefix_dev_copy_enabled,
+    request_prefix_dev_copy,
+)
 from conda_forge_webservices.utils import (
     ALLOWED_CMD_NON_FEEDSTOCKS,
     log_title_and_message_at_level,
@@ -932,6 +936,15 @@ def _do_copy(
             copied[o] = False
         if o not in valid:
             valid[o] = False
+
+    # Also copy the packages to prefix.dev. This runs outside COPYLOCK, returns
+    # as soon as the job is scheduled, and never affects the result of the copy
+    # to conda-forge.
+    if is_prefix_dev_copy_enabled(dest_label, hash_type):
+        try:
+            request_prefix_dev_copy({o: outputs[o] for o in outputs if copied[o]})
+        except Exception as e:
+            LOGGER.warning("prefix.dev copy failed unexpectedly", exc_info=e)
 
     # copied, errors = _comment_on_core_notes_if_bad_copy(
     #     copied, errors, outputs, dest_label, hash_type
