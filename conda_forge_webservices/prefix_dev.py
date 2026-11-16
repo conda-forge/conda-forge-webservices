@@ -9,11 +9,19 @@ hours. The SHA-256 that we already validated is sent along, and prefix.dev
 refuses any file that does not match it.
 
 The feature is enabled by setting `PREFIX_DEV_TOKEN` and `PREFIX_DEV_CHANNEL`.
-Failures here are logged but never fail the copy to conda-forge.
+It must never get in the way of the copy to conda-forge:
+
+- Requests run on a dedicated background thread, so the copy job does not wait
+  for prefix.dev.
+- The number of pending requests is capped. When prefix.dev is slow or down,
+  new requests are dropped and logged instead of piling up.
+- Every request has a short timeout, and every error is logged, never raised.
 """
 
 import logging
 import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
@@ -24,6 +32,16 @@ STAGING_DOWNLOAD_URL = "https://conda.anaconda.org/cf-staging"
 
 # prefix.dev rejects larger requests
 MAX_PACKAGES_PER_REQUEST = 500
+
+# (connect, read) timeouts in seconds for each request to prefix.dev
+REQUEST_TIMEOUT = (5, 20)
+
+# maximum number of copy requests waiting for or running on the background thread
+MAX_PENDING_REQUESTS = 100
+
+_EXECUTOR = None
+_PENDING = 0
+_LOCK = threading.Lock()
 
 COPY_MUTATION = """
 mutation CopyPackagesFromUrls(
@@ -50,10 +68,17 @@ def is_prefix_dev_copy_enabled(label, hash_type):
 
     Only the `main` label is mirrored, since prefix.dev channels have no labels.
     prefix.dev pins packages by SHA-256, so other hash types are skipped.
+    Never raises: on any error, the copy is treated as disabled.
     """
-    return (
-        prefix_dev_channel() is not None and label == "main" and hash_type == "sha256"
-    )
+    try:
+        return (
+            prefix_dev_channel() is not None
+            and label == "main"
+            and hash_type == "sha256"
+        )
+    except Exception as e:
+        LOGGER.warning("could not check whether prefix.dev copy is enabled", exc_info=e)
+        return False
 
 
 def _staging_url(dist):
@@ -82,7 +107,7 @@ def request_prefix_dev_copy(outputs):
         return [], []
 
     base_url = os.environ.get("PREFIX_DEV_URL", DEFAULT_PREFIX_DEV_URL).rstrip("/")
-    headers = {"Authorization": f"Bearer {os.environ['PREFIX_DEV_TOKEN']}"}
+    headers = {"Authorization": f"Bearer {os.environ.get('PREFIX_DEV_TOKEN', '')}"}
 
     items = sorted(outputs.items())
     job_ids = []
@@ -100,7 +125,7 @@ def request_prefix_dev_copy(outputs):
                     "variables": {"channelName": channel, "packages": packages},
                 },
                 headers=headers,
-                timeout=30,
+                timeout=REQUEST_TIMEOUT,
             )
             resp.raise_for_status()
             data = resp.json()
@@ -120,3 +145,62 @@ def request_prefix_dev_copy(outputs):
         LOGGER.info("    prefix.dev copy job scheduled: %s", job_id)
 
     return job_ids, errors
+
+
+def _executor():
+    global _EXECUTOR
+    if _EXECUTOR is None:
+        # one thread is enough: each request only schedules a job on prefix.dev
+        _EXECUTOR = ThreadPoolExecutor(
+            max_workers=1, thread_name_prefix="prefix-dev-copy"
+        )
+    return _EXECUTOR
+
+
+def _run_copy_request(outputs):
+    global _PENDING
+    try:
+        request_prefix_dev_copy(outputs)
+    except Exception as e:
+        LOGGER.warning("prefix.dev copy request failed unexpectedly", exc_info=e)
+    finally:
+        with _LOCK:
+            _PENDING -= 1
+
+
+def schedule_prefix_dev_copy(outputs):
+    """Copy packages to prefix.dev in the background.
+
+    Returns immediately and never raises. Returns True if the request was
+    queued, and False if it was skipped (feature disabled, nothing to copy,
+    too many pending requests, or an unexpected error).
+
+    Parameters
+    ----------
+    outputs : dict
+        Maps each dist (`<subdir>/<filename>`) to its SHA-256 hex digest.
+    """
+    global _PENDING
+    try:
+        if not outputs or prefix_dev_channel() is None:
+            return False
+
+        with _LOCK:
+            if _PENDING >= MAX_PENDING_REQUESTS:
+                LOGGER.warning(
+                    "    too many pending prefix.dev copy requests, skipping %s",
+                    ", ".join(sorted(outputs)),
+                )
+                return False
+            _PENDING += 1
+
+        try:
+            _executor().submit(_run_copy_request, dict(outputs))
+        except Exception:
+            with _LOCK:
+                _PENDING -= 1
+            raise
+        return True
+    except Exception as e:
+        LOGGER.warning("could not schedule prefix.dev copy", exc_info=e)
+        return False

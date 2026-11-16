@@ -1,3 +1,4 @@
+import threading
 from unittest import mock
 
 import pytest
@@ -7,10 +8,12 @@ from conda_forge_webservices.feedstock_outputs import (
     STAGING,
     stage_dist_to_post_staging_and_possibly_copy_to_prod,
 )
+from conda_forge_webservices import prefix_dev
 from conda_forge_webservices.prefix_dev import (
     COPY_MUTATION,
     is_prefix_dev_copy_enabled,
     request_prefix_dev_copy,
+    schedule_prefix_dev_copy,
 )
 
 DIST = "noarch/boo-0.1-py_10.conda"
@@ -184,3 +187,73 @@ def test_staging_kept_when_prefix_dev_enabled(
     assert POST_STAGING in removed_from
     # staging is kept for prefix.dev to download from
     assert (STAGING in removed_from) is (not prefix_enabled)
+
+
+def test_enabled_check_never_raises(prefix_env):
+    with mock.patch(
+        "conda_forge_webservices.prefix_dev.prefix_dev_channel",
+        side_effect=RuntimeError("boom"),
+    ):
+        assert is_prefix_dev_copy_enabled("main", "sha256") is False
+
+
+def test_schedule_disabled(no_prefix_env):
+    with mock.patch(
+        "conda_forge_webservices.prefix_dev.request_prefix_dev_copy"
+    ) as request:
+        assert schedule_prefix_dev_copy({DIST: SHA}) is False
+        assert schedule_prefix_dev_copy({}) is False
+    request.assert_not_called()
+
+
+def test_schedule_does_not_wait_for_prefix_dev(prefix_env):
+    started = threading.Event()
+    release = threading.Event()
+
+    def slow_request(outputs):
+        started.set()
+        release.wait(10)
+        return ["job-1"], []
+
+    with mock.patch(
+        "conda_forge_webservices.prefix_dev.request_prefix_dev_copy",
+        side_effect=slow_request,
+    ) as request:
+        assert schedule_prefix_dev_copy({DIST: SHA}) is True
+        # the request is still running in the background
+        assert started.wait(10)
+        assert not release.is_set()
+        release.set()
+        prefix_dev._executor().submit(lambda: None).result(10)
+
+    request.assert_called_once_with({DIST: SHA})
+    assert prefix_dev._PENDING == 0
+
+
+def test_schedule_errors_are_not_raised(prefix_env):
+    with mock.patch(
+        "conda_forge_webservices.prefix_dev.request_prefix_dev_copy",
+        side_effect=RuntimeError("boom"),
+    ):
+        assert schedule_prefix_dev_copy({DIST: SHA}) is True
+        prefix_dev._executor().submit(lambda: None).result(10)
+    assert prefix_dev._PENDING == 0
+
+
+def test_schedule_drops_requests_when_too_many_are_pending(prefix_env, monkeypatch):
+    monkeypatch.setattr(prefix_dev, "_PENDING", prefix_dev.MAX_PENDING_REQUESTS)
+    with mock.patch(
+        "conda_forge_webservices.prefix_dev.request_prefix_dev_copy"
+    ) as request:
+        assert schedule_prefix_dev_copy({DIST: SHA}) is False
+    request.assert_not_called()
+
+
+def test_schedule_submit_failure_is_not_raised(prefix_env):
+    executor = mock.MagicMock()
+    executor.submit.side_effect = RuntimeError("cannot schedule new futures")
+    with mock.patch(
+        "conda_forge_webservices.prefix_dev._executor", return_value=executor
+    ):
+        assert schedule_prefix_dev_copy({DIST: SHA}) is False
+    assert prefix_dev._PENDING == 0
