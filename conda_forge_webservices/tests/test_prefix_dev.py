@@ -211,3 +211,15 @@ def test_schedule_submit_failure_is_not_raised(prefix_env):
     ):
         assert schedule_prefix_dev_copy({DIST: SHA}) is False
     assert prefix_dev._PENDING == 0
+
+
+def test_shutdown_executor_does_not_wait(monkeypatch):
+    executor = mock.MagicMock()
+    monkeypatch.setattr(prefix_dev, "_EXECUTOR", executor)
+    prefix_dev._shutdown_executor()
+    executor.shutdown.assert_called_once_with(wait=False)
+
+
+def test_shutdown_executor_without_executor(monkeypatch):
+    monkeypatch.setattr(prefix_dev, "_EXECUTOR", None)
+    prefix_dev._shutdown_executor()

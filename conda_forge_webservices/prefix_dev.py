@@ -18,6 +18,7 @@ It must never get in the way of the copy to conda-forge:
 - Every request has a short timeout, and every error is logged, never raised.
 """
 
+import atexit
 import logging
 import os
 import threading
@@ -155,6 +156,15 @@ def _executor():
             max_workers=1, thread_name_prefix="prefix-dev-copy"
         )
     return _EXECUTOR
+
+
+def _shutdown_executor():
+    global _EXECUTOR
+    if _EXECUTOR is not None:
+        _EXECUTOR.shutdown(wait=False)
+
+
+atexit.register(_shutdown_executor)
 
 
 def _run_copy_request(outputs):
