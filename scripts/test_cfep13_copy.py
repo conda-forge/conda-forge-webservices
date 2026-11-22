@@ -9,8 +9,8 @@ To run these tests
 
 3. Make sure you have the STAGING_BINSTAR_TOKEN and PROD_BINSTAR_TOKEN environment
    variables defined. To also test the copy to prefix.dev, define PREFIX_DEV_TOKEN
-   (with read, write and delete access) and PREFIX_DEV_CHANNEL for the web server
-   and the tests.
+   (with read, write and delete access) and PREFIX_DEV_CHANNEL in the
+   environment.
 
 4. Run these tests via pytest -vvs test_cfep13_copy.py
 """
