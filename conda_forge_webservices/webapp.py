@@ -52,6 +52,7 @@ from conda_forge_webservices.feedstock_outputs import (
     stage_dist_to_post_staging_and_possibly_copy_to_prod,
     STAGING_LABEL,
 )
+from conda_forge_webservices.prefix_dev import copy_to_prefix_dev
 from conda_forge_webservices.utils import (
     ALLOWED_CMD_NON_FEEDSTOCKS,
     log_title_and_message_at_level,
@@ -932,6 +933,14 @@ def _do_copy(
             copied[o] = False
         if o not in valid:
             valid[o] = False
+
+    # Also copy the packages to prefix.dev, in the background so that it never
+    # affects the copy to conda-forge. prefix.dev channels have no labels and
+    # pin packages by SHA-256.
+    if dest_label == "main" and hash_type == "sha256":
+        _run_in_background(
+            copy_to_prefix_dev, {o: outputs[o] for o in outputs if copied[o]}
+        )
 
     # copied, errors = _comment_on_core_notes_if_bad_copy(
     #     copied, errors, outputs, dest_label, hash_type

@@ -8,7 +8,9 @@ To run these tests
 2. Make sure you have a github token in the GH_TOKEN environment variable.
 
 3. Make sure you have the STAGING_BINSTAR_TOKEN and PROD_BINSTAR_TOKEN environment
-   variables defined.
+   variables defined. To also test the copy to prefix.dev, define PREFIX_DEV_TOKEN
+   (with read, write and delete access) and PREFIX_DEV_CHANNEL for the web server
+   and the tests.
 
 4. Run these tests via pytest -vvs test_cfep13_copy.py
 """
@@ -249,6 +251,70 @@ def _dist_exists(ac, channel, dist):
         return False
 
 
+PREFIX_DEV_URL = "https://prefix.dev"
+
+
+def _prefix_dev_enabled():
+    return bool(
+        os.environ.get("PREFIX_DEV_TOKEN") and os.environ.get("PREFIX_DEV_CHANNEL")
+    )
+
+
+def _prefix_dev_headers():
+    return {"Authorization": f"Bearer {os.environ['PREFIX_DEV_TOKEN']}"}
+
+
+def _prefix_dev_sha256(dist):
+    """The SHA-256 of a dist on prefix.dev, or None if it is not there."""
+    r = requests.get(
+        f"{PREFIX_DEV_URL}/{os.environ['PREFIX_DEV_CHANNEL']}/{dist}",
+        headers=_prefix_dev_headers(),
+        timeout=60,
+    )
+    if r.status_code == 404:
+        return None
+    r.raise_for_status()
+    return hashlib.sha256(r.content).hexdigest()
+
+
+def _wait_for_prefix_dev(dist, timeout=300):
+    # prefix.dev copies the packages in a background job
+    start = time.time()
+    while True:
+        sha256 = _prefix_dev_sha256(dist)
+        if sha256 is not None or time.time() - start > timeout:
+            return sha256
+        time.sleep(10)
+
+
+def _remove_from_prefix_dev(dists):
+    r = requests.post(
+        f"{PREFIX_DEV_URL}/api/graphql",
+        headers=_prefix_dev_headers(),
+        json={
+            "query": """
+mutation Delete($channelName: String!, $entries: [PackageVariantInput!]!) {
+  batchDeletePackageVariants(channelName: $channelName, entries: $entries)
+}
+""",
+            "variables": {
+                "channelName": os.environ["PREFIX_DEV_CHANNEL"],
+                "entries": [
+                    {"subdir": subdir, "filename": filename}
+                    for subdir, filename in (dist.split("/") for dist in dists)
+                ],
+            },
+        },
+        timeout=60,
+    )
+    r.raise_for_status()
+    errors = r.json().get("errors")
+    if errors:
+        print(f"prefix.dev: could not remove dists: {errors}")
+    else:
+        print(f"prefix.dev: removed {', '.join(dists)}")
+
+
 def _print_step(title):
     step = f"""\
 \n=========================================================
@@ -382,6 +448,17 @@ def test_feedstock_outputs_copy_works(build_test_package, should_fail, hash_type
                 assert de
                 print(f"    conda-forge: dist {dist} exists", flush=True)
 
+        # the web server copies packages copied with SHA-256 on to prefix.dev
+        if hash_type == "sha256" and _prefix_dev_enabled():
+            _print_step("checking that dists exist on prefix.dev")
+            for dist, sha256 in outputs.items():
+                if should_fail:
+                    assert _prefix_dev_sha256(dist) is None
+                    print(f"    prefix.dev: dist {dist} does not exist", flush=True)
+                else:
+                    assert _wait_for_prefix_dev(dist) == sha256
+                    print(f"    prefix.dev: dist {dist} exists", flush=True)
+
         _print_step("checking the new outputs")
         output_fname = f"outputs/b/l/a/blah-{uid}.json"
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -405,6 +482,11 @@ def test_feedstock_outputs_copy_works(build_test_package, should_fail, hash_type
             if _dist_exists(ac_prod, "conda-forge", dist):
                 if _remove_dist(ac_prod, "conda-forge", dist):
                     print(f"cond-forge: removed {dist}")
+        if _prefix_dev_enabled():
+            try:
+                _remove_from_prefix_dev(list(outputs))
+            except Exception as e:
+                print(f"prefix.dev: could not remove dists: {e!r}")
 
         _clone_and_remove(OUTPUTS_REPO, f"outputs/b/l/a/blah-{uid}.json")
         print(" ", flush=True)
