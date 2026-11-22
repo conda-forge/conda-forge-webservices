@@ -277,7 +277,7 @@ jobs:
           STAGING_BINSTAR_TOKEN: ${{ secrets.HEROKU_ONLY_STAGING_BINSTAR_TOKEN }}
           POST_STAGING_BINSTAR_TOKEN: ${{ secrets.POST_STAGING_BINSTAR_TOKEN }}
           PREFIX_DEV_TOKEN: ${{ secrets.PREFIX_DEV_TOKEN }}
-          PREFIX_DEV_CHANNEL: conda-forge/conda-forge-shadow
+          PREFIX_DEV_CHANNEL: ${{ secrets.PREFIX_DEV_CHANNEL }}
           CF_WEBSERVICES_TOKEN: ${{ secrets.CF_WEBSERVICES_TOKEN }}
           CF_WEBSERVICES_APP_ID: ${{ secrets.CF_CURATOR_APP_ID }}
           CF_WEBSERVICES_PRIVATE_KEY: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
