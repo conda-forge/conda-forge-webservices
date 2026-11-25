@@ -338,7 +338,7 @@ def _upload_to_staging(ac_staging, outputs):
                         "upload",
                         pth,
                         "--user=cf-staging",
-                        "--channel=main",
+                        "--label=main",
                     ]
                 ),
                 check=True,

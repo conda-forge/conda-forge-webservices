@@ -925,7 +925,7 @@ def _do_copy(
                     valid[dist] = False
                     errors.append(
                         f"failed to stage {dist} to "
-                        f"cf-pre-staging and then copy to conda-forge"
+                        f"cf-post-staging and then copy to conda-forge"
                     )
 
     for o in outputs:
