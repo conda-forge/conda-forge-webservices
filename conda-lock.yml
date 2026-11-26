@@ -805,14 +805,14 @@ package:
   category: main
   optional: false
 - name: conda-forge-pinning
-  version: 2026.11.26.00.52.20
+  version: 2026.11.26.08.21.58
   manager: conda
   platform: linux-64
   dependencies: {}
-  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.11.26.00.52.20-hd8ed1ab_1.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/conda-forge-pinning-2026.11.26.08.21.58-hd8ed1ab_1.conda
   hash:
-    md5: 4c9e163efd2f6652da97528f705def26
-    sha256: 0a4222c239e8bbc8209be61ca409c2b82b0aaa7bac927521f1254e0e156273e6
+    md5: fc264f6fcf7d707b1f3c21cb932a1829
+    sha256: fac162583070122cab4247eb2d0e400570beacb1b62d6f1939cb513728a6ea9f
   category: main
   optional: false
 - name: conda-forge-tick
@@ -4125,7 +4125,7 @@ package:
   category: main
   optional: false
 - name: pixi
-  version: 0.84.2
+  version: 0.85.0
   manager: conda
   platform: linux-64
   dependencies:
@@ -4133,10 +4133,10 @@ package:
     libgcc: '>=15'
     libstdcxx: '>=15'
     openssl: '>=3.5.9,<4.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.84.2-hb5a6893_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/pixi-0.85.0-hb5a6893_0.conda
   hash:
-    md5: 66ab7e5e7738ec23ef52e5bc520b94c6
-    sha256: 918ed036f0902d3aed1081944f5f8d32c7ead100f8cb4fc68bc47557cd198c95
+    md5: ff070142492c0f343b78c0fba8a67b16
+    sha256: a5f2eac8de27f60bc69b00bb05c4abe77bec149a829d6b4641b9962674ed820d
   category: main
   optional: false
 - name: pixman
